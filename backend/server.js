@@ -4,7 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 8181; // Use Azure-provided port or default to 8181
+const PORT = process.env.PORT || 5400; // Use Azure-provided port or default to 8181
 
 app.use(express.json());
 
