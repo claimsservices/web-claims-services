@@ -1,7 +1,0 @@
-PORT=5400
-DB_HOST=admin-portal.mysql.database.azure.com
-DB_USER=claimsservicesadminpaneldev
-DB_PASS=X2RNcUFE7z6mC8J
-DB_NAME=admin_portal
-DB_PORT=3306
-JWT_SECRET=your_jwt_secret
