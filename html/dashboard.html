@@ -63,6 +63,49 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="../assets/js/config.js"></script>
+
+    <script>
+      // Check if the user has a valid token and the required role
+      const accessToken = localStorage.getItem('authToken'); // Check if token is available
+      const RETURN_LOGIN_PAGE = '../index.html';
+      console.log("aaa" + accessToken);
+
+        // If there's no token, redirect to login
+        if (!accessToken) {
+          window.location.href = RETURN_LOGIN_PAGE;
+        }
+
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+      td {
+        font-family: 'Kanit', sans-serif;
+        font-size: 12px;
+        /* กำหนดขนาดตัวอักษร */
+        text-align: left;
+        /* ชิดซ้าย */
+        vertical-align: top;
+        /* ชิดด้านบน */
+        padding: 8px;
+        /* เพิ่มระยะห่างในเซลล์ */
+        word-wrap: break-word;
+        /* ตัดคำเมื่อข้อความยาวเกิน */
+        white-space: normal;
+        /* อนุญาตให้ขึ้นบรรทัดใหม่ */
+      }
+      th {
+      background-color: #333;
+      color: rgba(255, 255, 255, 0.603);
+    }
+    
+      th:nth-child(6),
+      td:nth-child(6) {
+        width: 20%;
+        /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ */
+      }
+    </style>
+
   </head>
 
   <body>
@@ -88,8 +131,8 @@
           <ul class="menu-inner py-1">
             <!-- Dashboard -->
             <li class="menu-item active">
-              <a href="#" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+              <a href="dashboard.html" class="menu-link">
+                <i class="menu-icon icon-base bx bx-car"></i>
                 <div data-i18n="Analytics">Dashboard</div>
               </a>
             </li>
@@ -98,18 +141,18 @@
             <li class="menu-item">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base bx bx-user"></i>
-                <div data-i18n="Layouts">Users</div>
+                <div data-i18n="Layouts">User management</div>
               </a>
 
               <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="layouts-without-menu.html" class="menu-link">
-                    <div data-i18n="Without menu">List</div>
+                <li class="menu-item" id="admin-menu" style="display: none;">
+                  <a href="users.html" class="menu-link">
+                    <div data-i18n="Without menu">Administrator</div>
                   </a>
                 </li>
                 <li class="menu-item">
-                  <a href="layouts-without-navbar.html" class="menu-link">
-                    <div data-i18n="Without navbar">Roles&Permission</div>
+                  <a href="account.html" class="menu-link">
+                    <div data-i18n="Without navbar">Account Settings</div>
                   </a>
                 </li>
               </ul>
@@ -142,7 +185,7 @@
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
                   <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                      <img src="..\assets\img\elements\3P1.png" alt class="w-px-40 h-auto rounded-circle" />
+                      <img id="userAvatar" src="..\assets\img\avatars\A1.png" alt class="w-px-40 h-auto rounded-circle" />
                     </div>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end">
@@ -151,12 +194,12 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online">
-                              <img src="..\assets\img\elements\3P1.png" alt class="w-px-40 h-auto rounded-circle" />
+                              <img id="subUserAvatar" src="..\assets\img\avatars\A1.png" alt class="w-px-40 h-auto rounded-circle" />
                             </div>
                           </div>
                           <div class="flex-grow-1">
                             <span class="fw-semibold d-block" id="user-info"></span>
-                            <small class="text-muted">Admin</small>
+                            <small class="text-muted" id="user-role">-</small>
                           </div>
                         </div>
                       </a>
@@ -195,6 +238,220 @@
           <!-- / Navbar -->
 
           <!-- Content wrapper -->
+          <div class="container-xxl flex-grow-1 container-p-y">
+            <div class="row g-6 mb-6">
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                      <div class="content-left">
+                        <div class="d-flex align-items-center my-1">
+                          <h4 class="mb-0 me-2">800</h4>
+                          <p class="text-success mb-0"></p>
+                        </div>
+                        <small class="mb-0">งานทั้งหมด</small>
+                      </div>
+                      <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-primary">
+                          <i class='bx bx-task'></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                      <div class="content-left">
+                        <div class="d-flex align-items-center my-1">
+                          <h4 class="mb-0 me-2">200</h4>
+                        </div>
+                        <small class="mb-0">งานยังไม่ได้นัดหมาย</small>
+                      </div>
+                      <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-danger">
+                          <i class="icon-base bx bx-user-plus icon-lg"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                      <div class="content-left">
+                        <div class="d-flex align-items-center my-1">
+                          <h4 class="mb-0 me-2">100</h4>
+                        </div>
+                        <small class="mb-0">งานรอ Assign</small>
+                      </div>
+                      <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-success">
+                          <i class='bx bx-time'></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                      <div class="content-left">
+                        <div class="d-flex align-items-center my-1">
+                          <h4 class="mb-0 me-2">237</h4>
+                        </div>
+                        <small class="mb-0">งานแจ้งเตือน</small>
+                      </div>
+                      <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-warning">
+                          <i class='bx bxs-bell-ring'></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">งานทั้งหมด 800</h5>
+                <div class="d-flex justify-content-between align-items-center row pt-2 gap-md-0 g-6">
+                  <div class="col-md-2 user_role"><select id="UserRole" class="form-select text-capitalize">
+                      <option value="">บริษัทประกัน</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Author">Author</option>
+                      <option value="Editor">Editor</option>
+                      <option value="Maintainer">Maintainer</option>
+                      <option value="Subscriber">Subscriber</option>
+                    </select></div>
+                  <div class="col-md-2 user_plan"><select id="UserPlan" class="form-select text-capitalize">
+                      <option value="">สาขา</option>
+                      <option value="Basic">Basic</option>
+                      <option value="Company">Company</option>
+                      <option value="Enterprise">Enterprise</option>
+                      <option value="Team">Team</option>
+                    </select></div>
+                  <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                      <option value="">งานทั้งหมด</option>
+                      <option value="Pending" class="text-capitalize">Pending</option>
+                      <option value="Active" class="text-capitalize">Active</option>
+                      <option value="Inactive" class="text-capitalize">Inactive</option>
+                    </select></div>
+                    <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                      <option value="">ประเภทงาน</option>
+                      <option value="Pending" class="text-capitalize">Pending</option>
+                      <option value="Active" class="text-capitalize">Active</option>
+                      <option value="Inactive" class="text-capitalize">Inactive</option>
+                    </select></div>
+                    <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                      <option value="">สถานะงาน</option>
+                      <option value="Pending" class="text-capitalize">Pending</option>
+                      <option value="Active" class="text-capitalize">Active</option>
+                      <option value="Inactive" class="text-capitalize">Inactive</option>
+                    </select></div>
+                    <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                      <option value="">วันที่สร้างงาน</option>
+                      <option value="Pending" class="text-capitalize">Pending</option>
+                      <option value="Active" class="text-capitalize">Active</option>
+                      <option value="Inactive" class="text-capitalize">Inactive</option>
+                    </select></div>
+                </div>
+                
+              </div>
+
+              <div class="card-header border-bottom">
+                <div class="row align-items-center g-3">
+                  <div class="col-md-4 ms-auto d-flex justify-content-end">
+                    <button id="new-user-btn" class="btn rounded-pill btn-primary" tabindex="0"
+                      aria-controls="DataTables_Table_0" type="button" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasAddUser"><span><i class="icon-base bx bx-plus icon-sm me-0 me-sm-2"></i><span
+                          class="d-none d-sm-inline-block">เพิ่มรายการใหม่</span></span></button>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive text-nowrap">
+                <table class="table" id="userTable">
+                  <thead class="table-dark">
+                    <tr>
+                      <th style="color: white;">รหัสงาน</th>
+                      <th style="color: white;">บริษัทประกัน</th>
+                      <th style="color: white;">วันที่ทำรายการ</th>
+                      <th style="color: white;">วันที่นัดหมาย</th>
+                      <th style="color: white;">ทะเบียนรถ</th>
+                      <th style="color: white;">สถานที่</th>
+                      <th style="color: white;">ประเภทงาน</th>
+                      <th style="color: white;">สถานะงาน</th>
+                      <th style="color: white;">ผู้สร้างงาน</th>
+                      <th style="color: white;">ผู้รับผิดชอบ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="userTableBody" class="table-border-bottom-0">
+                    <!-- Sample Row -->          
+                  </tbody>
+                </table>
+                <div id="pagination-container">
+                  <ul class="pagination">
+                    <!-- Pagination buttons will be inserted here -->
+                  </ul>
+                </div>
+
+                <style>
+                  #pagination-container {
+                    text-align: right; /* Align pagination to the right */
+                    margin-top: 20px; /* Optional margin for spacing */
+                  }
+                
+                  .pagination {
+                    display: inline-flex; /* Display buttons in a row */
+                    list-style: none; /* Remove default list styling */
+                    padding: 0;
+                  }
+                
+                  .pagination .page-item {
+                    margin: 0; /* Remove margin between items */
+                  }
+
+                  .pagination .page-item:last-child {
+                    margin-right: 15px; /* Remove margin on the last button */
+                  }
+                
+                  .pagination .page-link {
+                    font-size: 12px; /* Small font size */
+                    padding: 6px 10px; /* Slight padding for better clickability */
+                    border-radius: 4px; /* Rounded corners */
+                    background-color: #f8f9fa; /* Light background color */
+                    border: 1px solid #ddd; /* Subtle border */
+                    color: #555; /* Neutral text color */
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                  }
+                
+                  .pagination .page-link:hover {
+                    background-color: #e9ecef; /* Subtle hover effect */
+                    border-color: #ccc; /* Lighter border on hover */
+                  }
+                
+                  .pagination .page-item.active .page-link {
+                    background-color: #007bff; /* Active button color */
+                    color: white; /* Active button text color */
+                    border-color: #007bff; /* Active border color */
+                  }
+                </style>
+                
+              </div>
+            </div>
+
+          </div>
+
+
           <!-- Content wrapper -->
         </div>
         <!-- / Layout page -->
@@ -227,40 +484,228 @@
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script>
-      // Check if the token is present in localStorage
-      const token = localStorage.getItem('authToken');
-    
-      // If there's no token, redirect to the login page
-      if (!token) {
-        window.location.href = '../index.html';  // Redirect to login page
+      // Constants for URLs and other fixed strings
+      const LOGIN_PAGE = '../index.html';
+      const API_URL = 'http://localhost:5400/api/auth/profile';
+
+      // Function to decode JWT token and check for expiration
+      function decodeJWT(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64));  // Decode the token
+        } catch (e) {
+          console.error('Failed to decode JWT:', e);
+          return null;
+        }
       }
 
-      // Decode the JWT token (assuming it's a JWT token)
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const decoded = JSON.parse(atob(base64));
+      // Function to check if the token is expired
+      function isTokenExpired(decodedToken) {
+        const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+        return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
+      }
 
-            // Extract user info (name and role)
-            const userName = decoded.id;
-            console.log(decoded);
-            console.log(userName);
+      // Main logic
+      async function loadUserProfile() {
+        const token = localStorage.getItem('authToken'); // Check if token is available
 
-            // Display user information in the HTML
-            document.getElementById('user-info').innerText = `${userName}`;
-        
-    
-      // If there's a token, proceed with loading the protected content
-      // Optionally, you can also verify the token with your server (e.g., by making an API call to verify the token).
+        // If there's no token, redirect to login
+        if (!token) {
+          window.location.href = LOGIN_PAGE;
+          return;
+        }
+
+        // Decode the JWT token (assuming it's a JWT token)
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = JSON.parse(atob(base64));
+
+        // Extract user info (name and role)
+        const id = decoded.id;
+        const userName = decoded.uniquename;
+        const email = decoded.email;
+        const role = decoded.role;
+        const myPicture = decoded.myPicture;
+
+        // Display user information in the HTML
+        document.getElementById('user-info').innerText = userName;
+        document.getElementById('user-role').innerText = role;
+
+        const imageUrl = myPicture;  // Extract the image URL from the response
+        const imgElement = document.getElementById('userAvatar');
+        const imgElement2 = document.getElementById('subUserAvatar');
+        imgElement.src = imageUrl;  // Update the image src dynamically
+        imgElement2.src = imageUrl;  // Update the image src dynamically
+
+        if (decoded && isTokenExpired(decoded)) {
+          // Token is expired
+          localStorage.removeItem('authToken'); // Clear token
+          window.location.href = LOGIN_PAGE; // Redirect to login page
+          return;
+        }
+
+        // If the token is valid, fetch user profile
+        try {
+          const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+              'Authorization': `${token}`,  // Use the token in the Authorization header
+            },
+          });
+          console.log(response);
+          if (!response.ok) {
+            //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
+            localStorage.removeItem('authToken');
+            window.location.href = LOGIN_PAGE;
+            return;
+          }
+        } catch (error) {
+          //Handle fetch errors(network issues, etc.)
+          console.error('Error fetching user profile:', error);
+          localStorage.removeItem('authToken');
+          window.location.href = LOGIN_PAGE; // Redirect to login page on error
+        }
+      }
+
+
+      // Call the function to load the user profile
+      loadUserProfile();
     </script>
 
 <script>
-  // Logout function to clear token and redirect
-  document.getElementById('logout').addEventListener('click', function(event) {
-    event.preventDefault(); // Prevent the default anchor link behavior
+  // Check user role (example assumes role is stored in localStorage)
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+
+    // Check if the user has the 'admin' role
+    if (user.role === 'Admin') {
+      // Show the admin menu
+      document.getElementById('admin-menu').style.display = 'block';
+    }
+  }
+</script>
+
+<script>
+  // Sample data to populate table rows
+  const sampleData = [
+  { "id": "001", "company": "บริษัท เอ บี ซี จำกัด", "createdDate": "2025-01-25 15:35", "appointmentDate": "2025-01-30 12:43", "plate": "กข 1234 กรุงเทพมหานคร", "location": "1693 ถ. พหลโยธิน แขวงจตุจักร เขตจตุจักร กรุงเทพมหานคร 10900", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "ณภัทร ภารรัตร", "assignee": "อรอนงค์ รุ่งเรือง" },
+  { "id": "002", "company": "บริษัท ดี อี เอฟ จำกัด", "createdDate": "2025-01-20 14:21", "appointmentDate": "2025-01-28 13:00", "plate": "ขค 5678 นนทบุรี", "location": "233 ม.13 ตำบล ปงยางคก อำเภอห้างฉัตร ลำปาง 52190", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "วิชัย วัฒนา", "assignee": "อรอนงค์ รุ่งเรือง" },
+  { "id": "003", "company": "บริษัท จี เอช ไอ จำกัด", "createdDate": "2025-01-22 09:45", "appointmentDate": "2025-02-02 10:00", "plate": "คค 2345 ชลบุรี", "location": "45 ม.5 ตำบล บางทราย อำเภอเมือง ชลบุรี 20000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "สุรชัย ศรีเพ็ญ", "assignee": "นิชาภา พรมหา" },
+  { "id": "004", "company": "บริษัท เอ เอส ซี จำกัด", "createdDate": "2025-01-18 16:10", "appointmentDate": "2025-01-25 14:20", "plate": "ทท 3456 ภูเก็ต", "location": "19 ถ. วิชิตสงคราม ต. วิชิต อ. เมือง ภูเก็ต 83000", "jobType": "ซ่อมแซม", "status": "เสร็จสิ้น", "creator": "ศักดิ์ชัย ชาญศิริ", "assignee": "กัลยาณี ชูประทุม" },
+  { "id": "005", "company": "บริษัท บี ซี ดี จำกัด", "createdDate": "2025-01-17 11:30", "appointmentDate": "2025-01-24 09:50", "plate": "ออ 4567 เชียงใหม่", "location": "235 ม.9 ตำบล หางดง อำเภอหางดง เชียงใหม่ 50230", "jobType": "เคลมประกัน", "status": "กำลังดำเนินการ", "creator": "ปวีณา พันธกิจ", "assignee": "สันติ จุลบุตร" },
+  { "id": "006", "company": "บริษัท ฟาร์ม เอ็กซ์ จำกัด", "createdDate": "2025-01-19 10:40", "appointmentDate": "2025-01-29 12:20", "plate": "บอ 5678 นครราชสีมา", "location": "128 ต. สำโรง อ. เมือง นครราชสีมา 30000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "อภิเชษฐ์ พิทักษ์", "assignee": "พรพิมล ศรีสุข" },
+  { "id": "007", "company": "บริษัท เอ็มพี สตาร์ จำกัด", "createdDate": "2025-01-23 08:55", "appointmentDate": "2025-02-01 13:10", "plate": "คอ 6789 ขอนแก่น", "location": "57 ถ. แก่นนคร ต. เมือง ขอนแก่น 40000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "อธิวัฒน์ หงษ์ทอง", "assignee": "พิมพ์ชนก มหาสวัสดิ์" },
+  { "id": "008", "company": "บริษัท ลีโอ ไฟว์ จำกัด", "createdDate": "2025-01-20 17:15", "appointmentDate": "2025-01-28 15:40", "plate": "คค 7890 สระบุรี", "location": "44 ม.7 ต. ทับกวาง อ. เมือง สระบุรี 18000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "สุนันทา สุวรรณ", "assignee": "ศรีรัตน์ รัตนรัตน์" },
+  { "id": "009", "company": "บริษัท โซลูชั่น คอมพานี จำกัด", "createdDate": "2025-01-21 14:00", "appointmentDate": "2025-01-30 12:00", "plate": "ขอ 8901 สุราษฎร์ธานี", "location": "150 ถ. สุราษฎร์ธานี ต. ท่าข้าม อ. เมือง สุราษฎร์ธานี 84000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "ชัยวัฒน์ คงดี", "assignee": "ปาริฉัตร แซ่ตึ้ง" },
+  { "id": "010", "company": "บริษัท เค ยู ซี จำกัด", "createdDate": "2025-01-22 13:25", "appointmentDate": "2025-02-02 11:10", "plate": "ขค 9012 กระบี่", "location": "78 ม.12 ต. คลองท่อม อ. คลองท่อม กระบี่ 81120", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "เสถียร เพชรเจริญ", "assignee": "วิรัช เสถียร" },
+  { "id": "011", "company": "บริษัท อาร์ทิเมีย จำกัด", "createdDate": "2025-01-19 15:50", "appointmentDate": "2025-01-28 14:30", "plate": "กข 1235 ราชบุรี", "location": "100 ถ. สมุทรสงคราม ต. บางนาง อ. เมือง ราชบุรี 70000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "กฤษณ์ แซ่ยิ่ง", "assignee": "หทัยรัตน์ บัวแย้ม" },
+  { "id": "012", "company": "บริษัท เอ็ม บี กรุ๊ป จำกัด", "createdDate": "2025-01-17 16:00", "appointmentDate": "2025-01-26 09:40", "plate": "คค 2346 อุดรธานี", "location": "122 ม.4 ต. หนองบัว อ. เมือง อุดรธานี 41000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "อภิวัฒน์ ศรีบุญ", "assignee": "สุกัญญา ศิริแสง" },
+  { "id": "013", "company": "บริษัท เอส เอ็ม เค จำกัด", "createdDate": "2025-01-18 12:30", "appointmentDate": "2025-01-29 10:20", "plate": "ทท 3457 ราชบุรี", "location": "34 ถ. บางขุนเทียน ต. ท่าผา อ. โพธาราม ราชบุรี 70110", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "รณชัย ราชภัฏ", "assignee": "เมธี พรหมพรรค์" },
+  { "id": "014", "company": "บริษัท ปาล์ม โกลด์ จำกัด", "createdDate": "2025-01-22 16:45", "appointmentDate": "2025-01-30 14:35", "plate": "ขค 5679 ตราด", "location": "56 ม.6 ต. ท่ามะขาม อ. เมือง ตราด 23000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "ยศกร เจริญ", "assignee": "ณัฐชยา แซ่เตีย" },
+  { "id": "015", "company": "บริษัท นิว โกลด์ จำกัด", "createdDate": "2025-01-20 18:25", "appointmentDate": "2025-01-29 16:10", "plate": "บอ 6789 ปทุมธานี", "location": "89 ม.4 ต. คลองหลวง อ. คลองหลวง ปทุมธานี 12120", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "ศักดิ์ดา บุตรมาก", "assignee": "ชลธิชา สุรัตน์" }
+// Add more sample data (total 15 items)...
+  ];
+
+  const itemsPerPage = 10; // Number of items per page
+  let currentPage = 1;
+
+  function renderTableData(page) {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = sampleData.slice(start, end);
+
+    const tableBody = document.querySelector("#userTable tbody");
+    tableBody.innerHTML = ""; // Clear the table
+
+    paginatedData.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.company}</td>
+        <td>${item.createdDate}</td>
+        <td>${item.appointmentDate}</td>
+        <td>${item.plate}</td>
+        <td>${item.location}</td>
+        <td>${item.jobType}</td>
+        <td>${item.status}</td>
+        <td>${item.creator}</td>
+        <td>${item.assignee}</td>
+      `;
+      tableBody.appendChild(row);
+    });generatePagination();
+  }
+
+  // Function to generate pagination
+  function generatePagination() {
+    const totalPages = Math.ceil(sampleData.length / itemsPerPage);
+    const paginationContainer = document.querySelector(".pagination");
+    paginationContainer.innerHTML = ""; // Clear existing pagination
+
+    // Create "Previous" button
+    const prevButton = document.createElement("li");
+    prevButton.classList.add("page-item");
+    prevButton.innerHTML = `<a class="page-link" href="#">ก่อนหน้า</a>`;
+    prevButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTableData(currentPage);
+      }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    // Create page number buttons dynamically
+    for (let i = 1; i <= totalPages; i++) {
+      const pageItem = document.createElement("li");
+      pageItem.classList.add("page-item");
+      pageItem.id = `page-${i}`;
+      pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      pageItem.addEventListener("click", () => {
+        currentPage = i;
+        renderTableData(currentPage);
+      });
+      paginationContainer.appendChild(pageItem);
+    }
+
+    // Create "Next" button
+    const nextButton = document.createElement("li");
+    nextButton.classList.add("page-item");
+    nextButton.innerHTML = `<a class="page-link" href="#">ถัดไป</a>`;
+    nextButton.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTableData(currentPage);
+      }
+    });
+    paginationContainer.appendChild(nextButton);
+
+    setActivePage(currentPage);
+  }
+
+  // Function to highlight the active page
+  function setActivePage(pageNumber) {
+    const pages = document.querySelectorAll(".pagination .page-item");
+    pages.forEach(page => {
+      page.classList.remove("active");
+    });
+    const activePage = document.querySelector(`#page-${pageNumber}`);
+    activePage.classList.add("active");
+  }
+
+  // Initial render
+  renderTableData(currentPage);
+</script>
+
     
+<script>
+  // Logout function to clear token and redirect
+  document.getElementById('logout').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent the default anchor link behavior
+
     // Clear the token from localStorage
     localStorage.removeItem('authToken');
-    
+
     // Optionally, redirect the user to the login page or home page
     window.location.href = '../index.html'; // Modify this if you want to redirect somewhere else
   });
