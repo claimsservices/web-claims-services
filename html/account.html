@@ -214,44 +214,48 @@
                       <a class="nav-link active" href="javascript:void(0);"><i class="bx bx-user me-1"></i> Account</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="pages-account-settings-notifications.html"
+                      <a class="nav-link" href="account-password.html"
                         ><i class="icon-base bx bx-lock-alt icon-sm me-1_5"></i> Password</a
                       >
                     </li>
                   </ul>
                   <div class="card mb-4">
                     <!-- Account -->
-                    <div class="card-body">
-                      <div class="d-flex align-items-start align-items-sm-center gap-4">
-                        <img
-                          src="..\assets\img\avatars\A1.png"
-                          alt="user-avatar"
-                          class="d-block rounded"
-                          height="100"
-                          width="100"
-                          id="uploadedAvatar"
-                        />
-                        <div class="button-wrapper">
-                          <label for="upload" class="btn btn-primary me-2 mb-4" tabindex="0">
-                            <span class="d-none d-sm-block">Upload</span>
-                            <i class="bx bx-upload d-block d-sm-none"></i>
-                            <input
-                              type="file"
-                              id="upload"
-                              class="account-file-input"
-                              hidden
-                              accept="image/png, image/jpeg"
-                            />
-                          </label>
-                          <button type="button" class="btn btn-outline-secondary account-image-reset mb-4">
-                            <i class="bx bx-reset d-block d-sm-none"></i>
-                            <span class="d-none d-sm-block">Reset</span>
-                          </button>
-
-                          <p class="text-muted mb-0"></p>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                      <div class="card-body">
+                        <div class="d-flex align-items-start align-items-sm-center gap-4">
+                          <img
+                            src="../assets/img/avatars/A1.png"
+                            alt="user-avatar"
+                            class="d-block rounded"
+                            height="100"
+                            width="100"
+                            id="uploadedAvatar"
+                          />
+                          <div class="button-wrapper">
+                            <label for="upload" class="btn btn-primary me-2 mb-4" tabindex="0">
+                              <span class="d-none d-sm-block">Upload</span>
+                              <i class="bx bx-upload d-block d-sm-none"></i>
+                              <input
+                                type="file"
+                                id="upload"
+                                name="image"
+                                class="account-file-input"
+                                hidden
+                                accept="image/png, image/jpeg"
+                              />
+                            </label>
+                            <button type="button" id="resetBtn" class="btn btn-outline-secondary account-image-reset mb-4">
+                              <i class="bx bx-reset d-block d-sm-none"></i>
+                              <span class="d-none d-sm-block">Reset</span>
+                            </button>
+                    
+                            <p class="text-muted mb-0" id="uploadStatus"></p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </form>
+                    
                     <hr class="my-0" />
                     <div class="card-body">
                       <form id="formAccountSettings">
@@ -403,7 +407,7 @@
 
         // Extract user info (name and role)
         const id = decoded.id;
-        const userName = decoded.uniquename;
+        const userName = decoded.username;
         const role = decoded.role;
         const myPicture = decoded.myPicture;
 
@@ -437,9 +441,10 @@
           console.log(response);
           if (!response.ok) {
             //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
-            localStorage.removeItem('authToken');
-            window.location.href = LOGIN_PAGE;
-            return;
+            //localStorage.removeItem('authToken');
+            //window.location.href = LOGIN_PAGE;
+            //return;
+            console.log(response);
           }
 
           const userData = await response.json(); // Parse response JSON
@@ -475,9 +480,10 @@
 
         } catch (error) {
           //Handle fetch errors(network issues, etc.)
-          console.error('Error fetching user profile:', error);
-          localStorage.removeItem('authToken');
-          window.location.href = LOGIN_PAGE; // Redirect to login page on error
+          //console.error('Error fetching user profile:', error);
+          //localStorage.removeItem('authToken');
+          //window.location.href = LOGIN_PAGE; // Redirect to login page on error
+          console.log(error);
         }
       }
 
@@ -485,6 +491,111 @@
       // Call the function to load the user profile
       loadUserProfile();
     </script>
+
+    <script>
+      const uploadInput = document.getElementById('upload');
+      const uploadedAvatar = document.getElementById('uploadedAvatar');
+      const resetBtn = document.getElementById('resetBtn');
+      const uploadStatus = document.getElementById('uploadStatus');
+      const defaultAvatar = '../assets/img/avatars/A1.png';
+    
+      uploadInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+    
+        // Preview
+        uploadedAvatar.src = URL.createObjectURL(file);
+        uploadStatus.innerText = 'Uploading...';
+    
+        // Upload
+        const formData = new FormData();
+        formData.append('image', file);
+    
+        try {
+          const res = await fetch('http://localhost:5400/api/upload/image/users', {
+            method: 'POST',
+            headers: {
+              'Authorization': token // <== ส่ง token
+            },
+            body: formData
+          });
+          const data = await res.json();
+    
+          if (data.url) {
+            uploadedAvatar.src = data.url;
+            uploadStatus.innerText = 'Upload successful!';
+          } else {
+            uploadStatus.innerText = 'Upload failed: ' + (data.message || 'Unknown error');
+          }
+        } catch (err) {
+          uploadStatus.innerText = 'Upload error: ' + err.message;
+        }
+      });
+    
+      resetBtn.addEventListener('click', () => {
+        uploadedAvatar.src = defaultAvatar;
+        uploadInput.value = '';
+        uploadStatus.innerText = 'Image reset.';
+      });
+    </script>
+
+    <script>
+      document.getElementById('formAccountSettings').addEventListener('submit', async function (e) {
+        e.preventDefault(); // Prevent form from reloading the page
+    
+        const token = localStorage.getItem('authToken'); // Check if token is available
+
+        // Decode the JWT token (assuming it's a JWT token)
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = JSON.parse(atob(base64));
+
+        const userName = decoded.username;
+
+        const avatarUrl = document.getElementById('uploadedAvatar').src;
+        const userData = {
+          username: userName,
+          first_name: document.getElementById('firstName').value,
+          last_name: document.getElementById('lastName').value,
+          email: document.getElementById('email').value,
+          phone: document.getElementById('phoneNumber').value,
+          address: document.getElementById('address').value,
+          building: document.getElementById('building').value,
+          sub_district: document.getElementById('subdistrict').value,
+          district: document.getElementById('district').value,
+          province: document.getElementById('state').value,
+          post_code: document.getElementById('postalCode').value,
+          address_detail: document.getElementById('addressDetails').value,
+          profile_picture: avatarUrl 
+        };
+    
+        try {
+          const response = await fetch('http://localhost:5400/api/user-management/update-user', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': token
+            },
+            body: JSON.stringify(userData)
+          });
+    
+          const result = await response.json();
+    
+          if (response.ok) {
+            alert('Profile updated successfully.');
+            console.log(result);
+          } else {
+            alert(`Update failed: ${result.message}`);
+            console.error(result);
+          }
+    
+        } catch (err) {
+          console.error('Error:', err);
+          alert('Something went wrong while updating the profile.');
+        }
+      });
+    </script>
+    
 
     
 
@@ -591,6 +702,7 @@
     selectElement.appendChild(option);
   });
 </script>
+
     
   </body>
 </html>
