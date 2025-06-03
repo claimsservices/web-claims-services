@@ -151,6 +151,10 @@
       }  
     </style>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 
   </head>
 
@@ -184,7 +188,7 @@
               </a>
               <ul class="menu-sub">
                 <li class="menu-item">
-                  <a href="Dashboard.html" class="menu-link">
+                  <a href="dashboard.html" class="menu-link">
                     <i class='menu-icon icon-base bx  bx-list-ul'></i>
                     <div data-i18n="Without menu">Dashboard</div>
                   </a>
@@ -410,7 +414,8 @@
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
                           <select class="form-select ps-4" id="jobType" required>
                             <option value="" disabled selected>-- การดำเนินการ --</option>
-                            <option value="ซ่อมแซม">เคลมสด</option>
+                            <option value="นัดหมาย">นัดหมาย</option>
+                            <option value="นัดหมาย">ไปทันที</option>
                           </select>
                         </div>
                       </div>
@@ -527,8 +532,14 @@
                                   <option>Pajero</option>
                                 </select>
                               </div>
+                              <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" id="received-doc">
+                                <label class="form-check-label fw-semibold" for="received-doc">
+                                  รับใบตรวจสภาพตัวจริงแล้ว
+                                </label>
+                              </div>
                             </div>
-                  
+                      
                             <!-- Column 2 -->
                             <div class="col-md-6">
                               <div class="mb-3">
@@ -558,29 +569,147 @@
                             </div>
                           </div>
                         </div>
+                      
+                        <!-- ข้อมูลตรวจสภาพรถ -->
+                        <div class="py-3 px-4 mt-4 rounded bg-white border">
+                          <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลตรวจสภาพรถ</h6>
+                          <div class="col-md-6">
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">บริษัทประกันภัย</label>
+                              <select class="form-select">
+                                <option value="">บริษัทประกันภัย</option>
+                                <option value="บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)">บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)">บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท คุ้มภัยโตเกียวมารีนประกันภัย
+                                  (ประเทศไทย) จำกัด (มหาชน)</option>
+                                <option value="บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)">บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท จรัญประกันภัย จำกัด (มหาชน)">บริษัท จรัญประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)">บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด
+                                  (มหาชน)</option>
+                                <option value="บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)">บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)">บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)
+                                </option>
+                                <option value="บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด
+                                  (มหาชน)</option>
+                                <option value="บริษัท ทิพยประกันภัย จำกัด (มหาชน)">บริษัท ทิพยประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ทูนประกันภัย จำกัด (มหาชน)">บริษัท ทูนประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท เทเวศประกันภัย จำกัด (มหาชน)">บริษัท เทเวศประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)">บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)">บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)">บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)</option>
+                                <option value="บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)">บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ธนชาตประกันภัย จำกัด (มหาชน)">บริษัท ธนชาตประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท นวกิจประกันภัย จำกัด (มหาชน)">บริษัท นวกิจประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)">บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)">บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)</option>
+                                <option value="บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)">บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)">บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)">บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท รู้ใจประกันภัย จำกัด (มหาชน)">บริษัท รู้ใจประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท วิริยะประกันภัย จำกัด (มหาชน)">บริษัท วิริยะประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)">บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)">บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท สหมงคลประกันภัย จำกัด (มหาชน)">บริษัท สหมงคลประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)">บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)
+                                </option>
+                                <option value="บริษัท อินทรประกันภัย จำกัด (มหาชน)">บริษัท อินทรประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอ็ม เอส ไอ จี ประกันภัย
+                                  (ประเทศไทย) จำกัด (มหาชน)</option>
+                                <option value="บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)
+                                </option>
+                                <option value="บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)
+                                </option>
+                                <option value="บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)">บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)">บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)">บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)</option>
+                              </select>
+                            </div>
+
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">สาขาประกันภัย</label>
+                              <select class="form-select">
+                                <option value="สำนักงานใหญ่">สำนักงานใหญ่</option>
+                              </select>
+                            </div>
+
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">ข้อมูลอ้างอิง</label>
+                              <input type="text" class="form-control" placeholder="ระบุ Reference1">
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">ข้อมูลอ้างอิง (เพิ่มเติม)</label>
+                              <input type="text" class="form-control" placeholder="ระบุ Reference2">
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">เลขที่กรมธรรม์</label>
+                              <input type="text" class="form-control" placeholder="กรอกเลขกรมธรรม์">
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">วันที่เริ่มต้นคุ้มครอง</label>
+                              <input type="date" class="form-control">
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">วันที่สิ้นสุดคุ้มครอง</label>
+                              <input type="date" class="form-control">
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">ประเภทประกัน</label>
+                              <input type="text" class="form-control" placeholder="ประเภทประกัน เช่น ชั้น 1, 2+, 3">
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">ข้อมูลเพิ่มเติม</label>
+                              <textarea class="form-control" rows="2" placeholder="ระบุหมายเหตุทั่วไป..."></textarea>
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">Insurer Remark</label>
+                              <textarea class="form-control" rows="2" placeholder="หมายเหตุจากบริษัทประกัน..."></textarea>
+                            </div>
+                      
+                            <div class="mb-3">
+                              <label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label>
+                              <textarea class="form-control" rows="3" placeholder="อธิบายข้อมูลความเสียหายเบื้องต้น..."></textarea>
+                            </div>
+                          </div>
+                      
+                          <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="fleetCar">
+                            <label class="form-check-label fw-semibold" for="fleetCar">
+                              Fleet Car
+                            </label>
+                          </div>
+                        </div>
                       </div>
                   
                       <!-- Tab 2 -->
                       <div class="tab-pane fade" id="tab-profile" role="tabpanel">
-                        <div class="row g-4">
-                          <div class="col-md-3">
-                            <label class="form-label fw-semibold">บริษัท</label>
-                            <input type="text" class="form-control" placeholder="ชื่อบริษัท">
-                          </div>
-                          <div class="col-md-3">
-                            <label class="form-label fw-semibold">ตำแหน่ง</label>
-                            <input type="text" class="form-control" placeholder="ตำแหน่ง">
-                          </div>
-                          <div class="col-md-3">
-                            <label class="form-label fw-semibold">รหัสพนักงาน</label>
-                            <input type="text" class="form-control" placeholder="ID">
-                          </div>
-                          <div class="col-md-3">
-                            <label class="form-label fw-semibold">แผนก</label>
-                            <input type="text" class="form-control" placeholder="แผนก">
-                          </div>
-                        </div>
-                      </div>
+  <div class="row">
+  <!-- Input Fields (left) -->
+  <div class="col-md-6">
+    <label class="form-label">ที่อยู่</label>
+    <input id="address" type="text" class="form-control mb-2" placeholder="ที่อยู่จากแผนที่">
+    <label class="form-label">ละติจูด</label>
+    <input id="lat" type="text" class="form-control mb-2" readonly>
+    <label class="form-label">ลองจิจูด</label>
+    <input id="lon" type="text" class="form-control mb-2" readonly>
+  </div>
+
+  <!-- Map (right) -->
+  <div class="col-md-6">
+    <div id="map" style="height: 300px;"></div>
+  </div>
+</div>
+</div>
                   
                       <!-- Tab 3 -->
                       <div class="tab-pane fade" id="tab-contact" role="tabpanel">
@@ -795,6 +924,34 @@
     input.value = `${day}/${month}/${year} ${timePart}`;
   });
 </script>
+<script>
+  const map = L.map('map').setView([13.7563, 100.5018], 13); // Bangkok
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+  }).addTo(map);
+
+  let marker;
+
+  // Click on map
+  map.on('click', async function(e) {
+    const lat = e.latlng.lat.toFixed(6);
+    const lon = e.latlng.lng.toFixed(6);
+
+    // Marker
+    if (marker) marker.setLatLng(e.latlng);
+    else marker = L.marker(e.latlng).addTo(map);
+
+    // Reverse geocode
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+    const data = await response.json();
+
+    document.getElementById('lat').value = lat;
+    document.getElementById('lon').value = lon;
+    document.getElementById('address').value = data.display_name || 'ไม่พบที่อยู่';
+  });
+</script>
+
 
   </body>
 </html>
