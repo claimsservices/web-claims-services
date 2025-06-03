@@ -70,10 +70,10 @@
       const RETURN_LOGIN_PAGE = '../index.html';
       console.log("aaa" + accessToken);
 
-        // If there's no token, redirect to login
-        if (!accessToken) {
-          window.location.href = RETURN_LOGIN_PAGE;
-        }
+      // If there's no token, redirect to login
+      if (!accessToken) {
+        window.location.href = RETURN_LOGIN_PAGE;
+      }
 
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
@@ -105,6 +105,15 @@
         /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ */
       }
     </style>
+
+    <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<!-- Thai locale (ถ้าต้องการ) -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   </head>
 
@@ -324,25 +333,61 @@
                 <h5 class="card-title mb-0">งานทั้งหมด 800</h5>
                 <div class="d-flex justify-content-between align-items-center row pt-2 gap-md-0 g-6">
                   <div class="col-md-2 user_role"><select id="UserRole" class="form-select text-capitalize">
-                      <option value="">บริษัทประกัน</option>
-                      <option value="Admin">Admin</option>
-                      <option value="Author">Author</option>
-                      <option value="Editor">Editor</option>
-                      <option value="Maintainer">Maintainer</option>
-                      <option value="Subscriber">Subscriber</option>
-                    </select></div>
+                      <option value=""> บริษัทประกันภัย </option>
+                      <option value="บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)">บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)">บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท คุ้มภัยโตเกียวมารีนประกันภัย
+                        (ประเทศไทย) จำกัด (มหาชน)</option>
+                      <option value="บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)">บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท จรัญประกันภัย จำกัด (มหาชน)">บริษัท จรัญประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)">บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด
+                        (มหาชน)</option>
+                      <option value="บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)">บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)">บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)
+                      </option>
+                      <option value="บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)
+                      </option>
+                      <option value="บริษัท ทิพยประกันภัย จำกัด (มหาชน)">บริษัท ทิพยประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ทูนประกันภัย จำกัด (มหาชน)">บริษัท ทูนประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท เทเวศประกันภัย จำกัด (มหาชน)">บริษัท เทเวศประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)">บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)">บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)">บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)</option>
+                      <option value="บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)">บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ธนชาตประกันภัย จำกัด (มหาชน)">บริษัท ธนชาตประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท นวกิจประกันภัย จำกัด (มหาชน)">บริษัท นวกิจประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)">บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)">บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)</option>
+                      <option value="บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)">บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)">บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)">บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท รู้ใจประกันภัย จำกัด (มหาชน)">บริษัท รู้ใจประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท วิริยะประกันภัย จำกัด (มหาชน)">บริษัท วิริยะประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)">บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)">บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท สหมงคลประกันภัย จำกัด (มหาชน)">บริษัท สหมงคลประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)">บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท อินทรประกันภัย จำกัด (มหาชน)">บริษัท อินทรประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย)
+                        จำกัด (มหาชน)</option>
+                      <option value="บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)
+                      </option>
+                      <option value="บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)
+                      </option>
+                      <option value="บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)">บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)">บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)">บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)</option>
+                      </select></div>
                   <div class="col-md-2 user_plan"><select id="UserPlan" class="form-select text-capitalize">
                       <option value="">สาขา</option>
-                      <option value="Basic">Basic</option>
-                      <option value="Company">Company</option>
-                      <option value="Enterprise">Enterprise</option>
-                      <option value="Team">Team</option>
                     </select></div>
                   <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
-                      <option value="">งานทั้งหมด</option>
-                      <option value="Pending" class="text-capitalize">Pending</option>
-                      <option value="Active" class="text-capitalize">Active</option>
-                      <option value="Inactive" class="text-capitalize">Inactive</option>
+                      <option value="งานทั้งหมด">งานทั้งหมด</option>
+                      <option value="งานยังไม่ได้นัดหมาย" class="text-capitalize">งานยังไม่ได้นัดหมาย</option>
+                      <option value="งานรอ Assign" class="text-capitalize">งานรอ Assign</option>
+                      <option value="งานแจ้งเตือน" class="text-capitalize">งานแจ้งเตือน</option>
                     </select></div>
                     <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
                       <option value="">ประเภทงาน</option>
@@ -352,18 +397,31 @@
                     </select></div>
                     <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
                       <option value="">สถานะงาน</option>
-                      <option value="Pending" class="text-capitalize">Pending</option>
-                      <option value="Active" class="text-capitalize">Active</option>
-                      <option value="Inactive" class="text-capitalize">Inactive</option>
+                      <option value="Pending" class="text-capitalize">เปิดงาน</option>
+                      <option value="Active" class="text-capitalize">รับเรื่องแล้ว</option>
+                      <option value="Inactive" class="text-capitalize">รับงาน</option>
+                      <option value="Inactive" class="text-capitalize">ปฏิเสธงาน</option>
+                      <option value="Inactive" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
+                      <option value="Inactive" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
+                      <option value="Inactive" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้ืองต้น</option>
+                      <option value="Inactive" class="text-capitalize">Pre-Approved</option>
+                      <option value="Inactive" class="text-capitalize">คีย์งานแล้ว</option>
+                      <option value="Inactive" class="text-capitalize">ผ่าน</option>
+                      <option value="Inactive" class="text-capitalize">ไม่ผ่าน</option>
+                      <option value="Inactive" class="text-capitalize">ยกเลิก</option>
                     </select></div>
                     <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
-                      <option value="">วันที่สร้างงาน</option>
-                      <option value="Pending" class="text-capitalize">Pending</option>
-                      <option value="Active" class="text-capitalize">Active</option>
-                      <option value="Inactive" class="text-capitalize">Inactive</option>
-                    </select></div>
-                </div>
-                
+                      <option value="วันที่สร้างงาน">วันที่สร้างงาน</option>
+                      <option value="วันที่นัดหมาย" class="text-capitalize">วันที่นัดหมาย</option>
+                     </select></div>
+                    <div class="col-md-2">
+                      <label for="filterDateTime"></label>
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-regular fa-calendar-days"></i></span>
+                        <input type="text" id="filterDateTime" class="form-control"/>
+                      </div>
+                    </div>
+                  </div>
               </div>
 
               <div class="card-header border-bottom">
@@ -590,22 +648,22 @@
 <script>
   // Sample data to populate table rows
   const sampleData = [
-  { "id": "001", "company": "บริษัท เอ บี ซี จำกัด", "createdDate": "2025-01-25 15:35", "appointmentDate": "2025-01-30 12:43", "plate": "กข 1234 กรุงเทพมหานคร", "location": "1693 ถ. พหลโยธิน แขวงจตุจักร เขตจตุจักร กรุงเทพมหานคร 10900", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "ณภัทร ภารรัตร", "assignee": "อรอนงค์ รุ่งเรือง" },
-  { "id": "002", "company": "บริษัท ดี อี เอฟ จำกัด", "createdDate": "2025-01-20 14:21", "appointmentDate": "2025-01-28 13:00", "plate": "ขค 5678 นนทบุรี", "location": "233 ม.13 ตำบล ปงยางคก อำเภอห้างฉัตร ลำปาง 52190", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "วิชัย วัฒนา", "assignee": "อรอนงค์ รุ่งเรือง" },
-  { "id": "003", "company": "บริษัท จี เอช ไอ จำกัด", "createdDate": "2025-01-22 09:45", "appointmentDate": "2025-02-02 10:00", "plate": "คค 2345 ชลบุรี", "location": "45 ม.5 ตำบล บางทราย อำเภอเมือง ชลบุรี 20000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "สุรชัย ศรีเพ็ญ", "assignee": "นิชาภา พรมหา" },
-  { "id": "004", "company": "บริษัท เอ เอส ซี จำกัด", "createdDate": "2025-01-18 16:10", "appointmentDate": "2025-01-25 14:20", "plate": "ทท 3456 ภูเก็ต", "location": "19 ถ. วิชิตสงคราม ต. วิชิต อ. เมือง ภูเก็ต 83000", "jobType": "ซ่อมแซม", "status": "เสร็จสิ้น", "creator": "ศักดิ์ชัย ชาญศิริ", "assignee": "กัลยาณี ชูประทุม" },
-  { "id": "005", "company": "บริษัท บี ซี ดี จำกัด", "createdDate": "2025-01-17 11:30", "appointmentDate": "2025-01-24 09:50", "plate": "ออ 4567 เชียงใหม่", "location": "235 ม.9 ตำบล หางดง อำเภอหางดง เชียงใหม่ 50230", "jobType": "เคลมประกัน", "status": "กำลังดำเนินการ", "creator": "ปวีณา พันธกิจ", "assignee": "สันติ จุลบุตร" },
-  { "id": "006", "company": "บริษัท ฟาร์ม เอ็กซ์ จำกัด", "createdDate": "2025-01-19 10:40", "appointmentDate": "2025-01-29 12:20", "plate": "บอ 5678 นครราชสีมา", "location": "128 ต. สำโรง อ. เมือง นครราชสีมา 30000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "อภิเชษฐ์ พิทักษ์", "assignee": "พรพิมล ศรีสุข" },
-  { "id": "007", "company": "บริษัท เอ็มพี สตาร์ จำกัด", "createdDate": "2025-01-23 08:55", "appointmentDate": "2025-02-01 13:10", "plate": "คอ 6789 ขอนแก่น", "location": "57 ถ. แก่นนคร ต. เมือง ขอนแก่น 40000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "อธิวัฒน์ หงษ์ทอง", "assignee": "พิมพ์ชนก มหาสวัสดิ์" },
-  { "id": "008", "company": "บริษัท ลีโอ ไฟว์ จำกัด", "createdDate": "2025-01-20 17:15", "appointmentDate": "2025-01-28 15:40", "plate": "คค 7890 สระบุรี", "location": "44 ม.7 ต. ทับกวาง อ. เมือง สระบุรี 18000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "สุนันทา สุวรรณ", "assignee": "ศรีรัตน์ รัตนรัตน์" },
-  { "id": "009", "company": "บริษัท โซลูชั่น คอมพานี จำกัด", "createdDate": "2025-01-21 14:00", "appointmentDate": "2025-01-30 12:00", "plate": "ขอ 8901 สุราษฎร์ธานี", "location": "150 ถ. สุราษฎร์ธานี ต. ท่าข้าม อ. เมือง สุราษฎร์ธานี 84000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "ชัยวัฒน์ คงดี", "assignee": "ปาริฉัตร แซ่ตึ้ง" },
-  { "id": "010", "company": "บริษัท เค ยู ซี จำกัด", "createdDate": "2025-01-22 13:25", "appointmentDate": "2025-02-02 11:10", "plate": "ขค 9012 กระบี่", "location": "78 ม.12 ต. คลองท่อม อ. คลองท่อม กระบี่ 81120", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "เสถียร เพชรเจริญ", "assignee": "วิรัช เสถียร" },
-  { "id": "011", "company": "บริษัท อาร์ทิเมีย จำกัด", "createdDate": "2025-01-19 15:50", "appointmentDate": "2025-01-28 14:30", "plate": "กข 1235 ราชบุรี", "location": "100 ถ. สมุทรสงคราม ต. บางนาง อ. เมือง ราชบุรี 70000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "กฤษณ์ แซ่ยิ่ง", "assignee": "หทัยรัตน์ บัวแย้ม" },
-  { "id": "012", "company": "บริษัท เอ็ม บี กรุ๊ป จำกัด", "createdDate": "2025-01-17 16:00", "appointmentDate": "2025-01-26 09:40", "plate": "คค 2346 อุดรธานี", "location": "122 ม.4 ต. หนองบัว อ. เมือง อุดรธานี 41000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "อภิวัฒน์ ศรีบุญ", "assignee": "สุกัญญา ศิริแสง" },
-  { "id": "013", "company": "บริษัท เอส เอ็ม เค จำกัด", "createdDate": "2025-01-18 12:30", "appointmentDate": "2025-01-29 10:20", "plate": "ทท 3457 ราชบุรี", "location": "34 ถ. บางขุนเทียน ต. ท่าผา อ. โพธาราม ราชบุรี 70110", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "รณชัย ราชภัฏ", "assignee": "เมธี พรหมพรรค์" },
-  { "id": "014", "company": "บริษัท ปาล์ม โกลด์ จำกัด", "createdDate": "2025-01-22 16:45", "appointmentDate": "2025-01-30 14:35", "plate": "ขค 5679 ตราด", "location": "56 ม.6 ต. ท่ามะขาม อ. เมือง ตราด 23000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "ยศกร เจริญ", "assignee": "ณัฐชยา แซ่เตีย" },
-  { "id": "015", "company": "บริษัท นิว โกลด์ จำกัด", "createdDate": "2025-01-20 18:25", "appointmentDate": "2025-01-29 16:10", "plate": "บอ 6789 ปทุมธานี", "location": "89 ม.4 ต. คลองหลวง อ. คลองหลวง ปทุมธานี 12120", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "ศักดิ์ดา บุตรมาก", "assignee": "ชลธิชา สุรัตน์" }
-// Add more sample data (total 15 items)...
+    { "id": "001", "company": "บริษัท เอ บี ซี จำกัด", "createdDate": "2025-01-25 15:35", "appointmentDate": "2025-01-30 12:43", "plate": "กข 1234 กรุงเทพมหานคร", "location": "1693 ถ. พหลโยธิน แขวงจตุจักร เขตจตุจักร กรุงเทพมหานคร 10900", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "ณภัทร ภารรัตร", "assignee": "อรอนงค์ รุ่งเรือง" },
+    { "id": "002", "company": "บริษัท ดี อี เอฟ จำกัด", "createdDate": "2025-01-20 14:21", "appointmentDate": "2025-01-28 13:00", "plate": "ขค 5678 นนทบุรี", "location": "233 ม.13 ตำบล ปงยางคก อำเภอห้างฉัตร ลำปาง 52190", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "วิชัย วัฒนา", "assignee": "อรอนงค์ รุ่งเรือง" },
+    { "id": "003", "company": "บริษัท จี เอช ไอ จำกัด", "createdDate": "2025-01-22 09:45", "appointmentDate": "2025-02-02 10:00", "plate": "คค 2345 ชลบุรี", "location": "45 ม.5 ตำบล บางทราย อำเภอเมือง ชลบุรี 20000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "สุรชัย ศรีเพ็ญ", "assignee": "นิชาภา พรมหา" },
+    { "id": "004", "company": "บริษัท เอ เอส ซี จำกัด", "createdDate": "2025-01-18 16:10", "appointmentDate": "2025-01-25 14:20", "plate": "ทท 3456 ภูเก็ต", "location": "19 ถ. วิชิตสงคราม ต. วิชิต อ. เมือง ภูเก็ต 83000", "jobType": "ซ่อมแซม", "status": "เสร็จสิ้น", "creator": "ศักดิ์ชัย ชาญศิริ", "assignee": "กัลยาณี ชูประทุม" },
+    { "id": "005", "company": "บริษัท บี ซี ดี จำกัด", "createdDate": "2025-01-17 11:30", "appointmentDate": "2025-01-24 09:50", "plate": "ออ 4567 เชียงใหม่", "location": "235 ม.9 ตำบล หางดง อำเภอหางดง เชียงใหม่ 50230", "jobType": "เคลมประกัน", "status": "กำลังดำเนินการ", "creator": "ปวีณา พันธกิจ", "assignee": "สันติ จุลบุตร" },
+    { "id": "006", "company": "บริษัท ฟาร์ม เอ็กซ์ จำกัด", "createdDate": "2025-01-19 10:40", "appointmentDate": "2025-01-29 12:20", "plate": "บอ 5678 นครราชสีมา", "location": "128 ต. สำโรง อ. เมือง นครราชสีมา 30000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "อภิเชษฐ์ พิทักษ์", "assignee": "พรพิมล ศรีสุข" },
+    { "id": "007", "company": "บริษัท เอ็มพี สตาร์ จำกัด", "createdDate": "2025-01-23 08:55", "appointmentDate": "2025-02-01 13:10", "plate": "คอ 6789 ขอนแก่น", "location": "57 ถ. แก่นนคร ต. เมือง ขอนแก่น 40000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "อธิวัฒน์ หงษ์ทอง", "assignee": "พิมพ์ชนก มหาสวัสดิ์" },
+    { "id": "008", "company": "บริษัท ลีโอ ไฟว์ จำกัด", "createdDate": "2025-01-20 17:15", "appointmentDate": "2025-01-28 15:40", "plate": "คค 7890 สระบุรี", "location": "44 ม.7 ต. ทับกวาง อ. เมือง สระบุรี 18000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "สุนันทา สุวรรณ", "assignee": "ศรีรัตน์ รัตนรัตน์" },
+    { "id": "009", "company": "บริษัท โซลูชั่น คอมพานี จำกัด", "createdDate": "2025-01-21 14:00", "appointmentDate": "2025-01-30 12:00", "plate": "ขอ 8901 สุราษฎร์ธานี", "location": "150 ถ. สุราษฎร์ธานี ต. ท่าข้าม อ. เมือง สุราษฎร์ธานี 84000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "ชัยวัฒน์ คงดี", "assignee": "ปาริฉัตร แซ่ตึ้ง" },
+    { "id": "010", "company": "บริษัท เค ยู ซี จำกัด", "createdDate": "2025-01-22 13:25", "appointmentDate": "2025-02-02 11:10", "plate": "ขค 9012 กระบี่", "location": "78 ม.12 ต. คลองท่อม อ. คลองท่อม กระบี่ 81120", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "เสถียร เพชรเจริญ", "assignee": "วิรัช เสถียร" },
+    { "id": "011", "company": "บริษัท อาร์ทิเมีย จำกัด", "createdDate": "2025-01-19 15:50", "appointmentDate": "2025-01-28 14:30", "plate": "กข 1235 ราชบุรี", "location": "100 ถ. สมุทรสงคราม ต. บางนาง อ. เมือง ราชบุรี 70000", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "กฤษณ์ แซ่ยิ่ง", "assignee": "หทัยรัตน์ บัวแย้ม" },
+    { "id": "012", "company": "บริษัท เอ็ม บี กรุ๊ป จำกัด", "createdDate": "2025-01-17 16:00", "appointmentDate": "2025-01-26 09:40", "plate": "คค 2346 อุดรธานี", "location": "122 ม.4 ต. หนองบัว อ. เมือง อุดรธานี 41000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "อภิวัฒน์ ศรีบุญ", "assignee": "สุกัญญา ศิริแสง" },
+    { "id": "013", "company": "บริษัท เอส เอ็ม เค จำกัด", "createdDate": "2025-01-18 12:30", "appointmentDate": "2025-01-29 10:20", "plate": "ทท 3457 ราชบุรี", "location": "34 ถ. บางขุนเทียน ต. ท่าผา อ. โพธาราม ราชบุรี 70110", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "รณชัย ราชภัฏ", "assignee": "เมธี พรหมพรรค์" },
+    { "id": "014", "company": "บริษัท ปาล์ม โกลด์ จำกัด", "createdDate": "2025-01-22 16:45", "appointmentDate": "2025-01-30 14:35", "plate": "ขค 5679 ตราด", "location": "56 ม.6 ต. ท่ามะขาม อ. เมือง ตราด 23000", "jobType": "ซ่อมแซม", "status": "กำลังดำเนินการ", "creator": "ยศกร เจริญ", "assignee": "ณัฐชยา แซ่เตีย" },
+    { "id": "015", "company": "บริษัท นิว โกลด์ จำกัด", "createdDate": "2025-01-20 18:25", "appointmentDate": "2025-01-29 16:10", "plate": "บอ 6789 ปทุมธานี", "location": "89 ม.4 ต. คลองหลวง อ. คลองหลวง ปทุมธานี 12120", "jobType": "เคลมประกัน", "status": "เสร็จสิ้น", "creator": "ศักดิ์ดา บุตรมาก", "assignee": "ชลธิชา สุรัตน์" }
+    // Add more sample data (total 15 items)...
   ];
 
   const itemsPerPage = 10; // Number of items per page
@@ -634,7 +692,7 @@
         <td>${item.assignee}</td>
       `;
       tableBody.appendChild(row);
-    });generatePagination();
+    }); generatePagination();
   }
 
   // Function to generate pagination
@@ -708,6 +766,24 @@
 
     // Optionally, redirect the user to the login page or home page
     window.location.href = '../index.html'; // Modify this if you want to redirect somewhere else
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // สร้างวันที่ใน timezone Asia/Bangkok และตั้งเวลาเป็น 06:00
+    const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
+    const todayBangkok = new Date(nowInBangkok);
+    todayBangkok.setHours(6, 0, 0, 0); // ตั้งเวลาเป็น 06:00:00
+
+    // เปิด Flatpickr
+    flatpickr("#filterDateTime", {
+      enableTime: true,
+      dateFormat: "d/m/Y H:i",  // dd/MM/yyyy HH:mm
+      defaultDate: todayBangkok,
+      time_24hr: true,
+      locale: "th"
+    });
   });
 </script>
 
