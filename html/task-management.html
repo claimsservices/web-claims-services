@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+<!-- =========================================================
+* Sneat - Bootstrap 5 HTML Admin Template - Pro | v1.0.0
+==============================================================
+
+* Product Page: https://themeselection.com/products/sneat-bootstrap-html-admin-template/
+* Created by: ThemeSelection
+* License: You must have a valid license purchased in order to legally use the theme for your project.
+* Copyright ThemeSelection (https://themeselection.com)
+
+=========================================================
+ -->
+<!-- beautify ignore:start -->
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="../assets/"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>e-Claim Service</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+    <link rel="stylesheet" href="../assets/vendor/libs/apex-charts/apex-charts.css" />
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="../assets/vendor/js/helpers.js"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="../assets/js/config.js"></script>
+
+    <script>
+      // Check if the user has a valid token and the required role
+      const accessToken = localStorage.getItem('authToken'); // Check if token is available
+      const RETURN_LOGIN_PAGE = '../index.html';
+      console.log("aaa" + accessToken);
+
+      // If there's no token, redirect to login
+      if (!accessToken) {
+        window.location.href = RETURN_LOGIN_PAGE;
+      }
+
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+      td {
+        font-family: 'Kanit', sans-serif;
+        font-size: 12px;
+        /* กำหนดขนาดตัวอักษร */
+        text-align: left;
+        /* ชิดซ้าย */
+        vertical-align: top;
+        /* ชิดด้านบน */
+        padding: 8px;
+        /* เพิ่มระยะห่างในเซลล์ */
+        word-wrap: break-word;
+        /* ตัดคำเมื่อข้อความยาวเกิน */
+        white-space: normal;
+        /* อนุญาตให้ขึ้นบรรทัดใหม่ */
+      }
+      th {
+      background-color: #333;
+      color: rgba(255, 255, 255, 0.603);
+    }
+    
+      th:nth-child(6),
+      td:nth-child(6) {
+        width: 20%;
+        /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ */
+      }
+    </style>
+
+    <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<!-- Thai locale (ถ้าต้องการ) -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Sarabun', sans-serif;
+        font-size: 14px; /* ขนาดตัวอักษรพื้นฐาน */
+      }
+      .form-label {
+        font-weight: bold; /* ทำให้ตัวอักษรหนา */
+      }
+      .form-control {
+        font-size: 14px; /* ขนาดตัวอักษรใน input */
+      }
+      .btn {
+        font-size: 14px; /* ขนาดตัวอักษรในปุ่ม */
+      }
+    </style>
+    <style>
+      .input-group-text {
+        font-size: 14px; /* ขนาดตัวอักษรใน input group */
+      }
+      .form-control::placeholder {
+        font-size: 14px; /* ขนาดตัวอักษรใน placeholder */
+      }
+      .card-title {
+        font-size: 18px; /* ขนาดตัวอักษรในหัวข้อการ์ด */
+      }
+      .card-header {
+        font-size: 16px; /* ขนาดตัวอักษรในส่วนหัวการ์ด */
+      }  
+      .form-label {
+        font-size: 14px; /* ขนาดตัวอักษรใน label */
+      }
+      .form-select {
+        font-size: 14px; /* ขนาดตัวอักษรใน select */
+      }  
+    </style>
+
+
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo">
+            <a href="" class="app-brand-link gap-2">
+              <span class="app-brand-logo demo">
+                <img src="..\assets\img\elements\3P3.png" alt="Logo" width="65"> <!-- Adjust width as needed -->
+              </span>
+              
+            </a>
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+              <i class="bx bx-chevron-left bx-sm align-middle"></i>
+            </a>
+          </div>
+        
+          <div class="menu-inner-shadow"></div>
+        
+          <ul class="menu-inner py-1">
+            <!-- Dashboard -->
+            <li class="menu-item open active">
+              <a href="dashboard.html" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base bx bx-car"></i>
+                <div data-i18n="Analytics">e-Claim Services</div>
+              </a>
+              <ul class="menu-sub">
+                <li class="menu-item">
+                  <a href="Dashboard.html" class="menu-link">
+                    <i class='menu-icon icon-base bx  bx-list-ul'></i>
+                    <div data-i18n="Without menu">Dashboard</div>
+                  </a>
+                </li>
+              </ul>
+              <ul class="menu-sub">
+                <li class="menu-item active">
+                  <a href="task-management.html" class="menu-link">
+                    <i class='menu-icon icon-base bx  bx-clipboard'></i>
+                    <div data-i18n="Without menu">Task Management</div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+        
+            <!-- Layouts -->
+            <li class="menu-item">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon icon-base bx bx-user"></i>
+                <div data-i18n="Layouts">User Management</div>
+              </a>
+        
+              <ul class="menu-sub">
+                <li class="menu-item" id="admin-menu" style="display: none;">
+                  <a href="users.html" class="menu-link">
+                    <div data-i18n="Without menu">Administrator</div>
+                  </a>
+                </li>
+                <li class="menu-item">
+                  <a href="account.html" class="menu-link">
+                    <div data-i18n="Without navbar">Account Settings</div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <!-- Footer ของเมนู -->
+          <div class="menu-footer mt-auto p-3 border-top">
+            <div class="d-flex flex-column align-items-start">
+              <span id="appVersion" class="text-muted small mb-2"></span>
+              <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger w-100" id="logout-menu">
+                <i class="bx bx-log-out-circle me-1"></i> Logout
+              </a>
+            </div>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+
+          <nav
+            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+            id="layout-navbar"
+          >
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                <i class="bx bx-menu bx-sm"></i>
+              </a>
+            </div>
+
+            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+             
+              <!-- /Search -->
+
+              <ul class="navbar-nav flex-row align-items-center ms-auto">
+
+                <!-- User -->
+                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" href="javascript:void(0);"
+                    data-bs-toggle="dropdown">
+                    <div class="avatar avatar-online">
+                      <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
+                    </div>
+                    <div class="text-start">
+                      <span class="fw-semibold d-block" id="user-info"></span>
+                      <small class="text-muted" id="user-role"></small>
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="#">
+                      <i class="bx bx-user me-2"></i>
+                      <span class="align-middle">My Profile</span>
+                    </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="bx bx-cog me-2"></i>
+                    <span class="align-middle">Settings</span>
+                  </a>
+                </li>
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="" id="logout">
+                    <i class="bx bx-power-off me-2"></i>
+                    <span class="align-middle">Log Out</span>
+                  </a>
+                </li>
+                </ul>
+                </li>
+                <!--/ User -->
+              </ul>
+            </div>
+          </nav>
+
+          <!-- / Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="container-xxl flex-grow-1 container-p-y">
+            
+
+            <div class="card">
+              <div class="card-header border-bottom">
+                <h5 class="card-title mb-0">ข้อมูลการรับแจ้ง</h5>
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="row g-4 mt-3">
+                    <!-- Column 1 -->
+                    <div class="col-md-3">
+                      <div class="mb-3">
+                        <label class="form-label" for="taskId">รหัสงาน</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class='bx bx-car'></i></span>
+                          <input type="text" class="form-control ps-4" id="taskId" placeholder="ST-INS-YYMMDD-XXXX" readonly>
+                        </div>
+                      </div>
+              
+                      <div class="mb-3">
+                        <label class="form-label" for="transactionDate">วันที่ทำรายการ</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-calendar"></i></span>
+                          <input type="text" class="form-control ps-4" id="transactionDate" readonly>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label" for="creatorName">
+                          ชื่อผู้แจ้ง <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-buildings"></i></span>
+                          <input type="text" class="form-control ps-4" id="creatorName" placeholder="ชื่อผู้แจ้ง" required>
+                        </div>
+                      </div>
+                    </div>
+              
+                    <!-- Column 2 -->
+                    <div class="col-md-3">
+                      <div class="mb-3">
+                        <label class="form-label" for="phone">
+                          เบอร์โทรศัพท์ <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                          <input type="text" class="form-control ps-4" id="phone" placeholder="0XX-XXX-XXXX" required>
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label" for="phone2">เบอร์โทรศัพท์ 2</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                          <input type="text" class="form-control ps-4" id="phone2" placeholder="0XX-XXX-XXXX">
+                        </div>
+                      </div>
+              
+                      <div class="mb-3">
+                        <label class="form-label" for="phone3">เบอร์โทรศัพท์ 3</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-phone"></i></span>
+                          <input type="text" class="form-control ps-4" id="phone3" placeholder="0XX-XXX-XXXX">
+                        </div>
+                      </div>
+                    </div>
+              
+                    <!-- Column 3 -->
+                    <div class="col-md-3">
+                      <div class="mb-3">
+                        <label class="form-label" for="ownerName">ผู้สร้างงาน</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                          <input type="text" class="form-control ps-4" id="ownerName" readonly>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label" for="jobType">
+                          ประเภทงาน <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
+                          <select class="form-select ps-4" id="jobType" required>
+                            <option value="" disabled selected>-- เลือกประเภทงาน --</option>
+                            <option value="ซ่อมแซม">Inspection</option>
+                            <option value="เคลมประกัน">Roadside Assist</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label" for="jobType">
+                          วิธีรับแจ้ง <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
+                          <select class="form-select ps-4" id="jobType" required>
+                            <option value="" disabled selected>-- เลือกวิธีรับแจ้ง --</option>
+                            <option value="ซ่อมแซม">โทรศัพท์</option>
+                            <option value="ซ่อมแซม">Email</option>
+                          </select>
+                        </div>
+                      </div>
+                    
+                    </div>
+              
+                    <!-- Column 4 (สามารถใช้เป็นช่องเปล่า หรือเพิ่ม field อื่น) -->
+                    <div class="col-md-3">
+                      <div class="mb-3">
+                        <label class="form-label" for="jobType">
+                          การดำเนินการ <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
+                          <select class="form-select ps-4" id="jobType" required>
+                            <option value="" disabled selected>-- การดำเนินการ --</option>
+                            <option value="ซ่อมแซม">เคลมสด</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label" for="jobType">
+                          สถานะงาน <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
+                          <select class="form-select ps-4" id="jobType" required>
+                            <option value="Pending">เปิดงาน</option>
+                            <option value="Active" class="text-capitalize">รับเรื่องแล้ว</option>
+                            <option value="Inactive" class="text-capitalize">รับงาน</option>
+                            <option value="Inactive" class="text-capitalize">ปฏิเสธงาน</option>
+                            <option value="Inactive" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
+                            <option value="Inactive" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
+                            <option value="Inactive" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้ืองต้น</option>
+                            <option value="Inactive" class="text-capitalize">Pre-Approved</option>
+                            <option value="Inactive" class="text-capitalize">คีย์งานแล้ว</option>
+                            <option value="Inactive" class="text-capitalize">ผ่าน</option>
+                            <option value="Inactive" class="text-capitalize">ไม่ผ่าน</option>
+                            <option value="Inactive" class="text-capitalize">ยกเลิก</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Pill -->
+                  <!-- Tab Section -->
+                  <div class="mt-4 p-4 border rounded shadow-sm" style="background-color: #f1f3f5;">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs nav-fill mb-4" role="tablist">
+                      <li class="nav-item">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-home" role="tab">
+                          <i class="tf-icons bx bx-home"></i> ตรวจสภาพรถ
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-profile" role="tab">
+                          <i class="tf-icons bx bx-user"></i> นัดหมายสั่งการ
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-contact" role="tab">
+                          <i class="tf-icons bx bx-envelope"></i> ข้อมูลรูปภาพ
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-note" role="tab">
+                          <i class="tf-icons bx bx-note"></i> Note
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-history" role="tab">
+                          <i class="tf-icons bx bx-history"></i> History Activity
+                        </button>
+                      </li>
+                      <li class="nav-item">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-upload" role="tab">
+                          <i class="tf-icons bx bx-upload"></i> Upload Picture
+                        </button>
+                      </li>
+                    </ul>
+                  
+                    <!-- Tab Content -->
+                    <div class="tab-content text-secondary">
+                      <!-- ตรวจสภาพรถ -->
+                      <div class="tab-pane fade show active" id="tab-home" role="tabpanel">
+                        <div class="py-3 px-4 mb-4 rounded bg-white border">
+                          <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
+                          <div class="row g-4">
+                            <!-- Column 1 -->
+                            <div class="col-md-6">
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">ชื่อผู้เอาประกัน</label>
+                                <input type="text" class="form-control" placeholder="กรอกชื่อ">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">เบอร์โทรศัพท์</label>
+                                <input type="text" class="form-control" placeholder="0XX-XXX-XXXX">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">ทะเบียนรถ</label>
+                                <input type="text" class="form-control" placeholder="กรอกทะเบียนรถ">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">จังหวัดทะเบียนรถ</label>
+                                <select class="form-select">
+                                  <option selected disabled>เลือกจังหวัด</option>
+                                  <option>กรุงเทพมหานคร</option>
+                                  <option>เชียงใหม่</option>
+                                  <option>ชลบุรี</option>
+                                  <option>ภูเก็ต</option>
+                                </select>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">ยี่ห้อรถ</label>
+                                <select class="form-select">
+                                  <option selected disabled>เลือกยี่ห้อ</option>
+                                  <option>Toyota</option>
+                                  <option>Honda</option>
+                                  <option>Isuzu</option>
+                                  <option>Mitsubishi</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label class="form-label fw-semibold">รุ่นรถ</label>
+                                <select class="form-select">
+                                  <option selected disabled>เลือกรุ่น</option>
+                                  <option>Fortuner</option>
+                                  <option>Civic</option>
+                                  <option>D-Max</option>
+                                  <option>Pajero</option>
+                                </select>
+                              </div>
+                            </div>
+                  
+                            <!-- Column 2 -->
+                            <div class="col-md-6">
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">ปีจดทะเบียน</label>
+                                <input type="text" class="form-control" placeholder="เช่น 2021">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">เลขตัวถัง</label>
+                                <input type="text" class="form-control" placeholder="กรอกเลขตัวถัง">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">เลขเครื่อง</label>
+                                <input type="text" class="form-control" placeholder="กรอกเลขเครื่อง">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">เลขไมล์</label>
+                                <input type="text" class="form-control" placeholder="ระบุเลขไมล์ปัจจุบัน">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label fw-semibold">ประเภทรถ</label>
+                                <input type="text" class="form-control" placeholder="เช่น รถเก๋ง, รถกระบะ">
+                              </div>
+                              <div>
+                                <label class="form-label fw-semibold">สีรถ</label>
+                                <input type="text" class="form-control" placeholder="ระบุสีรถ">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  
+                      <!-- Tab 2 -->
+                      <div class="tab-pane fade" id="tab-profile" role="tabpanel">
+                        <div class="row g-4">
+                          <div class="col-md-3">
+                            <label class="form-label fw-semibold">บริษัท</label>
+                            <input type="text" class="form-control" placeholder="ชื่อบริษัท">
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label fw-semibold">ตำแหน่ง</label>
+                            <input type="text" class="form-control" placeholder="ตำแหน่ง">
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label fw-semibold">รหัสพนักงาน</label>
+                            <input type="text" class="form-control" placeholder="ID">
+                          </div>
+                          <div class="col-md-3">
+                            <label class="form-label fw-semibold">แผนก</label>
+                            <input type="text" class="form-control" placeholder="แผนก">
+                          </div>
+                        </div>
+                      </div>
+                  
+                      <!-- Tab 3 -->
+                      <div class="tab-pane fade" id="tab-contact" role="tabpanel">
+                        <div class="row g-4">
+                          <div class="col-md-3">
+                            <label class="form-label fw-semibold">หัวข้อ</label>
+                            <input type="text" class="form-control" placeholder="เช่น แจ้งซ่อม">
+                          </div>
+                          <div class="col-md-9">
+                            <label class="form-label fw-semibold">รายละเอียด</label>
+                            <textarea class="form-control" rows="3" placeholder="อธิบายเพิ่มเติม..."></textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  
+                  
+                  
+                  
+                  <!-- End Pill-->
+              
+                  <!-- Submit -->
+                  <div class="row mt-3">
+                    <div class="col-md-12 text-end">
+                      <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+                    </div>
+                  </div>
+                </form>
+              
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+
+    <!-- Core JS -->
+     <script>
+      fetch('/version.json')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("appVersion").textContent = `App Version ${data.version}`;
+        })
+        .catch(() => {
+          document.getElementById("appVersion").textContent = "App Version -";
+        });
+    </script>
+    <!-- build:js assets/vendor/js/core.js -->
+    <script src="../assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="../assets/vendor/libs/popper/popper.js"></script>
+    <script src="../assets/vendor/js/bootstrap.js"></script>
+    <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+
+    <script src="../assets/vendor/js/menu.js"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+    <script src="../assets/vendor/libs/apex-charts/apexcharts.js"></script>
+
+    <!-- Main JS -->
+    <script src="../assets/js/main.js"></script>
+
+    <!-- Page JS -->
+    <script src="../assets/js/dashboards-analytics.js"></script>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script>
+      // Constants for URLs and other fixed strings
+      const LOGIN_PAGE = '../index.html';
+      const API_URL = 'https://be-claims-service.onrender.com/api/auth/profile';
+
+      // Function to decode JWT token and check for expiration
+      function decodeJWT(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64));  // Decode the token
+        } catch (e) {
+          console.error('Failed to decode JWT:', e);
+          return null;
+        }
+      }
+
+      // Function to check if the token is expired
+      function isTokenExpired(decodedToken) {
+        const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+        return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
+      }
+
+      // Main logic
+      async function loadUserProfile() {
+        const token = localStorage.getItem('authToken'); // Check if token is available
+
+        // If there's no token, redirect to login
+        if (!token) {
+          window.location.href = LOGIN_PAGE;
+          return;
+        }
+
+        // Decode the JWT token (assuming it's a JWT token)
+        function parseJwt(token) {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          return JSON.parse(jsonPayload);
+        }
+
+        // ใช้งาน
+        const decoded = parseJwt(token);
+
+        const id = decoded.id;
+        const userName = decoded.username;
+        const fname = decoded.first_name;
+        const lname = decoded.last_name;
+        const email = decoded.email;
+        const role = decoded.role;
+        const myPicture = decoded.myPicture;
+
+        document.getElementById('user-info').innerText = fname + ' ' + lname;
+        document.getElementById('ownerName').value = fname + ' ' + lname;
+        document.getElementById('user-role').innerText = role;
+
+        const imageUrl = myPicture;  // Extract the image URL from the response
+        const imgElement = document.getElementById('userAvatar');
+        const imgElement2 = document.getElementById('subUserAvatar');
+        imgElement.src = imageUrl;  // Update the image src dynamically
+        imgElement2.src = imageUrl;  // Update the image src dynamically
+
+        if (decoded && isTokenExpired(decoded)) {
+          // Token is expired
+          localStorage.removeItem('authToken'); // Clear token
+          window.location.href = LOGIN_PAGE; // Redirect to login page
+          return;
+        }
+
+        // If the token is valid, fetch user profile
+        try {
+          const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+              'Authorization': `${token}`,  // Use the token in the Authorization header
+            },
+          });
+          console.log(response);
+          if (!response.ok) {
+            //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
+            localStorage.removeItem('authToken');
+            window.location.href = LOGIN_PAGE;
+            return;
+          }
+        } catch (error) {
+          //Handle fetch errors(network issues, etc.)
+          console.error('Error fetching user profile:', error);
+          localStorage.removeItem('authToken');
+          window.location.href = LOGIN_PAGE; // Redirect to login page on error
+        }
+      }
+
+
+      // Call the function to load the user profile
+      loadUserProfile();
+    </script>
+
+<script>
+  // Check user role (example assumes role is stored in localStorage)
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+
+    // Check if the user has the 'admin' role
+    if (user.role === 'Admin') {
+      // Show the admin menu
+      document.getElementById('admin-menu').style.display = 'block';
+    }
+  }
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('transactionDate');
+
+    // ใช้ Intl เพื่อจัดเวลาในเขต Asia/Bangkok
+    const now = new Date();
+    const bangkokTime = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'Asia/Bangkok',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(now);
+
+    // แปลงให้อยู่ในรูปแบบ DD/MM/YYYY HH:mm
+    const [datePart, timePart] = bangkokTime.split(' ');
+    const [year, month, day] = datePart.split('-');
+    input.value = `${day}/${month}/${year} ${timePart}`;
+  });
+</script>
+
+  </body>
+</html>
