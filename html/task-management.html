@@ -883,9 +883,7 @@
 
         const imageUrl = myPicture;  // Extract the image URL from the response
         const imgElement = document.getElementById('userAvatar');
-        const imgElement2 = document.getElementById('subUserAvatar');
         imgElement.src = imageUrl;  // Update the image src dynamically
-        imgElement2.src = imageUrl;  // Update the image src dynamically
 
         if (decoded && isTokenExpired(decoded)) {
           // Token is expired
@@ -919,7 +917,9 @@
 
 
       // Call the function to load the user profile
-      loadUserProfile();
+      document.addEventListener('DOMContentLoaded', () => {
+  loadUserProfile();
+});
     </script>
 
 <script>
@@ -934,6 +934,21 @@
       document.getElementById('admin-menu').style.display = 'block';
     }
   }
+</script>
+
+<!-- script placed just before </body> -->
+<script>
+  document.getElementById('logout').addEventListener('click', function (event) {
+    event.preventDefault();
+    localStorage.removeItem('authToken');
+    window.location.href = '../index.html';
+  });
+
+  document.getElementById('logout-menu').addEventListener('click', function (event) {
+    event.preventDefault();
+    localStorage.removeItem('authToken');
+    window.location.href = '../index.html';
+  });
 </script>
   </body>
 </html>
