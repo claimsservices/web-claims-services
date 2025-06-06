@@ -679,7 +679,7 @@
     }
   }
 </script>
-
+<!-- 
 <script>
   // Sample data to populate table rows
   const sampleData = [
@@ -788,6 +788,112 @@
 
   // Initial render
   renderTableData(currentPage);
+</script> -->
+<script>
+  const itemsPerPage = 20;
+  let currentPage = 1;
+  let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
+
+  async function fetchData() {
+    try {
+      const res = await fetch('http://localhost:5400/api/orders/inquiry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${token}`
+        },
+        body: JSON.stringify({}) // สามารถใส่ filter ได้ เช่น { insur_comp: 'AIA' }
+      });
+
+      if (!res.ok) throw new Error('Fetch failed');
+
+      const data = await res.json();
+      allData = data;
+      renderTableData(currentPage);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    }
+  }
+
+  function renderTableData(page) {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = allData.slice(start, end);
+
+    const tableBody = document.querySelector("#userTable tbody");
+    tableBody.innerHTML = "";
+
+    paginatedData.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.id}</td>
+        <td>${item.insur_comp}</td>
+        <td>${item.order_date || ''}</td>
+        <td>${item.appointment_date || ''}</td>
+        <td>${item.car_registration}</td>
+        <td>${item.location}</td>
+        <td>${item.order_type}</td>
+        <td>${item.order_status}</td>
+        <td>${item.creator}</td>
+        <td>${item.owner}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    generatePagination();
+  }
+
+  function generatePagination() {
+    const totalPages = Math.ceil(allData.length / itemsPerPage);
+    const paginationContainer = document.querySelector(".pagination");
+    paginationContainer.innerHTML = "";
+
+    const prevButton = document.createElement("li");
+    prevButton.classList.add("page-item");
+    prevButton.innerHTML = `<a class="page-link" href="#">ก่อนหน้า</a>`;
+    prevButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTableData(currentPage);
+      }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageItem = document.createElement("li");
+      pageItem.classList.add("page-item");
+      pageItem.id = `page-${i}`;
+      pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      pageItem.addEventListener("click", () => {
+        currentPage = i;
+        renderTableData(currentPage);
+      });
+      paginationContainer.appendChild(pageItem);
+    }
+
+    const nextButton = document.createElement("li");
+    nextButton.classList.add("page-item");
+    nextButton.innerHTML = `<a class="page-link" href="#">ถัดไป</a>`;
+    nextButton.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTableData(currentPage);
+      }
+    });
+    paginationContainer.appendChild(nextButton);
+
+    setActivePage(currentPage);
+  }
+
+  function setActivePage(pageNumber) {
+    const pages = document.querySelectorAll(".pagination .page-item");
+    pages.forEach(page => page.classList.remove("active"));
+    const activePage = document.querySelector(`#page-${pageNumber}`);
+    if (activePage) activePage.classList.add("active");
+  }
+
+  // เริ่มโหลดข้อมูลเมื่อหน้าโหลด
+  fetchData();
 </script>
 
 

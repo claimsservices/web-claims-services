@@ -390,7 +390,7 @@
                 <h5 class="card-title mb-0">ข้อมูลการรับแจ้ง</h5>
               </div>
               <div class="card-body">
-                <form>
+                <form id="taskForm">
                   <div class="row g-4 mt-3">
                     <!-- Column 1 -->
                     <div class="col-md-3">
@@ -466,21 +466,21 @@
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
                           <select class="form-select ps-4" id="jobType" required>
                             <option value="" disabled selected>-- เลือกประเภทงาน --</option>
-                            <option value="ซ่อมแซม">Inspection</option>
-                            <option value="เคลมประกัน">Roadside Assist</option>
+                            <option value="Inspection">Inspection</option>
+                            <option value="Roadside Assist">Roadside Assist</option>
                           </select>
                         </div>
                       </div>
                       <div class="mb-3">
-                        <label class="form-label" for="jobType">
+                        <label class="form-label" for="channel">
                           วิธีรับแจ้ง <span class="text-danger">*</span>
                         </label>
                         <div class="input-group input-group-merge">
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
-                          <select class="form-select ps-4" id="jobType" required>
+                          <select class="form-select ps-4" id="channel" required>
                             <option value="" disabled selected>-- เลือกวิธีรับแจ้ง --</option>
-                            <option value="ซ่อมแซม">โทรศัพท์</option>
-                            <option value="ซ่อมแซม">Email</option>
+                            <option value="โทรศัพท์">โทรศัพท์</option>
+                            <option value="Email">Email</option>
                           </select>
                         </div>
                       </div>
@@ -490,37 +490,37 @@
                     <!-- Column 4 (สามารถใช้เป็นช่องเปล่า หรือเพิ่ม field อื่น) -->
                     <div class="col-md-3">
                       <div class="mb-3">
-                        <label class="form-label" for="jobType">
+                        <label class="form-label" for="processType">
                           การดำเนินการ <span class="text-danger">*</span>
                         </label>
                         <div class="input-group input-group-merge">
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
-                          <select class="form-select ps-4" id="jobType" required>
+                          <select class="form-select ps-4" id="processType" required>
                             <option value="" disabled selected>-- การดำเนินการ --</option>
                             <option value="นัดหมาย">นัดหมาย</option>
-                            <option value="นัดหมาย">ไปทันที</option>
+                            <option value="ไปทันที">ไปทันที</option>
                           </select>
                         </div>
                       </div>
                       <div class="mb-3">
-                        <label class="form-label" for="jobType">
+                        <label class="form-label" for="orderStatus">
                           สถานะงาน <span class="text-danger">*</span>
                         </label>
                         <div class="input-group input-group-merge">
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
-                          <select class="form-select ps-4" id="jobType" required>
-                            <option value="Pending">เปิดงาน</option>
-                            <option value="Active" class="text-capitalize">รับเรื่องแล้ว</option>
-                            <option value="Inactive" class="text-capitalize">รับงาน</option>
-                            <option value="Inactive" class="text-capitalize">ปฏิเสธงาน</option>
-                            <option value="Inactive" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
-                            <option value="Inactive" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
-                            <option value="Inactive" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้ืองต้น</option>
-                            <option value="Inactive" class="text-capitalize">Pre-Approved</option>
-                            <option value="Inactive" class="text-capitalize">คีย์งานแล้ว</option>
-                            <option value="Inactive" class="text-capitalize">ผ่าน</option>
-                            <option value="Inactive" class="text-capitalize">ไม่ผ่าน</option>
-                            <option value="Inactive" class="text-capitalize">ยกเลิก</option>
+                          <select class="form-select ps-4" id="orderStatus" required>
+                            <option value="เปิดงาน">เปิดงาน</option>
+                            <option value="รับเรื่องแล้ว" class="text-capitalize">รับเรื่องแล้ว</option>
+                            <option value="รับงาน" class="text-capitalize">รับงาน</option>
+                            <option value="ปฏิเสธงาน" class="text-capitalize">ปฏิเสธงาน</option>
+                            <option value="เริ่มงาน/กำลังเดินทาง" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
+                            <option value="ถึงที่เกิดเหตุ/ปฏิบัติงาน" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
+                            <option value="ส่งงาน/ตรวจสอบเบื้ืองต้น" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้ืองต้น</option>
+                            <option value="Pre-Approved" class="text-capitalize">Pre-Approved</option>
+                            <option value="คีย์งานแล้ว" class="text-capitalize">คีย์งานแล้ว</option>
+                            <option value="ผ่าน" class="text-capitalize">ผ่าน</option>
+                            <option value="ไม่ผ่าน" class="text-capitalize">ไม่ผ่าน</option>
+                            <option value="ยกเลิก" class="text-capitalize">ยกเลิก</option>
                           </select>
                         </div>
                       </div>
@@ -905,17 +905,12 @@
 
                     </div>
                   </div>
-                  
-                  
-                  
-                  
-                  
                   <!-- End Pill-->
               
                   <!-- Submit -->
                   <div class="row mt-3">
                     <div class="col-md-12 text-end">
-                      <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+                      <button type="button" id="submittaskBtn" class="btn btn-primary">บันทึกข้อมูล</button>
                     </div>
                   </div>
                 </form>
@@ -1212,7 +1207,7 @@
         if (response.ok) {
           const result = await response.json();
           console.log('Uploaded:', result);
-          alert('อัปโหลดสำเร็จแล้ว');
+          alert('Upload completed successfully!');
           // อัปเดตแกลเลอรีภาพที่นี่
           const imageGallery = document.getElementById('imageGallery');
 
@@ -1247,19 +1242,113 @@
 
 </script>
 
-<!-- script placed just before </body> -->
 <script>
-  document.getElementById('logout').addEventListener('click', function (event) {
-    event.preventDefault();
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
-  });
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log("🔥 DOM Loaded");
 
-  document.getElementById('logout-menu').addEventListener('click', function (event) {
-    event.preventDefault();
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
+    const form = document.getElementById('taskForm');
+    if (!form) {
+      console.log('❌ ไม่เจอ taskForm');
+      return;
+    } else {
+      console.log('✅ เจอ taskForm แล้ว');
+      console.log('Form innerHTML snippet:', form.innerHTML.slice(0, 300));
+    }
+
+    // === Logout button listeners ===
+    const logoutBtn = document.getElementById('logout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('authToken');
+        window.location.href = '../index.html';
+      });
+    }
+
+    const logoutMenu = document.getElementById('logout-menu');
+    if (logoutMenu) {
+      logoutMenu.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('authToken');
+        window.location.href = '../index.html';
+      });
+    }
+
+    // === ตรวจสอบปุ่ม submit ดั้งเดิม (ถ้ามี) ===
+    const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+    console.log('All submit buttons in form:', submitButtons);
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      console.log('✅ เจอปุ่ม submit แล้ว');
+      submitBtn.addEventListener('click', function () {
+        console.log('ปุ่ม submit ถูกกด');
+      });
+    } else {
+      console.log('❌ ไม่พบปุ่ม submit');
+    }
+
+    // ✅ เพิ่มปุ่มที่ใช้ submit แบบ manual
+    const manualSubmitBtn = document.getElementById('submittaskBtn');
+    if (manualSubmitBtn) {
+      console.log('✅ พบปุ่ม #submittaskBtn แล้ว');
+      manualSubmitBtn.addEventListener('click', function () {
+        console.log('📥 ปุ่ม #submittaskBtn ถูกกด => ส่งฟอร์มด้วย JS');
+        form.requestSubmit(); // ทำให้เกิด event 'submit' ตามปกติ
+      });
+    } else {
+      console.log('❌ ไม่พบปุ่ม #submittaskBtn');
+    }
+
+    // ✅ ฟังชั่น submit ฟอร์ม
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      console.log('🔥 Submit event triggered');
+
+      const data = {
+        creator: document.getElementById('creatorName').value,
+        phone: document.getElementById('phone').value,
+        phone2: document.getElementById('phone2').value,
+        phone3: document.getElementById('phone3').value,
+        order_type: document.getElementById('jobType').value,
+        channel: document.getElementById('channel').value,
+        process_type: document.getElementById('processType').value,
+        order_status: document.getElementById('orderStatus').value,
+        owner: document.getElementById('ownerName').value
+      };
+      console.log('Form data:', data);
+
+      const token = localStorage.getItem('authToken') || '';
+      console.log('Token:', token);
+
+      try {
+        const response = await fetch('http://localhost:5400/api/orders/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        console.log('Response:', result);
+
+        if (response.ok) {
+          alert('สร้างคำสั่งเรียบร้อยแล้ว');
+          console.log('Order created:', result.order);
+          form.reset();
+          window.location.href = 'dashboard.html';
+        } else {
+          alert('เกิดข้อผิดพลาด: ' + result.message);
+        }
+      } catch (error) {
+        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+        console.error('Fetch error:', error);
+      }
+    });
   });
 </script>
+
   </body>
 </html>
