@@ -508,7 +508,7 @@
                         </label>
                         <div class="input-group input-group-merge">
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
-                          <select class="form-select ps-4" id="orderStatus" required>
+                          <select class="form-select ps-4" id="orderStatus" disabled>
                             <option value="เปิดงาน">เปิดงาน</option>
                             <option value="รับเรื่องแล้ว" class="text-capitalize">รับเรื่องแล้ว</option>
                             <option value="รับงาน" class="text-capitalize">รับงาน</option>
@@ -522,7 +522,9 @@
                             <option value="ไม่ผ่าน" class="text-capitalize">ไม่ผ่าน</option>
                             <option value="ยกเลิก" class="text-capitalize">ยกเลิก</option>
                           </select>
-                        </div>
+                          <!-- Hidden input เพื่อส่งค่าไปกับ form -->
+                          <input type="hidden" name="orderStatus" id="orderStatusHidden" value="เปิดงาน" />
+                          </div>
                       </div>
                     </div>
                   </div>
@@ -585,29 +587,106 @@
                                 <select class="form-select" id="carProvince">
                                   <option selected disabled>เลือกจังหวัด</option>
                                   <option>กรุงเทพมหานคร</option>
-                                  <option>เชียงใหม่</option>
+                                  <option>กระบี่</option>
+                                  <option>กาญจนบุรี</option>
+                                  <option>กาฬสินธุ์</option>
+                                  <option>กำแพงเพชร</option>
+                                  <option>ขอนแก่น</option>
+                                  <option>จันทบุรี</option>
+                                  <option>ฉะเชิงเทรา</option>
                                   <option>ชลบุรี</option>
+                                  <option>ชัยนาท</option>
+                                  <option>ชัยภูมิ</option>
+                                  <option>ชุมพร</option>
+                                  <option>เชียงราย</option>
+                                  <option>เชียงใหม่</option>
+                                  <option>ตรัง</option>
+                                  <option>ตราด</option>
+                                  <option>ตาก</option>
+                                  <option>นครนายก</option>
+                                  <option>นครปฐม</option>
+                                  <option>นครพนม</option>
+                                  <option>นครราชสีมา</option>
+                                  <option>นครศรีธรรมราช</option>
+                                  <option>นครสวรรค์</option>
+                                  <option>นนทบุรี</option>
+                                  <option>นราธิวาส</option>
+                                  <option>น่าน</option>
+                                  <option>บึงกาฬ</option>
+                                  <option>บุรีรัมย์</option>
+                                  <option>ปทุมธานี</option>
+                                  <option>ประจวบคีรีขันธ์</option>
+                                  <option>ปราจีนบุรี</option>
+                                  <option>ปัตตานี</option>
+                                  <option>พระนครศรีอยุธยา</option>
+                                  <option>พะเยา</option>
+                                  <option>พังงา</option>
+                                  <option>พัทลุง</option>
+                                  <option>พิจิตร</option>
+                                  <option>พิษณุโลก</option>
+                                  <option>เพชรบุรี</option>
+                                  <option>เพชรบูรณ์</option>
+                                  <option>แพร่</option>
+                                  <option>พังงา</option>
                                   <option>ภูเก็ต</option>
+                                  <option>มหาสารคาม</option>
+                                  <option>มุกดาหาร</option>
+                                  <option>แม่ฮ่องสอน</option>
+                                  <option>ยโสธร</option>
+                                  <option>ยะลา</option>
+                                  <option>ร้อยเอ็ด</option>
+                                  <option>ระนอง</option>
+                                  <option>ระยอง</option>
+                                  <option>ราชบุรี</option>
+                                  <option>ลพบุรี</option>
+                                  <option>ลำปาง</option>
+                                  <option>ลำพูน</option>
+                                  <option>เลย</option>
+                                  <option>ศรีสะเกษ</option>
+                                  <option>สกลนคร</option>
+                                  <option>สงขลา</option>
+                                  <option>สตูล</option>
+                                  <option>สมุทรปราการ</option>
+                                  <option>สมุทรสงคราม</option>
+                                  <option>สมุทรสาคร</option>
+                                  <option>สระแก้ว</option>
+                                  <option>สระบุรี</option>
+                                  <option>สิงห์บุรี</option>
+                                  <option>สุโขทัย</option>
+                                  <option>สุพรรณบุรี</option>
+                                  <option>สุราษฎร์ธานี</option>
+                                  <option>สุรินทร์</option>
+                                  <option>หนองคาย</option>
+                                  <option>หนองบัวลำภู</option>
+                                  <option>อ่างทอง</option>
+                                  <option>อำนาจเจริญ</option>
+                                  <option>อุดรธานี</option>
+                                  <option>อุตรดิตถ์</option>
+                                  <option>อุทัยธานี</option>
+                                  <option>อุบลราชธานี</option>
                                 </select>
+                              
                               </div>
                               <div class="mb-3">
                                 <label class="form-label fw-semibold">ยี่ห้อรถ</label>
                                 <select class="form-select" id="carBrand">
                                   <option selected disabled>เลือกยี่ห้อ</option>
-                                  <option>Toyota</option>
-                                  <option>Honda</option>
-                                  <option>Isuzu</option>
-                                  <option>Mitsubishi</option>
+                                  <option value="Toyota">Toyota</option>
+                                  <option value="Honda">Honda</option>
+                                  <option value="Isuzu">Isuzu</option>
+                                  <option value="Mitsubishi">Mitsubishi</option>
+                                  <option value="Nissan">Nissan</option>
+                                  <option value="Mazda">Mazda</option>
+                                  <option value="Ford">Ford</option>
+                                  <option value="Suzuki">Suzuki</option>
+                                  <option value="MG">MG</option>
                                 </select>
                               </div>
+                              
                               <div>
                                 <label class="form-label fw-semibold">รุ่นรถ</label>
                                 <select class="form-select" id="carModel">
                                   <option selected disabled>เลือกรุ่น</option>
-                                  <option>Fortuner</option>
-                                  <option>Civic</option>
-                                  <option>D-Max</option>
-                                  <option>Pajero</option>
                                 </select>
                               </div>
                               <div class="form-check mt-4">
@@ -642,7 +721,27 @@
                               </div>
                               <div>
                                 <label class="form-label fw-semibold">สีรถ</label>
-                                <input type="text" class="form-control" placeholder="ระบุสีรถ" id="carColor">
+                                <input list="carColors" class="form-control" placeholder="ระบุสีรถ" id="carColor" />
+                              
+                                <datalist id="carColors">
+                                  <option value="ขาว">
+                                  <option value="ดำ">
+                                  <option value="เทา">
+                                  <option value="เงิน">
+                                  <option value="แดง">
+                                  <option value="น้ำเงิน">
+                                  <option value="เขียว">
+                                  <option value="เหลือง">
+                                  <option value="ส้ม">
+                                  <option value="น้ำตาล">
+                                  <option value="ม่วง">
+                                  <option value="ฟ้า">
+                                  <option value="บรอนซ์เงิน">
+                                  <option value="บรอนซ์ทอง">
+                                  <option value="ชมพู">
+                                  <option value="ทอง">
+                                  <option value="ครีม">
+                                </datalist>
                               </div>
                             </div>
                           </div>
@@ -1243,6 +1342,42 @@
 </script>
 
 <script>
+  const carModels = {
+    Toyota: ['Fortuner', 'Hilux Revo', 'Yaris', 'Corolla Altis', 'Camry', 'Vios'],
+    Honda: ['Civic', 'City', 'Jazz', 'Accord', 'CR-V', 'HR-V'],
+    Isuzu: ['D-Max', 'MU-X'],
+    Mitsubishi: ['Pajero Sport', 'Triton', 'Attrage', 'Xpander'],
+    Nissan: ['Navara', 'Almera', 'Teana', 'Terra', 'Note'],
+    Mazda: ['Mazda 2', 'Mazda 3', 'CX-3', 'CX-5', 'BT-50'],
+    Ford: ['Ranger', 'Everest', 'Focus'],
+    Suzuki: ['Swift', 'Celerio', 'XL7', 'Ertiga'],
+    MG: ['MG3', 'MG5', 'ZS', 'HS', 'Extender']
+  };
+
+  const brandSelect = document.getElementById('carBrand');
+  const modelSelect = document.getElementById('carModel');
+
+  brandSelect.addEventListener('change', function () {
+    const selectedBrand = this.value;
+    const models = carModels[selectedBrand] || [];
+
+    // ล้าง options เก่า
+    modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
+
+    // เพิ่ม options ตามรุ่น
+    models.forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = model;
+      modelSelect.appendChild(option);
+    });
+
+    // เปิด dropdown รุ่นเมื่อเลือกยี่ห้อแล้ว
+    modelSelect.disabled = models.length === 0;
+  });
+</script>
+
+<script>
   document.addEventListener('DOMContentLoaded', () => {
     const now = new Date();
 
@@ -1359,10 +1494,10 @@
 
       const data = {
         // 🔹 orders
-        creator:  document.getElementById('creatorName').value,
-        owner: document.getElementById('ownerName').value,
+        creator:  document.getElementById('ownerName').value,
+        owner: document.getElementById('responsiblePerson').value,
         order_type: document.getElementById('jobType').value,
-        order_status: document.getElementById('orderStatus').value,
+        order_status: document.getElementById('orderStatusHidden').value,
         channel: document.getElementById('channel').value,
         process_type: document.getElementById('processType').value,
         insur_comp: document.getElementById('insuranceCompany').value,
@@ -1402,6 +1537,7 @@
         s_detail: document.getElementById('s_detail').value,
         s_fleet: document.getElementById('fleetCar').checked,
         updated_by: created_by,
+        c_name: document.getElementById('creatorName').value,
 
         // 🔹 order_assign[] (ใส่ตัวอย่างเดียว)
         order_assign: [
