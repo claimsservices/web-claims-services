@@ -789,7 +789,7 @@
                               <label class="form-label">สถานที่นัดหมาย</label>
                               <div class="input-group mb-3">
                                 <input id="address" type="text" class="form-control" placeholder="กรอกที่อยู่หรือปักหมุดจาก Google Maps">
-                                <button class="btn btn-outline-primary" id="openMap">ค้นหาบน Maps</button>
+                                <button   type="button"  class="btn btn-outline-primary" id="openMap">ค้นหาบน Maps</button>
                               </div>
                       
                               <!-- ผู้รับผิดชอบ -->
@@ -1243,6 +1243,46 @@
 </script>
 
 <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+
+    const options = {
+      timeZone: 'Asia/Bangkok',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    };
+
+    const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(now);
+    const getPart = (type) => parts.find(p => p.type === type).value;
+
+    const formatted = `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
+
+    document.getElementById('transactionDate').value = formatted;
+  });
+</script>
+
+<script>
+  document.getElementById('openMap').addEventListener('click', function () {
+    const address = document.getElementById('address').value.trim();
+
+    if (!address) {
+      alert('กรุณากรอกที่อยู่ก่อนเปิดแผนที่');
+      return;
+    }
+
+    const query = encodeURIComponent(address);
+    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+    window.open(mapUrl, '_blank');
+  });
+</script>
+
+<script>
   document.addEventListener('DOMContentLoaded', function () {
     console.log("🔥 DOM Loaded");
 
@@ -1308,7 +1348,7 @@
       const token = localStorage.getItem('authToken') || '';
       console.log('Token:', token);
 
-      const created_by = document.getElementById('creatorName').value;
+      const created_by = document.getElementById('ownerName').value;
       const date = document.getElementById('appointmentDate').value;
       const time = document.getElementById('appointmentTime').value;
 
@@ -1319,7 +1359,7 @@
 
       const data = {
         // 🔹 orders
-        creator: created_by,
+        creator:  document.getElementById('creatorName').value,
         owner: document.getElementById('ownerName').value,
         order_type: document.getElementById('jobType').value,
         order_status: document.getElementById('orderStatus').value,
