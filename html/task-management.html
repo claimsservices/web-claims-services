@@ -147,12 +147,12 @@
     <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-  #imageGallery {
+  #gallery-documents {
     gap: 12px;
     display: flex;
     flex-wrap: wrap;
   }
-  #imageGallery > div {
+  #gallery-documents > div {
     flex: 1 0 21%;
     max-width: 21%;
     margin-bottom: 12px;
@@ -928,20 +928,13 @@
                       </div>
                   
                       <!-- Tab 3 -->
-                      <!-- HTML ส่วนแสดงภาพและปุ่มดาวน์โหลดทั้งหมด -->
-                      <div class="tab-pane fade" id="tab-contact" role="tabpanel">
-                        <div class="row mb-3">
-                          <div class="col-12">
-                            <button class="btn btn-primary" id="downloadAllBtn">
-                              ดาวน์โหลดรูปทั้งหมด (.zip)
-                            </button>
-                            <button class="btn btn-success" id="downloadSelectedBtn">
-                              ดาวน์โหลดรูปที่เลือก (.zip)
-                            </button>
-                          </div>
-                        </div>
-                        <div class="row" id="imageGallery"></div>
-                      </div>
+                      <!-- ภาพถ่ายแยกตามหมวดหมู่ -->
+<div class="tab-pane fade" id="tab-contact" role="tabpanel">
+</div>
+
+
+
+
 
                       <!-- Tab 4 -->
                       <div class="tab-pane fade" id="tab-history" role="tabpanel">
@@ -1183,7 +1176,7 @@
 <script>
   const imageUrls = [];
 
-  const gallery = document.getElementById('imageGallery');
+  const gallery = document.getElementById('gallery-documents');
 
   imageUrls.forEach((url, index) => {
     const col = document.createElement('div');
@@ -1308,7 +1301,7 @@
           console.log('Uploaded:', result);
           alert('Upload completed successfully!');
           // อัปเดตแกลเลอรีภาพที่นี่
-          const imageGallery = document.getElementById('imageGallery');
+          const gallery_documents = document.getElementById('gallery-documents');
 
           // วนลูปเพิ่มรูปที่อัปโหลดลง gallery
           if (result.uploaded && result.uploaded.length) {
@@ -1320,7 +1313,7 @@
               <img src="${img.url}" alt="Uploaded Image" class="card-img-top rounded" style="height: 150px; object-fit: cover;">
             </div>
           `;
-              imageGallery.appendChild(col);
+              gallery_documents.appendChild(col);
             });
           }
           imageInput.value = '';
@@ -1400,6 +1393,7 @@
     document.getElementById('transactionDate').value = formatted;
   });
 </script>
+
 
 <script>
   document.getElementById('openMap').addEventListener('click', function () {
