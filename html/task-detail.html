@@ -464,7 +464,7 @@
                         </label>
                         <div class="input-group input-group-merge">
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
-                          <select class="form-select ps-4" id="jobType" required>
+                          <select class="form-select ps-4" id="jobType" disabled>
                             <option value="" disabled selected>-- เลือกประเภทงาน --</option>
                             <option value="Inspection">Inspection</option>
                             <option value="Roadside Assist">Roadside Assist</option>
@@ -508,7 +508,7 @@
                         </label>
                         <div class="input-group input-group-merge">
                           <span class="input-group-text"><i class="bx bx-briefcase"></i></span>
-                          <select class="form-select ps-4" id="orderStatus" disabled>
+                          <select class="form-select ps-4" id="orderStatus">
                             <option value="เปิดงาน">เปิดงาน</option>
                             <option value="รับเรื่องแล้ว" class="text-capitalize">รับเรื่องแล้ว</option>
                             <option value="รับงาน" class="text-capitalize">รับงาน</option>
@@ -540,22 +540,22 @@
                         </button>
                       </li>
                       <li class="nav-item">
-                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-profile" role="tab" disabled>
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-profile" role="tab">
                           <i class="tf-icons bx bx-user"></i> นัดหมายสั่งการ
                         </button>
                       </li>
                       <li class="nav-item">
-                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-contact" role="tab" disabled>
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-contact" role="tab">
                           <i class="tf-icons bx bx-envelope"></i> ข้อมูลรูปภาพ
                         </button>
                       </li>
                       <li class="nav-item">
-                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-history" role="tab" disabled>
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-history" role="tab">
                           <i class="tf-icons bx bx-history"></i> History Activity
                         </button>
                       </li>
                       <li class="nav-item">
-                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-upload" role="tab" disabled>
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-upload" role="tab">
                           <i class="tf-icons bx bx-upload"></i> Upload Picture
                         </button>
                       </li>
@@ -946,32 +946,8 @@
                       <!-- Tab 4 -->
                       <div class="tab-pane fade" id="tab-history" role="tabpanel">
                         <h5 class="mb-4">ประวัติการอัปเดตงาน</h5>
-                        <ul class="timeline">
-                          <li class="timeline-item">
-                            <span class="timeline-icon bg-primary"><i class="bx bx-plus"></i></span>
-                            <div class="timeline-content">
-                              <h6 class="timeline-title">สร้างงานใหม่</h6>
-                              <p class="timeline-description">ผู้ใช้งานทั่วไปเริ่มงานนี้</p>
-                              <small class="text-muted">5 มิ.ย. 2025 - 08:45 น.</small>
-                            </div>
-                          </li>
-                          <li class="timeline-item">
-                            <span class="timeline-icon bg-info"><i class="bx bx-file"></i></span>
-                            <div class="timeline-content">
-                              <h6 class="timeline-title">แนบเอกสาร</h6>
-                              <p class="timeline-description">วรินทร์ เพิ่มไฟล์เอกสารแนบ</p>
-                              <small class="text-muted">5 มิ.ย. 2025 - 15:00 น.</small>
-                            </div>
-                          </li>
-                          <li class="timeline-item">
-                            <span class="timeline-icon bg-success"><i class="bx bx-refresh"></i></span>
-                            <div class="timeline-content">
-                              <h6 class="timeline-title">สถานะ: กำลังดำเนินการ</h6>
-                              <p class="timeline-description">สมชาย อัปเดตสถานะของงาน</p>
-                              <small class="text-muted">6 มิ.ย. 2025 - 10:30 น.</small>
-                            </div>
-                          </li>
-                          <!-- เพิ่มรายการอื่น ๆ ได้ตามต้องการ -->
+                        <ul class="timeline" id="historyTimeline">
+                          <!-- จะถูกเติมจาก JavaScript -->
                         </ul>
                       </div>
 
@@ -1469,7 +1445,7 @@
         return;
       }
 
-      const { order, order_details, order_assign } = result;
+      const { order, order_details, order_assign, order_hist } = result;
 
       // 🔹 orders
       document.getElementById('taskId').value = order.id;
@@ -1499,9 +1475,8 @@
         document.getElementById('c_tell').value = order_details.c_tell;
         document.getElementById('carProvince').value = order_details.c_car_province;
 
-        // ✅ ยี่ห้อและรุ่นรถ (แก้ตรงนี้)
         document.getElementById('carBrand').value = order_details.c_brand;
-        brandSelect.dispatchEvent(new Event('change')); // Load รุ่นรถ
+        brandSelect.dispatchEvent(new Event('change'));
         document.getElementById('carModel').value = order_details.c_version;
 
         document.getElementById('carYear').value = order_details.c_year;
@@ -1525,9 +1500,43 @@
         document.getElementById('creatorName').value = order_details.c_name;
       }
 
-      // 🔹 order_assign (เอาแค่รายการแรก)
+      // 🔹 order_assign (รายการแรก)
       if (order_assign.length > 0) {
         document.getElementById('contactedCustomer').checked = order_assign[0].is_contact;
+      }
+
+      // 🔹 order_hist (แสดงบน timeline)
+      const timelineEl = document.getElementById('historyTimeline');
+      timelineEl.innerHTML = ''; // clear previous
+
+      if (order_hist && order_hist.length > 0) {
+        order_hist.forEach(hist => {
+          const date = new Date(hist.created_date);
+          const formattedDate = date.toLocaleDateString('th-TH', {
+            year: 'numeric', month: 'short', day: 'numeric'
+          }) + ' - ' + date.toLocaleTimeString('th-TH', {
+            hour: '2-digit', minute: '2-digit'
+          }) + ' น.';
+
+          const li = document.createElement('li');
+          li.className = 'timeline-item';
+          li.innerHTML = `
+            <span class="timeline-icon bg-secondary">${hist.icon || '🕓'}</span>
+            <div class="timeline-content">
+              <h6 class="timeline-title">${hist.task}</h6>
+              <p class="timeline-description">${hist.detail}</p>
+              <small class="text-muted">${formattedDate}</small>
+            </div>
+          `;
+          timelineEl.appendChild(li);
+        });
+      } else {
+        timelineEl.innerHTML = `
+          <li class="timeline-item">
+            <div class="timeline-content">
+              <p class="timeline-description text-muted">ไม่มีประวัติการอัปเดต</p>
+            </div>
+          </li>`;
       }
 
     } catch (err) {
@@ -1536,6 +1545,7 @@
     }
   }
 </script>
+
 
 
 <script>
