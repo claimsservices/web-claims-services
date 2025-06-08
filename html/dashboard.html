@@ -716,7 +716,9 @@
     paginatedData.forEach(item => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${item.id}</td>
+        <td>
+          <a href="task-detail.html?id=${item.id}" class="text-primary">${item.id}</a>
+        </td>
         <td>${item.insur_comp}</td>
         <td>${item.order_date || ''}</td>
         <td>${item.appointment_date || ''}</td>
