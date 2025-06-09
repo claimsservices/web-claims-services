@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+
+<!-- =========================================================
+* Sneat - Bootstrap 5 HTML Admin Template - Pro | v1.0.0
+==============================================================
+
+* Product Page: https://themeselection.com/products/sneat-bootstrap-html-admin-template/
+* Created by: ThemeSelection
+* License: You must have a valid license purchased in order to legally use the theme for your project.
+* Copyright ThemeSelection (https://themeselection.com)
+
+=========================================================
+ -->
+<!-- beautify ignore:start -->
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="../assets/"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>e-Claim Services</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="../assets/css/demo.css" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+    <link rel="stylesheet" href="../assets/vendor/libs/apex-charts/apex-charts.css" />
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="../assets/vendor/js/helpers.js"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="../assets/js/config.js"></script>
+
+    <script>
+      // Check if the user has a valid token and the required role
+      const accessToken = localStorage.getItem('authToken'); // Check if token is available
+      const RETURN_LOGIN_PAGE = '../index.html';
+      console.log("aaa" + accessToken);
+
+      // If there's no token, redirect to login
+      if (!accessToken) {
+        window.location.href = RETURN_LOGIN_PAGE;
+      }
+
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-3m0eV2Y7F/1XpA6uTqvDc7jfXjRyD5N1xulIZv1ZCRe0zk0qKshFzXrKTrvsfEne" crossorigin="anonymous" />
+    <style>
+      td {
+        font-family: 'Kanit', sans-serif;
+        font-size: 12px;
+        /* กำหนดขนาดตัวอักษร */
+        text-align: left;
+        /* ชิดซ้าย */
+        vertical-align: top;
+        /* ชิดด้านบน */
+        padding: 8px;
+        /* เพิ่มระยะห่างในเซลล์ */
+        word-wrap: break-word;
+        /* ตัดคำเมื่อข้อความยาวเกิน */
+        white-space: normal;
+        /* อนุญาตให้ขึ้นบรรทัดใหม่ */
+      }
+      th {
+      background-color: #333;
+      color: rgba(255, 255, 255, 0.603);
+    }
+    
+      th:nth-child(6),
+      td:nth-child(6) {
+        width: 20%;
+        /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ */
+      }
+    </style>
+
+    <!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<!-- Thai locale (ถ้าต้องการ) -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo">
+          <a href="" class="app-brand-link gap-2">
+            <span class="app-brand-logo demo">
+              <img src="..\assets\img\elements\3P3.png" alt="Logo" width="65" />
+              <!-- Adjust width as needed -->
+            </span>
+          </a>
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
+          </a>
+        </div>
+
+        <div class="menu-inner-shadow"></div>
+
+        <ul class="menu-inner py-1">
+          <!-- Dashboard -->
+          <li class="menu-item active">
+            <a href="task-attachments.html" class="menu-link">
+              <i class="menu-icon icon-base bx bx-car"></i>
+              <div data-i18n="Analytics">Task Attachments</div>
+            </a>
+          </li>
+        </ul>
+      </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+
+          <nav
+            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+            id="layout-navbar"
+          >
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                <i class="bx bx-menu bx-sm"></i>
+              </a>
+            </div>
+
+            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+             
+              <!-- /Search -->
+
+              <ul class="navbar-nav flex-row align-items-center ms-auto">
+
+                <!-- User -->
+                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" href="javascript:void(0);"
+                    data-bs-toggle="dropdown">
+                    <div class="avatar avatar-online">
+                      <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
+                    </div>
+                    <div class="text-start">
+                      <span class="fw-semibold d-block" id="user-info"></span>
+                      <small class="text-muted" id="user-role"></small>
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="#">
+                      <i class="bx bx-user me-2"></i>
+                      <span class="align-middle">My Profile</span>
+                    </a>
+                </li>
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="" id="logout">
+                    <i class="bx bx-power-off me-2"></i>
+                    <span class="align-middle">Log Out</span>
+                  </a>
+                </li>
+                </ul>
+                </li>
+                <!--/ User -->
+              </ul>
+            </div>
+          </nav>
+
+          <!-- / Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="container-xxl flex-grow-1 container-p-y">
+            
+
+            <div class="card">
+              <div class="card-header border-bottom">
+              <div class="card-header border-bottom">
+                <div class="row align-items-center g-3">
+                  
+
+                </div>
+              </div>
+              <div class="table-responsive text-nowrap">
+                <table class="table table-striped table-hover table-bordered" id="userTable">
+                  <thead class="table-dark">
+                    <tr>
+                      <th style="color: white;">รหัสงาน</th>
+                      <th style="color: white;">วันที่นัดหมาย</th>
+                      <th style="color: white;">สถานที่</th>
+                      <th style="color: white;">ผู้สร้างงาน</th>
+                      <th style="color: white;">สถานะงาน</th>
+                    </tr>
+                  </thead>
+                  <tbody id="userTableBody" class="table-border-bottom-0">
+                    <!-- Sample Row -->          
+                  </tbody>
+                </table>
+                <div id="pagination-container">
+                  <ul class="pagination">
+                    <!-- Pagination buttons will be inserted here -->
+                  </ul>
+                </div>
+
+                <style>
+                  #pagination-container {
+                    text-align: right; /* Align pagination to the right */
+                    margin-top: 20px; /* Optional margin for spacing */
+                  }
+                
+                  .pagination {
+                    display: inline-flex; /* Display buttons in a row */
+                    list-style: none; /* Remove default list styling */
+                    padding: 0;
+                  }
+                
+                  .pagination .page-item {
+                    margin: 0; /* Remove margin between items */
+                  }
+
+                  .pagination .page-item:last-child {
+                    margin-right: 15px; /* Remove margin on the last button */
+                  }
+                
+                  .pagination .page-link {
+                    font-size: 12px; /* Small font size */
+                    padding: 6px 10px; /* Slight padding for better clickability */
+                    border-radius: 4px; /* Rounded corners */
+                    background-color: #f8f9fa; /* Light background color */
+                    border: 1px solid #ddd; /* Subtle border */
+                    color: #555; /* Neutral text color */
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                  }
+                
+                  .pagination .page-link:hover {
+                    background-color: #e9ecef; /* Subtle hover effect */
+                    border-color: #ccc; /* Lighter border on hover */
+                  }
+                
+                  .pagination .page-item.active .page-link {
+                    background-color: #007bff; /* Active button color */
+                    color: white; /* Active button text color */
+                    border-color: #007bff; /* Active border color */
+                  }
+                </style>
+                
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+         
+      </div>
+      
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+      
+    </div>
+    <!-- / Layout wrapper -->
+
+    <!-- Core JS -->
+     <script>
+      fetch('/version.json')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("appVersion").textContent = `App Version ${data.version}`;
+        })
+        .catch(() => {
+          document.getElementById("appVersion").textContent = "App Version -";
+        });
+    </script>
+    <!-- build:js assets/vendor/js/core.js -->
+    <script src="../assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="../assets/vendor/libs/popper/popper.js"></script>
+    <script src="../assets/vendor/js/bootstrap.js"></script>
+    <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+
+    <script src="../assets/vendor/js/menu.js"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+    <script src="../assets/vendor/libs/apex-charts/apexcharts.js"></script>
+
+    <!-- Main JS -->
+    <script src="../assets/js/main.js"></script>
+
+    <!-- Page JS -->
+    <script src="../assets/js/dashboards-analytics.js"></script>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script>
+      // Constants for URLs and other fixed strings
+      const LOGIN_PAGE = '../index.html';
+      const API_URL = 'https://be-claims-service.onrender.com/api/auth/profile';
+
+      // Function to decode JWT token and check for expiration
+      function decodeJWT(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64));  // Decode the token
+        } catch (e) {
+          console.error('Failed to decode JWT:', e);
+          return null;
+        }
+      }
+
+      // Function to check if the token is expired
+      function isTokenExpired(decodedToken) {
+        const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+        return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
+      }
+
+      // Main logic
+      async function loadUserProfile() {
+        const token = localStorage.getItem('authToken'); // Check if token is available
+
+        // If there's no token, redirect to login
+        if (!token) {
+          window.location.href = LOGIN_PAGE;
+          return;
+        }
+
+        // Decode the JWT token (assuming it's a JWT token)
+        function parseJwt(token) {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          return JSON.parse(jsonPayload);
+        }
+
+        // ใช้งาน
+        const decoded = parseJwt(token);
+
+        const id = decoded.id;
+        const userName = decoded.username;
+        const fname = decoded.first_name;
+        const lname = decoded.last_name;
+        const email = decoded.email;
+        const role = decoded.role;
+        const myPicture = decoded.myPicture;
+
+        document.getElementById('user-info').innerText = fname + ' ' + lname;
+        document.getElementById('user-role').innerText = role;
+
+        const imageUrl = myPicture;  // Extract the image URL from the response
+        const imgElement = document.getElementById('userAvatar');
+        imgElement.src = imageUrl;  // Update the image src dynamically
+
+        if (decoded && isTokenExpired(decoded)) {
+          // Token is expired
+          localStorage.removeItem('authToken'); // Clear token
+          window.location.href = LOGIN_PAGE; // Redirect to login page
+          return;
+        }
+
+        // If the token is valid, fetch user profile
+        try {
+          const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+              'Authorization': `${token}`,  // Use the token in the Authorization header
+            },
+          });
+          console.log(response);
+          if (!response.ok) {
+            //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
+            localStorage.removeItem('authToken');
+            window.location.href = LOGIN_PAGE;
+            return;
+          }
+        } catch (error) {
+          //Handle fetch errors(network issues, etc.)
+          console.error('Error fetching user profile:', error);
+          localStorage.removeItem('authToken');
+          window.location.href = LOGIN_PAGE; // Redirect to login page on error
+        }
+      }
+
+
+      // Call the function to load the user profile
+      document.addEventListener('DOMContentLoaded', () => {
+  loadUserProfile();
+});
+    </script>
+
+<script>
+  // Check user role (example assumes role is stored in localStorage)
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+
+    // Check if the user has the 'admin' role
+    if (user.role === 'Field-Agent') {
+      //do some think
+    }else{
+      localStorage.removeItem('authToken');
+      window.location.href = '../index.html';
+    }
+  }
+</script>
+<script>
+  const itemsPerPage = 20;
+  let currentPage = 1;
+  let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
+
+  async function fetchData() {
+    try {
+      const res = await fetch('https://be-claims-service.onrender.com/api/orders/inquiry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${token}`
+        },
+        body: JSON.stringify({}) // สามารถใส่ filter ได้ เช่น { insur_comp: 'AIA' }
+      });
+
+      if (!res.ok) throw new Error('Fetch failed');
+
+      const data = await res.json();
+      allData = data;
+      renderTableData(currentPage);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    }
+  }
+
+  function renderTableData(page) {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedData = allData.slice(start, end);
+
+    const tableBody = document.querySelector("#userTable tbody");
+    tableBody.innerHTML = "";
+
+    paginatedData.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>
+          <a href="task-attachments-upload.html?id=${item.id}" class="text-primary">${item.id}</a>
+        </td>
+        <td>${item.appointment_date || ''}</td>
+        <td>
+      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank">
+        ${item.location}
+      </a>
+    </td>
+        <td>${item.creator}</td>
+        <td>${item.order_status}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    generatePagination();
+  }
+
+  function generatePagination() {
+    const totalPages = Math.ceil(allData.length / itemsPerPage);
+    const paginationContainer = document.querySelector(".pagination");
+    paginationContainer.innerHTML = "";
+
+    const prevButton = document.createElement("li");
+    prevButton.classList.add("page-item");
+    prevButton.innerHTML = `<a class="page-link" href="#">ก่อนหน้า</a>`;
+    prevButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTableData(currentPage);
+      }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageItem = document.createElement("li");
+      pageItem.classList.add("page-item");
+      pageItem.id = `page-${i}`;
+      pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      pageItem.addEventListener("click", () => {
+        currentPage = i;
+        renderTableData(currentPage);
+      });
+      paginationContainer.appendChild(pageItem);
+    }
+
+    const nextButton = document.createElement("li");
+    nextButton.classList.add("page-item");
+    nextButton.innerHTML = `<a class="page-link" href="#">ถัดไป</a>`;
+    nextButton.addEventListener("click", () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderTableData(currentPage);
+      }
+    });
+    paginationContainer.appendChild(nextButton);
+
+    setActivePage(currentPage);
+  }
+
+  function setActivePage(pageNumber) {
+    const pages = document.querySelectorAll(".pagination .page-item");
+    pages.forEach(page => page.classList.remove("active"));
+    const activePage = document.querySelector(`#page-${pageNumber}`);
+    if (activePage) activePage.classList.add("active");
+  }
+
+  // เริ่มโหลดข้อมูลเมื่อหน้าโหลด
+  fetchData();
+</script>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // สร้างวันที่ใน timezone Asia/Bangkok และตั้งเวลาเป็น 06:00
+    const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
+    const todayBangkok = new Date(nowInBangkok);
+    todayBangkok.setHours(6, 0, 0, 0); // ตั้งเวลาเป็น 06:00:00
+
+    // เปิด Flatpickr
+    flatpickr("#filterDateTime", {
+      enableTime: true,
+      dateFormat: "d/m/Y H:i",  // dd/MM/yyyy HH:mm
+      defaultDate: todayBangkok,
+      time_24hr: true,
+      locale: "th"
+    });
+  });
+</script>
+
+
+<!-- script placed just before </body> -->
+<script>
+  document.getElementById('logout').addEventListener('click', function (event) {
+    event.preventDefault();
+    localStorage.removeItem('authToken');
+    window.location.href = '../index.html';
+  });
+
+  document.getElementById('logout-menu').addEventListener('click', function (event) {
+    event.preventDefault();
+    localStorage.removeItem('authToken');
+    window.location.href = '../index.html';
+  });
+</script>
+
+
+  </body>
+</html>

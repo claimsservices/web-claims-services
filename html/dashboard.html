@@ -677,6 +677,10 @@
       // Show the admin menu
       document.getElementById('admin-menu').style.display = 'block';
     }
+    if (user.role === 'Field-Agent') {
+      localStorage.removeItem('authToken');
+      window.location.href = '../index.html';
+    }
   }
 </script>
 <script>

@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="../assets/"
+  data-template="vertical-menu-template-free">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+  <title>Task Attachments</title>
+
+  <meta name="description" content="" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Icons. Uncomment required icon fonts -->
+  <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
+  <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+  <link rel="stylesheet" href="../assets/css/demo.css" />
+
+  <!-- Vendors CSS -->
+  <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+  <!-- Page CSS -->
+
+  <!-- Helpers -->
+  <script src="../assets/vendor/js/helpers.js"></script>
+
+  <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+  <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+  <script src="../assets/js/config.js"></script>
+  <script>
+    // Check if the user has a valid token and the required role
+    const accessToken = localStorage.getItem('authToken'); // Check if token is available
+    const RETURN_LOGIN_PAGE = '../index.html';
+
+    // If there's no token, redirect to login
+    if (!accessToken) {
+      window.location.href = RETURN_LOGIN_PAGE;
+    }
+  </script>
+
+  <style>
+    /* กล่องแต่ละหัวข้อ */
+    .upload-section {
+      border: 1.5px solid #ced4da;
+      border-radius: 10px;
+      padding: 20px 25px;
+      margin-bottom: 25px;
+      background-color: #fff;
+      box-shadow: 0 3px 7px rgb(0 0 0 / 0.08);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .upload-section:hover {
+      box-shadow: 0 6px 15px rgb(0 0 0 / 0.15);
+    }
+
+    .upload-section h5 {
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .upload-section p {
+      font-size: 0.9rem;
+      color: #6c757d;
+      margin-bottom: 15px;
+    }
+
+    .image-gallery {
+      border: 2px dashed #ced4da;
+      border-radius: 8px;
+      padding: 25px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+      font-weight: 500;
+      font-size: 1rem;
+      color: #6c757d;
+    }
+
+    .image-gallery:hover {
+      background-color: #f8f9fa;
+      border-color: #495057;
+    }
+
+    .placeholder {
+      user-select: none;
+    }
+  </style>
+
+  <style>
+    .image-gallery {
+      cursor: pointer;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      transition: border-color 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .image-gallery:hover {
+      border-color: #0d6efd;
+    }
+
+    .image-gallery img {
+      width: 100%;
+      max-height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      display: none;
+    }
+
+    .image-gallery i {
+      font-size: 3rem;
+      color: #666;
+      display: block;
+    }
+
+    .image-gallery .title {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .multiple-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .multiple-preview img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+  </style>
+
+  <style>
+    /* Skeleton Loading Style */
+    .skeleton {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+      background-size: 400% 100%;
+      animation: shimmer 1.4s ease infinite;
+      border-radius: 0.375rem;
+      border: 1px solid #ccc;
+      display: inline-block;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Layout wrapper -->
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+      <!-- Menu -->
+
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo">
+          <a href="" class="app-brand-link gap-2">
+            <span class="app-brand-logo demo">
+              <img src="..\assets\img\elements\3P3.png" alt="Logo" width="65" />
+              <!-- Adjust width as needed -->
+            </span>
+          </a>
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
+          </a>
+        </div>
+
+        <div class="menu-inner-shadow"></div>
+
+        <ul class="menu-inner py-1">
+          <!-- Dashboard -->
+          <li class="menu-item active">
+            <a href="task-attachments.html" class="menu-link">
+              <i class="menu-icon icon-base bx bx-car"></i>
+              <div data-i18n="Analytics">Task Attachments</div>
+            </a>
+          </li>
+        </ul>
+      </aside>
+      <!-- / Menu -->
+
+      <!-- Layout container -->
+      <div class="layout-page">
+        <!-- Navbar -->
+
+        <nav
+            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+            id="layout-navbar"
+          >
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                <i class="bx bx-menu bx-sm"></i>
+              </a>
+            </div>
+
+            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+             
+              <!-- /Search -->
+
+              <ul class="navbar-nav flex-row align-items-center ms-auto">
+
+                <!-- User -->
+                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" href="javascript:void(0);"
+                    data-bs-toggle="dropdown">
+                    <div class="avatar avatar-online">
+                      <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
+                    </div>
+                    <div class="text-start">
+                      <span class="fw-semibold d-block" id="user-info"></span>
+                      <small class="text-muted" id="user-role"></small>
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item" href="#">
+                      <i class="bx bx-user me-2"></i>
+                      <span class="align-middle">My Profile</span>
+                    </a>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="#">
+                    <i class="bx bx-cog me-2"></i>
+                    <span class="align-middle">Settings</span>
+                  </a>
+                </li>
+                <li>
+                  <div class="dropdown-divider"></div>
+                </li>
+                <li>
+                  <a class="dropdown-item" href="" id="logout">
+                    <i class="bx bx-power-off me-2"></i>
+                    <span class="align-middle">Log Out</span>
+                  </a>
+                </li>
+                </ul>
+                </li>
+                <!--/ User -->
+              </ul>
+            </div>
+          </nav>
+
+        <!-- / Navbar -->
+
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+
+          <!-- Content -->
+          <div class="container-xxl flex-grow-1 container-p-y">
+            <div class="card mb-4">
+              <div class="card-body">
+
+
+                  <div class="col-xl">
+                    <div class="card mb-4" style="background-color: rgba(245, 245, 245, 0.95);"> <!-- พื้นหลังทึบ -->
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">ข้อมูลลูกค้า</h5>
+                        <small class="text-muted float-end">Customer & Vehicle Information</small>
+                      </div>
+                      <div class="card-body">
+                        <form>
+                          <div class="row">
+                            <!-- ฝั่งซ้าย -->
+                            <div class="col-md-6">
+                              <div class="mb-3">
+                                <label class="form-label" for="job-code">รหัสงาน</label>
+                                <input type="text" id="job-code" class="form-control" placeholder="รหัสงาน">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="customer-name">ชื่อลูกค้า</label>
+                                <input type="text" id="customer-name" class="form-control" placeholder="ชื่อลูกค้า">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="car-plate">ทะเบียนรถ</label>
+                                <input type="text" id="car-plate" class="form-control" placeholder="ทะเบียนรถ">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="car-brand">ยี่ห้อรถ</label>
+                                <input type="text" id="car-brand" class="form-control" placeholder="ยี่ห้อรถ">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="customer-address">ที่อยู่</label>
+                                <input type="text" id="customer-address" class="form-control" placeholder="ที่อยู่ลูกค้า">
+                              </div>
+                            </div>
+                  
+                            <!-- ฝั่งขวา -->
+                            <div class="col-md-6">
+                              <div class="mb-3">
+                                <label class="form-label" for="insurance-company">ชื่อบริษัทประกันภัย</label>
+                                <input type="text" id="insurance-company" class="form-control" placeholder="ชื่อบริษัทประกันภัย">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="phone">เบอร์ติดต่อ</label>
+                                <input type="text" id="phone" class="form-control" placeholder="เบอร์ติดต่อ">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="province-category">หมวดจังหวัดทะเบียนรถ</label>
+                                <input type="text" id="province-category" class="form-control" placeholder="หมวดจังหวัดทะเบียนรถ">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="car-model">รุ่นรถ</label>
+                                <input type="text" id="car-model" class="form-control" placeholder="รุ่นรถ">
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="vin">เลขตัวถัง</label>
+                                <input type="text" id="vin" class="form-control" placeholder="เลขตัวถัง">
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                <!-- SECTION: ภายนอกรถ -->
+                <section class="upload-section mb-4">
+                  <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายภายนอกรถ</h5>
+                  <div class="row">
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านหน้ารถ</div>
+                        <input type="file" name="exterior_front" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านซ้ายส่วนหน้า</div>
+                        <input type="file" name="exterior_left_front" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านซ้ายตรง</div>
+                        <input type="file" name="exterior_left_center" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านซ้ายส่วนหลัง</div>
+                        <input type="file" name="exterior_left_rear" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านท้ายรถ</div>
+                        <input type="file" name="exterior_rear" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านขวาส่วนหลัง</div>
+                        <input type="file" name="exterior_right_rear" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านขวาตรง</div>
+                        <input type="file" name="exterior_right_center" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">ด้านขวาส่วนหน้า</div>
+                        <input type="file" name="exterior_right_front" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-car-front fs-1"></i>
+                        <div class="title">หลังคา</div>
+                        <input type="file" name="exterior_roof" accept="image/*" capture="environment" hidden>
+                      </label>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- SECTION: ภายในรถ -->
+                <section class="upload-section mb-4">
+                  <h5><i class="bi bi-speedometer2 text-primary me-2"></i>ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง</h5>
+                  <div class="row">
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-camera fs-1"></i>
+                        <div class="title">ล้อรถ 4 ล้อ</div>
+                        <input type="file" name="interior_wheels" accept="image/*" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-camera fs-1"></i>
+                        <div class="title">แผงหน้าปัด</div>
+                        <input type="file" name="interior_dashboard" accept="image/*" hidden>
+                      </label>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- SECTION: ความเสียหาย (multiple images) -->
+                <section class="upload-section mb-4">
+                  <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
+                  <label class="image-gallery w-100 d-block" style="cursor:pointer;">
+                    <div class="multiple-preview"></div>
+                    <i class="bi bi-camera fs-1 mb-2"></i>
+                    <div class="title">อัปโหลดภาพความเสียหาย (หลายภาพ)</div>
+                    <input type="file" name="damage_images" accept="image/*" multiple hidden>
+                  </label>
+                </section>
+
+                <!-- SECTION: เอกสาร -->
+                <section class="upload-section mb-4">
+                  <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>ภาพถ่ายเอกสาร</h5>
+                  <div class="row">
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-file-person fs-1"></i>
+                        <div class="title">เอกสารยืนยันตัวบุคคล</div>
+                        <input type="file" name="doc_identity" accept="image/*" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-file-earmark-check fs-1"></i>
+                        <div class="title">เอกสารอื่น ๆ</div>
+                        <input type="file" name="doc_other" accept="image/*" hidden>
+                      </label>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+          <!-- / Content -->
+
+          <!-- Footer -->
+          <footer class="content-footer footer bg-footer-theme"></footer>
+          <!-- / Footer -->
+
+          <div class="content-backdrop fade"></div>
+        </div>
+        <!-- Content wrapper -->
+      </div>
+      <!-- / Layout page -->
+    </div>
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+  </div>
+  <!-- / Layout wrapper -->
+
+  <!-- Core JS -->
+  <!-- build:js assets/vendor/js/core.js -->
+  <script src="../assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="../assets/vendor/libs/popper/popper.js"></script>
+  <script src="../assets/vendor/js/bootstrap.js"></script>
+  <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+
+  <script src="../assets/vendor/js/menu.js"></script>
+  <!-- endbuild -->
+
+  <!-- Vendors JS -->
+
+  <!-- Main JS -->
+  <script src="../assets/js/main.js"></script>
+
+  <!-- Page JS -->
+  <script src="../assets/js/pages-account-settings-account.js"></script>
+
+  <!-- Place this tag in your head or just before your close body tag. -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const UPLOAD_API_URL = 'https://be-claims-service.onrender.com/api/upload/image/transactions';
+      const LOGIN_PAGE = '/index.html';
+      const RETURN_LOGIN_PAGE = '/index.html';
+
+      // CSS skeleton loading style
+      const skeletonStyle = `
+    .skeleton {
+      background-color: #e0e0e0;
+      border-radius: 0.375rem;
+      width: 120px;
+      height: 120px;
+      animation: pulse 1.5s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+  `;
+
+      // ใส่ style ลงใน <head> ถ้ายังไม่มี
+      if (!document.getElementById('skeleton-style')) {
+        const styleTag = document.createElement('style');
+        styleTag.id = 'skeleton-style';
+        styleTag.innerHTML = skeletonStyle;
+        document.head.appendChild(styleTag);
+      }
+
+      const uploadingStatus = new Map();
+
+      // อัปโหลดหลายไฟล์พร้อม preview
+      async function uploadMultipleFiles(input) {
+        if (uploadingStatus.get(input)) return;
+        uploadingStatus.set(input, true);
+
+        const files = Array.from(input.files);
+        if (!files.length) {
+          uploadingStatus.set(input, false);
+          return;
+        }
+
+        const label = input.closest('label');
+        const previewContainer = label.querySelector('.multiple-preview');
+        const icon = label.querySelector('i');
+
+        if (!previewContainer || !icon) {
+          console.warn('ไม่พบ .multiple-preview หรือ icon ใน label');
+          uploadingStatus.set(input, false);
+          return;
+        }
+
+        icon.style.display = 'none';
+
+        // ล้าง preview เดิม แล้วแสดง skeleton
+        previewContainer.innerHTML = '';
+        for (let i = 0; i < files.length; i++) {
+          const skeleton = document.createElement('div');
+          skeleton.classList.add('skeleton');
+          skeleton.style.marginRight = '8px';
+          previewContainer.appendChild(skeleton);
+        }
+
+        try {
+          for (const file of files) {
+            const formData = new FormData();
+            formData.append('images', file);
+            formData.append('folder', 'car-images');
+
+            const res = await fetch(UPLOAD_API_URL, {
+              method: 'POST',
+              body: formData
+            });
+
+            if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
+
+            const data = await res.json();
+            console.log('Upload response:', data); // DEBUG
+
+            if (data.uploaded && data.uploaded.length > 0) {
+              const firstSkeleton = previewContainer.querySelector('.skeleton');
+              if (firstSkeleton) firstSkeleton.remove();
+
+              const img = document.createElement('img');
+              img.src = data.uploaded[0].url;
+              img.alt = 'Uploaded Damage Image';
+              img.style.width = '120px';
+              img.style.height = '120px';
+              img.style.objectFit = 'cover';
+              img.style.borderRadius = '0.375rem';
+              img.style.border = '1px solid #ccc';
+              img.style.marginRight = '8px';
+              img.style.display = 'inline-block'; // ✅ สำคัญ!
+
+              previewContainer.appendChild(img);
+            } else {
+              alert('อัปโหลดไม่สำเร็จ: ไม่มี URL กลับมาสำหรับไฟล์ ' + file.name);
+            }
+          }
+        } catch (error) {
+          alert('เกิดข้อผิดพลาดในการอัปโหลด: ' + error.message);
+        } finally {
+          previewContainer.querySelectorAll('.skeleton').forEach(skel => skel.remove());
+          icon.classList.remove('spinner-border');
+          icon.style.display = 'none';
+          uploadingStatus.set(input, false);
+        }
+      }
+
+      // อัปโหลดไฟล์เดียว (ใช้กรณี input ไม่ได้เป็น multiple)
+      async function uploadSingleFile(input) {
+        if (uploadingStatus.get(input)) return;
+        uploadingStatus.set(input, true);
+
+        const file = input.files[0];
+        if (!file) {
+          uploadingStatus.set(input, false);
+          return;
+        }
+
+        const label = input.closest('label');
+        const img = label.querySelector('img');
+        const icon = label.querySelector('i');
+
+        if (!img || !icon) {
+          console.warn('ไม่พบ img หรือ icon ใน label');
+          uploadingStatus.set(input, false);
+          return;
+        }
+
+        icon.style.display = 'none';
+        img.style.display = 'none';
+
+        let skeleton = label.querySelector('.skeleton');
+        if (!skeleton) {
+          skeleton = document.createElement('div');
+          skeleton.classList.add('skeleton');
+          label.appendChild(skeleton);
+        }
+
+        const formData = new FormData();
+        formData.append('images', file);
+        formData.append('folder', 'car-images');
+
+        try {
+          const res = await fetch(UPLOAD_API_URL, {
+            method: 'POST',
+            body: formData
+          });
+          if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
+
+          const data = await res.json();
+          if (data.uploaded && data.uploaded.length > 0) {
+            img.src = data.uploaded[0].url;
+            img.style.display = 'block';
+            if (skeleton) skeleton.remove();
+            icon.style.display = 'none';
+          } else {
+            alert('อัปโหลดไม่สำเร็จ: ไม่มี URL กลับมา');
+            if (skeleton) skeleton.remove();
+            icon.style.display = 'inline-block';
+            img.style.display = 'none';
+          }
+        } catch (error) {
+          alert('เกิดข้อผิดพลาดในการอัปโหลด: ' + error.message);
+          if (skeleton) skeleton.remove();
+          icon.style.display = 'inline-block';
+          img.style.display = 'none';
+        } finally {
+          icon.classList.remove('spinner-border');
+          uploadingStatus.set(input, false);
+        }
+      }
+
+      // ผูก event ให้ input ทุกตัว
+      function bindFileInput(input) {
+        if (input._uploadHandler) {
+          input.removeEventListener('change', input._uploadHandler);
+        }
+
+        const handler = (e) => {
+          e.preventDefault();
+          if (uploadingStatus.get(input)) return;
+          if (input.multiple) {
+            uploadMultipleFiles(input);
+          } else {
+            uploadSingleFile(input);
+          }
+        };
+
+        input.addEventListener('change', handler);
+        input._uploadHandler = handler;
+      }
+
+      document.querySelectorAll('input[type="file"]').forEach(input => {
+        uploadingStatus.set(input, false);
+        bindFileInput(input);
+      });
+
+      // --- JWT & PROFILE ---
+      function decodeJWT(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64));
+        } catch (e) {
+          console.error('Failed to decode JWT:', e);
+          return null;
+        }
+      }
+
+      function isTokenExpired(decodedToken) {
+        const currentTime = Math.floor(Date.now() / 1000);
+        return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
+      }
+
+      async function loadUserProfile() {
+        const token = localStorage.getItem('authToken');
+
+        if (!token) {
+          window.location.href = LOGIN_PAGE;
+          return;
+        }
+
+        function parseJwt(token) {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          return JSON.parse(jsonPayload);
+        }
+
+        const decoded = parseJwt(token);
+
+        const id = decoded.id;
+        const userName = decoded.username;
+        const fname = decoded.first_name;
+        const lname = decoded.last_name;
+        const email = decoded.email;
+        const role = decoded.role;
+        const myPicture = decoded.myPicture;
+
+        document.getElementById('user-info').innerText = fname + ' ' + lname;
+        document.getElementById('user-role').innerText = role;
+
+        const imageUrl = myPicture;  // Extract the image URL from the response
+        const imgElement = document.getElementById('userAvatar');
+        imgElement.src = imageUrl;  // Update the image src dynamically
+
+
+
+        const decodedToken = decodeJWT(token);
+        if (!decodedToken || isTokenExpired(decodedToken)) {
+          localStorage.removeItem('authToken');
+          alert('Session expired. Please login again.');
+          window.location.href = RETURN_LOGIN_PAGE;
+          return;
+        }
+
+        try {
+          const response = await fetch('https://be-claims-service.onrender.com/api/auth/profile', {
+            headers: { Authorization: token },
+          });
+          if (response.ok) {
+            const userProfile = await response.json();
+          } else {
+            throw new Error('Failed to fetch user profile');
+          }
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+          localStorage.removeItem('authToken');
+          window.location.href = RETURN_LOGIN_PAGE;
+        }
+      }
+
+      loadUserProfile();
+
+      const logoutBtn = document.getElementById('logout');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          localStorage.removeItem('authToken');
+          window.location.href = RETURN_LOGIN_PAGE;
+        });
+      }
+    });
+  </script>
+
+  
+
+</body>
+</html>
