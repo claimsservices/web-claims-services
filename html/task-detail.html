@@ -559,7 +559,6 @@
                             <option value="ยกเลิก" class="text-capitalize">ยกเลิก</option>
                           </select>
                           <!-- Hidden input เพื่อส่งค่าไปกับ form -->
-                          <input type="hidden" name="orderStatus" id="orderStatusHidden" value="เปิดงาน" />
                           </div>
                       </div>
                     </div>
@@ -1025,7 +1024,7 @@
                           </div>
                         </div>
                       </div>
-                      
+
                       <!-- Tab 4 -->
                       <div class="tab-pane fade" id="tab-history" role="tabpanel">
                         <h5 class="mb-4">ประวัติการอัปเดตงาน</h5>
@@ -1536,7 +1535,7 @@
       // 🔹 orders
       document.getElementById('taskId').value = order.id;
       document.getElementById('jobType').value = order.order_type;
-      document.getElementById('orderStatusHidden').value = order.order_status;
+      document.getElementById('orderStatus').value = order.order_status;
       document.getElementById('channel').value = order.channel;
       document.getElementById('processType').value = order.process_type;
       document.getElementById('insuranceCompany').value = order.insur_comp;
@@ -1632,7 +1631,7 @@
 
   async function loadAssignees(order, token) {
     try {
-      const response = await fetch('http://localhost:5400/api/user-management/assigners', {
+      const response = await fetch('https://be-claims-service.onrender.com/api/user-management/assigners', {
         method: 'GET',
         headers: {
           'authorization': token
@@ -1706,6 +1705,185 @@
       console.warn('❗ ไม่พบ order ID ใน URL');
     }
     
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log("🔥 DOM Loaded");
+
+    const form = document.getElementById('taskForm');
+    if (!form) {
+      console.log('❌ ไม่เจอ taskForm');
+      return;
+    } else {
+      console.log('✅ เจอ taskForm แล้ว');
+      console.log('Form innerHTML snippet:', form.innerHTML.slice(0, 300));
+    }
+
+    // === Logout button listeners ===
+    const logoutBtn = document.getElementById('logout');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('authToken');
+        window.location.href = '../index.html';
+      });
+    }
+
+    const logoutMenu = document.getElementById('logout-menu');
+    if (logoutMenu) {
+      logoutMenu.addEventListener('click', function (event) {
+        event.preventDefault();
+        localStorage.removeItem('authToken');
+        window.location.href = '../index.html';
+      });
+    }
+
+    // === ตรวจสอบปุ่ม submit ดั้งเดิม (ถ้ามี) ===
+    const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
+    console.log('All submit buttons in form:', submitButtons);
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      console.log('✅ เจอปุ่ม submit แล้ว');
+      submitBtn.addEventListener('click', function () {
+        console.log('ปุ่ม submit ถูกกด');
+      });
+    } else {
+      console.log('❌ ไม่พบปุ่ม submit');
+    }
+
+    // ✅ เพิ่มปุ่มที่ใช้ submit แบบ manual
+    const manualSubmitBtn = document.getElementById('submittaskBtn');
+    if (manualSubmitBtn) {
+      console.log('✅ พบปุ่ม #submittaskBtn แล้ว');
+      manualSubmitBtn.addEventListener('click', function () {
+        console.log('📥 ปุ่ม #submittaskBtn ถูกกด => ส่งฟอร์มด้วย JS');
+        form.requestSubmit(); // ทำให้เกิด event 'submit' ตามปกติ
+      });
+    } else {
+      console.log('❌ ไม่พบปุ่ม #submittaskBtn');
+    }
+
+    // ✅ ฟังชั่น submit ฟอร์ม
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      console.log('🔥 Submit event triggered');
+
+      const token = localStorage.getItem('authToken') || '';
+      console.log('Token:', token);
+
+      const created_by = document.getElementById('ownerName').value;
+      const date = document.getElementById('appointmentDate').value;
+      const time = document.getElementById('appointmentTime').value;
+
+      let appointment_date = null;
+      if (date) {
+        appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
+      }
+
+      const s_start = document.getElementById('coverageStartDate').value.trim();
+      const s_end = document.getElementById('coverageEndDate').value.trim();
+
+      const data = {
+        // 🔹 orders
+        creator:  document.getElementById('ownerName').value,
+        owner: document.getElementById('responsiblePerson').value,
+        order_type: document.getElementById('jobType').value,
+        order_status: document.getElementById('orderStatus').value,
+        channel: document.getElementById('channel').value,
+        process_type: document.getElementById('processType').value,
+        insur_comp: document.getElementById('insuranceCompany').value,
+        order_date: document.getElementById('transactionDate').value,
+        appointment_date: appointment_date,
+        car_registration: document.getElementById('carRegistration').value,
+        location: document.getElementById('address').value,
+        created_by,
+
+        // 🔹 order_details
+        tell_1: document.getElementById('phone').value,
+        tell_2: document.getElementById('phone2').value,
+        tell_3: document.getElementById('phone3').value,
+        c_insure: document.getElementById('c_insure').value,
+        c_tell: document.getElementById('c_tell').value,
+        c_licent: document.getElementById('carRegistration').value,
+        c_car_province: document.getElementById('carProvince').value,
+        c_brand: document.getElementById('carBrand').value,
+        c_version: document.getElementById('carModel').value,
+        c_year: document.getElementById('carYear').value,
+        c_number: document.getElementById('carChassis').value,
+        c_engine: document.getElementById('carEngine').value,
+        c_mile: document.getElementById('c_mile').value,
+        c_type: document.getElementById('carType').value,
+        c_coller: document.getElementById('carColor').value,
+        c_recieve: document.getElementById('received-doc').checked,
+        s_insure: document.getElementById('insuranceCompany').value,
+        s_branch: document.getElementById('insuranceBranch').value,
+        s_ref: document.getElementById('reference1').value,
+        s_ref_2: document.getElementById('reference2').value,
+        s_number: document.getElementById('policyNumber').value,
+        ...(s_start ? { s_start } : {}),
+        ...(s_end ? { s_end } : {}),
+        s_type: document.getElementById('insuranceType').value,
+        s_remark: document.getElementById('s_remark').value,
+        s_ins_remark: document.getElementById('s_ins_remark').value,
+        s_detail: document.getElementById('s_detail').value,
+        s_fleet: document.getElementById('fleetCar').checked,
+        updated_by: created_by,
+        c_name: document.getElementById('creatorName').value,
+
+        // 🔹 order_assign[] (ใส่ตัวอย่างเดียว)
+        /*order_assign: [
+          {
+            date: appointment_date,
+            //pending: document.getElementById('assignPending').checked,
+            destination: document.getElementById('address').value,
+            owner: document.getElementById('responsiblePerson').value,
+            is_contact: document.getElementById('contactedCustomer').checked,
+            created_by
+          }
+        ],
+        */
+        // 🔹 order_hist[] (log เริ่มต้น)
+        order_hist: [
+          {
+            icon: "📝",
+            task: "สร้างรายการ",
+            detail: "อัพเดทรายการโดยผู้ใช้: " + created_by,
+            created_by
+          }
+        ]
+      };
+
+      console.log('Form data:', data);
+
+      const orderId = document.getElementById('taskId').value
+
+      try {
+        const response = await fetch('https://be-claims-service.onrender.com/api/orders/update/' + orderId, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        console.log('Response:', result);
+
+        if (response.ok) {
+          alert('✅ สร้างคำสั่งเรียบร้อยแล้ว');
+          form.reset();
+          window.location.href = 'dashboard.html';
+        } else {
+          alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+        }
+      } catch (error) {
+        alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+        console.error('Fetch error:', error);
+      }
+    });
   });
 </script>
   </body>
