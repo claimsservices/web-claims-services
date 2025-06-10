@@ -235,21 +235,21 @@
                     onsubmit="return false" novalidate="novalidate">
                     <!-- Username Field -->
                     <div class="mb-4">
-                      <label class="form-label" for="add-user-username">Username</label>
+                      <label class="form-label" for="add-user-username">Username <span class="text-danger">*</span></label>
                       <input type="text" class="form-control" id="add-user-username" placeholder="Enter username"
                         name="username" aria-label="Username" required>
                     </div>
         
                     <!-- Password Field -->
                     <div class="mb-4">
-                      <label class="form-label" for="add-user-password">Password</label>
+                      <label class="form-label" for="add-user-password">Password <span class="text-danger">*</span></label>
                       <input type="password" class="form-control" id="add-user-password" placeholder="Enter password"
                         name="userPassword" aria-label="Password" required>
                     </div>
         
                     <!-- Confirm Password Field -->
                     <div class="mb-4">
-                      <label class="form-label" for="add-user-confirm-password">Confirm Password</label>
+                      <label class="form-label" for="add-user-confirm-password">Confirm Password <span class="text-danger">*</span></label>
                       <input type="password" class="form-control" id="add-user-confirm-password"
                         placeholder="Confirm your password" name="userConfirmPassword" aria-label="Confirm Password" required>
                     </div>
@@ -270,14 +270,14 @@
         
                     <!-- Email Field -->
                     <div class="mb-4">
-                      <label class="form-label" for="add-user-email">Email</label>
+                      <label class="form-label" for="add-user-email">Email <span class="text-danger">*</span></label>
                       <input type="email" id="add-user-email" class="form-control" placeholder="email@example.com"
                         aria-label="email@example.com" name="userEmail" required>
                     </div>
         
                     <!-- Contact Field -->
                     <div class="mb-4">
-                      <label class="form-label" for="add-user-contact">Contact</label>
+                      <label class="form-label" for="add-user-contact">Contact <span class="text-danger">*</span></label>
                       <input type="text" id="add-user-contact" class="form-control phone-mask" placeholder="+1 (609) 988-44-11"
                         aria-label="Contact Number" name="userContact" required>
                     </div>
@@ -312,6 +312,11 @@
                   var confirmPassword = document.getElementById("add-user-confirm-password").value;
                   var email = document.getElementById("add-user-email").value;
                   var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Email regex pattern
+
+                  if (email === null) {
+                    alert("Please enter  email address.");
+                    return;
+                  }
 
                   if (!emailRegex.test(email)) {
                     alert("Please enter a valid email address.");
@@ -587,11 +592,30 @@
     var contact = document.getElementById("add-user-contact").value;
     var role = document.getElementById("user-role-regist").value;
     
-    // Password confirmation check
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
+                  var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Email regex pattern
+
+                  
+                  if (!email || email.trim() === "") {
+    alert("Please enter a email address.");
+    return;
+}
+
+                  if (!contact || contact.trim() === "") {
+    alert("Please enter a contact number.");
+    return;
+}
+
+                  if (!emailRegex.test(email)) {
+                    alert("Please enter a valid email address.");
+                    return;
+                  }
+
+                  if (password !== confirmPassword) {
+                    alert("Passwords do not match!");
+                  } else {
+                    // Continue with form submission or other actions
+                    alert("User added successfully!");
+                  }
     
     // Prepare the data for the API call
     var data = {
