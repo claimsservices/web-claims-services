@@ -1486,6 +1486,9 @@
         appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
       }
 
+      const s_start = document.getElementById('coverageStartDate').value.trim();
+      const s_end = document.getElementById('coverageEndDate').value.trim();
+
       const data = {
         // 🔹 orders
         creator:  document.getElementById('ownerName').value,
@@ -1523,8 +1526,8 @@
         s_ref: document.getElementById('reference1').value,
         s_ref_2: document.getElementById('reference2').value,
         s_number: document.getElementById('policyNumber').value,
-        s_start: document.getElementById('coverageStartDate').value,
-        s_end: document.getElementById('coverageEndDate').value,
+        ...(s_start ? { s_start } : {}),
+        ...(s_end ? { s_end } : {}),
         s_type: document.getElementById('insuranceType').value,
         s_remark: document.getElementById('s_remark').value,
         s_ins_remark: document.getElementById('s_ins_remark').value,
@@ -1534,7 +1537,7 @@
         c_name: document.getElementById('creatorName').value,
 
         // 🔹 order_assign[] (ใส่ตัวอย่างเดียว)
-        order_assign: [
+        /*order_assign: [
           {
             date: appointment_date,
             //pending: document.getElementById('assignPending').checked,
@@ -1544,7 +1547,7 @@
             created_by
           }
         ],
-
+        */
         // 🔹 order_hist[] (log เริ่มต้น)
         order_hist: [
           {
