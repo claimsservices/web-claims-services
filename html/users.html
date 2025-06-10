@@ -284,13 +284,13 @@
         
                     <!-- User Role Field -->
                     <div class="mb-4">
-                      <label class="form-label" for="user-role">User Role</label>
-                      <select id="user-role" class="form-select" required>
+                      <label class="form-label" for="user-role-regist">User Role</label>
+                      <select id="user-role-regist" class="form-select" required>
                         <option value="">Select Roles</option>
-                        <option value="admin">Admin</option>
-                        <option value="user">User</option>
-                        <option value="user">Officer</option>
-                        <option value="user">Field-Agent</option>
+                        <option value="Admin">Admin</option>
+                        <option value="User">User</option>
+                        <option value="Officer">Officer</option>
+                        <option value="Field-Agent">Field-Agent</option>
                       </select>
                     </div>
         
@@ -585,7 +585,7 @@
     var lastName = document.getElementById("add-user-surename").value;
     var email = document.getElementById("add-user-email").value;
     var contact = document.getElementById("add-user-contact").value;
-    var role = document.getElementById("user-role").value;
+    var role = document.getElementById("user-role-regist").value;
     
     // Password confirmation check
     if (password !== confirmPassword) {
