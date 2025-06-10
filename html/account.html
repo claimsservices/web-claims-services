@@ -512,7 +512,7 @@
         formData.append('image', file);
     
         try {
-          const res = await fetch('http://localhost:5400/api/upload/image/users', {
+          const res = await fetch('https://be-claims-service.onrender.com/api/upload/image/users', {
             method: 'POST',
             headers: {
               'Authorization': token // <== ส่ง token
