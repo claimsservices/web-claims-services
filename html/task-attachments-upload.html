@@ -177,9 +177,81 @@
       }
     }
   </style>
+  <style>
+  .step-container {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+
+  .step {
+    text-align: center;
+    flex: 1;
+    position: relative;
+  }
+
+  .step .circle {
+    width: 30px;
+    height: 30px;
+    background-color: #ccc;
+    border-radius: 50%;
+    display: inline-block;
+    line-height: 30px;
+    color: white;
+    font-weight: bold;
+  }
+
+  .step.active .circle {
+    background-color: #007bff; /* Bootstrap primary */
+  }
+
+  .step .label {
+    margin-top: 8px;
+    display: block;
+    font-size: 14px;
+  }
+
+  .progress-line {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #ccc;
+    z-index: -1;
+  }
+
+  .progress-line .fill {
+    height: 100%;
+    background-color: #007bff;
+    width: 0%;
+    transition: width 0.3s ease-in-out;
+  }
+</style>
+
+<style>
+  .step.active .circle {
+    background-color: #28a745 !important;
+    color: white;
+    font-weight: bold;
+  }
+
+  .step.active .label {
+    color: #28a745;
+    font-weight: bold;
+  }
+</style>
+
+<style>
+  body.loading {
+    display: none;
+  }
+</style>
 </head>
 
-<body>
+<body class="loading">
   <!-- Layout wrapper -->
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
@@ -284,72 +356,116 @@
 
 
                   <div class="col-xl">
-                    <div class="card mb-4" style="background-color: rgba(245, 245, 245, 0.95);"> <!-- พื้นหลังทึบ -->
-                      <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">ข้อมูลลูกค้า</h5>
-                        <small class="text-muted float-end">Customer & Vehicle Information</small>
-                      </div>
-                      <div class="card-body">
-                        <form>
-                          <div class="row">
-                            <!-- ฝั่งซ้าย -->
-                            <div class="col-md-6">
-                              <div class="mb-3">
-                                <label class="form-label" for="job-code">รหัสงาน</label>
-                                <input type="text" id="job-code" class="form-control" placeholder="รหัสงาน" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="customer-name">ชื่อลูกค้า</label>
-                                <input type="text" id="customer-name" class="form-control" placeholder="ชื่อลูกค้า" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="car-plate">ทะเบียนรถ</label>
-                                <input type="text" id="car-plate" class="form-control" placeholder="ทะเบียนรถ" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="car-brand">ยี่ห้อรถ</label>
-                                <input type="text" id="car-brand" class="form-control" placeholder="ยี่ห้อรถ" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="customer-address">ที่อยู่</label>
-                                <div class="input-group">
-                                  <input type="text" id="customer-address" class="form-control" placeholder="ที่อยู่ลูกค้า" readonly>
-                                  <a id="open-map" class="btn btn-outline-primary" target="_blank">เปิดแผนที่</a>
-                                </div>
-                              </div>
-                              </div>
-                  
-                            <!-- ฝั่งขวา -->
-                            <div class="col-md-6">
-                              <div class="mb-3">
-                                <label class="form-label" for="insurance-company">ชื่อบริษัทประกันภัย</label>
-                                <input type="text" id="insurance-company" class="form-control" placeholder="ชื่อบริษัทประกันภัย" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="phone">เบอร์ติดต่อ</label>
-                                <input type="text" id="phone" class="form-control" placeholder="เบอร์ติดต่อ" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="province-category">หมวดจังหวัดทะเบียนรถ</label>
-                                <input type="text" id="province-category" class="form-control" placeholder="หมวดจังหวัดทะเบียนรถ" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="car-model">รุ่นรถ</label>
-                                <input type="text" id="car-model" class="form-control" placeholder="รุ่นรถ" readonly>
-                              </div>
-                              <div class="mb-3">
-                                <label class="form-label" for="vin">เลขตัวถัง</label>
-                                <input type="text" id="vin" class="form-control" placeholder="เลขตัวถัง" readonly>
-                              </div>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
+  <div class="card mb-4" style="background-color: rgba(245, 245, 245, 0.95);">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">ข้อมูลลูกค้า</h5>
+      <small class="text-muted float-end">Customer & Vehicle Information</small>
+    </div>
+    <div class="card-body">
+      <form>
+        <div class="row">
+          <!-- ฝั่งซ้าย -->
+          <div class="col-md-6">
+            <!-- ข้อมูลเดิม -->
+            <div class="mb-3">
+              <label class="form-label" for="job-code">รหัสงาน</label>
+              <input type="text" id="job-code" class="form-control" placeholder="รหัสงาน" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="customer-name">ชื่อลูกค้า</label>
+              <input type="text" id="customer-name" class="form-control" placeholder="ชื่อลูกค้า" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="car-plate">ทะเบียนรถ</label>
+              <input type="text" id="car-plate" class="form-control" placeholder="ทะเบียนรถ" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="car-brand">ยี่ห้อรถ</label>
+              <input type="text" id="car-brand" class="form-control" placeholder="ยี่ห้อรถ" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="customer-address">ที่อยู่</label>
+              <div class="input-group">
+                <input type="text" id="customer-address" class="form-control" placeholder="ที่อยู่ลูกค้า" readonly>
+                <a id="open-map" class="btn btn-outline-primary" target="_blank">เปิดแผนที่</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- ฝั่งขวา -->
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="insurance-company">ชื่อบริษัทประกันภัย</label>
+              <input type="text" id="insurance-company" class="form-control" placeholder="ชื่อบริษัทประกันภัย" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="phone">เบอร์ติดต่อ</label>
+              <input type="text" id="phone" class="form-control" placeholder="เบอร์ติดต่อ" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="province-category">หมวดจังหวัดทะเบียนรถ</label>
+              <input type="text" id="province-category" class="form-control" placeholder="หมวดจังหวัดทะเบียนรถ" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="car-model">รุ่นรถ</label>
+              <input type="text" id="car-model" class="form-control" placeholder="รุ่นรถ" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="vin">เลขตัวถัง</label>
+              <input type="text" id="vin" class="form-control" placeholder="เลขตัวถัง" readonly>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="text-center mt-3">
+  <button id="btn-accept" class="btn btn-success me-2" onclick="setStatusFromClick('รับงาน')">รับงาน</button>
+  <button id="btn-reject" class="btn btn-danger me-2" onclick="setStatusFromClick('ปฏิเสธงาน')">ปฏิเสธงาน</button>
+  <button id="btn-start" class="btn btn-warning me-2"
+    onclick="setStatusFromClick('เริ่มงาน/กำลังเดินทาง')">เริ่มงาน/กำลังเดินทาง</button>
+  <button id="btn-arrived" class="btn btn-primary me-2"
+    onclick="setStatusFromClick('ถึงที่เกิดเหตุ/ปฏิบัติงาน')">ถึงที่เกิดเหตุ/ปฏิบัติงาน</button>
+</div>
+
+<div class="mt-4">
+  <div class="step-container mb-3" style="position: relative;">
+    <div class="progress-line"
+      style="position: absolute; top: 20px; left: 15px; right: 15px; height: 4px; background: #ddd; border-radius: 2px;">
+      <div class="fill" id="progressFill"
+        style="height: 4px; background: #28a745; width: 0%; border-radius: 2px; transition: width 0.3s ease;"></div>
+    </div>
+
+    <div class="step" id="step1" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+      <div class="circle"
+        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+        1</div>
+      <span class="label">รับงาน</span>
+    </div>
+    <div class="step" id="step2" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+      <div class="circle"
+        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+        2</div>
+      <span class="label">กำลังไป</span>
+    </div>
+    <div class="step" id="step3" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+      <div class="circle"
+        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+        3</div>
+      <span class="label">ถึงที่หมาย</span>
+    </div>
+    <div class="step" id="step4" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+      <div class="circle"
+        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+        4</div>
+      <span class="label">เสร็จสิ้น</span>
+    </div>
+  </div>
+</div>
 
                 <!-- SECTION: ภายนอกรถ -->
-                <section class="upload-section mb-4">
+                <section class="upload-section mb-4"  style="display: none;">
                   <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายภายนอกรถ</h5>
                   <div class="row">
                     <div class="col-md-4 col-lg-3 mb-3 text-center">
@@ -428,7 +544,7 @@
                 </section>
 
                 <!-- SECTION: ภายในรถ -->
-                <section class="upload-section mb-4">
+                <section class="upload-section mb-4"  style="display: none;">
                   <h5><i class="bi bi-speedometer2 text-primary me-2"></i>ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง</h5>
                   <div class="row">
                     <div class="col-md-4 col-lg-3 mb-3 text-center">
@@ -451,7 +567,7 @@
                 </section>
 
                 <!-- SECTION: ความเสียหาย (multiple images) -->
-                <section class="upload-section mb-4">
+                <section class="upload-section mb-4"  style="display: none;">
                   <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
                   <label class="image-gallery w-100 d-block" style="cursor:pointer;">
                     <div class="multiple-preview"></div>
@@ -462,7 +578,7 @@
                 </section>
 
                 <!-- SECTION: เอกสาร -->
-                <section class="upload-section mb-4">
+                <section class="upload-section mb-4"  style="display: none;">
                   <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>ภาพถ่ายเอกสาร</h5>
                   <div class="row">
                     <div class="col-md-4 col-lg-3 mb-3 text-center">
@@ -485,12 +601,13 @@
                   
                 </section>
                 <!-- Upload button -->
-                <div class="text-end">
+                <div class="text-end upload-actions" style="display: none;">
                   <!-- ปุ่มยกเลิก -->
-                  <a href="task-attachments.html" class="btn btn-outline-secondary d-inline-flex align-items-center me-2" style="gap: 6px;">
-  <i class="bx bx-x fs-5"></i> ยกเลิก
-</a>
-                
+                  <a href="task-attachments.html" class="btn btn-outline-secondary d-inline-flex align-items-center me-2"
+                    style="gap: 6px;">
+                    <i class="bx bx-x fs-5"></i> ยกเลิก
+                  </a>
+                  
                   <!-- ปุ่มบันทึก -->
                   <button type="button" id="uploadBtn" class="btn btn-primary px-4">
                     <i class="bx bx-save me-1"></i> บันทึกข้อมูล
@@ -538,6 +655,8 @@
 
   <!-- Place this tag in your head or just before your close body tag. -->
   <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -834,65 +953,273 @@
 
 
     async function loadOrderData(orderId) {
-        const token = localStorage.getItem('authToken') || '';
+  const token = localStorage.getItem('authToken') || '';
 
-        try {
-          const response = await fetch('https://be-claims-service.onrender.com/api/order-detail-agent/inquiry', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `${token}`
-            },
-            body: JSON.stringify({ order_id: orderId })
-          });
+  try {
+    const response = await fetch('https://be-claims-service.onrender.com/api/order-detail-agent/inquiry', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
+      body: JSON.stringify({ order_id: orderId })
+    });
 
-          const result = await response.json();
-
-          if (!response.ok) {
-            alert('❌ ไม่พบข้อมูล: ' + result.message);
-            return;
-          }
-
-          const { order, order_details } = result;
-
-          const rawAddress = order.location;
-          const query = encodeURIComponent(rawAddress);
-          const mapUrl = `https://www.google.com/maps/search/?api=1&query=${query}`
-
-          // 🔹 orders
-          document.getElementById('job-code').value = order.id;
-          document.getElementById('insurance-company').value = order.insur_comp;
-          document.getElementById('car-plate').value = order.car_registration;
-          // ใส่ที่อยู่เป็นข้อความ (ไม่ใช่ลิงก์) ใน input
-          document.getElementById("customer-address").value = rawAddress;
-
-          // ให้ปุ่มลิงก์เปิดแผนที่ได้
-          document.getElementById("open-map").href = mapUrl;
-
-          // 🔹 order_details
-          if (order_details) {
-            document.getElementById('phone').value = order_details.full_phone;
-            document.getElementById('province-category').value = order_details.c_car_province;
-            document.getElementById('car-brand').value = order_details.c_brand;
-            document.getElementById('car-model').value = order_details.c_version;
-            document.getElementById('vin').value = order_details.c_number;
-            document.getElementById('customer-name').value = order_details.c_name;
-          }
-
-        } catch (err) {
-          alert('❌ ไม่สามารถโหลดข้อมูลได้');
-          console.error('Inquiry Error:', err);
-        }
-      }
-
-      // ตัวอย่างเรียกใช้ (ตอนโหลดหน้า)
-  window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('id');
-    if (orderId) {
-      loadOrderData(orderId);
+    const result = await response.json();
+    if (!response.ok) {
+      alert('❌ ไม่พบข้อมูล: ' + result.message);
+      return;
     }
+
+    const { order, order_details } = result;
+    renderOrderDetails(order, order_details);
+    handleOrderStatus(order.order_status || "เปิดงาน");
+
+  } catch (err) {
+    alert('❌ ไม่สามารถโหลดข้อมูลได้');
+    console.error('Inquiry Error:', err);
+  }
+}
+
+function renderOrderDetails(order, details) {
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.location)}`;
+
+  // Order Info
+  document.getElementById('job-code').value = order.id;
+  document.getElementById('insurance-company').value = order.insur_comp;
+  document.getElementById('car-plate').value = order.car_registration;
+  document.getElementById('customer-address').value = order.location;
+  document.getElementById('open-map').href = mapUrl;
+
+  // Customer Details
+  if (details) {
+    document.getElementById('phone').value = details.full_phone;
+    document.getElementById('province-category').value = details.c_car_province;
+    document.getElementById('car-brand').value = details.c_brand;
+    document.getElementById('car-model').value = details.c_version;
+    document.getElementById('vin').value = details.c_number;
+    document.getElementById('customer-name').value = details.c_name;
+  }
+}
+
+// ========== Status & UI Control ==========
+const statusStepMap = {
+  "เปิดงาน": 1,
+  "รับเรื่องแล้ว": 2,
+  "รับงาน": 3,
+  "เริ่มงาน/กำลังเดินทาง": 4,
+  "ถึงที่เกิดเหตุ/ปฏิบัติงาน": 5,
+  "ปฏิเสธงาน": -1
+};
+
+function handleOrderStatus(status) {
+  updateProgressVisual(status);
+  toggleActionButtons(status);
+  toggleUploadSection(status);
+}
+
+function updateProgressVisual(status) {
+  let activeSteps = 0;
+
+  switch (status) {
+    case "รับงาน":
+      activeSteps = 1;
+      break;
+    case "เริ่มงาน/กำลังเดินทาง":
+      activeSteps = 2;
+      break;
+    case "ถึงที่เกิดเหตุ/ปฏิบัติงาน":
+      activeSteps = 3;
+      break;
+    case "ส่งงาน/ตรวจสอบเบื้องต้น":
+      activeSteps = 4;
+      break;
+    default:
+      activeSteps = 0; // ถ้า status ไม่ตรงกับที่กำหนด จะไม่ไฮไลท์เลย
+  }
+
+  const percent = ((activeSteps - 1) / 3) * 100; // progress bar มี 4 step รวม 3 ช่วง
+
+  document.getElementById('progressFill').style.width = percent + '%';
+
+  for (let i = 1; i <= 4; i++) {
+    const stepEl = document.getElementById(`step${i}`);
+    stepEl.classList.remove('active');
+    if (i <= activeSteps) stepEl.classList.add('active');
+  }
+}
+
+
+
+function toggleActionButtons(status) {
+  const allButtons = ['btn-accept', 'btn-reject', 'btn-start', 'btn-arrived'];
+  allButtons.forEach(id => document.getElementById(id).style.display = 'none');
+
+  switch (status) {
+    case "เปิดงาน":
+    case "รับเรื่องแล้ว":
+      show(['btn-accept', 'btn-reject']);
+      break;
+    case "รับงาน":
+      show(['btn-start']);
+      break;
+    case "เริ่มงาน/กำลังเดินทาง":
+      show(['btn-arrived']);
+      break;
+  }
+
+  function show(ids) {
+    ids.forEach(id => document.getElementById(id).style.display = 'inline-block');
+  }
+}
+
+function toggleUploadSection(status) {
+  const uploadSections = document.querySelectorAll('.upload-section'); // ดึงทุกอัน
+  const isVisible = status === "ถึงที่เกิดเหตุ/ปฏิบัติงาน";
+
+  uploadSections.forEach(section => {
+    section.style.display = (status === "ถึงที่เกิดเหตุ/ปฏิบัติงาน") ? 'block' : 'none';
   });
+
+  const uploadActions = document.querySelector('.upload-actions');
+  if (uploadActions) {
+    uploadActions.style.display = isVisible ? 'block' : 'none';
+  }
+}
+
+// ========== Status Button Event ==========
+function setStatusFromClick(newStatus) {
+  console.log('🟢 อัปเดตสถานะเป็น:', newStatus);
+  // TODO: ส่ง newStatus ไป backend (เช่น fetch API เพื่ออัปเดต)
+  handleOrderStatus(newStatus);
+}
+
+async function setStatusFromClick(newStatus) {
+  console.log('🟢 อัปเดตสถานะเป็น:', newStatus);
+
+  const token = localStorage.getItem('authToken') || '';
+  const orderId = new URLSearchParams(window.location.search).get('id');
+  if (!orderId) return alert('ไม่พบรหัสงาน');
+
+  try {
+    const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
+      body: JSON.stringify({
+        order_status: newStatus,
+        order_hist: [
+          {
+            icon: 'check',
+            task: newStatus,
+            detail: 'อัปเดตสถานะโดยพนักงานภาคสนาม',
+            created_by: 'FieldAgent' // หรือดึงชื่อจาก token ถ้ามี
+          }
+        ]
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('❌ Error:', result.message || result);
+      return alert('อัปเดตสถานะไม่สำเร็จ');
+    }
+
+    // ✅ สำเร็จ: อัปเดต UI
+    alert('✅ อัปเดตสถานะเรียบร้อย');
+    handleOrderStatus(newStatus);
+
+  } catch (err) {
+    console.error('❌ API Error:', err);
+    alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+  }
+}
+
+
+async function uploadOrderPics(status, updated_by) {
+  const orderId = new URLSearchParams(window.location.search).get('id');
+  if (!orderId) return alert('ไม่พบรหัสงาน');
+
+  const orderPic = [];
+  const sections = document.querySelectorAll('.upload-section');
+
+  sections.forEach(section => {
+    const imgTags = section.querySelectorAll('img');
+
+    imgTags.forEach(img => {
+      const imgUrl = img.src;
+      const input = img.closest('label').querySelector('input[type="file"]');
+      const picType = input?.name || 'unknown';
+
+      if (imgUrl && imgUrl.startsWith('http')) {
+        orderPic.push({
+          pic: imgUrl, // ✅ ใช้ URL แทน base64
+          pic_type: picType,
+          created_by: updated_by
+        });
+      }
+    });
+  });
+
+  const payload = {
+    order_status: status,
+    updated_by: updated_by,
+    order_pic: orderPic,
+    order_hist: [
+      {
+        icon: 'check',
+        task: status,
+        detail: 'อัปโหลดภาพภายนอกรถแล้ว',
+        created_by: updated_by
+      }
+    ]
+  };
+
+  try {
+    const token = localStorage.getItem('authToken') || '';
+    const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/update/${orderId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      alert('อัปโหลดไม่สำเร็จ: ' + (result.message || ''));
+      return;
+    }
+
+    alert('📸 ส่งข้อมูลภาพสำเร็จแล้ว!');
+  } catch (err) {
+    alert('❌ เกิดข้อผิดพลาดขณะส่งข้อมูล');
+    console.error(err);
+  }
+}
+
+
+document.getElementById('uploadBtn').addEventListener('click', async () => {
+  await uploadOrderPics('ส่งงาน/ตรวจสอบเบื้องต้น', 'FieldAgent');
+  setTimeout(() => window.location.reload(), 1000); // หน่วง 1 วิให้ผู้ใช้เห็น alert
+});
+
+// ========== Page Init ==========
+window.addEventListener('DOMContentLoaded', async () => {
+  const orderId = new URLSearchParams(window.location.search).get('id');
+  if (orderId) {
+    await loadOrderData(orderId); // ✅ รอโหลดข้อมูลให้เสร็จก่อน
+  }
+  document.body.classList.remove('loading'); // ✅ แล้วค่อยแสดง content
+});
+
+
+
+
   </script>
 
   

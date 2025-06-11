@@ -551,7 +551,7 @@
                             <option value="ปฏิเสธงาน" class="text-capitalize">ปฏิเสธงาน</option>
                             <option value="เริ่มงาน/กำลังเดินทาง" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
                             <option value="ถึงที่เกิดเหตุ/ปฏิบัติงาน" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
-                            <option value="ส่งงาน/ตรวจสอบเบื้ืองต้น" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้ืองต้น</option>
+                            <option value="ส่งงาน/ตรวจสอบเบื้องต้น" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้องต้น</option>
                             <option value="Pre-Approved" class="text-capitalize">Pre-Approved</option>
                             <option value="คีย์งานแล้ว" class="text-capitalize">คีย์งานแล้ว</option>
                             <option value="ผ่าน" class="text-capitalize">ผ่าน</option>
@@ -1527,7 +1527,7 @@
         return;
       }
 
-      const { order, order_details, order_assign, order_hist } = result;
+      const { order, order_details, order_assign, order_hist, order_pic } = result;
 
       // ✅ โหลดผู้รับผิดชอบก่อนใส่ค่า owner
       await loadAssignees(order, token);
@@ -1623,11 +1623,73 @@
           </li>`;
       }
 
+      if (order_pic && order_pic.length > 0) {
+        console.log('🔹 Found order pictures:', order_pic);
+        renderUploadedImages(order_pic);
+      }
+
     } catch (err) {
       alert('❌ ไม่สามารถโหลดข้อมูลได้');
       console.error('Inquiry Error:', err);
     }
   }
+
+  function renderUploadedImages(orderPics) {
+  const typeToGalleryIdMap = {
+    // 🔹 ภายนอก
+    exterior_front: 'gallery-exterior',
+    exterior_left_front: 'gallery-exterior',
+    exterior_left_center: 'gallery-exterior',
+    exterior_left_rear: 'gallery-exterior',
+    exterior_rear: 'gallery-exterior',
+    exterior_right_rear: 'gallery-exterior',
+    exterior_right_center: 'gallery-exterior',
+    exterior_right_front: 'gallery-exterior',
+    exterior_roof: 'gallery-exterior',
+
+    // 🔹 ภายใน
+    interior_dashboard: 'gallery-interior',
+    interior_console: 'gallery-interior',
+    interior_radio: 'gallery-interior',
+    interior_wheels: 'gallery-interior',
+    interior_tire_info: 'gallery-interior',
+    interior_engine: 'gallery-interior',
+    interior_camera: 'gallery-interior',
+
+    // 🔹 ความเสียหาย
+    damage_images: 'gallery-damage',
+
+    // 🔹 เอกสาร
+    doc_identity: 'gallery-documents',
+    doc_car: 'gallery-documents',
+    doc_vin: 'gallery-documents',
+    doc_other: 'gallery-documents'
+  };
+
+  // เคลียร์ภาพเดิม
+  document.querySelectorAll('.image-gallery').forEach(gal => gal.innerHTML = '');
+
+  for (const pic of orderPics) {
+    const galleryId = typeToGalleryIdMap[pic.pic_type];
+    if (!galleryId) continue;
+
+    const container = document.getElementById(galleryId);
+    if (!container) continue;
+
+    const img = document.createElement('img');
+    img.src = pic.pic;
+    img.alt = pic.pic_type;
+    img.style.width = '120px';
+    img.style.height = '120px';
+    img.style.objectFit = 'cover';
+    img.style.marginRight = '8px';
+    img.style.borderRadius = '4px';
+    img.style.border = '1px solid #ccc';
+
+    container.appendChild(img);
+  }
+}
+
 
   async function loadAssignees(order, token) {
     try {
