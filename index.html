@@ -27,7 +27,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Login Claims Services</title>
+    <title>Login ST Service</title>
 
     <meta name="description" content="" />
 
@@ -81,6 +81,26 @@
         height: 100%;
         object-fit: cover;
         display: block;
+      }
+    </style>
+    <style>
+      input.form-control:focus {
+        border-color: #5c4433 !important;
+        box-shadow: 0 0 0 0.2rem rgba(92, 68, 51, 0.25) !important;
+        outline: none !important;
+      }
+    
+      .input-group-merge .form-control:focus {
+        border-color: #5c4433 !important;
+        box-shadow: none !important;
+        /* ปิดเงาเดิม */
+      }
+    
+      #password:focus+.input-group-text {
+        border-color: #5c4433 !important;
+        box-shadow: none !important;
+        background-color: #f5f0e8;
+        /* ถ้าต้องการเปลี่ยนสีพื้นหลัง span */
       }
     </style>
   </head>
