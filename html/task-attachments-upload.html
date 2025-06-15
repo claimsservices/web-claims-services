@@ -598,7 +598,6 @@
                       </label>
                     </div>
                   </div>
-                  
                 </section>
                 <!-- Upload button -->
                 <div class="text-end upload-actions" style="display: none;">
@@ -769,70 +768,125 @@
         }
       }
 
+      // 🔧 ฝัง timestamp ลงในภาพ
+async function addTimestampToImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        ctx.drawImage(img, 0, 0);
+
+        const timestamp = new Date().toLocaleString('th-TH', {
+          dateStyle: 'short',
+          timeStyle: 'short'
+        });
+
+        const fontSize = Math.floor(canvas.width * 0.035);
+        ctx.font = `${fontSize}px Arial`;
+        const textWidth = ctx.measureText(timestamp).width;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(20, canvas.height - 60, textWidth + 20, 40);
+
+        ctx.fillStyle = 'white';
+        ctx.fillText(timestamp, 30, canvas.height - 30);
+
+        canvas.toBlob((blob) => {
+          const newFile = new File([blob], file.name, { type: 'image/jpeg' });
+          resolve(newFile);
+        }, 'image/jpeg', 0.9);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+
       // อัปโหลดไฟล์เดียว (ใช้กรณี input ไม่ได้เป็น multiple)
-      async function uploadSingleFile(input) {
-        if (uploadingStatus.get(input)) return;
-        uploadingStatus.set(input, true);
+      // อัปโหลดไฟล์เดียว (ฝังวันที่ก่อนอัปโหลด)
+async function uploadSingleFile(input) {
+  if (uploadingStatus.get(input)) return;
+  uploadingStatus.set(input, true);
 
-        const file = input.files[0];
-        if (!file) {
-          uploadingStatus.set(input, false);
-          return;
-        }
+  const file = input.files[0];
+  if (!file) {
+    uploadingStatus.set(input, false);
+    return;
+  }
 
-        const label = input.closest('label');
-        const img = label.querySelector('img');
-        const icon = label.querySelector('i');
+  const label = input.closest('label');
+  const img = label.querySelector('img');
+  const icon = label.querySelector('i');
 
-        if (!img || !icon) {
-          console.warn('ไม่พบ img หรือ icon ใน label');
-          uploadingStatus.set(input, false);
-          return;
-        }
+  if (!img || !icon) {
+    console.warn('ไม่พบ img หรือ icon ใน label');
+    uploadingStatus.set(input, false);
+    return;
+  }
 
-        icon.style.display = 'none';
-        img.style.display = 'none';
+  icon.style.display = 'none';
+  img.style.display = 'none';
 
-        let skeleton = label.querySelector('.skeleton');
-        if (!skeleton) {
-          skeleton = document.createElement('div');
-          skeleton.classList.add('skeleton');
-          label.appendChild(skeleton);
-        }
+  let skeleton = label.querySelector('.skeleton');
+  if (!skeleton) {
+    skeleton = document.createElement('div');
+    skeleton.classList.add('skeleton');
+    label.appendChild(skeleton);
+  }
 
-        const formData = new FormData();
-        formData.append('images', file);
-        formData.append('folder', 'car-images');
+  // ✅ ฝังวันที่ลงในภาพก่อนอัปโหลด
+  let stampedFile;
+  try {
+    stampedFile = await addTimestampToImage(file);
+  } catch (err) {
+    alert('ไม่สามารถฝังวันที่ลงในภาพได้');
+    if (skeleton) skeleton.remove();
+    uploadingStatus.set(input, false);
+    return;
+  }
 
-        try {
-          const res = await fetch(UPLOAD_API_URL, {
-            method: 'POST',
-            body: formData
-          });
-          if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
+  const formData = new FormData();
+  formData.append('images', stampedFile);
+  formData.append('folder', 'car-images');
 
-          const data = await res.json();
-          if (data.uploaded && data.uploaded.length > 0) {
-            img.src = data.uploaded[0].url;
-            img.style.display = 'block';
-            if (skeleton) skeleton.remove();
-            icon.style.display = 'none';
-          } else {
-            alert('อัปโหลดไม่สำเร็จ: ไม่มี URL กลับมา');
-            if (skeleton) skeleton.remove();
-            icon.style.display = 'inline-block';
-            img.style.display = 'none';
-          }
-        } catch (error) {
-          alert('เกิดข้อผิดพลาดในการอัปโหลด: ' + error.message);
-          if (skeleton) skeleton.remove();
-          icon.style.display = 'inline-block';
-          img.style.display = 'none';
-        } finally {
-          icon.classList.remove('spinner-border');
-          uploadingStatus.set(input, false);
-        }
-      }
+  try {
+    const res = await fetch(UPLOAD_API_URL, {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
+
+    const data = await res.json();
+    if (data.uploaded && data.uploaded.length > 0) {
+      img.src = data.uploaded[0].url;
+      img.style.display = 'block';
+      if (skeleton) skeleton.remove();
+      icon.style.display = 'none';
+    } else {
+      alert('อัปโหลดไม่สำเร็จ: ไม่มี URL กลับมา');
+      if (skeleton) skeleton.remove();
+      icon.style.display = 'inline-block';
+      img.style.display = 'none';
+    }
+  } catch (error) {
+    alert('เกิดข้อผิดพลาดในการอัปโหลด: ' + error.message);
+    if (skeleton) skeleton.remove();
+    icon.style.display = 'inline-block';
+    img.style.display = 'none';
+  } finally {
+    icon.classList.remove('spinner-border');
+    uploadingStatus.set(input, false);
+  }
+}
+
 
       // ผูก event ให้ input ทุกตัว
       function bindFileInput(input) {
@@ -1215,6 +1269,47 @@ window.addEventListener('DOMContentLoaded', async () => {
     await loadOrderData(orderId); // ✅ รอโหลดข้อมูลให้เสร็จก่อน
   }
   document.body.classList.remove('loading'); // ✅ แล้วค่อยแสดง content
+});
+
+document.querySelectorAll('.image-gallery input[type="file"]').forEach(input => {
+  input.addEventListener('change', event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // วาดภาพ
+        ctx.drawImage(img, 0, 0);
+
+        // เขียนวันที่
+        const now = new Date().toLocaleString("th-TH", {
+          dateStyle: "short", timeStyle: "short"
+        });
+        ctx.font = `${Math.floor(canvas.width * 0.03)}px Arial`;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        ctx.fillRect(20, canvas.height - 60, ctx.measureText(now).width + 30, 40);
+        ctx.fillStyle = "white";
+        ctx.fillText(now, 30, canvas.height - 30);
+
+        // preview ภาพลง img
+        const dataURL = canvas.toDataURL("image/jpeg", 0.9);
+        const previewImg = input.closest('label').querySelector('img');
+        previewImg.src = dataURL;
+        previewImg.style.display = 'block';
+
+        // ส่ง image base64 ไปเซิร์ฟเวอร์ก็ได้ (optional)
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 });
 
 

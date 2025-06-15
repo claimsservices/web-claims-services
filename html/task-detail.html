@@ -201,15 +201,15 @@
     padding: 1rem;
     border: 1px dashed #ccc;
     border-radius: 6px;
-    background-color: #f9f9f9;
-    min-height: 600px;
+    background-color: #fafafa;
+    min-height: 350px;
     position: relative;
   }
 
   .image-gallery img {
     width: 100%;
     height: auto;
-    max-height: 500px;
+    max-height: 325px;
     object-fit: cover;
     border-radius: 8px;
     transition: transform 0.2s ease;
@@ -1045,77 +1045,73 @@
                       
                         <!-- SECTION: ภายนอกรถ -->
                         <section class="upload-section mb-4">
-                          <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายภายนอกรถ</h5>
-                          <p class="mb-2 text-muted small">
-                            ด้านหน้ารถ, ด้านซ้ายส่วนหน้า, ด้านซ้ายตรง, ด้านซ้ายส่วนหลัง, ด้านท้ายรถ, ด้านขวาส่วนหลัง, ด้านขวาตรง,
-                            ด้านขวาส่วนหน้า, หลังคา
-                          </p>
+                          <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
                           <div class="row">
                             <!-- ซ้ำแต่ละช่อง -->
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านหน้ารถ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านหน้ารถ</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านหน้ารถ</div>
                                 <input type="file" name="exterior_front" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านซ้ายส่วนหน้า"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านซ้ายส่วนหน้า</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า</div>
                                 <input type="file" name="exterior_left_front" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านซ้ายตรง" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านซ้ายตรง</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายตรง</div>
                                 <input type="file" name="exterior_left_center" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านซ้ายส่วนหลัง"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านซ้ายส่วนหลัง</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง</div>
                                 <input type="file" name="exterior_left_rear" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านท้ายรถ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านท้ายรถ</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านท้ายรถ</div>
                                 <input type="file" name="exterior_rear" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านขวาส่วนหลัง"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านขวาส่วนหลัง</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง</div>
                                 <input type="file" name="exterior_right_rear" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านขวาตรง" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านขวาตรง</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านขวาตรง</div>
                                 <input type="file" name="exterior_right_center" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ด้านขวาส่วนหน้า"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ด้านขวาส่วนหน้า</div>
+                                <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า</div>
                                 <input type="file" name="exterior_right_front" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="หลังคา" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">หลังคา</div>
+                                <div class="title">ภาพถ่ายรอบคัน - หลังคา</div>
                                 <input type="file" name="exterior_roof" accept="image/*" capture="environment" hidden>
                               </label>
                             </div>
@@ -1129,14 +1125,14 @@
                             ล้อรถ 4 ล้อ, ปีผลิต/ขนาดล้อ/ยางอะไหล่, ห้องเครื่อง, จอไมล์, คอนโซล, วิทยุ, กล้องติดหน้ารถ
                           </p>
                           <div class="row">
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ล้อรถ 4 ล้อ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
                                 <div class="title">ล้อรถ 4 ล้อ</div>
                                 <input type="file" name="interior_wheels" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ปีผลิต/ขนาดล้อ/ยางอะไหล่"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
@@ -1144,35 +1140,35 @@
                                 <input type="file" name="interior_wheel_info" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="ห้องเครื่อง" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
                                 <div class="title">ห้องเครื่อง</div>
                                 <input type="file" name="interior_engine" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="จอไมล์" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
                                 <div class="title">จอไมล์</div>
                                 <input type="file" name="interior_mileage" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="คอนโซล" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
                                 <div class="title">คอนโซล</div>
                                 <input type="file" name="interior_console" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="วิทยุ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
                                 <div class="title">วิทยุ</div>
                                 <input type="file" name="interior_radio" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="กล้องติดหน้ารถ"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
@@ -1201,7 +1197,7 @@
                             เอกสารยืนยันตัวบุคคล, เอกสารยืนยันตัวรถ, เลขตัวถังและทะเบียนรถ, เอกสารอื่น ๆ
                           </p>
                           <div class="row">
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="เอกสารยืนยันตัวบุคคล"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
@@ -1209,7 +1205,7 @@
                                 <input type="file" name="doc_identity" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="เอกสารยืนยันตัวรถ"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
@@ -1217,7 +1213,7 @@
                                 <input type="file" name="doc_vehicle" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="เลขตัวถังและทะเบียนรถ"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
@@ -1225,7 +1221,7 @@
                                 <input type="file" name="doc_chassis_registration" accept="image/*" hidden>
                               </label>
                             </div>
-                            <div class="col-6 mb-3 text-center">
+                            <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
                                 <img alt="เอกสารอื่น ๆ"
                                   style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
