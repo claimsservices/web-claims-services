@@ -1839,29 +1839,41 @@
   }
 
   function renderUploadedImages(orderPics) {
-    // เคลียร์ภาพเดิม (ซ่อน <img> ทุกตัว และลบ src)
-    document.querySelectorAll('.image-gallery img').forEach(img => {
-      img.src = '';
-      img.style.display = 'none';
-    });
+  // เคลียร์ภาพเดิม (ซ่อน <img> ทุกตัว และลบ src)
+  document.querySelectorAll('.image-gallery img').forEach(img => {
+    img.src = '';
+    img.style.display = 'none';
+    img.alt = '';
+  });
 
-    for (const pic of orderPics) {
-      // หา input ที่ name ตรงกับ pic_type
-      const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
-      if (!inputElem) continue;
+  for (const pic of orderPics) {
+    const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
+    if (!inputElem) continue;
 
-      // หา img ที่อยู่ใน label (parent ของ input)
-      const label = inputElem.closest('label.image-gallery');
-      if (!label) continue;
+    const label = inputElem.closest('label.image-gallery');
+    if (!label) continue;
 
-      const img = label.querySelector('img');
-      if (!img) continue;
+    const img = label.querySelector('img');
+    if (!img) continue;
 
-      // แสดงรูปภาพ
-      img.src = pic.pic;
-      img.style.display = 'block';  // แสดง <img> ที่ซ่อนอยู่
-    }
+    // ตั้ง alt เผื่อมีภาพไม่โหลด
+    img.alt = pic.pic_type || 'uploaded image';
+
+    // ถ้าเป็น Blob URL หรือ Base64 แล้วบางครั้งต้อง revoke URL หลังโหลดเสร็จ
+    img.onload = () => {
+      // ถ้า pic.pic เป็น Blob URL ต้อง revoke เพื่อป้องกัน memory leak
+      if (pic.pic.startsWith('blob:')) {
+        URL.revokeObjectURL(pic.pic);
+      }
+    };
+
+    // กำหนด src และแสดงภาพ
+    // เพิ่ม query param กัน cache
+    img.src = pic.pic + '?t=' + new Date().getTime();
+    img.style.display = 'block';
   }
+}
+
 
 
 

@@ -725,8 +725,15 @@
         try {
           for (const file of files) {
             const formData = new FormData();
-            formData.append('images', file);
-            formData.append('folder', 'car-images');
+            const orderId = document.getElementById('job-code').value
+            formData.append('folder', orderId);
+            const inputName = input.name || 'uploaded'; // fallback เผื่อไม่มี name
+            const renamedFile = new File(
+              [stampedFile],
+            `${inputName}-${Date.now()}.jpg`,
+            { type: stampedFile.type }
+          );
+          formData.append('images', renamedFile);
 
             const res = await fetch(UPLOAD_API_URL, {
               method: 'POST',
@@ -854,8 +861,16 @@ async function uploadSingleFile(input) {
   }
 
   const formData = new FormData();
-  formData.append('images', stampedFile);
-  formData.append('folder', 'car-images');
+  const orderId = document.getElementById('job-code').value
+  formData.append('folder', orderId);
+  const inputName = input.name || 'uploaded'; // fallback เผื่อไม่มี name
+  const renamedFile = new File(
+    [stampedFile],
+    `${inputName}-${Date.now()}.jpg`,
+    { type: stampedFile.type }
+  );
+  formData.append('images', renamedFile);
+  
 
   try {
     const res = await fetch(UPLOAD_API_URL, {
