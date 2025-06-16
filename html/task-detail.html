@@ -3290,33 +3290,51 @@
 
 <script>
   document.getElementById('downloadAllBtn').addEventListener('click', async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    const zip = new JSZip();
-    const imageElements = document.querySelectorAll('.image-gallery img');
+  const zip = new JSZip();
+  const orderId = document.getElementById('taskId').value.trim();
 
-    if (imageElements.length === 0) {
-      alert('ไม่มีภาพให้ดาวน์โหลด');
-      return;
-    }
-
-    await Promise.all(
-      Array.from(imageElements).map(async (img, i) => {
-        const url = img.src;
-        try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`โหลดภาพไม่ได้: ${url}`);
-          const blob = await response.blob();
-          zip.file(`image-${i + 1}.jpg`, blob);
-        } catch (err) {
-          console.warn(`ข้ามภาพที่โหลดไม่ได้: ${url}`);
-        }
-      })
+  // ✅ เลือกเฉพาะ img ที่มี src จริงและมองเห็นได้
+  const imageElements = Array.from(document.querySelectorAll('.image-gallery img')).filter(img => {
+    const style = getComputedStyle(img);
+    return (
+      img.src &&
+      img.src.startsWith('https') &&
+      style.display !== 'none' &&
+      img.complete
     );
-
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    saveAs(zipBlob, 'images.zip');
   });
+
+  if (imageElements.length === 0) {
+    alert('ไม่มีภาพให้ดาวน์โหลด');
+    return;
+  }
+
+  await Promise.all(
+    imageElements.map(async (img, i) => {
+      const url = img.src;
+      const label = img.closest('label');
+      const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
+      
+      // ✅ เปลี่ยนชื่อให้ปลอดภัยกับระบบไฟล์ (ตัดอักขระพิเศษออก)
+      const safeName = title.replace(/[^\wก-๙\s-]/g, '').replace(/\s+/g, '_');
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`โหลดภาพไม่ได้: ${url}`);
+        const blob = await response.blob();
+        zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
+      } catch (err) {
+        console.warn(`ข้ามภาพที่โหลดไม่ได้: ${url}`, err);
+      }
+    })
+  );
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  saveAs(zipBlob, orderId + '.zip');
+});
+
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
