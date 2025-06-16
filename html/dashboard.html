@@ -27,7 +27,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>ST Service</title>
+    <title>ST - Task Management</title>
 
     <meta name="description" content="" />
 
@@ -106,12 +106,9 @@
       }
     </style>
 
-    <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-<!-- Thai locale (ถ้าต้องการ) -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
-<!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -148,14 +145,6 @@
                 <li class="menu-item active">
                   <a href="dashboard.html" class="menu-link">
                     <i class='menu-icon icon-base bx  bx-list-ul'></i>
-                    <div data-i18n="Without menu">Dashboard</div>
-                  </a>
-                </li>
-              </ul>
-              <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="task-management.html" class="menu-link">
-                    <i class='menu-icon icon-base bx  bx-clipboard'></i>
                     <div data-i18n="Without menu">Task Management</div>
                   </a>
                 </li>
@@ -421,14 +410,27 @@
                     <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
                       <option value="วันที่สร้างงาน">วันที่สร้างงาน</option>
                       <option value="วันที่นัดหมาย" class="text-capitalize">วันที่นัดหมาย</option>
-                     </select></div>
-                    <div class="col-md-3">
+                     </select>
+                    </div>
+                    <div class="col-md-4">
                       <label for="filterDateTime"></label>
                       <div class="input-group">
                         <span class="input-group-text"><i class="fa-regular fa-calendar-days"></i></span>
-                        <input type="text" id="filterDateTime" class="form-control"/>
+                        <input type="text" id="filterDateTime" class="form-control" placeholder="เลือกช่วงวันที่" />
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                          เลือกช่วง
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" data-range="today">วันนี้</a></li>
+                          <li><a class="dropdown-item" data-range="yesterday">เมื่อวาน</a></li>
+                          <li><a class="dropdown-item" data-range="last7">7 วันล่าสุด</a></li>
+                          <li><a class="dropdown-item" data-range="last30">30 วันล่าสุด</a></li>
+                          <li><a class="dropdown-item" data-range="thisMonth">เดือนนี้</a></li>
+                          <li><a class="dropdown-item" data-range="lastMonth">เดือนที่แล้ว</a></li>
+                        </ul>
                       </div>
                     </div>
+
                   </div>
               </div>
 
@@ -805,6 +807,48 @@
       defaultDate: todayBangkok,
       time_24hr: true,
       locale: "th"
+    });
+
+    // ใช้ flatpickr แบบช่วงวันที่
+    const fp = flatpickr("#filterDateTime", {
+      mode: "range",
+      dateFormat: "Y-m-d",
+      locale: "th",
+    });
+
+    // กำหนด preset range ต่าง ๆ
+    const ranges = {
+      today: [new Date(), new Date()],
+      yesterday: [
+        new Date(new Date().setDate(new Date().getDate() - 1)),
+        new Date(new Date().setDate(new Date().getDate() - 1))
+      ],
+      last7: [
+        new Date(new Date().setDate(new Date().getDate() - 6)),
+        new Date()
+      ],
+      last30: [
+        new Date(new Date().setDate(new Date().getDate() - 29)),
+        new Date()
+      ],
+      thisMonth: [
+        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+      ],
+      lastMonth: [
+        new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+        new Date(new Date().getFullYear(), new Date().getMonth(), 0)
+      ]
+    };
+
+    // ตั้งค่าตามที่เลือกจาก dropdown
+    document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
+      item.addEventListener('click', function () {
+        const rangeKey = this.getAttribute('data-range');
+        if (ranges[rangeKey]) {
+          fp.setDate(ranges[rangeKey], true); // set & trigger onChange
+        }
+      });
     });
   });
 </script>

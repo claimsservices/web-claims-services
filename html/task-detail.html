@@ -27,7 +27,7 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>ST Service</title>
+    <title>ST - Task Management</title>
 
     <meta name="description" content="" />
 
@@ -78,7 +78,6 @@
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-3m0eV2Y7F/1XpA6uTqvDc7jfXjRyD5N1xulIZv1ZCRe0zk0qKshFzXrKTrvsfEne" crossorigin="anonymous" />
     <style>
       td {
         font-family: 'Kanit', sans-serif;
@@ -279,6 +278,30 @@
     margin-bottom: 0.5rem;
     color: #6c757d;
   }
+  .delete-btn {
+  position: absolute;
+  top: 5px;      /* เลื่อนลงมาเล็กน้อยจากบน */
+  right: 5px;    /* เลื่อนเข้ามาจากขวาเล็กน้อย */
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  color: #dc3545; /* สีแดง Bootstrap */
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 2px;
+  display: none;  /* ซ่อนปุ่มก่อน */
+  z-index: 10;
+  transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+}
+
+.image-gallery:hover .delete-btn {
+  display: block;
+}
 </style>
 <style>
   .modal-dialog.modal-lg {
@@ -373,16 +396,8 @@
                 <div data-i18n="Analytics">Application Service</div>
               </a>
               <ul class="menu-sub">
-                <li class="menu-item">
-                  <a href="dashboard.html" class="menu-link">
-                    <i class='menu-icon icon-base bx  bx-list-ul'></i>
-                    <div data-i18n="Without menu">Dashboard</div>
-                  </a>
-                </li>
-              </ul>
-              <ul class="menu-sub">
                 <li class="menu-item active">
-                  <a href="task-management.html" class="menu-link">
+                  <a href="dashboard.html" class="menu-link">
                     <i class='menu-icon icon-base bx  bx-clipboard'></i>
                     <div data-i18n="Without menu">Task Management</div>
                   </a>
@@ -441,44 +456,46 @@
               <!-- /Search -->
 
               <ul class="navbar-nav flex-row align-items-center ms-auto">
+  <!-- User -->
+  <li class="nav-item navbar-dropdown dropdown-user dropdown">
+    <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" href="javascript:void(0);"
+      data-bs-toggle="dropdown">
+      <div class="avatar avatar-online">
+        <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
+      </div>
+      <div class="text-start">
+        <span class="fw-semibold d-block" id="user-info"></span>
+        <small class="text-muted" id="user-role"></small>
+      </div>
+    </a>
 
-                <!-- User -->
-                <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                  <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" href="javascript:void(0);"
-                    data-bs-toggle="dropdown">
-                    <div class="avatar avatar-online">
-                      <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
-                    </div>
-                    <div class="text-start">
-                      <span class="fw-semibold d-block" id="user-info"></span>
-                      <small class="text-muted" id="user-role"></small>
-                    </div>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end">
-                    <a class="dropdown-item" href="#">
-                      <i class="bx bx-user me-2"></i>
-                      <span class="align-middle">My Profile</span>
-                    </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="#">
-                    <i class="bx bx-cog me-2"></i>
-                    <span class="align-middle">Settings</span>
-                  </a>
-                </li>
-                <li>
-                  <div class="dropdown-divider"></div>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="" id="logout">
-                    <i class="bx bx-power-off me-2"></i>
-                    <span class="align-middle">Log Out</span>
-                  </a>
-                </li>
-                </ul>
-                </li>
-                <!--/ User -->
-              </ul>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li>
+        <a class="dropdown-item" href="#">
+          <i class="bx bx-user me-2"></i>
+          <span class="align-middle">My Profile</span>
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item" href="#">
+          <i class="bx bx-cog me-2"></i>
+          <span class="align-middle">Settings</span>
+        </a>
+      </li>
+      <li>
+        <div class="dropdown-divider"></div>
+      </li>
+      <li>
+        <a class="dropdown-item" href="#" id="logout">
+          <i class="bx bx-power-off me-2"></i>
+          <span class="align-middle">Log Out</span>
+        </a>
+      </li>
+    </ul>
+  </li>
+  <!--/ User -->
+</ul>
+
             </div>
           </nav>
 
@@ -908,6 +925,7 @@
                                 <option value="บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)">บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)</option>
                                 <option value="บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)">บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)</option>
                                 <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)</option>
+                                <option value="บริษัท เอสที เซอร์วิส เทรนนิ่ง">บริษัท เอสที เซอร์วิส เทรนนิ่ง</option>
                               </select>
                             </div>
 
@@ -1047,76 +1065,559 @@
                         <section class="upload-section mb-4">
                           <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
                           <div class="row">
-                            <!-- ซ้ำแต่ละช่อง -->
+                            <!-- ด้านหน้ารถ -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านหน้ารถ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านหน้ารถ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+                        
+                                <!-- รูปภาพ -->
+                                <img alt="ด้านหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                        
+                                <!-- ชื่อภาพ -->
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;
+                            ">
+                                  ภาพถ่ายรอบคัน - ด้านหน้ารถ
+                                </div>
+                        
+                                <!-- Input File -->
                                 <input type="file" name="exterior_front" accept="image/*" capture="environment" hidden>
+                        
+                                <!-- ปุ่มลบ -->
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                          position: absolute;
+                          top: 6px;
+                          right: 6px;
+                          background: transparent;
+                          border: none;
+                          color: rgb(252, 7, 7);
+                          font-size: 24px;
+                          line-height: 1;
+                          cursor: pointer;
+                          z-index: 10;
+                          display: block;
+                        ">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                        
+                                <!-- ปุ่ม A แก้ชื่อ -->
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                          position: absolute;
+                          top: 38px;           /* ✅ อยู่ด้านล่างปุ่มลบ เว้นระยะ 6px */
+                          right: 8px;          /* ✅ ชิดขวาเท่ากัน */
+                          width: 26px;
+                          height: 26px;
+                          background-color: #198754;
+                          color: #fff;
+                          border-radius: 50%;
+                          border: 2px solid white;
+                          font-weight: bold;
+                          font-size: 14px;
+                          line-height: 1;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                          cursor: pointer;
+                          z-index: 10;
+                          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                        ">
+                                  A
+                                </button>
+                        
+                        
+                        
                               </label>
                             </div>
+                        
+                        
+                        
+                        
+                            <!-- ด้านซ้ายส่วนหน้า -->
+                            <!-- ด้านซ้ายส่วนหน้า -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านซ้ายส่วนหน้า"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ด้านซ้ายส่วนหน้า" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า
+                                </div>
                                 <input type="file" name="exterior_left_front" accept="image/*" capture="environment" hidden>
+                        
+                                <!-- ปุ่มลบ -->
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                        
+                                <!-- ปุ่ม A แก้ชื่อ -->
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- ด้านซ้ายตรง -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านซ้ายตรง" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายตรง</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ด้านซ้ายตรง" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - ด้านซ้ายตรง
+                                </div>
                                 <input type="file" name="exterior_left_center" accept="image/*" capture="environment" hidden>
+                        
+                                <!-- ปุ่มลบ -->
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                        
+                                <!-- ปุ่ม A แก้ชื่อ -->
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                        
+                            <!-- ด้านซ้ายส่วนหลัง -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านซ้ายส่วนหลัง"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ด้านซ้ายส่วนหลัง" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง
+                                </div>
                                 <input type="file" name="exterior_left_rear" accept="image/*" capture="environment" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- ด้านท้ายรถ -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านท้ายรถ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านท้ายรถ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ด้านท้ายรถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - ด้านท้ายรถ
+                                </div>
                                 <input type="file" name="exterior_rear" accept="image/*" capture="environment" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- ด้านขวาส่วนหลัง -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านขวาส่วนหลัง"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ด้านขวาส่วนหลัง" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง
+                                </div>
                                 <input type="file" name="exterior_right_rear" accept="image/*" capture="environment" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- ด้านขวาตรง -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านขวาตรง" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านขวาตรง</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ด้านขวาตรง" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - ด้านขวาตรง
+                                </div>
                                 <input type="file" name="exterior_right_center" accept="image/*" capture="environment" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- ด้านขวาส่วนหน้า -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ด้านขวาส่วนหน้า"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ด้านขวาส่วนหน้า" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า
+                                </div>
                                 <input type="file" name="exterior_right_front" accept="image/*" capture="environment" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- หลังคา -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="หลังคา" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ภาพถ่ายรอบคัน - หลังคา</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="หลังคา" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                              position: absolute;
+                              bottom: 0;
+                              left: 0;
+                              width: 100%;
+                              padding: 6px 10px;
+                              background: rgba(0,0,0,0.8);
+                              color: white;
+                              font-weight: 600;
+                              font-size: 14px;
+                              text-align: center;
+                              box-sizing: border-box;">
+                                  ภาพถ่ายรอบคัน - หลังคา
+                                </div>
                                 <input type="file" name="exterior_roof" accept="image/*" capture="environment" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
                           </div>
                         </section>
+
                       
                         <!-- SECTION: ภายในรถ -->
                         <section class="upload-section mb-4">
@@ -1125,55 +1626,630 @@
                             ล้อรถ 4 ล้อ, ปีผลิต/ขนาดล้อ/ยางอะไหล่, ห้องเครื่อง, จอไมล์, คอนโซล, วิทยุ, กล้องติดหน้ารถ
                           </p>
                           <div class="row">
+                            <!-- ล้อรถ 4 ล้อ -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ล้อรถ 4 ล้อ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ล้อรถ 4 ล้อ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ล้อรถ 4 ล้อ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">ล้อรถ 4 ล้อ</div>
                                 <input type="file" name="interior_wheels" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- ล้อรถ 4 ล้อ 1 -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ปีผลิต/ขนาดล้อ/ยางอะไหล่"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ปีผลิต/ขนาดล้อ/ยางอะไหล่</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ล้อรถ 4 ล้อ 1" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">ล้อรถ 4 ล้อ 1</div>
+                                <input type="file" name="interior_wheels_1" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                        
+                            <!-- ล้อรถ 4 ล้อ 2 -->
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ล้อรถ 4 ล้อ 2" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">ล้อรถ 4 ล้อ 2</div>
+                                <input type="file" name="interior_wheels_2" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                        
+                            <!-- ล้อรถ 4 ล้อ 3 -->
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ล้อรถ 4 ล้อ 3" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">ล้อรถ 4 ล้อ 3</div>
+                                <input type="file" name="interior_wheels_3" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                        
+                            <!-- ล้อรถ 4 ล้อ 4 -->
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ล้อรถ 4 ล้อ 4" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">ล้อรถ 4 ล้อ 4</div>
+                                <input type="file" name="interior_wheels_4" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                        
+                            <!-- ปีผลิต/ขนาดล้อ/ยางอะไหล่ -->
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ปีผลิต/ขนาดล้อ/ยางอะไหล่" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">ปีผลิต/ขนาดล้อ/ยางอะไหล่</div>
                                 <input type="file" name="interior_wheel_info" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- ห้องเครื่อง -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="ห้องเครื่อง" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">ห้องเครื่อง</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="ห้องเครื่อง" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">ห้องเครื่อง</div>
                                 <input type="file" name="interior_engine" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- จอไมล์ -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="จอไมล์" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">จอไมล์</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="จอไมล์" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">จอไมล์</div>
                                 <input type="file" name="interior_mileage" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- คอนโซล -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="คอนโซล" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">คอนโซล</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="คอนโซล" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">คอนโซล</div>
                                 <input type="file" name="interior_console" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- วิทยุ -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="วิทยุ" style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">วิทยุ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="วิทยุ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">วิทยุ</div>
                                 <input type="file" name="interior_radio" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
+                        
+                            <!-- กล้องติดหน้ารถ -->
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="กล้องติดหน้ารถ"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">กล้องติดหน้ารถ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">กล้องติดหน้ารถ</div>
                                 <input type="file" name="interior_dashcam" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                              position: absolute;
+                              top: 6px;
+                              right: 6px;
+                              background: transparent;
+                              border: none;
+                              color: rgb(252, 7, 7);
+                              font-size: 24px;
+                              line-height: 1;
+                              cursor: pointer;
+                              z-index: 10;
+                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                              position: absolute;
+                              top: 38px;
+                              right: 6px;
+                              width: 28px;
+                              height: 28px;
+                              background-color: #198754;
+                              color: #fff;
+                              border-radius: 50%;
+                              border: 2px solid white;
+                              font-weight: bold;
+                              font-size: 16px;
+                              line-height: 1;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              z-index: 10;
+                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
                               </label>
                             </div>
                           </div>
@@ -1182,12 +2258,559 @@
                         <!-- SECTION: ความเสียหาย (multiple images) -->
                         <section class="upload-section mb-4">
                           <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
-                          <p class="mb-2 text-muted small">ภาพความเสียหาย (อัปโหลดได้หลายภาพพร้อมกัน)</p>
-                          <label class="image-gallery w-100 d-block text-center" style="cursor:pointer; position:relative;">
-                            <div class="multiple-preview mb-2 d-flex flex-wrap justify-content-center gap-2"></div>
-                            <div class="title">อัปโหลดภาพความเสียหาย</div>
-                            <input type="file" name="damage_images" accept="image/*" multiple hidden>
-                          </label>
+                          <p class="mb-2 text-muted small">ภาพถ่ายความเสียหาย</p>
+                          <div class="row">
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_1" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_2" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_3" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_4" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_5" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_6" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_7" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_8" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_9" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="กล้องติดหน้ารถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                                                                  position: absolute;
+                                                                                  bottom: 0;
+                                                                                  left: 0;
+                                                                                  width: 100%;
+                                                                                  padding: 6px 10px;
+                                                                                  background: rgba(0,0,0,0.8);
+                                                                                  color: white;
+                                                                                  font-weight: 600;
+                                                                                  font-size: 14px;
+                                                                                  text-align: center;
+                                                                                  box-sizing: border-box;
+                                                                                "></div>
+                                <input type="file" name="damage_images_10" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 6px;
+                                                                              right: 6px;
+                                                                              background: transparent;
+                                                                              border: none;
+                                                                              color: rgb(252, 7, 7);
+                                                                              font-size: 24px;
+                                                                              line-height: 1;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                                                              position: absolute;
+                                                                              top: 38px;
+                                                                              right: 6px;
+                                                                              width: 28px;
+                                                                              height: 28px;
+                                                                              background-color: #198754;
+                                                                              color: #fff;
+                                                                              border-radius: 50%;
+                                                                              border: 2px solid white;
+                                                                              font-weight: bold;
+                                                                              font-size: 16px;
+                                                                              line-height: 1;
+                                                                              display: flex;
+                                                                              align-items: center;
+                                                                              justify-content: center;
+                                                                              cursor: pointer;
+                                                                              z-index: 10;
+                                                                              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                                  A
+                                </button>
+                              </label>
+                            </div>
+                          </div>
                         </section>
                       
                         <!-- SECTION: เอกสาร -->
@@ -1198,39 +2821,227 @@
                           </p>
                           <div class="row">
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="เอกสารยืนยันตัวบุคคล"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">เอกสารยืนยันตัวบุคคล</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="เอกสารยืนยันตัวบุคคล" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">เอกสารยืนยันตัวบุคคล</div>
                                 <input type="file" name="doc_identity" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                  position: absolute;
+                                  top: 6px;
+                                  right: 6px;
+                                  background: transparent;
+                                  border: none;
+                                  color: rgb(252, 7, 7);
+                                  font-size: 24px;
+                                  line-height: 1;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+  position: absolute;
+  top: 38px;
+  right: 6px;  /* ขยับจาก 10px เป็น 16px */
+  width: 28px;
+  height: 28px;
+  background-color: #198754;
+  color: #fff;
+  border-radius: 50%;
+  border: 2px solid white;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+">A</button>
                               </label>
                             </div>
+                        
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="เอกสารยืนยันตัวรถ"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">เอกสารยืนยันตัวรถ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="เอกสารยืนยันตัวรถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">เอกสารยืนยันตัวรถ</div>
                                 <input type="file" name="doc_vehicle" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                  position: absolute;
+                                  top: 6px;
+                                  right: 6px;
+                                  background: transparent;
+                                  border: none;
+                                  color: rgb(252, 7, 7);
+                                  font-size: 24px;
+                                  line-height: 1;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                  position: absolute;
+                                  top: 38px;
+                                  right: 6px;
+                                  width: 28px;
+                                  height: 28px;
+                                  background-color: #198754;
+                                  color: #fff;
+                                  border-radius: 50%;
+                                  border: 2px solid white;
+                                  font-weight: bold;
+                                  font-size: 16px;
+                                  line-height: 1;
+                                  display: flex;
+                                  align-items: center;
+                                  justify-content: center;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                                ">A</button>
                               </label>
                             </div>
+                        
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="เลขตัวถังและทะเบียนรถ"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">เลขตัวถังและทะเบียนรถ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="เลขตัวถังและทะเบียนรถ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">เลขตัวถังและทะเบียนรถ</div>
                                 <input type="file" name="doc_chassis_registration" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                  position: absolute;
+                                  top: 6px;
+                                  right: 6px;
+                                  background: transparent;
+                                  border: none;
+                                  color: rgb(252, 7, 7);
+                                  font-size: 24px;
+                                  line-height: 1;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                  position: absolute;
+                                  top: 38px;
+                                  right: 6px;
+                                  width: 28px;
+                                  height: 28px;
+                                  background-color: #198754;
+                                  color: #fff;
+                                  border-radius: 50%;
+                                  border: 2px solid white;
+                                  font-weight: bold;
+                                  font-size: 16px;
+                                  line-height: 1;
+                                  display: flex;
+                                  align-items: center;
+                                  justify-content: center;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                                ">A</button>
                               </label>
                             </div>
+                        
                             <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100" style="cursor:pointer; position:relative;">
-                                <img alt="เอกสารอื่น ๆ"
-                                  style="display:none; width:100%; object-fit:cover; border-radius:8px;" />
-                                <div class="title">เอกสารอื่น ๆ</div>
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="เอกสารอื่น ๆ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">เอกสารอื่น ๆ</div>
                                 <input type="file" name="doc_other" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                  position: absolute;
+                                  top: 6px;
+                                  right: 6px;
+                                  background: transparent;
+                                  border: none;
+                                  color: rgb(252, 7, 7);
+                                  font-size: 24px;
+                                  line-height: 1;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                  position: absolute;
+                                  top: 38px;
+                                  right: 6px;
+                                  width: 28px;
+                                  height: 28px;
+                                  background-color: #198754;
+                                  color: #fff;
+                                  border-radius: 50%;
+                                  border: 2px solid white;
+                                  font-weight: bold;
+                                  font-size: 16px;
+                                  line-height: 1;
+                                  display: flex;
+                                  align-items: center;
+                                  justify-content: center;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                                ">A</button>
                               </label>
                             </div>
                           </div>
                         </section>
+
                       
                       </div>
 
@@ -1475,8 +3286,6 @@
 <!-- โหลดไลบรารี JSZip + FileSaver -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<!-- Bootstrap JS Bundle (มี Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 <script>
@@ -1846,6 +3655,11 @@
     img.alt = '';
   });
 
+  // เคลียร์ข้อความ title เดิมด้วย
+  document.querySelectorAll('.image-gallery .title').forEach(title => {
+    title.textContent = '';
+  });
+
   for (const pic of orderPics) {
     const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
     if (!inputElem) continue;
@@ -1854,25 +3668,28 @@
     if (!label) continue;
 
     const img = label.querySelector('img');
-    if (!img) continue;
+    const titleDiv = label.querySelector('.title');
+    if (!img || !titleDiv) continue;
 
     // ตั้ง alt เผื่อมีภาพไม่โหลด
-    img.alt = pic.pic_type || 'uploaded image';
+    img.alt = pic.pic_title || 'uploaded image';
+
+    // ตั้งชื่อ title ถ้ามี
+    titleDiv.textContent = (pic.pic_title || pic.pic_type);
 
     // ถ้าเป็น Blob URL หรือ Base64 แล้วบางครั้งต้อง revoke URL หลังโหลดเสร็จ
     img.onload = () => {
-      // ถ้า pic.pic เป็น Blob URL ต้อง revoke เพื่อป้องกัน memory leak
       if (pic.pic.startsWith('blob:')) {
         URL.revokeObjectURL(pic.pic);
       }
     };
 
     // กำหนด src และแสดงภาพ
-    // เพิ่ม query param กัน cache
-    img.src = pic.pic + '?t=' + new Date().getTime();
+    img.src = pic.pic + '?t=' + new Date().getTime(); // ป้องกัน cache
     img.style.display = 'block';
   }
 }
+
 
 
 
@@ -2029,6 +3846,30 @@
       const s_start = document.getElementById('coverageStartDate').value.trim();
       const s_end = document.getElementById('coverageEndDate').value.trim();
 
+      const orderPic = [];
+      const sections = document.querySelectorAll('.upload-section');
+
+      sections.forEach(section => {
+        const imgTags = section.querySelectorAll('img');
+
+        imgTags.forEach(img => {
+          // ถ้ารูปถูกลบไปแล้ว ไม่ต้องเอาไป push
+          if (!img.src || img.style.display === 'none' || !img.src.startsWith('http')) return;
+
+          const input = img.closest('label')?.querySelector('input[type="file"]');
+          const picType = input?.name || 'unknown';
+          const title = img.closest('label')?.querySelector('.title')?.innerText || '';
+
+          orderPic.push({
+            pic: img.src,
+            pic_type: picType,
+            pic_title: title,
+            created_by: created_by
+          });
+        });
+      });
+
+
       const data = {
         // 🔹 orders
         creator: document.getElementById('ownerName').value,
@@ -2088,6 +3929,10 @@
           }
         ],
         */
+
+        // 🔹 order_pic[] (รูปภาพที่อัปโหลด)
+        order_pic: orderPic,
+
         // 🔹 order_hist[] (log เริ่มต้น)
         order_hist: [
           {
@@ -2141,6 +3986,41 @@
         if (img && img.src) {
           previewImage.src = img.src;   // เซ็ตรูปใน modal
           imagePreviewModal.show();     // เปิด modal
+        }
+      });
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();  // ป้องกันไม่ให้เปิด modal
+        // ทำงานลบไฟล์หรือรีเซ็ต input ตามที่ต้องการ
+        const label = e.target.closest('.image-gallery');
+        if (!label) return;
+
+        // รีเซ็ต input file
+        const input = label.querySelector('input[type="file"]');
+        if (input) input.value = '';
+
+        // ซ่อนรูปถ้าจำเป็น
+        const img = label.querySelector('img');
+        if (img) img.style.display = 'none';
+
+        // ถ้าต้องการลบ preview อื่นๆ หรือข้อมูลใน UI เพิ่มได้ที่นี่
+      });
+    });
+
+     document.querySelectorAll('.edit-title-btn').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation(); // กันคลิก input
+
+        const label = e.target.closest('label.image-gallery');
+        const titleDiv = label.querySelector('.title');
+        const currentTitle = titleDiv.textContent.trim();
+
+        const newTitle = prompt('แก้ไขชื่อภาพ:', currentTitle);
+        if (newTitle && newTitle.trim() !== '') {
+          titleDiv.textContent = newTitle.trim();
+          titleDiv.setAttribute('data-custom', 'true');
         }
       });
     });

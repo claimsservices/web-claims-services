@@ -8,12 +8,12 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-  <title>Task Attachments</title>
+  <title>ST - Web Application</title>
 
-  <meta name="description" content="" />
+    <meta name="description" content="" />
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="../assets/img/favicon/3P4.ico" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/3P4.ico" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -356,123 +356,124 @@
 
 
                   <div class="col-xl">
-  <div class="card mb-4" style="background-color: rgba(245, 245, 245, 0.95);">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">ข้อมูลลูกค้า</h5>
-      <small class="text-muted float-end">Customer & Vehicle Information</small>
-    </div>
-    <div class="card-body">
-      <form>
-        <div class="row">
-          <!-- ฝั่งซ้าย -->
-          <div class="col-md-6">
-            <!-- ข้อมูลเดิม -->
-            <div class="mb-3">
-              <label class="form-label" for="job-code">รหัสงาน</label>
-              <input type="text" id="job-code" class="form-control" placeholder="รหัสงาน" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="customer-name">ชื่อลูกค้า</label>
-              <input type="text" id="customer-name" class="form-control" placeholder="ชื่อลูกค้า" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="car-plate">ทะเบียนรถ</label>
-              <input type="text" id="car-plate" class="form-control" placeholder="ทะเบียนรถ" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="car-brand">ยี่ห้อรถ</label>
-              <input type="text" id="car-brand" class="form-control" placeholder="ยี่ห้อรถ" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="customer-address">ที่อยู่</label>
-              <div class="input-group">
-                <input type="text" id="customer-address" class="form-control" placeholder="ที่อยู่ลูกค้า" readonly>
-                <a id="open-map" class="btn btn-outline-primary" target="_blank">เปิดแผนที่</a>
-              </div>
-            </div>
-          </div>
-
-          <!-- ฝั่งขวา -->
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label" for="insurance-company">ชื่อบริษัทประกันภัย</label>
-              <input type="text" id="insurance-company" class="form-control" placeholder="ชื่อบริษัทประกันภัย" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="phone">เบอร์ติดต่อ</label>
-              <input type="text" id="phone" class="form-control" placeholder="เบอร์ติดต่อ" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="province-category">หมวดจังหวัดทะเบียนรถ</label>
-              <input type="text" id="province-category" class="form-control" placeholder="หมวดจังหวัดทะเบียนรถ" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="car-model">รุ่นรถ</label>
-              <input type="text" id="car-model" class="form-control" placeholder="รุ่นรถ" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="vin">เลขตัวถัง</label>
-              <input type="text" id="vin" class="form-control" placeholder="เลขตัวถัง" readonly>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<div class="text-center mt-3">
-  <button id="btn-accept" class="btn btn-success me-2" onclick="setStatusFromClick('รับงาน')">รับงาน</button>
-  <button id="btn-reject" class="btn btn-danger me-2" onclick="setStatusFromClick('ปฏิเสธงาน')">ปฏิเสธงาน</button>
-  <button id="btn-start" class="btn btn-warning me-2"
-    onclick="setStatusFromClick('เริ่มงาน/กำลังเดินทาง')">เริ่มงาน/กำลังเดินทาง</button>
-  <button id="btn-arrived" class="btn btn-primary me-2"
-    onclick="setStatusFromClick('ถึงที่เกิดเหตุ/ปฏิบัติงาน')">ถึงที่เกิดเหตุ/ปฏิบัติงาน</button>
-</div>
-
-<div class="mt-4">
-  <div class="step-container mb-3" style="position: relative;">
-    <div class="progress-line"
-      style="position: absolute; top: 20px; left: 15px; right: 15px; height: 4px; background: #ddd; border-radius: 2px;">
-      <div class="fill" id="progressFill"
-        style="height: 4px; background: #28a745; width: 0%; border-radius: 2px; transition: width 0.3s ease;"></div>
-    </div>
-
-    <div class="step" id="step1" style="position: relative; display: inline-block; width: 25%; text-align: center;">
-      <div class="circle"
-        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
-        1</div>
-      <span class="label">รับงาน</span>
-    </div>
-    <div class="step" id="step2" style="position: relative; display: inline-block; width: 25%; text-align: center;">
-      <div class="circle"
-        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
-        2</div>
-      <span class="label">กำลังไป</span>
-    </div>
-    <div class="step" id="step3" style="position: relative; display: inline-block; width: 25%; text-align: center;">
-      <div class="circle"
-        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
-        3</div>
-      <span class="label">ถึงที่หมาย</span>
-    </div>
-    <div class="step" id="step4" style="position: relative; display: inline-block; width: 25%; text-align: center;">
-      <div class="circle"
-        style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
-        4</div>
-      <span class="label">เสร็จสิ้น</span>
-    </div>
-  </div>
-</div>
+                    <div class="card mb-4" style="background-color: rgba(245, 245, 245, 0.95);">
+                      <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">ข้อมูลลูกค้า</h5>
+                        <small class="text-muted float-end">Customer & Vehicle Information</small>
+                      </div>
+                      <div class="card-body">
+                        <form>
+                          <div class="row">
+                            <!-- ฝั่งซ้าย -->
+                            <div class="col-md-6">
+                              <!-- ข้อมูลเดิม -->
+                              <div class="mb-3">
+                                <label class="form-label" for="job-code">รหัสงาน</label>
+                                <input type="text" id="job-code" class="form-control" placeholder="รหัสงาน" readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="customer-name">ชื่อลูกค้า</label>
+                                <input type="text" id="customer-name" class="form-control" placeholder="ชื่อลูกค้า" readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="car-plate">ทะเบียนรถ</label>
+                                <input type="text" id="car-plate" class="form-control" placeholder="ทะเบียนรถ" readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="car-brand">ยี่ห้อรถ</label>
+                                <input type="text" id="car-brand" class="form-control" placeholder="ยี่ห้อรถ" readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="customer-address">ที่อยู่</label>
+                                <div class="input-group">
+                                  <input type="text" id="customer-address" class="form-control" placeholder="ที่อยู่ลูกค้า" readonly>
+                                  <a id="open-map" class="btn btn-outline-primary" target="_blank">เปิดแผนที่</a>
+                                </div>
+                              </div>
+                            </div>
+                  
+                            <!-- ฝั่งขวา -->
+                            <div class="col-md-6">
+                              <div class="mb-3">
+                                <label class="form-label" for="insurance-company">ชื่อบริษัทประกันภัย</label>
+                                <input type="text" id="insurance-company" class="form-control" placeholder="ชื่อบริษัทประกันภัย" readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="phone">เบอร์ติดต่อ</label>
+                                <input type="text" id="phone" class="form-control" placeholder="เบอร์ติดต่อ" readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="province-category">หมวดจังหวัดทะเบียนรถ</label>
+                                <input type="text" id="province-category" class="form-control" placeholder="หมวดจังหวัดทะเบียนรถ"
+                                  readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="car-model">รุ่นรถ</label>
+                                <input type="text" id="car-model" class="form-control" placeholder="รุ่นรถ" readonly>
+                              </div>
+                              <div class="mb-3">
+                                <label class="form-label" for="vin">เลขตัวถัง</label>
+                                <input type="text" id="vin" class="form-control" placeholder="เลขตัวถัง" readonly>
+                              </div>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-center mt-3">
+                    <button id="btn-accept" class="btn btn-success me-2" onclick="setStatusFromClick('รับงาน')">รับงาน</button>
+                    <button id="btn-reject" class="btn btn-danger me-2" onclick="setStatusFromClick('ปฏิเสธงาน')">ปฏิเสธงาน</button>
+                    <button id="btn-start" class="btn btn-warning me-2"
+                      onclick="setStatusFromClick('เริ่มงาน/กำลังเดินทาง')">เริ่มงาน/กำลังเดินทาง</button>
+                    <button id="btn-arrived" class="btn btn-primary me-2"
+                      onclick="setStatusFromClick('ถึงที่เกิดเหตุ/ปฏิบัติงาน')">ถึงที่เกิดเหตุ/ปฏิบัติงาน</button>
+                  </div>
+                  
+                  <div class="mt-4">
+                    <div class="step-container mb-3" style="position: relative;">
+                      <div class="progress-line"
+                        style="position: absolute; top: 20px; left: 15px; right: 15px; height: 4px; background: #ddd; border-radius: 2px;">
+                        <div class="fill" id="progressFill"
+                          style="height: 4px; background: #28a745; width: 0%; border-radius: 2px; transition: width 0.3s ease;"></div>
+                      </div>
+                  
+                      <div class="step" id="step1" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+                        <div class="circle"
+                          style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+                          1</div>
+                        <span class="label">รับงาน</span>
+                      </div>
+                      <div class="step" id="step2" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+                        <div class="circle"
+                          style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+                          2</div>
+                        <span class="label">กำลังไป</span>
+                      </div>
+                      <div class="step" id="step3" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+                        <div class="circle"
+                          style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+                          3</div>
+                        <span class="label">ถึงที่หมาย</span>
+                      </div>
+                      <div class="step" id="step4" style="position: relative; display: inline-block; width: 25%; text-align: center;">
+                        <div class="circle"
+                          style="width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; background: #ccc; line-height: 30px; color: white;">
+                          4</div>
+                        <span class="label">เสร็จสิ้น</span>
+                      </div>
+                    </div>
+                  </div>
 
                 <!-- SECTION: ภายนอกรถ -->
                 <section class="upload-section mb-4"  style="display: none;">
-                  <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายภายนอกรถ</h5>
+                  <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
                   <div class="row">
                     <div class="col-md-4 col-lg-3 mb-3 text-center">
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านหน้ารถ</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านหน้ารถ</div>
                         <input type="file" name="exterior_front" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -480,7 +481,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านซ้ายส่วนหน้า</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า</div>
                         <input type="file" name="exterior_left_front" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -488,7 +489,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านซ้ายตรง</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายตรง</div>
                         <input type="file" name="exterior_left_center" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -496,7 +497,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านซ้ายส่วนหลัง</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง</div>
                         <input type="file" name="exterior_left_rear" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -504,7 +505,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านท้ายรถ</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านท้ายรถ</div>
                         <input type="file" name="exterior_rear" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -512,7 +513,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านขวาส่วนหลัง</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง</div>
                         <input type="file" name="exterior_right_rear" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -520,7 +521,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านขวาตรง</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านขวาตรง</div>
                         <input type="file" name="exterior_right_center" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -528,7 +529,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ด้านขวาส่วนหน้า</div>
+                        <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า</div>
                         <input type="file" name="exterior_right_front" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -536,7 +537,7 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">หลังคา</div>
+                        <div class="title">ภาพถ่ายรอบคัน - หลังคา</div>
                         <input type="file" name="exterior_roof" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
@@ -551,8 +552,32 @@
                       <label class="image-gallery w-100" style="cursor:pointer;">
                         <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
                         <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ล้อรถ 4 ล้อ</div>
-                        <input type="file" name="interior_wheels" accept="image/*" hidden>
+                        <div class="title">ล้อหน้าด้านซ้าย</div>
+                        <input type="file" name="interior_wheels_1" accept="image/*" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-camera fs-1"></i>
+                        <div class="title">ล้อหน้าด้านขวา</div>
+                        <input type="file" name="interior_wheels_1" accept="image/*" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-camera fs-1"></i>
+                        <div class="title">ล้อหลังด้านซ้าย</div>
+                        <input type="file" name="interior_wheels_1" accept="image/*" hidden>
+                      </label>
+                    </div>
+                    <div class="col-md-4 col-lg-3 mb-3 text-center">
+                      <label class="image-gallery w-100" style="cursor:pointer;">
+                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                        <i class="bi bi-camera fs-1"></i>
+                        <div class="title">ล้อหลังด้านขวา</div>
+                        <input type="file" name="interior_wheels_4" accept="image/*" hidden>
                       </label>
                     </div>
                     <div class="col-md-4 col-lg-3 mb-3 text-center">
@@ -569,11 +594,65 @@
                 <!-- SECTION: ความเสียหาย (multiple images) -->
                 <section class="upload-section mb-4"  style="display: none;">
                   <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
-                  <label class="image-gallery w-100 d-block" style="cursor:pointer;">
-                    <div class="multiple-preview"></div>
-                    <i class="bi bi-camera fs-1 mb-2"></i>
-                    <div class="title">อัปโหลดภาพความเสียหาย (หลายภาพ)</div>
-                    <input type="file" name="damage_images" accept="image/*" multiple hidden>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 1</div>
+                    <input type="file" name="damage_images_1" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 2</div>
+                    <input type="file" name="damage_images_2" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 3</div>
+                    <input type="file" name="damage_images_3" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 4</div>
+                    <input type="file" name="damage_images_4" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 5</div>
+                    <input type="file" name="damage_images_5" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 6</div>
+                    <input type="file" name="damage_images_6" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 7</div>
+                    <input type="file" name="damage_images_7" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 8</div>
+                    <input type="file" name="damage_images_8" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 9</div>
+                    <input type="file" name="damage_images_9" accept="image/*" hidden>
+                  </label>
+                  <label class="image-gallery w-100" style="cursor:pointer;">
+                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
+                    <i class="bi bi-camera fs-1"></i>
+                    <div class="title">ภาพถ่ายความเสียหาย - 10</div>
+                    <input type="file" name="damage_images_10" accept="image/*" hidden>
                   </label>
                 </section>
 
@@ -1216,11 +1295,13 @@ async function uploadOrderPics(status, updated_by) {
       const imgUrl = img.src;
       const input = img.closest('label').querySelector('input[type="file"]');
       const picType = input?.name || 'unknown';
+      const title = input?.closest('label')?.querySelector('.title')?.innerText || '';
 
       if (imgUrl && imgUrl.startsWith('http')) {
         orderPic.push({
           pic: imgUrl, // ✅ ใช้ URL แทน base64
           pic_type: picType,
+          pic_title: title,
           created_by: updated_by
         });
       }
@@ -1235,7 +1316,7 @@ async function uploadOrderPics(status, updated_by) {
       {
         icon: 'check',
         task: status,
-        detail: 'อัปโหลดภาพภายนอกรถแล้ว',
+        detail: 'อัปโหลดภาพแล้ว',
         created_by: updated_by
       }
     ]
