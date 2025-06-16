@@ -4010,22 +4010,29 @@
 
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', e => {
-        e.stopPropagation();  // ป้องกันไม่ให้เปิด modal
-        // ทำงานลบไฟล์หรือรีเซ็ต input ตามที่ต้องการ
+        e.stopPropagation(); // ป้องกันไม่ให้เปิด modal
+
+        // ✅ แสดง popup ยืนยัน
+        const confirmDelete = window.confirm('คุณต้องการลบภาพนี้หรือไม่?');
+        if (!confirmDelete) return; // ❌ ถ้ากดยกเลิก ให้หยุดการทำงาน
+
         const label = e.target.closest('.image-gallery');
         if (!label) return;
 
-        // รีเซ็ต input file
+        // ✅ รีเซ็ต input file
         const input = label.querySelector('input[type="file"]');
         if (input) input.value = '';
 
-        // ซ่อนรูปถ้าจำเป็น
+        // ✅ ซ่อนรูป
         const img = label.querySelector('img');
         if (img) img.style.display = 'none';
 
-        // ถ้าต้องการลบ preview อื่นๆ หรือข้อมูลใน UI เพิ่มได้ที่นี่
+        // ✅ ซ่อนชื่อภาพ (ถ้าต้องการ)
+        const title = label.querySelector('.title');
+        if (title) title.textContent = '';
       });
     });
+
 
      document.querySelectorAll('.edit-title-btn').forEach(btn => {
       btn.addEventListener('click', function (e) {
