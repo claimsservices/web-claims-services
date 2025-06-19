@@ -68,7 +68,6 @@
       // Check if the user has a valid token and the required role
       const accessToken = localStorage.getItem('authToken'); // Check if token is available
       const RETURN_LOGIN_PAGE = '../index.html';
-      console.log("aaa" + accessToken);
 
       // If there's no token, redirect to login
       if (!accessToken) {
@@ -76,41 +75,12 @@
       }
 
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-      td {
-        font-family: 'Kanit', sans-serif;
-        font-size: 12px;
-        /* กำหนดขนาดตัวอักษร */
-        text-align: left;
-        /* ชิดซ้าย */
-        vertical-align: top;
-        /* ชิดด้านบน */
-        padding: 8px;
-        /* เพิ่มระยะห่างในเซลล์ */
-        word-wrap: break-word;
-        /* ตัดคำเมื่อข้อความยาวเกิน */
-        white-space: normal;
-        /* อนุญาตให้ขึ้นบรรทัดใหม่ */
-      }
-      th {
-      background-color: #333;
-      color: rgba(255, 255, 255, 0.603);
-    }
-    
-      th:nth-child(6),
-      td:nth-child(6) {
-        width: 20%;
-        /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ */
-      }
-    </style>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-<link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+   <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
     <style>
       body {
-        font-family: 'Sarabun', sans-serif;
+        font-family: 'IBM Plex Sans Thai', sans-serif;
         font-size: 14px; /* ขนาดตัวอักษรพื้นฐาน */
       }
       .form-label {
@@ -669,6 +639,11 @@
                         </button>
                       </li>
                       <li class="nav-item">
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-note" role="tab">
+                          <i class="tf-icons bx bx-note"></i> Note
+                        </button>
+                      </li>
+                      <li class="nav-item">
                         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-history" role="tab">
                           <i class="tf-icons bx bx-history"></i> History Activity
                         </button>
@@ -676,11 +651,6 @@
                       <li class="nav-item">
                         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-upload" role="tab">
                           <i class="tf-icons bx bx-upload"></i> Upload Picture
-                        </button>
-                      </li>
-                      <li class="nav-item">
-                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-note" role="tab">
-                          <i class="tf-icons bx bx-note"></i> Note
                         </button>
                       </li>
                     </ul>
@@ -3060,11 +3030,26 @@
                         <div class="card p-4 shadow-sm">
                           <h5 class="mb-4"><i class="bx bx-upload me-1"></i> อัปโหลดรูปภาพ</h5>
                           <form id="uploadForm">
-                            <div class="mb-3">
-                              <input type="file" id="imageInput" class="form-control" accept="image/*" multiple>
+                      
+                            <div class="row">
+                              <div class="col-md-6 mb-3">
+                                <label for="categorySelect" class="form-label">เลือกหมวดหมู่รูปภาพ</label>
+                                <select class="form-select" id="categorySelect">
+                                  <option value="">-- กรุณาเลือกหมวดหมู่ --</option>
+                                  <option value="accessories">อุปกรณ์ตกแต่ง</option>
+                                  <option value="documents">เอกสาร</option>
+                                  <option value="inspection">รูปประกอบการตรวจสภาพ</option>
+                                  <option value="around">ภาพถ่ายรอบคัน</option>
+                                  <option value="signature">ลายเซ็น</option>
+                                  <option value="fiber">ใบตรวจสภาพรถ</option>
+                                </select>
+                              </div>
                             </div>
-                            <!-- Preview zone -->
-                            <div class="row g-3 mb-3" id="previewContainer"></div>
+
+                      
+                            <!-- 🔄 พื้นที่แสดงช่องอัปโหลดรูปภาพ -->
+                            <div id="dynamicUploadArea"></div>
+                      
                             <!-- Progress bar -->
                             <div class="progress mb-3 d-none" id="uploadProgressWrapper">
                               <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-info"
@@ -3072,22 +3057,29 @@
                                 กำลังอัปโหลด...
                               </div>
                             </div>
-                            <!-- Upload button -->
-                            <div class="text-end">
-                              <button type="button" id="uploadBtn" class="btn btn-primary px-4">
-                                <i class="bx bx-cloud-upload me-1"></i> Upload
-                              </button>
-                            </div>
                           </form>
                         </div>
+                      
                       </div>
 
                     <!-- Tab 6 Note-->
                       <div class="tab-pane fade" id="tab-note" role="tabpanel">
-                        <div class="mb-3">
-                          <label for="note-text" class="form-label">หมายเหตุ</label>
-                          <textarea id="note-text" class="form-control" rows="5" placeholder="พิมพ์บันทึกหรือหมายเหตุที่นี่..."></textarea>
-                        </div>
+                        <div class="mb-4">
+  <label for="note-text" class="form-label">📝 บันทึกข้อความ</label>
+  <div class="input-group">
+    <textarea id="note-text" class="form-control" rows="3" placeholder="พิมพ์บันทึกหรือหมายเหตุที่นี่..."></textarea>
+  </div>
+</div>
+
+<!-- History แสดงเป็นสไตล์แชท -->
+<div class="card border rounded shadow-sm">
+  <div class="card-header bg-light">
+    <strong>📚 ประวัติการบันทึก</strong>
+  </div>
+  <div class="card-body" id="note-history" style="max-height: 300px; overflow-y: auto;">
+    <!-- หมายเหตุจะถูกเพิ่มตรงนี้ -->
+  </div>
+</div>
                       </div>
 
 
@@ -3336,7 +3328,7 @@
 });
 
 </script>
-<script>
+<!-- <script>
   document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('imageInput');
     const previewContainer = document.getElementById('previewContainer');
@@ -3428,7 +3420,7 @@
     });
   });
 
-</script>
+</script> -->
 
 <!-- <script>
   const carModels = {
@@ -4049,6 +4041,137 @@
         }
       });
     });
+
+    const categoryConfig = {
+      accessories: {
+        count: 10,
+        labels: ['อุปกรณ์ตกแต่ง 1.', 'อุปกรณ์ตกแต่ง 2.', 'อุปกรณ์ตกแต่ง 3.', 'อุปกรณ์ตกแต่ง 4.', 'อุปกรณ์ตกแต่ง 5.', 'อุปกรณ์ตกแต่ง 6.', 'อุปกรณ์ตกแต่ง 7.', 'อุปกรณ์ตกแต่ง 8.', 'อุปกรณ์ตกแต่ง 9.', 'อุปกรณ์ตกแต่ง 10.'],
+        filenames: []
+      },
+      documents: {
+        count: 7,
+        labels: ['ใบขับขี่', 'บัตรประชาชน', 'เอกสารยืนยันตัวรถ', 'เลขตัวถังและทะเบียนรถ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ'],
+        filenames: []
+      },
+      inspection: {
+        count: 10,
+        labels: ['รายละเอียดความเสียหาย 1.', 'รายละเอียดความเสียหาย 2.', 'รายละเอียดความเสียหาย 3.', 'รายละเอียดความเสียหาย 4.', 'รายละเอียดความเสียหาย 5.', 'รายละเอียดความเสียหาย 6.', 'รายละเอียดความเสียหาย 7.', 'รายละเอียดความเสียหาย 8.', 'รายละเอียดความเสียหาย 9.', 'รายละเอียดความเสียหาย 10.'],
+        filenames: []
+      },
+      around: {
+        count: 9,
+        labels: ['ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - ', 'ภาพถ่ายรอบคัน - '],
+        filenames: []
+      },
+      signature: {
+        count: 1,
+        labels: ['ลายเซ็น'],
+        filenames: []
+      },
+      fiber: {
+        count: 10,
+        labels: ['ใบตรวจสภาพรถ', 'ใบตรวจความเสียหาย', 'ใบตรวจอุปกรณ์ตกแต่ง', 'ใบตรวจกล้องหน้ารถ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ'],
+        filenames: []
+      }
+    };
+
+    document.getElementById('categorySelect').addEventListener('change', function () {
+      const selected = this.value;
+      const area = document.getElementById('dynamicUploadArea');
+      area.innerHTML = ''; // ล้างของเก่า
+
+      if (!selected || !categoryConfig[selected]) return;
+
+      const { count, labels, filenames } = categoryConfig[selected];
+
+      for (let i = 0; i < count; i++) {
+        const group = document.createElement('div');
+        group.className = 'mb-3 col-md-6';
+
+        const fileInputId = `fileInput-${selected}-${i + 1}`;
+        console.log("fileInputId: " + fileInputId);
+
+        const labelText = (labels && labels[i]) ? labels[i] : `Item ${i + 1}`;
+        const inputValue = (filenames && filenames[i]) ? filenames[i] : '';
+
+        group.innerHTML = `
+      <label class="form-label d-block mb-1">${labelText}</label>
+      <div class="row g-2 align-items-center">
+        <div class="col-6">
+          <input type="text" class="form-control" placeholder="ระบุชื่อไฟล์" value="${inputValue}" />
+        </div>
+        <div class="col-6">
+          <input type="file" class="form-control" id="${fileInputId}" accept="image/*" />
+        </div>
+      </div>
+    `;
+
+
+
+        area.appendChild(group);
+
+        // เพิ่ม event สำหรับ input[type="file"] เพื่อ upload ทันที
+        setTimeout(() => {
+          const fileInput = document.getElementById(fileInputId);
+          const textInput = group.querySelector('input[type="text"]');
+
+          fileInput.addEventListener('change', async () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const customName = textInput.value.trim() || `image_${i}`;
+            const folderName = document.getElementById('taskId')?.value.trim() || 'default';
+            const category = selected;
+
+            const formData = new FormData();
+            formData.append('folder', folderName);
+            formData.append('category', category);
+            formData.append('images', file, customName + '.' + file.name.split('.').pop());
+
+            // แสดง progress ชั่วคราว
+            const progressWrapper = document.getElementById('uploadProgressWrapper');
+            progressWrapper.classList.remove('d-none');
+
+            try {
+              const response = await fetch('https://be-claims-service.onrender.com/api/upload/image/transactions', {
+                method: 'POST',
+                body: formData
+              });
+
+              if (response.ok) {
+                const result = await response.json();
+                const galleryId = `gallery-${category}`;
+                const gallery = document.getElementById(galleryId);
+
+                if (result.uploaded?.length && gallery) {
+                  result.uploaded.forEach(img => {
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-sm-4 col-md-3 mb-3';
+                    col.innerHTML = `
+                  <div class="card shadow-sm border">
+                    <img src="${img.url}" alt="Uploaded Image" class="card-img-top rounded" style="height: 150px; object-fit: cover;">
+                  </div>
+                `;
+                    gallery.appendChild(col);
+                  });
+                }
+
+                //fileInput.disabled = true;
+                //textInput.disabled = true;
+              } else {
+                alert('❌ อัปโหลดไม่สำเร็จ');
+              }
+            } catch (err) {
+              console.error(err);
+              alert('🚫 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
+            } finally {
+              progressWrapper.classList.add('d-none');
+            }
+          });
+        }, 0); // ให้ DOM render ก่อนแล้วค่อย bind event
+      }
+    });
+
 
   });
 </script>
