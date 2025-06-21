@@ -77,7 +77,6 @@
 
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-3m0eV2Y7F/1XpA6uTqvDc7jfXjRyD5N1xulIZv1ZCRe0zk0qKshFzXrKTrvsfEne" crossorigin="anonymous" />
     <style>
       td {
         font-family: 'Kanit', sans-serif;
@@ -175,7 +174,7 @@
           <!-- Footer ของเมนู -->
           <div class="menu-footer mt-auto p-3 border-top">
             <div class="d-flex flex-column align-items-start">
-              <span class="text-muted small mb-2">App Version 1.0.0</span>
+              <span id="appVersion" class="text-muted small mb-2"></span>
               <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger w-100" id="logout-menu">
                 <i class="bx bx-log-out-circle me-1"></i> Logout
               </a>
@@ -377,37 +376,38 @@
                       <option value="บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)">บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)</option>
                       <option value="บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)">บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)</option>
                       <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)</option>
+                      <option value="บริษัท เอสที เซอร์วิส เทรนนิ่ง">บริษัท เอสที เซอร์วิส เทรนนิ่ง</option>
                       </select></div>
                   <div class="col-md-2 user_plan"><select id="UserPlan" class="form-select text-capitalize">
                       <option value="">สาขา</option>
                     </select></div>
-                  <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                  <div class="col-md-2 user_status"><select id="FilterTransaction1" class="form-select text-capitalize">
                       <option value="งานทั้งหมด">งานทั้งหมด</option>
                       <option value="งานยังไม่ได้นัดหมาย" class="text-capitalize">งานยังไม่ได้นัดหมาย</option>
                       <option value="งานรอ Assign" class="text-capitalize">งานรอ Assign</option>
                       <option value="งานแจ้งเตือน" class="text-capitalize">งานแจ้งเตือน</option>
                     </select></div>
-                    <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                    <div class="col-md-2 user_status"><select id="FilterTransaction2" class="form-select text-capitalize">
                       <option value="">ประเภทงาน</option>
                       <option value="Inspection" class="text-capitalize">Inspection</option>
                       <option value="Roadside Assist" class="text-capitalize">Roadside Assist</option>
                     </select></div>
-                    <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                    <div class="col-md-2 user_status"><select id="FilterTransaction3" class="form-select text-capitalize">
                       <option value="">สถานะงาน</option>
-                      <option value="Pending" class="text-capitalize">เปิดงาน</option>
-                      <option value="Active" class="text-capitalize">รับเรื่องแล้ว</option>
-                      <option value="Inactive" class="text-capitalize">รับงาน</option>
-                      <option value="Inactive" class="text-capitalize">ปฏิเสธงาน</option>
-                      <option value="Inactive" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
-                      <option value="Inactive" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
-                      <option value="Inactive" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้ืองต้น</option>
-                      <option value="Inactive" class="text-capitalize">Pre-Approved</option>
-                      <option value="Inactive" class="text-capitalize">คีย์งานแล้ว</option>
-                      <option value="Inactive" class="text-capitalize">ผ่าน</option>
-                      <option value="Inactive" class="text-capitalize">ไม่ผ่าน</option>
-                      <option value="Inactive" class="text-capitalize">ยกเลิก</option>
+                      <option value="เปิดงาน" class="text-capitalize">เปิดงาน</option>
+                      <option value="รับเรื่องแล้ว" class="text-capitalize">รับเรื่องแล้ว</option>
+                      <option value="รับงาน" class="text-capitalize">รับงาน</option>
+                      <option value="ปฏิเสธงาน" class="text-capitalize">ปฏิเสธงาน</option>
+                      <option value="เริ่มงาน/กำลังเดินทาง" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
+                      <option value="ถึงที่เกิดเหตุ/ปฏิบัติงาน" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
+                      <option value="ส่งงาน/ตรวจสอบเบื้องต้น" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้องต้น</option>
+                      <option value="Pre-Approved" class="text-capitalize">Pre-Approved</option>
+                      <option value="คีย์งานแล้ว" class="text-capitalize">คีย์งานแล้ว</option>
+                      <option value="ผ่าน" class="text-capitalize">ผ่าน</option>
+                      <option value="ไม่ผ่าน" class="text-capitalize">ไม่ผ่าน</option>
+                      <option value="ยกเลิก" class="text-capitalize">ยกเลิก</option>
                     </select></div>
-                    <div class="col-md-2 user_status"><select id="FilterTransaction" class="form-select text-capitalize">
+                    <div class="col-md-2 user_status"><select id="FilterTransaction4" class="form-select text-capitalize">
                       <option value="วันที่สร้างงาน">วันที่สร้างงาน</option>
                       <option value="วันที่นัดหมาย" class="text-capitalize">วันที่นัดหมาย</option>
                      </select>
@@ -430,7 +430,7 @@
                         </ul>
                       </div>
                     </div>
-
+                    
                   </div>
               </div>
 
@@ -683,12 +683,26 @@
     }
   }
 </script>
-<script>
+<!--<script>
   const itemsPerPage = 20;
   let currentPage = 1;
-  let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
+  let allData = [];
+  let fetchDataCalled = false; // flag ป้องกันเรียกซ้ำ
+
+  // debounce function ลดการเรียกซ้ำ
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
 
   async function fetchData() {
+    if (fetchDataCalled) return; // ถ้าเคยเรียกแล้ว return เลย
+    fetchDataCalled = true;
+    console.log("fetchData called");
+
     try {
       const res = await fetch('https://be-claims-service.onrender.com/api/orders/inquiry', {
         method: 'POST',
@@ -696,18 +710,21 @@
           'Content-Type': 'application/json',
           'Authorization': `${token}`
         },
-        body: JSON.stringify({}) // สามารถใส่ filter ได้ เช่น { insur_comp: 'AIA' }
+        body: JSON.stringify({})
       });
 
       if (!res.ok) throw new Error('Fetch failed');
 
       const data = await res.json();
       allData = data;
+      currentPage = 1;
       renderTableData(currentPage);
     } catch (err) {
       console.error('Error fetching data:', err);
     }
   }
+
+  const debouncedFetchData = debounce(fetchData, 300);
 
   function renderTableData(page) {
     const start = (page - 1) * itemsPerPage;
@@ -720,18 +737,16 @@
     paginatedData.forEach(item => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>
-          <a href="task-detail.html?id=${item.id}" class="text-primary">${item.id}</a>
-        </td>
-        <td>${item.insur_comp}</td>
+        <td><a href="task-detail.html?id=${item.id}" class="text-primary">${item.id}</a></td>
+        <td>${item.insur_comp || ''}</td>
         <td>${item.order_date || ''}</td>
         <td>${item.appointment_date || ''}</td>
-        <td>${item.car_registration}</td>
-        <td>${item.location}</td>
-        <td>${item.order_type}</td>
-        <td>${item.order_status}</td>
-        <td>${item.creator}</td>
-        <td>${item.owner_full_name}</td>
+        <td>${item.car_registration || ''}</td>
+        <td>${item.location || ''}</td>
+        <td>${item.order_type || ''}</td>
+        <td>${item.order_status || ''}</td>
+        <td>${item.creator || ''}</td>
+        <td>${item.owner_full_name || ''}</td>
       `;
       tableBody.appendChild(row);
     });
@@ -747,7 +762,8 @@
     const prevButton = document.createElement("li");
     prevButton.classList.add("page-item");
     prevButton.innerHTML = `<a class="page-link" href="#">ก่อนหน้า</a>`;
-    prevButton.addEventListener("click", () => {
+    prevButton.addEventListener("click", e => {
+      e.preventDefault();
       if (currentPage > 1) {
         currentPage--;
         renderTableData(currentPage);
@@ -760,7 +776,8 @@
       pageItem.classList.add("page-item");
       pageItem.id = `page-${i}`;
       pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-      pageItem.addEventListener("click", () => {
+      pageItem.addEventListener("click", e => {
+        e.preventDefault();
         currentPage = i;
         renderTableData(currentPage);
       });
@@ -770,7 +787,8 @@
     const nextButton = document.createElement("li");
     nextButton.classList.add("page-item");
     nextButton.innerHTML = `<a class="page-link" href="#">ถัดไป</a>`;
-    nextButton.addEventListener("click", () => {
+    nextButton.addEventListener("click", e => {
+      e.preventDefault();
       if (currentPage < totalPages) {
         currentPage++;
         renderTableData(currentPage);
@@ -788,70 +806,309 @@
     if (activePage) activePage.classList.add("active");
   }
 
-  // เริ่มโหลดข้อมูลเมื่อหน้าโหลด
-  fetchData();
-</script>
+  // เรียก fetchData ครั้งแรกตอนโหลดหน้า
+  document.addEventListener('DOMContentLoaded', () => {
+    debouncedFetchData();
+  });
+</script> -->
+
 
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  let itemsPerPage2 = 20;
+  let currentPage2 = 1;
+  let allData2 = [];
+
+  // ฟังก์ชันแปลง data-range เป็นช่วงวันที่ from-to (yyyy-mm-dd)
+  function getDateRange(range) {
+    const today = new Date();
+    let fromDate, toDate;
+
+    const formatDate = (d) => d.toISOString().slice(0, 10);
+
+    switch (range) {
+      case 'today':
+        fromDate = toDate = today;
+        break;
+      case 'yesterday':
+        fromDate = toDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+        break;
+      case 'last7':
+        toDate = today;
+        fromDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6);
+        break;
+      case 'last30':
+        toDate = today;
+        fromDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29);
+        break;
+      case 'thisMonth':
+        fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        toDate = today;
+        break;
+      case 'lastMonth':
+        fromDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        toDate = new Date(today.getFullYear(), today.getMonth(), 0);
+        break;
+      default:
+        fromDate = toDate = null;
+    }
+
+    return {
+      from: fromDate ? formatDate(fromDate) : null,
+      to: toDate ? formatDate(toDate) : null,
+    };
+  }
+
+  function getFilters() {
+    const insurComp = document.getElementById('UserRole')?.value || '';
+    const branch = document.getElementById('UserPlan')?.value || '';
+    const workType = document.getElementById('FilterTransaction1')?.value || '';
+    const orderType = document.getElementById('FilterTransaction2')?.value || '';
+    const orderStatus = document.getElementById('FilterTransaction3')?.value || '';
+    const dateField = document.getElementById('FilterTransaction4')?.value || '';
+    const dateRangeRaw = document.getElementById('filterDateTime')?.value || '';
+
+    const filter = {};
+    if (insurComp) filter.insur_comp = insurComp;
+    if (branch) filter.branch = branch;
+    if (workType && workType !== 'งานทั้งหมด') filter.transaction_type = workType;
+    if (orderType) filter.order_type = orderType;
+    if (orderStatus) filter.order_status = orderStatus;
+
+    if (dateRangeRaw) {
+      if (dateRangeRaw.includes(" to ")) {
+        const [fromRaw, toRaw] = dateRangeRaw.split(" to ").map(s => s.trim());
+        if (dateField === "วันที่สร้างงาน") {
+          filter.order_date_from = fromRaw + " 00:00:00";
+          filter.order_date_to = toRaw + " 23:59:59";
+        } else if (dateField === "วันที่นัดหมาย") {
+          filter.appointment_date_from = fromRaw + " 00:00:00";
+          filter.appointment_date_to = toRaw + " 23:59:59";
+        }
+      } else {
+        const range = getDateRange(dateRangeRaw);
+        if (range.from && range.to) {
+          if (dateField === "วันที่สร้างงาน") {
+            filter.order_date_from = range.from + " 00:00:00";
+            filter.order_date_to = range.to + " 23:59:59";
+          } else if (dateField === "วันที่นัดหมาย") {
+            filter.appointment_date_from = range.from + " 00:00:00";
+            filter.appointment_date_to = range.to + " 23:59:59";
+          }
+        }
+      }
+    }
+
+
+    return filter;
+  }
+
+  async function fetchData(filter = {}) {
+    try {
+      const res = await fetch('https://be-claims-service.onrender.com/api/orders/inquiry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${token}`
+        },
+        body: JSON.stringify(filter)
+      });
+
+      if (!res.ok) throw new Error('Fetch failed');
+      const data = await res.json();
+      allData2 = data;
+      currentPage2 = 1;
+      renderTableData(currentPage2);
+    } catch (err) {
+      console.error('❌ Error fetching data:', err);
+    }
+  }
+
+  function renderTableData(page) {
+    const start = (page - 1) * itemsPerPage2;
+    const end = start + itemsPerPage2;
+    const paginatedData = allData2.slice(start, end);
+
+    const tableBody = document.querySelector("#userTable tbody");
+    tableBody.innerHTML = "";
+
+    paginatedData.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><a href="task-detail.html?id=${item.id}" class="text-primary">${item.id}</a></td>
+        <td>${item.insur_comp || ''}</td>
+        <td>${item.order_date || ''}</td>
+        <td>${item.appointment_date || ''}</td>
+        <td>${item.car_registration || ''}</td>
+        <td>${item.location || ''}</td>
+        <td>${item.order_type || ''}</td>
+        <td>${item.order_status || ''}</td>
+        <td>${item.creator || ''}</td>
+        <td>${item.owner_full_name || ''}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    generatePagination();
+  }
+
+  function generatePagination() {
+    const totalPages = Math.ceil(allData2.length / itemsPerPage2);
+    const paginationContainer = document.querySelector(".pagination");
+    paginationContainer.innerHTML = "";
+
+    const prevButton = document.createElement("li");
+    prevButton.classList.add("page-item");
+    prevButton.innerHTML = `<a class="page-link" href="#">ก่อนหน้า</a>`;
+    prevButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (currentPage2 > 1) {
+        currentPage2--;
+        renderTableData(currentPage2);
+      }
+    });
+    paginationContainer.appendChild(prevButton);
+
+    for (let i = 1; i <= totalPages; i++) {
+      const pageItem = document.createElement("li");
+      pageItem.classList.add("page-item");
+      pageItem.id = `page-${i}`;
+      pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      pageItem.addEventListener("click", (e) => {
+        e.preventDefault();
+        currentPage2 = i;
+        renderTableData(currentPage2);
+      });
+      paginationContainer.appendChild(pageItem);
+    }
+
+    const nextButton = document.createElement("li");
+    nextButton.classList.add("page-item");
+    nextButton.innerHTML = `<a class="page-link" href="#">ถัดไป</a>`;
+    nextButton.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (currentPage2 < totalPages) {
+        currentPage2++;
+        renderTableData(currentPage2);
+      }
+    });
+    paginationContainer.appendChild(nextButton);
+
+    setActivePage(currentPage2);
+  }
+
+  function setActivePage(pageNumber) {
+    const pages = document.querySelectorAll(".pagination .page-item");
+    pages.forEach(page => page.classList.remove("active"));
+    const activePage = document.querySelector(`#page-${pageNumber}`);
+    if (activePage) activePage.classList.add("active");
+  }
+
+  // Debounce เพื่อหน่วงเวลา fetch ลดเรียกซ้ำ
+  let fetchTimeout = null;
+  function debounceFetch() {
+    clearTimeout(fetchTimeout);
+    fetchTimeout = setTimeout(() => {
+      fetchData(getFilters());
+    }, 300);
+  }
+
+  function setupFilterListeners() {
+    const filterIds = [
+      'UserRole',
+      'UserPlan',
+      'FilterTransaction1',
+      'FilterTransaction2',
+      'FilterTransaction3',
+      'FilterTransaction4',
+      // ลบ 'filterDateTime' ออก เพราะ flatpickr คุมเอง
+    ];
+
+    filterIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('change', () => {
+          debounceFetch();
+        });
+      }
+    });
+
+    document.querySelectorAll('.dropdown-menu a.dropdown-item').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const range = a.getAttribute('data-range');
+        if (ranges[range]) {
+          // แค่เซ็ตวันที่ใน flatpickr แล้ว onChange จะเรียก debounceFetch()
+          fp.setDate(ranges[range], true);
+        }
+      });
+    });
+
+    const searchBtn = document.getElementById('searchBtn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentPage2 = 1;
+        fetchData(getFilters());
+      });
+    }
+  }
+
+  let fp;
+  const ranges = {
+    today: [new Date(), new Date()],
+    yesterday: [
+      new Date(new Date().setDate(new Date().getDate() - 1)),
+      new Date(new Date().setDate(new Date().getDate() - 1))
+    ],
+    last7: [
+      new Date(new Date().setDate(new Date().getDate() - 6)),
+      new Date()
+    ],
+    last30: [
+      new Date(new Date().setDate(new Date().getDate() - 29)),
+      new Date()
+    ],
+    thisMonth: [
+      new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+      new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+    ],
+    lastMonth: [
+      new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+      new Date(new Date().getFullYear(), new Date().getMonth(), 0)
+    ]
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchData();
+    setupFilterListeners();
+
     // สร้างวันที่ใน timezone Asia/Bangkok และตั้งเวลาเป็น 06:00
     const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
     const todayBangkok = new Date(nowInBangkok);
     todayBangkok.setHours(6, 0, 0, 0); // ตั้งเวลาเป็น 06:00:00
 
-    // เปิด Flatpickr
-    flatpickr("#filterDateTime", {
-      enableTime: true,
-      dateFormat: "d/m/Y H:i",  // dd/MM/yyyy HH:mm
-      defaultDate: todayBangkok,
-      time_24hr: true,
-      locale: "th"
-    });
-
-    // ใช้ flatpickr แบบช่วงวันที่
-    const fp = flatpickr("#filterDateTime", {
+    // สร้าง flatpickr instance แบบ range
+    fp = flatpickr("#filterDateTime", {
       mode: "range",
       dateFormat: "Y-m-d",
       locale: "th",
-    });
-
-    // กำหนด preset range ต่าง ๆ
-    const ranges = {
-      today: [new Date(), new Date()],
-      yesterday: [
-        new Date(new Date().setDate(new Date().getDate() - 1)),
-        new Date(new Date().setDate(new Date().getDate() - 1))
-      ],
-      last7: [
-        new Date(new Date().setDate(new Date().getDate() - 6)),
-        new Date()
-      ],
-      last30: [
-        new Date(new Date().setDate(new Date().getDate() - 29)),
-        new Date()
-      ],
-      thisMonth: [
-        new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-        new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-      ],
-      lastMonth: [
-        new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-        new Date(new Date().getFullYear(), new Date().getMonth(), 0)
-      ]
-    };
-
-    // ตั้งค่าตามที่เลือกจาก dropdown
-    document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
-      item.addEventListener('click', function () {
-        const rangeKey = this.getAttribute('data-range');
-        if (ranges[rangeKey]) {
-          fp.setDate(ranges[rangeKey], true); // set & trigger onChange
+      defaultDate: [todayBangkok, todayBangkok],
+      time_24hr: true,
+      onChange: function(selectedDates, dateStr) {
+        if (selectedDates.length === 2) {
+          const from = selectedDates[0].toISOString().slice(0, 10);
+          const to = selectedDates[1].toISOString().slice(0, 10);
+          document.getElementById('filterDateTime').value = `${from} to ${to}`;
+          debounceFetch();
         }
-      });
+      }
     });
   });
 </script>
+
+
+
 
 
 <!-- script placed just before </body> -->

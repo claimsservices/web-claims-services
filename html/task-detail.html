@@ -1034,6 +1034,9 @@
                         <!-- SECTION: ภายนอกรถ -->
                         <section class="upload-section mb-4">
                           <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
+                          <p class="mb-2 text-muted small">
+                            ด้านหน้ารถ, ด้านซ้ายส่วนหน้า, ด้านขวาส่วนหน้า, ด้านหลังรถ, ด้านซ้ายส่วนหลัง, ด้านขวาส่วนหลัง, ด้านซ้ายตรงกลาง, ด้านขวาตรงกลาง, หลังคารถ
+                          </p>
                           <div class="row">
                             <!-- ด้านหน้ารถ -->
                             <div class="col-4 mb-3 text-center">
@@ -2726,12 +2729,14 @@
                             </div>
                           </div>
                         </section>
-                      
-                        <!-- SECTION: เอกสาร -->
+
                         <section class="upload-section mb-4">
-                          <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารอื่น</h5>
+                          <h5>
+                            <i class="bi bi-file-earmark-check-fill text-success me-2"></i>
+                            เอกสารใบตรวจสภาพรถ
+                          </h5>
                           <p class="mb-2 text-muted small">
-                            เอกสารยืนยันตัวบุคคล, ใบตรวจสภาพรถ
+                            ใบตรวจสภาพรถ, เอกสารอื่นๆ
                           </p>
                           <div class="row">
                             <div class="col-4 mb-3 text-center">
@@ -3223,60 +3228,16 @@
                                 ">A</button>
                               </label>
                             </div>
-                            <div class="col-4 mb-3 text-center">
-                              <label class="image-gallery w-100"
-                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
-                                <img alt="เอกสารอื่น ๆ" style="width:100%; height:100%; object-fit: cover; display:block;" />
-                                <div class="title" style="
-                                  position: absolute;
-                                  bottom: 0;
-                                  left: 0;
-                                  width: 100%;
-                                  padding: 6px 10px;
-                                  background: rgba(0,0,0,0.8);
-                                  color: white;
-                                  font-weight: 600;
-                                  font-size: 14px;
-                                  text-align: center;
-                                  box-sizing: border-box;
-                                ">เอกสารอื่น ๆ</div>
-                                <input type="file" name="doc_other_9" accept="image/*" hidden>
-                                <button type="button" class="delete-btn" title="ลบภาพ" style="
-                                  position: absolute;
-                                  top: 6px;
-                                  right: 6px;
-                                  background: transparent;
-                                  border: none;
-                                  color: rgb(252, 7, 7);
-                                  font-size: 24px;
-                                  line-height: 1;
-                                  cursor: pointer;
-                                  z-index: 10;
-                                  display: block;">
-                                  <i class="bi bi-x-circle-fill"></i>
-                                </button>
-                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
-                                  position: absolute;
-                                  top: 38px;
-                                  right: 6px;
-                                  width: 28px;
-                                  height: 28px;
-                                  background-color: #198754;
-                                  color: #fff;
-                                  border-radius: 50%;
-                                  border: 2px solid white;
-                                  font-weight: bold;
-                                  font-size: 16px;
-                                  line-height: 1;
-                                  display: flex;
-                                  align-items: center;
-                                  justify-content: center;
-                                  cursor: pointer;
-                                  z-index: 10;
-                                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                                ">A</button>
-                              </label>
-                            </div>
+                          </div>
+                        </section>
+
+                        <!-- SECTION: เอกสาร -->
+                        <section class="upload-section mb-4">
+                          <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารอื่นๆ</h5>
+                          <p class="mb-2 text-muted small">
+                            เอกสารยืนยันตัวบุคคล, เอกสารยืนยันตัวรถ, เลขตัวถังและทะเบียนรถ, เอกสารอื่น ๆ
+                          </p>
+                          <div class="row">
                             <div class="col-4 mb-3 text-center">
                               <label class="image-gallery w-100"
                                 style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
@@ -3710,10 +3671,62 @@
                                 ">A</button>
                               </label>
                             </div>
+                            <div class="col-4 mb-3 text-center">
+                              <label class="image-gallery w-100"
+                                style="cursor:pointer; position:relative; display:block; border-radius:8px; overflow:hidden; height:200px;">
+                                <img alt="เอกสารอื่น ๆ" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                                <div class="title" style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 0;
+                                  width: 100%;
+                                  padding: 6px 10px;
+                                  background: rgba(0,0,0,0.8);
+                                  color: white;
+                                  font-weight: 600;
+                                  font-size: 14px;
+                                  text-align: center;
+                                  box-sizing: border-box;
+                                ">เอกสารอื่น ๆ</div>
+                                <input type="file" name="doc_other_9" accept="image/*" hidden>
+                                <button type="button" class="delete-btn" title="ลบภาพ" style="
+                                  position: absolute;
+                                  top: 6px;
+                                  right: 6px;
+                                  background: transparent;
+                                  border: none;
+                                  color: rgb(252, 7, 7);
+                                  font-size: 24px;
+                                  line-height: 1;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  display: block;">
+                                  <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="
+                                  position: absolute;
+                                  top: 38px;
+                                  right: 6px;
+                                  width: 28px;
+                                  height: 28px;
+                                  background-color: #198754;
+                                  color: #fff;
+                                  border-radius: 50%;
+                                  border: 2px solid white;
+                                  font-weight: bold;
+                                  font-size: 16px;
+                                  line-height: 1;
+                                  display: flex;
+                                  align-items: center;
+                                  justify-content: center;
+                                  cursor: pointer;
+                                  z-index: 10;
+                                  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                                ">A</button>
+                              </label>
+                            </div>
                           </div>
                         </section>
-
-                      
                       </div>
 
 
@@ -4361,17 +4374,28 @@
   const uploadedPicCache = new Set();
 
   function renderUploadedImages(orderPics) {
-      // เคลียร์ภาพเดิม (ซ่อน <img> ทุกตัว และลบ src)
-      document.querySelectorAll('.image-gallery img').forEach(img => {
-        img.src = '';
-        img.style.display = 'none';
-        img.alt = '';
+      // เคลียร์ภาพเดิมทั้งหมด และซ่อน .col-4
+      document.querySelectorAll('.image-gallery').forEach(label => {
+        const img = label.querySelector('img');
+        const title = label.querySelector('.title');
+        const col = label.closest('.col-4');
+
+        if (img) {
+          img.src = '';
+          img.alt = '';
+          img.style.display = 'none';
+        }
+
+        if (title) {
+          title.textContent = '';
+        }
+
+        if (col) {
+          col.style.display = 'none'; // 🔁 ซ่อนไว้ก่อน
+        }
       });
 
-      // เคลียร์ข้อความ title เดิมด้วย
-      document.querySelectorAll('.image-gallery .title').forEach(title => {
-        title.textContent = '';
-      });
+      uploadedPicCache.clear();
 
       for (const pic of orderPics) {
         const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
@@ -4382,31 +4406,38 @@
 
         const img = label.querySelector('img');
         const titleDiv = label.querySelector('.title');
-        if (!img || !titleDiv) continue;
+        const col = label.closest('.col-4');
+        if (!img || !titleDiv || !col) continue;
 
-        // ตั้ง alt เผื่อมีภาพไม่โหลด
         img.alt = pic.pic_title || 'uploaded image';
+        titleDiv.textContent = pic.pic_title || pic.pic_type;
 
-        // ตั้งชื่อ title ถ้ามี
-        titleDiv.textContent = (pic.pic_title || pic.pic_type);
-
-        // ถ้าเป็น Blob URL หรือ Base64 แล้วบางครั้งต้อง revoke URL หลังโหลดเสร็จ
         img.onload = () => {
+          // ถ้าเป็น blob, revoke หลังโหลด
           if (pic.pic.startsWith('blob:')) {
             URL.revokeObjectURL(pic.pic);
           }
+
+          // ถ้าโหลดได้จริง ค่อยแสดงกล่อง
+          if (img.naturalWidth > 0) {
+            col.style.display = 'block';
+            img.style.display = 'block';
+          }
         };
 
-        // เมื่อโหลดข้อมูล order_pic จาก backend
+        // ถ้ารูปโหลดไม่สำเร็จ จะไม่แสดง img หรือ col
+        img.onerror = () => {
+          img.style.display = 'none';
+          col.style.display = 'none';
+        };
+
+        // เพิ่ม timestamp กัน cache
+        img.src = pic.pic + '?t=' + new Date().getTime();
+
         uploadedPicCache.add(pic.pic_type);
-
-        // กำหนด src และแสดงภาพ
-        img.src = pic.pic + '?t=' + new Date().getTime(); // ป้องกัน cache
-        img.style.display = 'block';
-
-        
       }
     }
+
 
 
 
@@ -4760,10 +4791,10 @@
         idRender: ['interior_wheels_1', 'interior_wheels_2', 'interior_wheels_3', 'interior_wheels_4', 'interior_dashboard', 'interior_6', 'interior_7', 'interior_8', 'interior_9', 'interior_10']
       },
       documents: {
-        count: 7,
-        labels: ['ใบขับขี่', 'บัตรประชาชน', 'เอกสารยืนยันตัวรถ', 'เลขตัวถังและทะเบียนรถ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ'],
+        count: 8,
+        labels: ['ใบขับขี่', 'บัตรประชาชน', 'เอกสารยืนยันตัวรถ', 'เลขตัวถังและทะเบียนรถ', 'ลายเซ็น', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ'],
         filenames: [],
-        idRender: ['license', 'id_card', 'car_doc', 'car_number', 'other_1', 'other_2', 'other_3']
+        idRender: ['license', 'id_card', 'car_doc', 'car_number', 'doc_other_9', 'other_1', 'other_2', 'other_3']
       },
       inspection: {
         count: 10,
@@ -4784,10 +4815,10 @@
         idRender: ['doc_other_9']
       },
       fiber: {
-        count: 10,
-        labels: ['ใบตรวจสภาพรถ', 'ใบตรวจความเสียหาย', 'ใบตรวจอุปกรณ์ตกแต่ง', 'ใบตรวจกล้องหน้ารถ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ'],
+        count: 9,
+        labels: ['ใบตรวจสภาพรถ', 'ใบตรวจความเสียหาย', 'ใบตรวจอุปกรณ์ตกแต่ง', 'ใบตรวจกล้องหน้ารถ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ'],
         filenames: [],
-        idRender: ['doc_identity', 'doc_other_1', 'doc_other_2', 'doc_other_3', 'doc_other_4', 'doc_other_5', 'doc_other_6', 'doc_other_7', 'doc_other_8', 'doc_other_9']
+        idRender: ['doc_identity', 'doc_other_1', 'doc_other_2', 'doc_other_3', 'doc_other_4', 'doc_other_5', 'doc_other_6', 'doc_other_7', 'doc_other_8']
       }
     };
 
@@ -4869,6 +4900,7 @@
                   if (label) {
                     const previewImg = label.querySelector('img');
                     const titleDiv = label.querySelector('.title');
+                    const col = label.closest('.col-4'); // ✅ เพิ่มตรงนี้ก่อนใช้ col ด้านล่าง
 
                     if (previewImg) {
                       previewImg.src = result.uploaded[0].url + '?t=' + new Date().getTime(); // ป้องกัน cache
@@ -4878,6 +4910,9 @@
 
                     if (titleDiv) {
                       titleDiv.textContent = customName || 'Uploaded Image';
+                    }
+                    if (col) {
+                      col.style.display = 'block'; // ✅ แสดงกรอบ ถ้าเคยถูกซ่อนไว้
                     }
                   }
                 }
