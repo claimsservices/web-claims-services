@@ -22,48 +22,45 @@
 >
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
-
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  
     <title>ST - Task Management</title>
-
+  
     <meta name="description" content="" />
-
+  
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="../assets/img/favicon/3P4.ico" />
-
+  
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-      rel="stylesheet"
-    />
-
+      rel="stylesheet" />
+  
     <!-- Icons. Uncomment required icon fonts -->
     <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
-
+  
     <!-- Core CSS -->
     <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
     <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
     <link rel="stylesheet" href="../assets/css/demo.css" />
-
+  
     <!-- Vendors CSS -->
     <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
-
+  
     <link rel="stylesheet" href="../assets/vendor/libs/apex-charts/apex-charts.css" />
-
+  
     <!-- Page CSS -->
-
+  
     <!-- Helpers -->
     <script src="../assets/vendor/js/helpers.js"></script>
-
+  
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="../assets/js/config.js"></script>
-
+  
     <script>
       // Check if the user has a valid token and the required role
       const accessToken = localStorage.getItem('authToken'); // Check if token is available
@@ -76,7 +73,9 @@
       }
 
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&family=Kanit:wght@300;400;700&family=Prompt:wght@300;400;700&family=Taviraj:wght@300;400;700&family=Mitr:wght@300;400;700&display=swap"
+      rel="stylesheet">
     <style>
       td {
         font-family: 'Kanit', sans-serif;
@@ -93,32 +92,36 @@
         white-space: normal;
         /* อนุญาตให้ขึ้นบรรทัดใหม่ */
       }
+  
       th {
-      background-color: #333;
-      color: rgba(255, 255, 255, 0.603);
-    }
-    
+        background-color: #333;
+        color: rgba(255, 255, 255, 0.603);
+      }
+  
       th:nth-child(6),
       td:nth-child(6) {
         width: 20%;
         /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ */
       }
     </style>
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- ใส่ลิงก์ Bootstrap Icons (ถ้ายังไม่มี) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   </head>
 
-  <body >
+  <body>
     <!-- Layout wrapper -->
     <div class="layout-wrapper layout-content-navbar">
       <div class="layout-container">
         <!-- Menu -->
-
         <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
           <div class="app-brand demo">
             <a href="" class="app-brand-link gap-2">
@@ -130,9 +133,9 @@
               <i class="bx bx-chevron-left bx-sm align-middle"></i>
             </a>
           </div>
-        
+  
           <div class="menu-inner-shadow"></div>
-        
+  
           <ul class="menu-inner py-1">
             <!-- Dashboard -->
             <li class="menu-item open active">
@@ -149,14 +152,14 @@
                 </li>
               </ul>
             </li>
-        
+  
             <!-- Layouts -->
             <li class="menu-item">
               <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon icon-base bx bx-user"></i>
                 <div data-i18n="Layouts">User Management</div>
               </a>
-        
+  
               <ul class="menu-sub">
                 <li class="menu-item" id="admin-menu" style="display: none;">
                   <a href="users.html" class="menu-link">
@@ -181,31 +184,30 @@
             </div>
         </aside>
         <!-- / Menu -->
-
+  
         <!-- Layout container -->
         <div class="layout-page">
           <!-- Navbar -->
-
           <nav
-            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-            id="layout-navbar"
-          >
+  class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center custom-navbar-bg"
+  id="layout-navbar">
+
             <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
               <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
                 <i class="bx bx-menu bx-sm"></i>
               </a>
             </div>
-
+  
             <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-             
+  
               <!-- /Search -->
-
+  
               <ul class="navbar-nav flex-row align-items-center ms-auto">
-
+  
                 <!-- User -->
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                  <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" href="javascript:void(0);"
-                    data-bs-toggle="dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3"
+                    href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
                       <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
                     </div>
@@ -235,15 +237,15 @@
                     <span class="align-middle">Log Out</span>
                   </a>
                 </li>
-                </ul>
-                </li>
-                <!--/ User -->
+              </ul>
+              </li>
+              <!--/ User -->
               </ul>
             </div>
           </nav>
-
+  
           <!-- / Navbar -->
-
+  
           <!-- Content wrapper -->
           <div class="container-xxl flex-grow-1 container-p-y">
             <div class="row g-6 mb-6">
@@ -478,24 +480,24 @@
                   <div class="col-md-2">
                     <input type="text" id="filterAssignedTo" class="form-control" placeholder="ผู้รับผิดชอบ">
                   </div>
-              
                 </div>
-
-                <button id="searchBtn" class="btn btn-primary" style="margin-top: 14px;">ค้นหารายการ</button>
-
-
-              </div>
-
+                <button id="searchBtn" class="btn btn-primary" style="margin-top: 14px; background-color: #5c4433; border-color: #5c4433;">ค้นหารายการ</button> 
+              </div> 
 
               <div class="card-header border-bottom">
                 <div class="row align-items-center g-3">
-                  <div class="col-md-4 ms-auto d-flex justify-content-end">
-                    <a href="task-management.html" class="btn rounded-pill btn-primary d-flex align-items-center" role="button">
+                  <div class="col-md-4 ms-auto d-flex justify-content-end align-items-center">
+                    <button id="exportExcelBtn" class="btn btn-light d-flex align-items-center justify-content-center ms-2"
+                      title="Export Excel"
+                      style="font-size: 2rem; color: #28a745; padding: 0.375rem 0.75rem; height: 38px; width: 38px; border-radius: 0.375rem; margin-top: 14px; border: 1px solid #28a745;">
+                      <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                    </button>
+                    <a href="task-management.html" class="btn rounded-pill btn-primary d-flex align-items-center ms-2" role="button"
+                      style="margin-top: 14px; background-color: #5c4433; border-color: #5c4433;">
                       <i class="icon-base bx bx-plus icon-sm me-0 me-sm-2"></i>
                       <span class="d-none d-sm-inline-block">เพิ่มรายการใหม่</span>
                     </a>
                   </div>
-
                 </div>
               </div>
               <div class="table-responsive text-nowrap">
@@ -618,6 +620,8 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <!-- script สำหรับ export Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
       // Constants for URLs and other fixed strings
       const LOGIN_PAGE = '../index.html';
@@ -1087,6 +1091,33 @@
         }
       }
     });
+  });
+
+  document.getElementById('exportExcelBtn').addEventListener('click', () => {
+    if (!allData2 || allData2.length === 0) {
+      alert('ไม่มีข้อมูลสำหรับส่งออก');
+      return;
+    }
+
+    // สร้าง worksheet จากข้อมูล allData2
+    const worksheetData = allData2.map(item => ({
+      "รหัสงาน": item.id,
+      "บริษัทประกัน": item.insur_comp,
+      "วันที่ทำรายการ": item.order_date,
+      "วันที่นัดหมาย": item.appointment_date,
+      "ทะเบียนรถ": item.car_registration,
+      "สถานที่": item.location,
+      "ประเภทงาน": item.order_type,
+      "สถานะงาน": item.order_status,
+      "ผู้สร้างงาน": item.creator,
+      "ผู้รับผิดชอบ": item.owner_full_name,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    XLSX.writeFile(workbook, "orders_export.xlsx");
   });
 </script>
 
