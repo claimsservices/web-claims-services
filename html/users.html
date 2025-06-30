@@ -139,7 +139,25 @@
             </ul>
           </li>
         </ul>
+        <div class="menu-footer mt-auto p-3 border-top">
+            <div class="d-flex flex-column align-items-start">
+              <span id="appVersion" class="text-muted small mb-2"></span>
+              <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger w-100" id="logout-menu">
+                <i class="bx bx-log-out-circle me-1"></i> Logout
+              </a>
+            </div>
       </aside>
+      <!-- Core JS -->
+     <script>
+      fetch('/version.json')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("appVersion").textContent = `App Version ${data.version}`;
+        })
+        .catch(() => {
+          document.getElementById("appVersion").textContent = "App Version -";
+        });
+    </script>
       <!-- / Menu -->
 
       <!-- Layout container -->
