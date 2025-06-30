@@ -968,6 +968,41 @@ uploadingStatus.set(newInput, false);
     }
   });
 
+  document.querySelectorAll('section.upload-section label.image-gallery input[type="file"]').forEach(input => {
+  input.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const label = e.target.closest('label');
+    const img = label.querySelector('img');
+    const icon = label.querySelector('i');
+    const titleDiv = label.querySelector('.title');
+
+    // แสดงรูป preview
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      img.src = evt.target.result;
+      img.style.display = 'block';
+      icon.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+
+    // ถ้าเจอ div.title ให้แปลงเป็น input สำหรับแก้ชื่อ
+    if (titleDiv) {
+      const currentTitle = titleDiv.innerText;
+      const inputTitle = document.createElement('input');
+      inputTitle.type = 'text';
+      inputTitle.className = 'form-control form-control-sm mt-2 title-input text-center';
+      inputTitle.value = currentTitle;
+      inputTitle.placeholder = 'แก้ไขชื่อภาพ...';
+
+      // แทนที่ div.title ด้วย input
+      titleDiv.replaceWith(inputTitle);
+    }
+  });
+});
+
+
 
       const UPLOAD_API_URL = 'https://be-claims-service.onrender.com/api/upload/image/transactions';
       const LOGIN_PAGE = '/index.html';
@@ -1526,7 +1561,14 @@ uploadingStatus.set(newInput, false);
           const imgUrl = img.src;
           const input = img.closest('label').querySelector('input[type="file"]');
           const picType = input?.name || 'unknown';
-          const title = input?.closest('label')?.querySelector('.title')?.innerText || '';
+          const label = input.closest('label');
+
+          // ถ้าเจอ div.title ให้ใช้ innerText  
+          // ถ้าไม่เจอ ให้ลองหา input.title-input แทน (กรณีแก้ชื่อแล้ว)
+          const titleDiv = label.querySelector('.title');
+          const titleInput = label.querySelector('.title-input');
+
+const title = titleInput ? titleInput.value : (titleDiv ? titleDiv.innerText : '');
 
           if (imgUrl && imgUrl.startsWith('http')) {
             orderPic.push({
