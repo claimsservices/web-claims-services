@@ -681,6 +681,18 @@
                         <input type="file" name="interior_13" accept="image/*" capture="environment" hidden>
                       </label>
                     </div>
+
+                    <div class="row" id="other-image-row">
+                      <div class="col-md-4 col-lg-3 mb-3 text-center custom-other-upload">
+                        <label class="image-gallery w-100" style="cursor:pointer;">
+                          <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
+                          <i class="bi bi-camera fs-1"></i>
+                          <div class="title">อื่นๆ</div>
+                          <input type="file" name="interior_14" accept="image/*" capture="environment" hidden>
+                        </label>
+                      </div>
+                    </div>
+
                   </div>
                 </section>
 
@@ -751,7 +763,7 @@
 
                 <!-- SECTION: เอกสาร -->
                 <section class="upload-section mb-4" style="display: none;">
-                  <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>ภาพถ่ายเอกสาร</h5>
+                  <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารยืนยันตัวบุคคล, ใบตรวจสภาพรถ, อื่นๆ</h5>
                   <div class="row">
                     <div class="col-md-4 col-lg-3 mb-3 text-center">
                       <label class="image-gallery w-100" style="cursor:pointer;">
@@ -895,6 +907,68 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+
+      const container = document.getElementById('other-image-row');
+  
+  // เริ่ม index ที่ 13 เพราะกล่องแรกชื่อ interior_13
+  let currentIndex = 14;
+  
+  container.addEventListener('change', async (e) => {
+    const input = e.target;
+    if (input.type === 'file' && input.files.length > 0) {
+      const label = input.closest('label');
+      const img = label.querySelector('.preview-img');
+      const icon = label.querySelector('i');
+      const titleDiv = label.querySelector('.title');
+      const file = input.files[0];
+
+      // แสดง preview รูป
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        img.src = e.target.result;
+        img.style.display = 'block';
+        icon.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+
+      // เปลี่ยน <div class="title"> → <input type="text">
+      if (titleDiv) {
+        const inputTitle = document.createElement('input');
+        inputTitle.type = 'text';
+        inputTitle.className = 'form-control form-control-sm text-center mt-2 title-input';
+        inputTitle.placeholder = 'ชื่อภาพ';
+        titleDiv.replaceWith(inputTitle);
+      }
+
+      // ป้องกันสร้างกล่องใหม่ซ้ำ
+      if (label.dataset.generated === 'true') return;
+      label.dataset.generated = 'true';
+
+      // เพิ่ม index ไป 1
+      currentIndex++;
+
+      // สร้างกล่องใหม่ "อื่นๆ" พร้อมชื่อ name เพิ่มทีละ 1
+const newBox = document.createElement('div');
+newBox.className = 'col-md-4 col-lg-3 mb-3 text-center custom-other-upload';
+newBox.innerHTML = `
+  <label class="image-gallery w-100" style="cursor:pointer;">
+    <img alt="Preview" class="preview-img" style="display:none;       width:100%; height:150px; object-fit:cover;"       />
+    <i class="bi bi-camera fs-1"></i>
+    <div class="title">อื่นๆ</div>
+          <input type="file" name="interior_${currentIndex}" accept="image/*" capture="environment" hidden>
+  </label>
+`;
+container.appendChild(newBox);
+
+// ผูก event upload กับ input ใหม่
+const newInput = newBox.querySelector('input[type="file"]');
+bindFileInput(newInput);
+uploadingStatus.set(newInput, false);
+
+    }
+  });
+
+
       const UPLOAD_API_URL = 'https://be-claims-service.onrender.com/api/upload/image/transactions';
       const LOGIN_PAGE = '/index.html';
       const RETURN_LOGIN_PAGE = '/index.html';
@@ -1571,15 +1645,10 @@
         };
         reader.readAsDataURL(file);
       });
+
+      
     });
-
-
-
-
   </script>
-
-
-
 </body>
 
 </html>
