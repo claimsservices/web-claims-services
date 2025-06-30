@@ -151,20 +151,18 @@
 
         <ul class="menu-inner py-1">
           <!-- Dashboard -->
-          <li class="menu-item active">
+          <li class="menu-item">
             <a href="task-attachments.html" class="menu-link">
               <i class="menu-icon icon-base bx bx-car"></i>
               <div data-i18n="Analytics">Task Attachments</div>
             </a>
           </li>
-          <li class="menu-item">
+          <li class="menu-item active">
             <a href="history-attachments.html" class="menu-link">
               <i class="menu-icon icon-base bx bx-history"></i>
               <div data-i18n="Analytics">History Attachments</div>
             </a>
           </li>
-        
-
         </ul>
       </aside>
         <!-- / Menu -->
@@ -475,7 +473,7 @@
 
   async function fetchData() {
     try {
-      const res = await fetch('https://be-claims-service.onrender.com/api/order-agent/inquiry', {
+      const res = await fetch('https://be-claims-service.onrender.com/api/history-agent/inquiry', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -505,14 +503,10 @@
     paginatedData.forEach(item => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>
-          <a href="task-attachments-upload.html?id=${item.id}" class="text-primary">${item.id}</a>
+        <td>${item.id}
         </td>
         <td>${item.appointment_date || ''}</td>
-        <td>
-      <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank">
-        ${item.location}
-      </a>
+        <td>${item.location}
     </td>
         <td>${item.creator}</td>
         <td>${item.order_status}</td>
