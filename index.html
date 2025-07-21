@@ -269,7 +269,7 @@
           if (response.ok) {
             const data = await response.json();
             localStorage.setItem('authToken', data.token); // Store token
-            if (data.role === 'Field-Agent') {
+            if (data.role === 'Officer') {
               window.location.href = 'html/task-attachments.html'; // Redirect after successful Agent login
             } else {
               window.location.href = 'html/dashboard.html'; // Redirect after successful login

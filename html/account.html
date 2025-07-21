@@ -624,9 +624,13 @@
     const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
 
     // Check if the user has the 'admin' role
-    if (user.role === 'Admin') {
+    if (user.role === 'Operations Manager' || user.role === 'Director' || user.role === 'Developer') {
       // Show the admin menu
       document.getElementById('admin-menu').style.display = 'block';
+    }
+    if (user.role === 'Officer') {
+      localStorage.removeItem('authToken');
+      window.location.href = '../index.html';
     }
   }
 </script>
