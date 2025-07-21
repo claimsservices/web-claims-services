@@ -4539,6 +4539,13 @@
     if (user.role === 'Operations Manager' || user.role === 'Director' || user.role === 'Developer') {
       // Show the admin menu
       document.getElementById('admin-menu').style.display = 'block';
+    } else if (userRole === 'Admin Officer') {
+      document.addEventListener('DOMContentLoaded', function () {
+        const orderStatusSelect = document.getElementById('orderStatus');
+        if (orderStatusSelect) {
+          orderStatusSelect.setAttribute('disabled', 'disabled');
+        }
+      });
     }
     if (user.role === 'Officer') {
       localStorage.removeItem('authToken');
@@ -4554,50 +4561,50 @@
 
 <script>
   document.getElementById('downloadAllBtn').addEventListener('click', async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  const zip = new JSZip();
-  const orderId = document.getElementById('taskId').value.trim();
+    const zip = new JSZip();
+    const orderId = document.getElementById('taskId').value.trim();
 
-  // ✅ เลือกเฉพาะ img ที่มี src จริงและมองเห็นได้
-  const imageElements = Array.from(document.querySelectorAll('.image-gallery img')).filter(img => {
-    const style = getComputedStyle(img);
-    return (
-      img.src &&
-      img.src.startsWith('https') &&
-      style.display !== 'none' &&
-      img.complete
+    // ✅ เลือกเฉพาะ img ที่มี src จริงและมองเห็นได้
+    const imageElements = Array.from(document.querySelectorAll('.image-gallery img')).filter(img => {
+      const style = getComputedStyle(img);
+      return (
+        img.src &&
+        img.src.startsWith('https') &&
+        style.display !== 'none' &&
+        img.complete
+      );
+    });
+
+    if (imageElements.length === 0) {
+      alert('ไม่มีภาพให้ดาวน์โหลด');
+      return;
+    }
+
+    await Promise.all(
+      imageElements.map(async (img, i) => {
+        const url = img.src;
+        const label = img.closest('label');
+        const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
+
+        // ✅ เปลี่ยนชื่อให้ปลอดภัยกับระบบไฟล์ (ตัดอักขระพิเศษออก)
+        const safeName = title.replace(/[^\wก-๙\s-]/g, '').replace(/\s+/g, '_');
+
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`โหลดภาพไม่ได้: ${url}`);
+          const blob = await response.blob();
+          zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
+        } catch (err) {
+          console.warn(`ข้ามภาพที่โหลดไม่ได้: ${url}`, err);
+        }
+      })
     );
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    saveAs(zipBlob, orderId + '.zip');
   });
-
-  if (imageElements.length === 0) {
-    alert('ไม่มีภาพให้ดาวน์โหลด');
-    return;
-  }
-
-  await Promise.all(
-    imageElements.map(async (img, i) => {
-      const url = img.src;
-      const label = img.closest('label');
-      const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
-      
-      // ✅ เปลี่ยนชื่อให้ปลอดภัยกับระบบไฟล์ (ตัดอักขระพิเศษออก)
-      const safeName = title.replace(/[^\wก-๙\s-]/g, '').replace(/\s+/g, '_');
-
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`โหลดภาพไม่ได้: ${url}`);
-        const blob = await response.blob();
-        zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
-      } catch (err) {
-        console.warn(`ข้ามภาพที่โหลดไม่ได้: ${url}`, err);
-      }
-    })
-  );
-
-  const zipBlob = await zip.generateAsync({ type: 'blob' });
-  saveAs(zipBlob, orderId + '.zip');
-});
 
 </script>
 <!-- <script>
@@ -4932,69 +4939,69 @@
   const uploadedPicCache = new Set();
 
   function renderUploadedImages(orderPics) {
-      // เคลียร์ภาพเดิมทั้งหมด และซ่อน .col-4
-      document.querySelectorAll('.image-gallery').forEach(label => {
-        const img = label.querySelector('img');
-        const title = label.querySelector('.title');
-        const col = label.closest('.col-4');
+    // เคลียร์ภาพเดิมทั้งหมด และซ่อน .col-4
+    document.querySelectorAll('.image-gallery').forEach(label => {
+      const img = label.querySelector('img');
+      const title = label.querySelector('.title');
+      const col = label.closest('.col-4');
 
-        if (img) {
-          img.src = '';
-          img.alt = '';
-          img.style.display = 'none';
-        }
-
-        if (title) {
-          title.textContent = '';
-        }
-
-        if (col) {
-          col.style.display = 'none'; // 🔁 ซ่อนไว้ก่อน
-        }
-      });
-
-      uploadedPicCache.clear();
-
-      for (const pic of orderPics) {
-        const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
-        if (!inputElem) continue;
-
-        const label = inputElem.closest('label.image-gallery');
-        if (!label) continue;
-
-        const img = label.querySelector('img');
-        const titleDiv = label.querySelector('.title');
-        const col = label.closest('.col-4');
-        if (!img || !titleDiv || !col) continue;
-
-        img.alt = pic.pic_title || 'uploaded image';
-        titleDiv.textContent = pic.pic_title || pic.pic_type;
-
-        img.onload = () => {
-          // ถ้าเป็น blob, revoke หลังโหลด
-          if (pic.pic.startsWith('blob:')) {
-            URL.revokeObjectURL(pic.pic);
-          }
-
-          // ถ้าโหลดได้จริง ค่อยแสดงกล่อง
-          if (img.naturalWidth > 0) {
-            col.style.display = 'block';
-            img.style.display = 'block';
-          }
-        };
-
-        // ถ้ารูปโหลดไม่สำเร็จ จะไม่แสดง img หรือ col
-        img.onerror = () => {
-          img.style.display = 'none';
-          col.style.display = 'none';
-        };
-
-        // เพิ่ม timestamp กัน cache
-        img.src = pic.pic + '?t=' + new Date().getTime();
-
-        uploadedPicCache.add(pic.pic_type);
+      if (img) {
+        img.src = '';
+        img.alt = '';
+        img.style.display = 'none';
       }
+
+      if (title) {
+        title.textContent = '';
+      }
+
+      if (col) {
+        col.style.display = 'none'; // 🔁 ซ่อนไว้ก่อน
+      }
+    });
+
+    uploadedPicCache.clear();
+
+    for (const pic of orderPics) {
+      const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
+      if (!inputElem) continue;
+
+      const label = inputElem.closest('label.image-gallery');
+      if (!label) continue;
+
+      const img = label.querySelector('img');
+      const titleDiv = label.querySelector('.title');
+      const col = label.closest('.col-4');
+      if (!img || !titleDiv || !col) continue;
+
+      img.alt = pic.pic_title || 'uploaded image';
+      titleDiv.textContent = pic.pic_title || pic.pic_type;
+
+      img.onload = () => {
+        // ถ้าเป็น blob, revoke หลังโหลด
+        if (pic.pic.startsWith('blob:')) {
+          URL.revokeObjectURL(pic.pic);
+        }
+
+        // ถ้าโหลดได้จริง ค่อยแสดงกล่อง
+        if (img.naturalWidth > 0) {
+          col.style.display = 'block';
+          img.style.display = 'block';
+        }
+      };
+
+      // ถ้ารูปโหลดไม่สำเร็จ จะไม่แสดง img หรือ col
+      img.onerror = () => {
+        img.style.display = 'none';
+        col.style.display = 'none';
+      };
+
+      // เพิ่ม timestamp กัน cache
+      img.src = pic.pic + '?t=' + new Date().getTime();
+
+      uploadedPicCache.add(pic.pic_type);
     }
+  }
 
 
 

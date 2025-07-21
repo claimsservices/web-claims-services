@@ -1168,6 +1168,9 @@
     if (user.role === 'Operations Manager' || user.role === 'Director' || user.role === 'Developer') {
       // Show the admin menu
       document.getElementById('admin-menu').style.display = 'block';
+    } else if (user.role === 'Sales Manager') {
+      // Hide the admin menu for Officer role
+      window.location.href = 'dashboard.html';
     }
     if (user.role === 'Officer') {
       localStorage.removeItem('authToken');
