@@ -4876,8 +4876,16 @@
         document.getElementById('reference1').value = order_details.s_ref;
         document.getElementById('reference2').value = order_details.s_ref_2;
         document.getElementById('policyNumber').value = order_details.s_number;
-        document.getElementById('coverageStartDate').value = order_details.s_start?.slice(0, 10);
-        document.getElementById('coverageEndDate').value = order_details.s_end?.slice(0, 10);
+        const startInput = document.getElementById('coverageStartDate');
+        const endInput = document.getElementById('coverageEndDate');
+
+        if (startInput && order_details?.s_start) {
+          startInput.value = order_details.s_start.slice(0, 10);
+        }
+
+        if (endInput && order_details?.s_end) {
+          endInput.value = order_details.s_end.slice(0, 10);
+        }
         document.getElementById('insuranceType').value = order_details.s_type;
         document.getElementById('s_remark').value = order_details.s_remark;
         document.getElementById('s_ins_remark').value = order_details.s_ins_remark;
