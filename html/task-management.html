@@ -487,6 +487,95 @@
                     <!-- Column 4 (สามารถใช้เป็นช่องเปล่า หรือเพิ่ม field อื่น) -->
                     <div class="col-md-3">
                       <div class="mb-3">
+                        <label class="form-label" for="incidentProvince">
+                          จังหวัดที่เกิดเหตุ <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-map-pin"></i></span>
+                          <select class="form-select ps-4" id="incidentProvince" required>
+                            <option value="" disabled selected>-- เลือกจังหวัด --</option>
+                            <option>กรุงเทพมหานคร</option>
+                            <option>กระบี่</option>
+                            <option>กาญจนบุรี</option>
+                            <option>กาฬสินธุ์</option>
+                            <option>กำแพงเพชร</option>
+                            <option>ขอนแก่น</option>
+                            <option>จันทบุรี</option>
+                            <option>ฉะเชิงเทรา</option>
+                            <option>ชลบุรี</option>
+                            <option>ชัยนาท</option>
+                            <option>ชัยภูมิ</option>
+                            <option>ชุมพร</option>
+                            <option>เชียงราย</option>
+                            <option>เชียงใหม่</option>
+                            <option>ตรัง</option>
+                            <option>ตราด</option>
+                            <option>ตาก</option>
+                            <option>นครนายก</option>
+                            <option>นครปฐม</option>
+                            <option>นครพนม</option>
+                            <option>นครราชสีมา</option>
+                            <option>นครศรีธรรมราช</option>
+                            <option>นครสวรรค์</option>
+                            <option>นนทบุรี</option>
+                            <option>นราธิวาส</option>
+                            <option>น่าน</option>
+                            <option>บึงกาฬ</option>
+                            <option>บุรีรัมย์</option>
+                            <option>ปทุมธานี</option>
+                            <option>ประจวบคีรีขันธ์</option>
+                            <option>ปราจีนบุรี</option>
+                            <option>ปัตตานี</option>
+                            <option>พระนครศรีอยุธยา</option>
+                            <option>พะเยา</option>
+                            <option>พังงา</option>
+                            <option>พัทลุง</option>
+                            <option>พิจิตร</option>
+                            <option>พิษณุโลก</option>
+                            <option>เพชรบุรี</option>
+                            <option>เพชรบูรณ์</option>
+                            <option>แพร่</option>
+                            <option>พังงา</option>
+                            <option>ภูเก็ต</option>
+                            <option>มหาสารคาม</option>
+                            <option>มุกดาหาร</option>
+                            <option>แม่ฮ่องสอน</option>
+                            <option>ยโสธร</option>
+                            <option>ยะลา</option>
+                            <option>ร้อยเอ็ด</option>
+                            <option>ระนอง</option>
+                            <option>ระยอง</option>
+                            <option>ราชบุรี</option>
+                            <option>ลพบุรี</option>
+                            <option>ลำปาง</option>
+                            <option>ลำพูน</option>
+                            <option>เลย</option>
+                            <option>ศรีสะเกษ</option>
+                            <option>สกลนคร</option>
+                            <option>สงขลา</option>
+                            <option>สตูล</option>
+                            <option>สมุทรปราการ</option>
+                            <option>สมุทรสงคราม</option>
+                            <option>สมุทรสาคร</option>
+                            <option>สระแก้ว</option>
+                            <option>สระบุรี</option>
+                            <option>สิงห์บุรี</option>
+                            <option>สุโขทัย</option>
+                            <option>สุพรรณบุรี</option>
+                            <option>สุราษฎร์ธานี</option>
+                            <option>สุรินทร์</option>
+                            <option>หนองคาย</option>
+                            <option>หนองบัวลำภู</option>
+                            <option>อ่างทอง</option>
+                            <option>อำนาจเจริญ</option>
+                            <option>อุดรธานี</option>
+                            <option>อุตรดิตถ์</option>
+                            <option>อุทัยธานี</option>
+                            <option>อุบลราชธานี</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-3">
                         <label class="form-label" for="processType">
                           การดำเนินการ <span class="text-danger">*</span>
                         </label>
@@ -513,6 +602,7 @@
                             <option value="เริ่มงาน/กำลังเดินทาง" class="text-capitalize">เริ่มงาน/กำลังเดินทาง</option>
                             <option value="ถึงที่เกิดเหตุ/ปฏิบัติงาน" class="text-capitalize">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
                             <option value="ส่งงาน/ตรวจสอบเบื้ืองต้น" class="text-capitalize">ส่งงาน/ตรวจสอบเบื้ืองต้น</option>
+                            <option value="รออนุมัติ" class="text-capitalize">รออนุมัติ</option>
                             <option value="Pre-Approved" class="text-capitalize">Pre-Approved</option>
                             <option value="คีย์งานแล้ว" class="text-capitalize">คีย์งานแล้ว</option>
                             <option value="ผ่าน" class="text-capitalize">ผ่าน</option>

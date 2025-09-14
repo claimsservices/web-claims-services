@@ -310,7 +310,15 @@
                         <option value="Sales Manager">Sales Manager</option>
                         <option value="Operation Manager">Operation Manager</option>
                         <option value="Director">Director</option>
+                        <option value="Insurance">Insurance</option>
+                        <option value="Bike">Bike</option>
                       </select>
+                    </div>
+
+                    <!-- Insurance Company Field (hidden by default) -->
+                    <div class="mb-4" id="insur-comp-field" style="display: none;">
+                      <label class="form-label" for="add-user-insur-comp">Insurance Company</label>
+                      <input type="text" class="form-control" id="add-user-insur-comp" placeholder="Enter insurance company" name="insur_comp">
                     </div>
         
                     <!-- Submit & Cancel Buttons -->
@@ -319,6 +327,16 @@
                       <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
                     </div>
                   </form>
+                  <script>
+                    document.getElementById('user-role-regist').addEventListener('change', function () {
+                      const insuranceField = document.getElementById('insur-comp-field');
+                      if (this.value === 'Insurance') {
+                        insuranceField.style.display = 'block';
+                      } else {
+                        insuranceField.style.display = 'none';
+                      }
+                    });
+                  </script>
                 </div>
               </div>
         
@@ -646,6 +664,10 @@
       phone: contact,
       role: role
     };
+
+    if (role === 'Insurance') {
+      data.insur_comp = document.getElementById("add-user-insur-comp").value;
+    }
     
     // Send a POST request to the API using fetch
     fetch('https://be-claims-service.onrender.com/api/auth/register', {

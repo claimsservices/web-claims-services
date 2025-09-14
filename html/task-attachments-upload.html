@@ -1621,7 +1621,7 @@ const title = titleInput ? titleInput.value : (titleDiv ? titleDiv.innerText : '
 
 
     document.getElementById('uploadBtn').addEventListener('click', async () => {
-      await uploadOrderPics('ส่งงาน/ตรวจสอบเบื้องต้น', 'FieldAgent');
+      await uploadOrderPics('รออนุมัติ', 'FieldAgent');
       setTimeout(() => window.location.reload(), 1000); // หน่วง 1 วิให้ผู้ใช้เห็น alert
     });
 

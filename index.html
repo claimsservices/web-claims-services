@@ -269,6 +269,7 @@
           if (response.ok) {
             const data = await response.json();
             localStorage.setItem('authToken', data.token); // Store token
+            localStorage.setItem('role', data.role); // Store role - ADD THIS LINE
             if (data.role === 'Officer') {
               window.location.href = 'html/task-attachments.html'; // Redirect after successful Agent login
             } else {

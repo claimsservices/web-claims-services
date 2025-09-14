@@ -114,6 +114,12 @@
     <!-- ใส่ลิงก์ Bootstrap Icons (ถ้ายังไม่มี) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
+    <style>
+      .hidden-by-role {
+        display: none !important;
+      }
+    </style>
+
 
   </head>
 
@@ -436,6 +442,7 @@
                       <option value="เริ่มงาน/กำลังเดินทาง">เริ่มงาน/กำลังเดินทาง</option>
                       <option value="ถึงที่เกิดเหตุ/ปฏิบัติงาน">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
                       <option value="ส่งงาน/ตรวจสอบเบื้องต้น">ส่งงาน/ตรวจสอบเบื้องต้น</option>
+                      <option value="รออนุมัติ">รออนุมัติ</option>
                       <option value="Pre-Approved">Pre-Approved</option>
                       <option value="คีย์งานแล้ว">คีย์งานแล้ว</option>
                       <option value="ผ่าน">ผ่าน</option>
@@ -499,7 +506,7 @@
                     </button>
                     <!--<a href="task-management.html" class="btn rounded-pill btn-primary d-flex align-items-center ms-2" role="button"
                       style="margin-top: 14px; background-color: #5c4433; border-color: #5c4433;">-->
-                      <a href="task-management.html" class="btn rounded-pill btn-primary d-flex align-items-center ms-2" role="button"
+                      <a href="task-management.html" id="add-new-item-btn" class="btn rounded-pill btn-primary d-flex align-items-center ms-2" role="button"
                       style="margin-top: 14px;">
                       <i class="icon-base bx bx-plus icon-sm me-0 me-sm-2"></i>
                       <span class="d-none d-sm-inline-block">เพิ่มรายการใหม่</span>
@@ -513,16 +520,40 @@
                     <tr>
                       <th style="color: white;">รหัสงาน</th>
                       <th style="color: white;">บริษัทประกัน</th>
-                      <th style="color: white;">วันที่ทำรายการ</th>
+                      <th style="color: white;" id="header-order-date">วันที่ทำรายการ</th>
                       <th style="color: white;">วันที่นัดหมาย</th>
                       <th style="color: white;">ทะเบียนรถ</th>
                       <th style="color: white;">สถานที่</th>
-                      <th style="color: white;">ประเภทงาน</th>
+                      <th style="color: white;" id="header-order-type">ประเภทงาน</th>
                       <th style="color: white;">สถานะงาน</th>
-                      <th style="color: white;">ผู้สร้างงาน</th>
-                      <th style="color: white;">ผู้รับผิดชอบ</th>
+                      <th style="color: white;" id="header-amount">ยอดเงิน</th>
+                      <th style="color: white;" id="header-owner">ผู้รับผิดชอบ</th>
                     </tr>
                   </thead>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const userRole = localStorage.getItem('role');
+    console.log('User Role:', userRole); // For debugging
+
+    const addNewItemBtn = document.getElementById('add-new-item-btn');
+    const headerOrderDate = document.getElementById('header-order-date');
+    const headerOrderType = document.getElementById('header-order-type');
+    const headerAmount = document.getElementById('header-amount');
+    const headerOwner = document.getElementById('header-owner');
+
+    if (userRole === 'Insurance') {
+      if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
+      if (headerOrderDate) headerOrderDate.style.display = 'none';
+      if (headerOrderType) headerOrderType.style.display = 'none';
+      if (headerAmount) headerAmount.style.display = 'none';
+      if (headerOwner) headerOwner.style.display = 'none';
+    } else if (userRole === 'Bike') {
+      if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
+      if (headerOrderDate) headerOrderDate.style.display = 'none';
+      if (headerOrderType) headerOrderType.style.display = 'none';
+    }
+  });
+</script>
                   <tbody id="userTableBody" class="table-border-bottom-0">
                     <!-- Sample Row -->          
                   </tbody>
@@ -819,7 +850,7 @@
         <td>${item.location || ''}</td>
         <td>${item.order_type || ''}</td>
         <td>${item.order_status || ''}</td>
-        <td>${item.creator || ''}</td>
+        <td>${item.amount || ''}</td>
         <td>${item.owner_full_name || ''}</td>
       `;
       tableBody.appendChild(row);
@@ -971,19 +1002,41 @@
 
     paginatedData.forEach(item => {
       const row = document.createElement("tr");
-      row.innerHTML = `
+      let rowContent = `
         <td><a href="task-detail.html?id=${item.id}" class="text-primary" target="_blank" rel="noopener noreferrer">${item.id}</a></td>
         <td>${item.insur_comp || ''}</td>
-        <td>${item.order_date || ''}</td>
-        <td>${item.appointment_date || ''}</td>
-        <td>${item.car_registration || ''}</td>
-        <td>${item.location || ''}</td>
-        <td>${item.order_type || ''}</td>
-        <td>${item.order_status || ''}</td>
-        <td>${item.creator || ''}</td>
-        <td>${item.owner_full_name || ''}</td>
       `;
 
+      const userRole = localStorage.getItem('role'); // Get user role from localStorage
+      if (userRole === 'Insurance') { // If 'Insurance' role, show only specific columns
+        rowContent += `
+          <td>${item.appointment_date || ''}</td>
+          <td>${item.car_registration || ''}</td>
+          <td>${item.location || ''}</td>
+          <td>${item.order_status || ''}</td>
+        `;
+      } else if (userRole === 'Bike') {
+        rowContent += `
+          <td>${item.appointment_date || ''}</td>
+          <td>${item.car_registration || ''}</td>
+          <td>${item.location || ''}</td>
+          <td>${item.order_status || ''}</td>
+          <td>${item.amount || ''}</td>
+          <td>${item.owner_full_name || ''}</td>
+        `;
+      } else { // If not 'Insurance' role, show all original columns
+        rowContent += `
+          <td>${item.order_date || ''}</td>
+          <td>${item.appointment_date || ''}</td>
+          <td>${item.car_registration || ''}</td>
+          <td>${item.location || ''}</td>
+          <td>${item.order_type || ''}</td>
+          <td>${item.order_status || ''}</td>
+          <td>${item.amount || ''}</td>
+          <td>${item.owner_full_name || ''}</td>
+        `;
+      }
+      row.innerHTML = rowContent;
       tableBody.appendChild(row);
     });
 
@@ -1087,7 +1140,7 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
-    fetchData(); // โหลดครั้งแรก
+    // fetchData(); // โหลดครั้งแรก - ปิดการใช้งานเพื่อให้ตารางว่างในตอนเริ่มต้น
     setupFilterListeners();
 
     const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
