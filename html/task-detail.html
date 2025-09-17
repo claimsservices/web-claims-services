@@ -5511,5 +5511,112 @@
 
   });
 </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Function to decode JWT token
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        console.error('Failed to decode JWT:', e);
+        return null;
+      }
+    }
+
+    // Function to get user role from token
+    function getUserRole() {
+      const token = localStorage.getItem('authToken');
+      if (!token) return null;
+      const decoded = parseJwt(token);
+      return decoded ? decoded.role : null;
+    }
+
+    function applyBikeRoleRestrictions() {
+      const userRole = getUserRole();
+      console.log('Applying restrictions for role:', userRole);
+
+      if (userRole !== 'Bike') {
+        return;
+      }
+
+      // Disable all form elements inside the main form
+      const form = document.getElementById('taskForm');
+      if (form) {
+        const elements = form.querySelectorAll('input, textarea, select, button');
+        elements.forEach(el => {
+          // Don't disable the file inputs for image upload
+          if (el.type !== 'file') {
+            el.disabled = true;
+          }
+        });
+      }
+
+      // Re-enable the specific image upload functionality
+      // The image galleries in the 'ข้อมูลรูปภาพ' tab
+      document.querySelectorAll('.image-gallery input[type="file"]').forEach(input => {
+        input.disabled = false;
+        // Also enable the label to allow clicking
+        const label = input.closest('.image-gallery');
+        if (label) {
+            // We can't "enable" a label, but we can make sure it's clickable.
+            // The disabling of child buttons might be an issue, let's re-enable them.
+            label.querySelectorAll('button').forEach(btn => btn.disabled = false);
+        }
+      });
+      
+      // Re-enable the 'Upload Picture' tab functionality
+      const uploadTab = document.getElementById('tab-upload');
+      if(uploadTab){
+        const uploadElements = uploadTab.querySelectorAll('input, select, button');
+        uploadElements.forEach(el => {
+            el.disabled = false;
+        });
+      }
+
+
+      // Disable tab buttons except for 'ข้อมูลรูปภาพ' and 'Upload Picture'
+      const tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
+      tabButtons.forEach(button => {
+        const target = button.getAttribute('data-bs-target');
+        if (target !== '#tab-contact' && target !== '#tab-upload') {
+          button.disabled = true;
+        } else {
+          button.disabled = false; // Explicitly enable the allowed tabs
+        }
+      });
+      
+      // Ensure the correct tab is shown if others are disabled
+        const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
+        const homeTabButton = document.querySelector('button[data-bs-target="#tab-home"]');
+        const contactTabPane = document.getElementById('tab-contact');
+        const homeTabPane = document.getElementById('tab-home');
+
+        if(contactTabButton && homeTabButton && contactTabPane && homeTabPane){
+            homeTabButton.classList.remove('active');
+            homeTabPane.classList.remove('active', 'show');
+            contactTabButton.classList.add('active');
+            contactTabPane.classList.add('active', 'show');
+        }
+
+
+      // Specifically disable the main submit button at the bottom
+      const mainSubmitBtn = document.getElementById('submittaskBtn');
+      if (mainSubmitBtn) {
+        mainSubmitBtn.disabled = true;
+        mainSubmitBtn.style.display = 'none'; // Also hide it
+      }
+    }
+
+    applyBikeRoleRestrictions();
+  });
+</script>
   </body>
 </html>
