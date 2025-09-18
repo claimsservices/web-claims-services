@@ -835,11 +835,18 @@
     console.log("fetchData called");
 
     try {
+      const token = localStorage.getItem('token'); // Retrieve token from localStorage
+      if (!token) {
+        console.error('❌ Error: No token found in localStorage. User not authenticated.');
+        // Optionally, redirect to login page or show a message
+        return;
+      }
+
       const res = await fetch('https://be-claims-service.onrender.com/api/orders/inquiry', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({})
       });
@@ -1001,11 +1008,18 @@
 
   async function fetchData(filter = {}) {
     try {
+      const token = localStorage.getItem('token'); // Retrieve token from localStorage
+      if (!token) {
+        console.error('❌ Error: No token found in localStorage. User not authenticated.');
+        // Optionally, redirect to login page or show a message
+        return;
+      }
+
       const res = await fetch('https://be-claims-service.onrender.com/api/orders/inquiry', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(filter)
       });
