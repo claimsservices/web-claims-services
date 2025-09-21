@@ -68,6 +68,7 @@ const serveTasks = function () {
   browserSync.init({
     // ? You can change server path variable from build-config.js file
     server: serverPath,
+    port: 3001, // Add this line
     notify: false,      // Disable pop-up notifications
     online: false,      // Prevent sync across devices
     ui: false,          // Disable BrowserSync UI

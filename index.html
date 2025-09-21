@@ -216,13 +216,15 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 
     <script>
+      const API_BASE_URL = 'http://localhost:8181';
+
       document.getElementById("formAuthentication").addEventListener("submit", async function (event) {
         event.preventDefault();
 
         // Get field values
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
-        const apiUrl = 'https://be-claims-service.onrender.com/api/auth/login'; // Replace with your backend URL
+        const apiUrl = `${API_BASE_URL}/api/auth/login`; // Use the base URL
 
         let isValid = true;
 
@@ -268,7 +270,7 @@
 
           if (response.ok) {
             const data = await response.json();
-            localStorage.setItem('token', data.token); // Store token
+            localStorage.setItem('authToken', data.token); // Store token
             localStorage.setItem('role', data.role); // Store role - ADD THIS LINE
             if (data.role === 'Officer') {
               window.location.href = 'html/task-attachments.html'; // Redirect after successful Agent login
