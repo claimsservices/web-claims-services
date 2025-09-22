@@ -2,6 +2,32 @@
       const accessToken = localStorage.getItem('authToken'); // Check if token is available
       const RETURN_LOGIN_PAGE = '../index.html';
 
+      // Function to decode JWT token
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          return JSON.parse(jsonPayload);
+        } catch (e) {
+          console.error('Failed to decode JWT:', e);
+          return null;
+        }
+      }
+
+      // Function to get user role from token
+      function getUserRole() {
+        const token = localStorage.getItem('authToken');
+        if (!token) return null;
+        const decoded = parseJwt(token);
+        return decoded ? decoded.role : null;
+      }
+
       // If there's no token, redirect to login
       if (!accessToken) {
         window.location.href = RETURN_LOGIN_PAGE;
@@ -79,7 +105,9 @@ const API_BASE_URL = 'https://be-claims-service.onrender.com';
 
         const imageUrl = myPicture;  // Extract the image URL from the response
         const imgElement = document.getElementById('userAvatar');
-        imgElement.src = imageUrl;  // Update the image src dynamically
+        if (imgElement && imageUrl) { // Only set src if imgElement exists and imageUrl is not null/undefined
+          imgElement.src = imageUrl;  // Update the image src dynamically
+        }
 
         if (decoded && isTokenExpired(decoded)) {
           // Token is expired
@@ -112,15 +140,11 @@ const API_BASE_URL = 'https://be-claims-service.onrender.com';
       }
 
 
-      // Call the function to load the user profile
-      document.addEventListener('DOMContentLoaded', () => {
-        loadUserProfile();
-      });
+
 
 // Check user role (example assumes role is stored in localStorage)
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+  if (accessToken) {
+    const user = JSON.parse(atob(accessToken.split('.')[1])); // Decode JWT payload
 
     // Check if the user has the 'admin' role
     if (user.role === 'Operation Manager' || user.role === 'Director' || user.role === 'Developer') {
@@ -140,51 +164,53 @@ const API_BASE_URL = 'https://be-claims-service.onrender.com';
     }
   }
 
-document.getElementById('downloadAllBtn').addEventListener('click', async (event) => {
-    event.preventDefault();
+if (downloadAllBtn) {
+    downloadAllBtn.addEventListener('click', async (event) => {
+        event.preventDefault();
 
-    const zip = new JSZip();
-    const orderId = document.getElementById('taskId').value.trim();
+        const zip = new JSZip();
+        const orderId = document.getElementById('taskId').value.trim();
 
-    // ✅ เลือกเฉพาะ img ที่มี src จริงและมองเห็นได้
-    const imageElements = Array.from(document.querySelectorAll('.image-gallery img')).filter(img => {
-      const style = getComputedStyle(img);
-      return (
-        img.src &&
-        img.src.startsWith('https') &&
-        style.display !== 'none' &&
-        img.complete
-      );
-    });
+        // ✅ เลือกเฉพาะ img ที่มี src จริงและมองเห็นได้
+        const imageElements = Array.from(document.querySelectorAll('.image-gallery img')).filter(img => {
+            const style = getComputedStyle(img);
+            return (
+                img.src &&
+                img.src.startsWith('https') &&
+                style.display !== 'none' &&
+                img.complete
+            );
+        });
 
-    if (imageElements.length === 0) {
-      alert('ไม่มีภาพให้ดาวน์โหลด');
-      return;
-    }
-
-    await Promise.all(
-      imageElements.map(async (img, i) => {
-        const url = img.src;
-        const label = img.closest('label');
-        const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
-
-        // ✅ เปลี่ยนชื่อให้ปลอดภัยกับระบบไฟล์ (ตัดอักขระพิเศษออก)
-        const safeName = title.replace(/[^\wก-๙\s-]/g, '').replace(/\s+/g, '_');
-
-        try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`โหลดภาพไม่ได้: ${url}`);
-          const blob = await response.blob();
-          zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
-        } catch (err) {
-          console.warn(`ข้ามภาพที่โหลดไม่ได้: ${url}`, err);
+        if (imageElements.length === 0) {
+            alert('ไม่มีภาพให้ดาวน์โหลด');
+            return;
         }
-      })
-    );
 
-    const zipBlob = await zip.generateAsync({ type: 'blob' });
-    saveAs(zipBlob, orderId + '.zip');
-  });
+        await Promise.all(
+            imageElements.map(async (img, i) => {
+                const url = img.src;
+                const label = img.closest('label');
+                const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
+
+                // ✅ เปลี่ยนชื่อให้ปลอดภัยกับระบบไฟล์ (ตัดอักขระพิเศษออก)
+                const safeName = title.replace(/[^\wก-๙\s-]/g, '').replace(/\s+/g, '_');
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`โหลดภาพไม่ได้: ${url}`);
+                    const blob = await response.blob();
+                    zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
+                } catch (err) {
+                    console.warn(`ข้ามภาพที่โหลดไม่ได้: ${url}`, err);
+                }
+            })
+        );
+
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        saveAs(zipBlob, orderId + '.zip');
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('imageInput');
@@ -529,7 +555,12 @@ document.getElementById('openMap').addEventListener('click', function () {
       };
 
       // เพิ่ม timestamp กัน cache
-      img.src = pic.pic + '?t=' + new Date().getTime();
+      if (pic.pic) {
+        img.src = pic.pic + '?t=' + new Date().getTime();
+      } else {
+        console.warn('Skipping image due to missing pic.pic URL:', pic);
+        continue; // Skip to the next pic if URL is missing
+      }
 
       uploadedPicCache.add(pic.pic_type);
     }
@@ -573,34 +604,109 @@ document.getElementById('openMap').addEventListener('click', function () {
     }
   }
 
-  // ตัวอย่างเรียกใช้ (ตอนโหลดหน้า)
-  window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('order_id');
-    if (orderId) {
-      loadOrderData(orderId);
-    }
-  });
+
+
+
 
 document.addEventListener('DOMContentLoaded', function () {
-    // === Logout button listeners ===
-    const logoutBtn = document.getElementById('logout');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', function (event) {
-        event.preventDefault();
+    loadUserProfile();
+
+    // Check user role
+    const userRole = getUserRole();
+    if (userRole) {
+      // Check if the user has the 'admin' role
+      if (userRole === 'Operation Manager' || userRole === 'Director' || userRole === 'Developer') {
+        // Show the admin menu
+        document.getElementById('admin-menu').style.display = 'block';
+      } else if (userRole === 'Admin Officer') {
+        const orderStatusSelect = document.getElementById('orderStatus');
+        if (orderStatusSelect) {
+          orderStatusSelect.setAttribute('disabled', 'disabled');
+        }
+      }
+      if (userRole === 'Officer') {
         localStorage.removeItem('authToken');
         window.location.href = '../index.html';
-      });
+      }
     }
 
-    const logoutMenu = document.getElementById('logout-menu');
-    if (logoutMenu) {
-      logoutMenu.addEventListener('click', function (event) {
-        event.preventDefault();
-        localStorage.removeItem('authToken');
-        window.location.href = '../index.html';
+    function applyBikeRoleRestrictions() {
+      const userRole = getUserRole();
+      console.log('Applying restrictions for role:', userRole);
+
+      if (userRole !== 'Bike') {
+        return;
+      }
+
+      // Disable all form elements inside the main form
+      const form = document.getElementById('taskForm');
+      if (form) {
+        const elements = form.querySelectorAll('input, textarea, select, button');
+        elements.forEach(el => {
+          // Don't disable the file inputs for image upload
+          if (el.type !== 'file') {
+            el.disabled = true;
+          }
+        });
+      }
+
+      // Re-enable the specific image upload functionality
+      // The image galleries in the 'ข้อมูลรูปภาพ' tab
+      document.querySelectorAll('.image-gallery input[type="file"]').forEach(input => {
+        input.disabled = false;
+        // Also enable the label to allow clicking
+        const label = input.closest('.image-gallery');
+        if (label) {
+            // We can't "enable" a label, but we can make sure it's clickable.
+            // The disabling of child buttons might be an issue, let's re-enable them.
+            label.querySelectorAll('button').forEach(btn => btn.disabled = false);
+        }
       });
+      
+      // Re-enable the 'Upload Picture' tab functionality
+      const uploadTab = document.getElementById('tab-upload');
+      if(uploadTab){
+        const uploadElements = uploadTab.querySelectorAll('input, select, button');
+        uploadElements.forEach(el => {
+            el.disabled = false;
+        });
+      }
+
+
+      // Disable tab buttons except for 'ข้อมูลรูปภาพ' and 'Upload Picture'
+      const tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
+      tabButtons.forEach(button => {
+        const target = button.getAttribute('data-bs-target');
+        if (target !== '#tab-contact' && target !== '#tab-upload') {
+          button.disabled = true;
+        } else {
+          button.disabled = false; // Explicitly enable the allowed tabs
+        }
+      });
+      
+      // Ensure the correct tab is shown if others are disabled
+        const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
+        const homeTabButton = document.querySelector('button[data-bs-target="#tab-home"]');
+        const contactTabPane = document.getElementById('tab-contact');
+        const homeTabPane = document.getElementById('tab-home');
+
+        if(contactTabButton && homeTabButton && contactTabPane && homeTabPane){
+            homeTabButton.classList.remove('active');
+            homeTabPane.classList.remove('active', 'show');
+            contactTabButton.classList.add('active');
+            contactTabPane.classList.add('active', 'show');
+        }
+
+
+      // Specifically disable the main submit button at the bottom
+      const mainSubmitBtn = document.getElementById('submittaskBtn');
+      if (mainSubmitBtn) {
+        mainSubmitBtn.disabled = true;
+        mainSubmitBtn.style.display = 'none'; // Also hide it
+      }
     }
+
+    applyBikeRoleRestrictions();
 
     // === Load order data from URL ===
     const params = new URLSearchParams(window.location.search);
@@ -611,9 +717,6 @@ document.addEventListener('DOMContentLoaded', function () {
       console.warn('❗ ไม่พบ order ID ใน URL');
     }
 
-  });
-
-document.addEventListener('DOMContentLoaded', function () {
     console.log("🔥 DOM Loaded");
 
     const form = document.getElementById('taskForm');
@@ -1032,109 +1135,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
   });
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Function to decode JWT token
-    function parseJwt(token) {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(
-          atob(base64)
-            .split('')
-            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join('')
-        );
-        return JSON.parse(jsonPayload);
-      } catch (e) {
-        console.error('Failed to decode JWT:', e);
-        return null;
-      }
-    }
 
-    // Function to get user role from token
-    function getUserRole() {
-      const token = localStorage.getItem('authToken');
-      if (!token) return null;
-      const decoded = parseJwt(token);
-      return decoded ? decoded.role : null;
-    }
-
-    function applyBikeRoleRestrictions() {
-      const userRole = getUserRole();
-      console.log('Applying restrictions for role:', userRole);
-
-      if (userRole !== 'Bike') {
-        return;
-      }
-
-      // Disable all form elements inside the main form
-      const form = document.getElementById('taskForm');
-      if (form) {
-        const elements = form.querySelectorAll('input, textarea, select, button');
-        elements.forEach(el => {
-          // Don't disable the file inputs for image upload
-          if (el.type !== 'file') {
-            el.disabled = true;
-          }
-        });
-      }
-
-      // Re-enable the specific image upload functionality
-      // The image galleries in the 'ข้อมูลรูปภาพ' tab
-      document.querySelectorAll('.image-gallery input[type="file"]').forEach(input => {
-        input.disabled = false;
-        // Also enable the label to allow clicking
-        const label = input.closest('.image-gallery');
-        if (label) {
-            // We can't "enable" a label, but we can make sure it's clickable.
-            // The disabling of child buttons might be an issue, let's re-enable them.
-            label.querySelectorAll('button').forEach(btn => btn.disabled = false);
-        }
-      });
-      
-      // Re-enable the 'Upload Picture' tab functionality
-      const uploadTab = document.getElementById('tab-upload');
-      if(uploadTab){
-        const uploadElements = uploadTab.querySelectorAll('input, select, button');
-        uploadElements.forEach(el => {
-            el.disabled = false;
-        });
-      }
-
-
-      // Disable tab buttons except for 'ข้อมูลรูปภาพ' and 'Upload Picture'
-      const tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
-      tabButtons.forEach(button => {
-        const target = button.getAttribute('data-bs-target');
-        if (target !== '#tab-contact' && target !== '#tab-upload') {
-          button.disabled = true;
-        } else {
-          button.disabled = false; // Explicitly enable the allowed tabs
-        }
-      });
-      
-      // Ensure the correct tab is shown if others are disabled
-        const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
-        const homeTabButton = document.querySelector('button[data-bs-target="#tab-home"]');
-        const contactTabPane = document.getElementById('tab-contact');
-        const homeTabPane = document.getElementById('tab-home');
-
-        if(contactTabButton && homeTabButton && contactTabPane && homeTabPane){
-            homeTabButton.classList.remove('active');
-            homeTabPane.classList.remove('active', 'show');
-            contactTabButton.classList.add('active');
-            contactTabPane.classList.add('active', 'show');
-        }
-
-
-      // Specifically disable the main submit button at the bottom
-      const mainSubmitBtn = document.getElementById('submittaskBtn');
-      if (mainSubmitBtn) {
-        mainSubmitBtn.disabled = true;
-        mainSubmitBtn.style.display = 'none'; // Also hide it
-      }
-    }
-
-    applyBikeRoleRestrictions();
-  });
 

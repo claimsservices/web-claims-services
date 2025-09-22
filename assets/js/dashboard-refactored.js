@@ -55,6 +55,20 @@ document.addEventListener('DOMContentLoaded', () => {
       if (headerOrderDate) headerOrderDate.style.display = 'none';
       if (headerOrderType) headerOrderType.style.display = 'none';
     }
+
+    // New logic for 'Insurance' role to pre-select and disable insur_comp filter
+    if (userRole === 'Insurance') {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        const decodedToken = parseJwt(token);
+        const userInsurComp = decodedToken ? decodedToken.insur_comp : '';
+        const userRoleSelect = document.getElementById('UserRole');
+        if (userRoleSelect && userInsurComp) {
+          userRoleSelect.value = userInsurComp;
+          userRoleSelect.disabled = true;
+        }
+      }
+    }
   });
 
 fetch('/version.json')
