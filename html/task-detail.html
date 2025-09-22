@@ -4411,7 +4411,131 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <!-- Original inline script from task-detail moved to task-detail-refactored.js -->
 
+<<<<<<< HEAD
 <!-- Original inline script from task-detail moved to task-detail-refactored.js -->
+=======
+      // Function to decode JWT token and check for expiration
+      function decodeJWT(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(base64));  // Decode the token
+        } catch (e) {
+          console.error('Failed to decode JWT:', e);
+          return null;
+        }
+      }
+
+      // Function to check if the token is expired
+      function isTokenExpired(decodedToken) {
+        const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+        return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
+      }
+
+      // Main logic
+      async function loadUserProfile() {
+        const token = localStorage.getItem('authToken'); // Check if token is available
+
+        // If there's no token, redirect to login
+        if (!token) {
+          window.location.href = LOGIN_PAGE;
+          return;
+        }
+
+        // Decode the JWT token (assuming it's a JWT token)
+        function parseJwt(token) {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          return JSON.parse(jsonPayload);
+        }
+
+        // ใช้งาน
+        const decoded = parseJwt(token);
+
+        const id = decoded.id;
+        const userName = decoded.username;
+        const fname = decoded.first_name;
+        const lname = decoded.last_name;
+        const email = decoded.email;
+        const role = decoded.role;
+        const myPicture = decoded.myPicture;
+
+        document.getElementById('user-info').innerText = fname + ' ' + lname;
+        document.getElementById('ownerName').value = fname + ' ' + lname;
+        document.getElementById('user-role').innerText = role;
+
+        const imageUrl = myPicture;  // Extract the image URL from the response
+        const imgElement = document.getElementById('userAvatar');
+        imgElement.src = imageUrl;  // Update the image src dynamically
+
+        if (decoded && isTokenExpired(decoded)) {
+          // Token is expired
+          localStorage.removeItem('authToken'); // Clear token
+          window.location.href = LOGIN_PAGE; // Redirect to login page
+          return;
+        }
+
+        // If the token is valid, fetch user profile
+        try {
+          const response = await fetch(API_URL, {
+            method: 'GET',
+            headers: {
+              'Authorization': `${token}`,  // Use the token in the Authorization header
+            },
+          });
+          console.log(response);
+          if (!response.ok) {
+            //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
+            localStorage.removeItem('authToken');
+            window.location.href = LOGIN_PAGE;
+            return;
+          }
+        } catch (error) {
+          //Handle fetch errors(network issues, etc.)
+          console.error('Error fetching user profile:', error);
+          localStorage.removeItem('authToken');
+          window.location.href = LOGIN_PAGE; // Redirect to login page on error
+        }
+      }
+
+
+      // Call the function to load the user profile
+      document.addEventListener('DOMContentLoaded', () => {
+        loadUserProfile();
+      });
+    </script>
+
+<script>
+  // Check user role (example assumes role is stored in localStorage)
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+
+    // Check if the user has the 'admin' role
+    if (user.role === 'Operations Manager' || user.role === 'Director' || user.role === 'Developer') {
+      // Show the admin menu
+      document.getElementById('admin-menu').style.display = 'block';
+    } else if (userRole === 'Admin Officer') {
+      document.addEventListener('DOMContentLoaded', function () {
+        const orderStatusSelect = document.getElementById('orderStatus');
+        if (orderStatusSelect) {
+          orderStatusSelect.setAttribute('disabled', 'disabled');
+        }
+      });
+    }
+    if (user.role === 'Officer') {
+      localStorage.removeItem('authToken');
+      window.location.href = '../index.html';
+    }
+  }
+</script>
+>>>>>>> parent of 23562e5 (Operation Manager fix)
 
 <!-- โหลดไลบรารี JSZip + FileSaver -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
