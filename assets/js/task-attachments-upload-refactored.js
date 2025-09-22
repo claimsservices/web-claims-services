@@ -7,7 +7,7 @@
       window.location.href = RETURN_LOGIN_PAGE;
     }
 
-const API_BASE_URL = 'http://localhost:8181';
+const API_BASE_URL = 'https://be-claims-service.onrender.com';
     document.addEventListener('DOMContentLoaded', () => {
 
       const container = document.getElementById('other-image-row');

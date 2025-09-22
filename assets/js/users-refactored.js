@@ -55,7 +55,7 @@ document.getElementById('user-role-regist').addEventListener('change', function 
 
 // Constants for URLs and other fixed strings
     const LOGIN_PAGE = '../index.html';
-    const API_URL = 'http://localhost:8181/api/auth/profile';
+    const API_URL = 'https://be-claims-service.onrender.com/api/auth/profile';
 
     // Function to decode JWT token and check for expiration
     function decodeJWT(token) {
@@ -141,7 +141,7 @@ document.getElementById('user-role-regist').addEventListener('change', function 
     // Call the function to load the user profile
     loadUserProfile();
 
-const API_URL_USERS = 'http://localhost:8181/api/user-management/users'; // Update with your backend URL
+const API_URL_USERS = 'https://be-claims-service.onrender.com/api/user-management/users'; // Update with your backend URL
 
     async function fetchUsers() {
       const token = localStorage.getItem('authToken');
@@ -284,7 +284,7 @@ document.getElementById("addNewUserForm").onsubmit = function(e) {
     }
     
     // Send a POST request to the API using fetch
-    fetch('http://localhost:8181/api/auth/register', {
+    fetch('https://be-claims-service.onrender.com/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -341,7 +341,7 @@ document.getElementById("addNewUserForm").onsubmit = function(e) {
       deleteButton.disabled = true;
 
       // Send the DELETE request to the server
-      const response = await fetch('http://localhost:8181/api/user-management/delete-user', {
+      const response = await fetch('https://be-claims-service.onrender.com/api/user-management/delete-user', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

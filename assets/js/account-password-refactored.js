@@ -16,7 +16,7 @@ fetch('/version.json')
           document.getElementById("appVersion").textContent = "App Version -";
         });
 
-const API_BASE_URL = 'http://localhost:8181';
+const API_BASE_URL = 'https://be-claims-service.onrender.com';
 
       // Function to decode JWT token and check for expiration
       function decodeJWT(token) {

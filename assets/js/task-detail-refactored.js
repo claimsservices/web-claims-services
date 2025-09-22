@@ -16,7 +16,7 @@ fetch('/version.json')
           document.getElementById("appVersion").textContent = "App Version -";
         });
 
-const API_BASE_URL = 'http://localhost:8181'; // สำหรับการทดสอบ Local
+const API_BASE_URL = 'https://be-claims-service.onrender.com';
       // Constants for URLs and other fixed strings
       const LOGIN_PAGE = '../index.html';
       const API_URL = `${API_BASE_URL}/api/auth/profile`;
