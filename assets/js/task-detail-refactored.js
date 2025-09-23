@@ -212,6 +212,7 @@ if (downloadAllBtn) {
     });
 }
 
+/*
 document.addEventListener('DOMContentLoaded', function () {
     const imageInput = document.getElementById('imageInput');
     const previewContainer = document.getElementById('previewContainer');
@@ -301,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+*/
 
   // Removed duplicate declaration of brandSelect and modelSelect and their event listener to avoid redeclaration error.
 
@@ -496,25 +498,139 @@ document.getElementById('openMap').addEventListener('click', function () {
 
   const uploadedPicCache = new Set();
 
+  const imageFields = [
+    // SECTION: ภายนอกรถ (around)
+    { name: 'exterior_front', altText: 'ภาพถ่ายรอบคัน - ด้านหน้ารถ', section: 'around' },
+    { name: 'exterior_left_front', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า', section: 'around' },
+    { name: 'exterior_left_center', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายตรง', section: 'around' },
+    { name: 'exterior_left_rear', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง', section: 'around' },
+    { name: 'exterior_rear', altText: 'ภาพถ่ายรอบคัน - ด้านท้ายรถ', section: 'around' },
+    { name: 'exterior_right_rear', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง', section: 'around' },
+    { name: 'exterior_right_center', altText: 'ภาพถ่ายรอบคัน - ด้านขวาตรง', section: 'around' },
+    { name: 'exterior_right_front', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า', section: 'around' },
+    { name: 'exterior_roof', altText: 'ภาพถ่ายรอบคัน - หลังคา', section: 'around' },
+
+    // SECTION: ภายในรถ (accessories)
+    { name: 'interior_wheels_1', altText: 'ล้อรถ 4 ล้อ 1', section: 'accessories' },
+    { name: 'interior_wheels_2', altText: 'ล้อรถ 4 ล้อ 2', section: 'accessories' },
+    { name: 'interior_wheels_3', altText: 'ล้อรถ 4 ล้อ 3', section: 'accessories' },
+    { name: 'interior_wheels_4', altText: 'ล้อรถ 4 ล้อ 4', section: 'accessories' },
+    { name: 'interior_dashboard', altText: 'ปีผลิต/ขนาดล้อ/ยางอะไหล่', section: 'accessories' },
+    { name: 'interior_6', altText: 'ห้องเครื่อง', section: 'accessories' },
+    { name: 'interior_7', altText: 'จอไมล์', section: 'accessories' },
+    { name: 'interior_8', altText: 'คอนโซล', section: 'accessories' },
+    { name: 'interior_9', altText: 'วิทยุ', section: 'accessories' },
+    { name: 'interior_10', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_11', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_12', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_13', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_14', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_15', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_16', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_17', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_18', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_19', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+    { name: 'interior_20', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+
+    // SECTION: ความเสียหาย (inspection)
+    { name: 'damage_images_1', altText: 'ภาพถ่ายความเสียหาย 1', section: 'inspection' },
+    { name: 'damage_images_2', altText: 'ภาพถ่ายความเสียหาย 2', section: 'inspection' },
+    { name: 'damage_images_3', altText: 'ภาพถ่ายความเสียหาย 3', section: 'inspection' },
+    { name: 'damage_images_4', altText: 'ภาพถ่ายความเสียหาย 4', section: 'inspection' },
+    { name: 'damage_images_5', altText: 'ภาพถ่ายความเสียหาย 5', section: 'inspection' },
+    { name: 'damage_images_6', altText: 'ภาพถ่ายความเสียหาย 6', section: 'inspection' },
+    { name: 'damage_images_7', altText: 'ภาพถ่ายความเสียหาย 7', section: 'inspection' },
+    { name: 'damage_images_8', altText: 'ภาพถ่ายความเสียหาย 8', section: 'inspection' },
+    { name: 'damage_images_9', altText: 'ภาพถ่ายความเสียหาย 9', section: 'inspection' },
+    { name: 'damage_images_10', altText: 'ภาพถ่ายความเสียหาย 10', section: 'inspection' },
+
+    // SECTION: เอกสารใบตรวจสภาพรถ (fiber)
+    { name: 'doc_identity', altText: 'เอกสารยืนยันตัวบุคคล', section: 'fiber' },
+    { name: 'doc_other_1', altText: 'เอกสารยืนยันตัวรถ', section: 'fiber' },
+    { name: 'doc_other_2', altText: 'เลขตัวถังและทะเบียนรถ', section: 'fiber' },
+    { name: 'doc_other_3', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+    { name: 'doc_other_4', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+    { name: 'doc_other_5', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+    { name: 'doc_other_6', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+    { name: 'doc_other_7', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+    { name: 'doc_other_8', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+
+    // SECTION: เอกสารอื่นๆ (documents)
+    { name: 'license', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+    { name: 'id_card', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+    { name: 'car_doc', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+    { name: 'car_number', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+    { name: 'other_1', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+    { name: 'other_2', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+    { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+    { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' } // Moved signature here as it was in documents section in HTML
+  ];
+
+  function renderImageUploadBlock(field) {
+    return `
+      <div class="col-4 mb-3 text-center">
+          <label class="image-gallery w-100" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+              <img alt="${field.altText}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" />
+              <div class="title" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
+                  ${field.altText}
+              </div>
+              <input type="file" name="${field.name}" accept="image/*" capture="environment" hidden>
+              <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;">
+                  <i class="bi bi-x-circle-fill"></i>
+              </button>
+              <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">
+                  A
+              </button>
+          </label>
+      </div>
+      `;
+  }
+
+  function populateImageSections() {
+    const sectionsMap = {
+      'around': document.getElementById('around-images-section').querySelector('.row'),
+      'accessories': document.getElementById('accessories-images-section').querySelector('.row'),
+      'inspection': document.getElementById('inspection-images-section').querySelector('.row'),
+      'fiber': document.getElementById('fiber-documents-section').querySelector('.row'),
+      'documents': document.getElementById('other-documents-section').querySelector('.row'),
+      'signature': document.getElementById('signature-documents-section').querySelector('.row')
+    };
+
+    imageFields.forEach(field => {
+      const targetSection = sectionsMap[field.section];
+      if (targetSection) {
+        targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field));
+      }
+    });
+  }
+
+  // Call this function when the DOM is loaded
+  populateImageSections();
+  
+
   function renderUploadedImages(orderPics) {
-    // เคลียร์ภาพเดิมทั้งหมด และซ่อน .col-4
-    document.querySelectorAll('.image-gallery').forEach(label => {
-      const img = label.querySelector('img');
-      const title = label.querySelector('.title');
-      const col = label.closest('.col-4');
+    // First, reset all dynamically generated image elements
+    imageFields.forEach(field => {
+      const inputElem = document.querySelector(`input[name="${field.name}"]`);
+      if (inputElem) {
+        const label = inputElem.closest('label.image-gallery');
+        if (label) {
+          const img = label.querySelector('img');
+          const title = label.querySelector('.title');
+          const col = label.closest('.col-4');
 
-      if (img) {
-        img.src = '';
-        img.alt = '';
-        img.style.display = 'none';
-      }
-
-      if (title) {
-        title.textContent = '';
-      }
-
-      if (col) {
-        col.style.display = 'none'; // 🔁 ซ่อนไว้ก่อน
+          if (img) {
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Reset to transparent pixel
+            img.alt = field.altText; // Reset alt text
+            img.style.display = 'block'; // Ensure it's visible by default
+          }
+          if (title) {
+            title.textContent = field.altText; // Reset title
+          }
+          if (col) {
+            col.style.display = 'block'; // Ensure container is visible
+          }
+        }
       }
     });
 
@@ -522,44 +638,50 @@ document.getElementById('openMap').addEventListener('click', function () {
 
     for (const pic of orderPics) {
       const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
-      if (!inputElem) continue;
+      if (!inputElem) {
+        console.warn(`Input element not found for pic_type: ${pic.pic_type}`);
+        continue;
+      }
 
       const label = inputElem.closest('label.image-gallery');
-      if (!label) continue;
+      if (!label) {
+        console.warn(`Label not found for input element with name: ${pic.pic_type}`);
+        continue;
+      }
 
       const img = label.querySelector('img');
       const titleDiv = label.querySelector('.title');
-      const col = label.closest('.col-4');
-      if (!img || !titleDiv || !col) continue;
+      const col = label.closest('.col-4'); // This should now correctly find the parent div
+
+      if (!img || !titleDiv || !col) {
+        console.warn(`Missing elements (img, titleDiv, or col) for pic_type: ${pic.pic_type}`);
+        continue;
+      }
 
       img.alt = pic.pic_title || 'uploaded image';
       titleDiv.textContent = pic.pic_title || pic.pic_type;
 
       img.onload = () => {
-        // ถ้าเป็น blob, revoke หลังโหลด
         if (pic.pic.startsWith('blob:')) {
           URL.revokeObjectURL(pic.pic);
         }
-
-        // ถ้าโหลดได้จริง ค่อยแสดงกล่อง
         if (img.naturalWidth > 0) {
           col.style.display = 'block';
           img.style.display = 'block';
         }
       };
 
-      // ถ้ารูปโหลดไม่สำเร็จ จะไม่แสดง img หรือ col
       img.onerror = () => {
         img.style.display = 'none';
         col.style.display = 'none';
+        console.error(`Failed to load image for pic_type: ${pic.pic_type}, URL: ${pic.pic}`);
       };
 
-      // เพิ่ม timestamp กัน cache
       if (pic.pic) {
         img.src = pic.pic + '?t=' + new Date().getTime();
       } else {
         console.warn('Skipping image due to missing pic.pic URL:', pic);
-        continue; // Skip to the next pic if URL is missing
+        continue;
       }
 
       uploadedPicCache.add(pic.pic_type);
@@ -831,6 +953,7 @@ document.addEventListener('DOMContentLoaded', function () {
         car_registration: document.getElementById('carRegistration').value,
         location: document.getElementById('address').value,
         created_by,
+        incident_province: document.getElementById('carProvince').value,
 
         // 🔹 order_details
         tell_1: document.getElementById('phone').value,
@@ -896,7 +1019,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const orderId = document.getElementById('taskId').value
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/orders/update/ + orderId`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders/update/${orderId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -909,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Response:', result);
 
         if (response.ok) {
-          alert('✅ สร้างคำสั่งเรียบร้อยแล้ว');
+          alert('✅ อัปเดตคำสั่งเรียบร้อยแล้ว');
           form.reset();
           window.location.href = 'dashboard.html';
         } else {
@@ -925,51 +1048,53 @@ document.addEventListener('DOMContentLoaded', function () {
     const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
     const previewImage = document.getElementById('previewImage');
 
-    document.querySelectorAll('label.image-gallery').forEach(label => {
-      label.addEventListener('click', e => {
-        e.preventDefault();  // ป้องกันเปิด input file
-
+    // Event delegation for image preview
+    document.addEventListener('click', function(e) {
+      const label = e.target.closest('label.image-gallery');
+      if (label) {
+        e.preventDefault();
         const img = label.querySelector('img');
-        if (img && img.src) {
-          previewImage.src = img.src;   // เซ็ตรูปใน modal
-          imagePreviewModal.show();     // เปิด modal
+        if (img && img.src && !img.src.includes('data:image/gif')) { // Only preview if a real image is loaded
+          previewImage.src = img.src;
+          imagePreviewModal.show();
         }
-      });
+      }
     });
 
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation(); // ป้องกันไม่ให้เปิด modal
-
-        // ✅ แสดง popup ยืนยัน
+    // Event delegation for delete buttons
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.delete-btn');
+      if (btn) {
+        e.stopPropagation();
         const confirmDelete = window.confirm('คุณต้องการลบภาพนี้หรือไม่?');
-        if (!confirmDelete) return; // ❌ ถ้ากดยกเลิก ให้หยุดการทำงาน
+        if (!confirmDelete) return;
 
-        const label = e.target.closest('.image-gallery');
+        const label = btn.closest('label.image-gallery');
         if (!label) return;
 
-        // ✅ รีเซ็ต input file
         const input = label.querySelector('input[type="file"]');
-        console.log('Resetting input:', input);
         uploadedPicCache.delete(input.name);
         if (input) input.value = '';
 
-        // ✅ ซ่อนรูป
         const img = label.querySelector('img');
-        if (img) img.style.display = 'none';
-
-        // ✅ ซ่อนชื่อภาพ (ถ้าต้องการ)
+        if (img) {
+          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Reset to transparent pixel
+          img.style.display = 'block'; // Show placeholder
+        }
         const title = label.querySelector('.title');
-        if (title) title.textContent = '';
-      });
+        if (title) {
+          const field = imageFields.find(f => f.name === input.name);
+          title.textContent = field ? field.altText : ''; // Reset title to original altText
+        }
+      }
     });
 
-
-    document.querySelectorAll('.edit-title-btn').forEach(btn => {
-      btn.addEventListener('click', function (e) {
-        e.stopPropagation(); // กันคลิก input
-
-        const label = e.target.closest('label.image-gallery');
+    // Event delegation for edit title buttons
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.edit-title-btn');
+      if (btn) {
+        e.stopPropagation();
+        const label = btn.closest('label.image-gallery');
         const titleDiv = label.querySelector('.title');
         const currentTitle = titleDiv.textContent.trim();
 
@@ -978,7 +1103,7 @@ document.addEventListener('DOMContentLoaded', function () {
           titleDiv.textContent = newTitle.trim();
           titleDiv.setAttribute('data-custom', 'true');
         }
-      });
+      }
     });
 
     const categoryConfig = {

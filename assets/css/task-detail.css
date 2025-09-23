@@ -1,0 +1,246 @@
+body {
+        font-family: 'IBM Plex Sans Thai', sans-serif;
+        font-size: 14px; /* ขนาดตัวอักษรพื้นฐาน */
+      }
+      .form-label {
+        font-weight: bold; /* ทำให้ตัวอักษรหนา */
+      }
+      .form-control {
+        font-size: 14px; /* ขนาดตัวอักษรใน input */
+      }
+      .btn {
+        font-size: 14px; /* ขนาดตัวอักษรในปุ่ม */
+      }
+    
+      .input-group-text {
+        font-size: 14px; /* ขนาดตัวอักษรใน input group */
+      }
+      .form-control::placeholder {
+        font-size: 14px; /* ขนาดตัวอักษรใน placeholder */
+      }
+      .card-title {
+        font-size: 18px; /* ขนาดตัวอักษรในหัวข้อการ์ด */
+      }
+      .card-header {
+        font-size: 16px; /* ขนาดตัวอักษรในส่วนหัวการ์ด */
+      }  
+      .form-label {
+        font-size: 14px; /* ขนาดตัวอักษรใน label */
+      }
+      .form-select {
+        font-size: 14px; /* ขนาดตัวอักษรใน select */
+      }  
+    
+  #gallery-documents {
+    gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  #gallery-documents > div {
+    flex: 1 0 21%;
+    max-width: 21%;
+    margin-bottom: 12px;
+  }
+
+  .img-card {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+  .img-card.selected {
+    border-color: #0d6efd;
+  }
+  .img-card.selected::after {
+    content: '✓';
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    background: #0d6efd;
+    color: white;
+    font-size: 24px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(13, 110, 253, 0.8);
+    pointer-events: none; /* ไม่ให้ติ๊กบังการคลิก */
+  }
+
+  .image-gallery {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+    background-color: #fafafa;
+    min-height: 350px;
+    position: relative;
+  }
+
+  .image-gallery img {
+    width: 100%;
+    height: auto;
+    max-height: 325px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+
+  .image-gallery img:hover {
+    transform: scale(1.03);
+  }
+
+  .image-gallery img.selected {
+    outline: 3px solid #0d6efd;
+  }
+
+  .placeholder {
+    color: #aaa;
+    font-size: 0.9rem;
+  }
+
+  .image-gallery:has(img) .placeholder {
+    display: none;
+  }
+
+  .timeline {
+    position: relative;
+    list-style: none;
+    padding-left: 20px;
+    border-left: 3px solid #dee2e6;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    padding-left: 40px;
+  }
+
+  .timeline-icon {
+    position: absolute;
+    left: -28px;
+    top: 0;
+    width: 36px;
+    height: 36px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 4px #fff;
+    font-size: 18px;
+  }
+
+  .timeline-content {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .timeline-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-description {
+    margin-bottom: 0.5rem;
+    color: #6c757d;
+  }
+  .delete-btn {
+  position: absolute;
+  top: 5px;      /* เลื่อนลงมาเล็กน้อยจากบน */
+  right: 5px;    /* เลื่อนเข้ามาจากขวาเล็กน้อย */
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  color: #dc3545; /* สีแดง Bootstrap */
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 2px;
+  display: none;  /* ซ่อนปุ่มก่อน */
+  z-index: 10;
+  transition: background-color 0.3s;
+}
+
+.delete-btn:hover {
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+}
+
+.image-gallery:hover .delete-btn {
+  display: block;
+}
+
+  .modal-dialog.modal-lg {
+    max-width: min(95vw, 1280px);
+    max-height: 95vh;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .modal-content {
+    border-radius: 12px;
+    background-color: #fff;
+    position: relative;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid #e5e5e5;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #333;
+    position: relative;
+  }
+
+  /* ปุ่มปิดแบบไอคอน */
+  .custom-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    z-index: 9999;
+    color: red;
+    cursor: pointer;
+  }
+
+  .custom-close-btn:hover {
+    color: darkred;
+    transform: scale(1.2);
+  }
+
+  /* รูปภาพใน modal */
+  .modal-body {
+    padding: 1rem 1.5rem;
+    text-align: center;
+    background-color: #fafafa;
+  }
+
+  .modal-image {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: block;
+    margin: 0 auto;
+  }
