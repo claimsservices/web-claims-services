@@ -41,7 +41,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const headerAmount = document.getElementById('header-amount');
   const headerOwner = document.getElementById('header-owner');
   const filterAssignedTo = document.getElementById('filterAssignedTo');
+  const summaryCards = document.getElementById('summaryCardsContainer');
+  const accountSettingsMenu = document.getElementById('account-settings-menu');
+  const exportExcelBtn = document.getElementById('exportExcelBtn');
+  const filterPanel = document.getElementById('filter-panel');
+  const filterControls = document.getElementById('filter-controls');
 
+  if (userRole === 'Insurance' || userRole === 'Bike') {
+    if(summaryCards) summaryCards.classList.add('hidden-by-role');
+    if(accountSettingsMenu) accountSettingsMenu.classList.add('hidden-by-role');
+    if(exportExcelBtn) exportExcelBtn.classList.add('hidden-by-role');
+  }
+
+  if (userRole === 'Bike') {
+    if(filterControls) filterControls.classList.add('hidden-by-role');
+    fetchData(getFilters()); // Automatically fetch data for Bike role on load
+  }
   if (userRole === 'Insurance') {
     if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
     if (headerOrderDate) headerOrderDate.style.display = 'none';

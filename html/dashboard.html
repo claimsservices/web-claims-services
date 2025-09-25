@@ -175,7 +175,7 @@
                     <div data-i18n="Without menu">Administrator</div>
                   </a>
                 </li>
-                <li class="menu-item">
+                <li class="menu-item" id="account-settings-menu">
                   <a href="account.html" class="menu-link">
                     <div data-i18n="Without navbar">Account Settings</div>
                   </a>
@@ -250,7 +250,7 @@
   
           <!-- Content wrapper -->
           <div class="container-xxl flex-grow-1 container-p-y">
-            <div class="row g-6 mb-6">
+            <div class="row g-6 mb-6" id="summaryCardsContainer">
               <div class="col-sm-6 col-xl-3 mb-3">
                 <div class="card">
                   <div class="card-body">
@@ -331,156 +331,158 @@
             </div>
 
             <div class="card">
-              <div class="card-header border-bottom">
-                <div class="row g-3 align-items-center">
-              
-                  <!-- บริษัทประกันภัย -->
-                  <div class="col-md-3">
-                    <select id="UserRole" class="form-select text-capitalize">
-                      <option value=""> บริษัทประกันภัย </option>
-                      <option value="บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)">บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)">บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท
-                        คุ้มภัยโตเกียวมารีนประกันภัย
-                        (ประเทศไทย) จำกัด (มหาชน)</option>
-                      <option value="บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)">บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท จรัญประกันภัย จำกัด (มหาชน)">บริษัท จรัญประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)">บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์)
-                        จำกัด
-                        (มหาชน)</option>
-                      <option value="บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)">บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)">บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด
-                        (มหาชน)
-                      </option>
-                      <option value="บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด
-                        (มหาชน)
-                      </option>
-                      <option value="บริษัท ทิพยประกันภัย จำกัด (มหาชน)">บริษัท ทิพยประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ทูนประกันภัย จำกัด (มหาชน)">บริษัท ทูนประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท เทเวศประกันภัย จำกัด (มหาชน)">บริษัท เทเวศประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)">บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)">บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)">บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)</option>
-                      <option value="บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)">บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ธนชาตประกันภัย จำกัด (มหาชน)">บริษัท ธนชาตประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท นวกิจประกันภัย จำกัด (มหาชน)">บริษัท นวกิจประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)">บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)">บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)</option>
-                      <option value="บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)">บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)">บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)">บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท รู้ใจประกันภัย จำกัด (มหาชน)">บริษัท รู้ใจประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท วิริยะประกันภัย จำกัด (มหาชน)">บริษัท วิริยะประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)">บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)">บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท สหมงคลประกันภัย จำกัด (มหาชน)">บริษัท สหมงคลประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)">บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)
-                      </option>
-                      <option value="บริษัท อินทรประกันภัย จำกัด (มหาชน)">บริษัท อินทรประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอ็ม เอส ไอ จี ประกันภัย
-                        (ประเทศไทย)
-                        จำกัด (มหาชน)</option>
-                      <option value="บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด
-                        (มหาชน)
-                      </option>
-                      <option value="บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด
-                        (มหาชน)
-                      </option>
-                      <option value="บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)">บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)">บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)">บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)</option>
-                      <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)
-                      </option>
-                      <option value="บริษัท เอสที เซอร์วิส เทรนนิ่ง">บริษัท เอสที เซอร์วิส เทรนนิ่ง</option>
-                    </select>
-                  </div>
-              
-                  <!-- สาขา -->
-                  <div class="col-md-2">
-                    <select id="UserPlan" class="form-select text-capitalize">
-                      <option value="">สาขา</option>
-                    </select>
-                  </div>
-              
-                  <!-- สถานะงาน -->
-                  <div class="col-md-2">
-                    <select id="FilterTransaction1" class="form-select text-capitalize">
-                      <option value="งานทั้งหมด">งานทั้งหมด</option>
-                      <option value="งานยังไม่ได้นัดหมาย">งานยังไม่ได้นัดหมาย</option>
-                      <option value="งานรอ Assign">งานรอ Assign</option>
-                      <option value="งานแจ้งเตือน">งานแจ้งเตือน</option>
-                    </select>
-                  </div>
-              
-                  <!-- ประเภทงาน -->
-                  <div class="col-md-2">
-                    <select id="FilterTransaction2" class="form-select text-capitalize">
-                      <option value="">ประเภทงาน</option>
-                      <option value="Inspection">Inspection</option>
-                      <option value="Roadside Assist">Roadside Assist</option>
-                    </select>
-                  </div>
-              
-                  <!-- สถานะ -->
-                  <div class="col-md-3">
-                    <select id="FilterTransaction3" class="form-select text-capitalize">
-                      <option value="">สถานะงาน</option>
-                      <option value="เปิดงาน">เปิดงาน</option>
-                      <option value="รับเรื่องแล้ว">รับเรื่องแล้ว</option>
-                      <option value="รับงาน">รับงาน</option>
-                      <option value="ปฏิเสธงาน">ปฏิเสธงาน</option>
-                      <option value="เริ่มงาน/กำลังเดินทาง">เริ่มงาน/กำลังเดินทาง</option>
-                      <option value="ถึงที่เกิดเหตุ/ปฏิบัติงาน">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
-                      <option value="รออนุมัติ">รออนุมัติ</option>
-                      <option value="Pre-Approved">Pre-Approved</option>
-                      <option value="คีย์งานแล้ว">คีย์งานแล้ว</option>
-                      <option value="ผ่าน">ผ่าน</option>
-                      <option value="ไม่ผ่าน">ไม่ผ่าน</option>
-                      <option value="ยกเลิก">ยกเลิก</option>
-                    </select>
-                  </div>
-              
-                  <!-- ประเภทวันที่ -->
-                  <div class="col-md-2">
-                    <select id="FilterTransaction4" class="form-select text-capitalize">
-                      <option value="วันที่สร้างงาน">วันที่สร้างงาน</option>
-                      <option value="วันที่นัดหมาย">วันที่นัดหมาย</option>
-                    </select>
-                  </div>
-              
-                  <!-- เลือกช่วงวันที่ -->
-                  <div class="col-md-4">
-                    <div class="input-group">
-                      <span class="input-group-text"><i class="fa-regular fa-calendar-days"></i></span>
-                      <input type="text" id="filterDateTime" class="form-control" placeholder="เลือกช่วงวันที่">
-                      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                        เลือกช่วง
-                      </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" data-range="today">วันนี้</a></li>
-                        <li><a class="dropdown-item" data-range="yesterday">เมื่อวาน</a></li>
-                        <li><a class="dropdown-item" data-range="last7">7 วันล่าสุด</a></li>
-                        <li><a class="dropdown-item" data-range="last30">30 วันล่าสุด</a></li>
-                        <li><a class="dropdown-item" data-range="thisMonth">เดือนนี้</a></li>
-                        <li><a class="dropdown-item" data-range="lastMonth">เดือนที่แล้ว</a></li>
-                      </ul>
+              <div class="card-header border-bottom" id="filter-panel">
+                <div id="filter-controls">
+                  <div class="row g-3 align-items-center">
+                
+                    <!-- บริษัทประกันภัย -->
+                    <div class="col-md-3">
+                      <select id="UserRole" class="form-select text-capitalize">
+                        <option value=""> บริษัทประกันภัย </option>
+                        <option value="บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)">บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)">บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท
+                          คุ้มภัยโตเกียวมารีนประกันภัย
+                          (ประเทศไทย) จำกัด (มหาชน)</option>
+                        <option value="บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)">บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท จรัญประกันภัย จำกัด (มหาชน)">บริษัท จรัญประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)">บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์)
+                          จำกัด
+                          (มหาชน)</option>
+                        <option value="บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)">บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)">บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด
+                          (มหาชน)
+                        </option>
+                        <option value="บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด
+                          (มหาชน)
+                        </option>
+                        <option value="บริษัท ทิพยประกันภัย จำกัด (มหาชน)">บริษัท ทิพยประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ทูนประกันภัย จำกัด (มหาชน)">บริษัท ทูนประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท เทเวศประกันภัย จำกัด (มหาชน)">บริษัท เทเวศประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)">บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)">บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)">บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)</option>
+                        <option value="บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)">บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ธนชาตประกันภัย จำกัด (มหาชน)">บริษัท ธนชาตประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท นวกิจประกันภัย จำกัด (มหาชน)">บริษัท นวกิจประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)">บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)">บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)</option>
+                        <option value="บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)">บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)">บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)">บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท รู้ใจประกันภัย จำกัด (มหาชน)">บริษัท รู้ใจประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท วิริยะประกันภัย จำกัด (มหาชน)">บริษัท วิริยะประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)">บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)">บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท สหมงคลประกันภัย จำกัด (มหาชน)">บริษัท สหมงคลประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)">บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)
+                        </option>
+                        <option value="บริษัท อินทรประกันภัย จำกัด (มหาชน)">บริษัท อินทรประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอ็ม เอส ไอ จี ประกันภัย
+                          (ประเทศไทย)
+                          จำกัด (มหาชน)</option>
+                        <option value="บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด
+                          (มหาชน)
+                        </option>
+                        <option value="บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด
+                          (มหาชน)
+                        </option>
+                        <option value="บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)">บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)">บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)">บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)</option>
+                        <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)
+                        </option>
+                        <option value="บริษัท เอสที เซอร์วิส เทรนนิ่ง">บริษัท เอสที เซอร์วิส เทรนนิ่ง</option>
+                      </select>
                     </div>
-                  </div>
-              
-                  <!-- รหัสงาน -->
-                  <div class="col-md-2">
-                    <input type="text" id="filterJobCode" class="form-control" placeholder="รหัสงาน">
-                  </div>
-              
-                  <!-- ผู้สร้างงาน -->
-                  <div class="col-md-2">
-                    <input type="text" id="filterCreatedBy" class="form-control" placeholder="ผู้สร้างงาน">
-                  </div>
-              
-                  <!-- ผู้รับผิดชอบ -->
-                  <div class="col-md-2">
-                    <input type="text" id="filterAssignedTo" class="form-control" placeholder="ผู้รับผิดชอบ">
+                
+                    <!-- สาขา -->
+                    <div class="col-md-2">
+                      <select id="UserPlan" class="form-select text-capitalize">
+                        <option value="">สาขา</option>
+                      </select>
+                    </div>
+                
+                    <!-- สถานะงาน -->
+                    <div class="col-md-2">
+                      <select id="FilterTransaction1" class="form-select text-capitalize">
+                        <option value="งานทั้งหมด">งานทั้งหมด</option>
+                        <option value="งานยังไม่ได้นัดหมาย">งานยังไม่ได้นัดหมาย</option>
+                        <option value="งานรอ Assign">งานรอ Assign</option>
+                        <option value="งานแจ้งเตือน">งานแจ้งเตือน</option>
+                      </select>
+                    </div>
+                
+                    <!-- ประเภทงาน -->
+                    <div class="col-md-2">
+                      <select id="FilterTransaction2" class="form-select text-capitalize">
+                        <option value="">ประเภทงาน</option>
+                        <option value="Inspection">Inspection</option>
+                        <option value="Roadside Assist">Roadside Assist</option>
+                      </select>
+                    </div>
+                
+                    <!-- สถานะ -->
+                    <div class="col-md-3">
+                      <select id="FilterTransaction3" class="form-select text-capitalize">
+                        <option value="">สถานะงาน</option>
+                        <option value="เปิดงาน">เปิดงาน</option>
+                        <option value="รับเรื่องแล้ว">รับเรื่องแล้ว</option>
+                        <option value="รับงาน">รับงาน</option>
+                        <option value="ปฏิเสธงาน">ปฏิเสธงาน</option>
+                        <option value="เริ่มงาน/กำลังเดินทาง">เริ่มงาน/กำลังเดินทาง</option>
+                        <option value="ถึงที่เกิดเหตุ/ปฏิบัติงาน">ถึงที่เกิดเหตุ/ปฏิบัติงาน</option>
+                        <option value="รออนุมัติ">รออนุมัติ</option>
+                        <option value="Pre-Approved">Pre-Approved</option>
+                        <option value="คีย์งานแล้ว">คีย์งานแล้ว</option>
+                        <option value="ผ่าน">ผ่าน</option>
+                        <option value="ไม่ผ่าน">ไม่ผ่าน</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                      </select>
+                    </div>
+                
+                    <!-- ประเภทวันที่ -->
+                    <div class="col-md-2">
+                      <select id="FilterTransaction4" class="form-select text-capitalize">
+                        <option value="วันที่สร้างงาน">วันที่สร้างงาน</option>
+                        <option value="วันที่นัดหมาย">วันที่นัดหมาย</option>
+                      </select>
+                    </div>
+                
+                    <!-- เลือกช่วงวันที่ -->
+                    <div class="col-md-4">
+                      <div class="input-group">
+                        <span class="input-group-text"><i class="fa-regular fa-calendar-days"></i></span>
+                        <input type="text" id="filterDateTime" class="form-control" placeholder="เลือกช่วงวันที่">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                          เลือกช่วง
+                        </button>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" data-range="today">วันนี้</a></li>
+                          <li><a class="dropdown-item" data-range="yesterday">เมื่อวาน</a></li>
+                          <li><a class="dropdown-item" data-range="last7">7 วันล่าสุด</a></li>
+                          <li><a class="dropdown-item" data-range="last30">30 วันล่าสุด</a></li>
+                          <li><a class="dropdown-item" data-range="thisMonth">เดือนนี้</a></li>
+                          <li><a class="dropdown-item" data-range="lastMonth">เดือนที่แล้ว</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                
+                    <!-- รหัสงาน -->
+                    <div class="col-md-2">
+                      <input type="text" id="filterJobCode" class="form-control" placeholder="รหัสงาน">
+                    </div>
+                
+                    <!-- ผู้สร้างงาน -->
+                    <div class="col-md-2">
+                      <input type="text" id="filterCreatedBy" class="form-control" placeholder="ผู้สร้างงาน">
+                    </div>
+                
+                    <!-- ผู้รับผิดชอบ -->
+                    <div class="col-md-2">
+                      <input type="text" id="filterAssignedTo" class="form-control" placeholder="ผู้รับผิดชอบ">
+                    </div>
                   </div>
                 </div>
                 <button id="searchBtn" class="btn btn-primary" style="margin-top: 14px;">ค้นหารายการ</button> 

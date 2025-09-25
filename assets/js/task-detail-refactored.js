@@ -142,27 +142,7 @@ const API_BASE_URL = 'https://be-claims-service.onrender.com';
 
 
 
-// Check user role (example assumes role is stored in localStorage)
-  if (accessToken) {
-    const user = JSON.parse(atob(accessToken.split('.')[1])); // Decode JWT payload
 
-    // Check if the user has the 'admin' role
-    if (user.role === 'Operation Manager' || user.role === 'Director' || user.role === 'Developer') {
-      // Show the admin menu
-      document.getElementById('admin-menu').style.display = 'block';
-    } else if (userRole === 'Admin Officer') {
-      document.addEventListener('DOMContentLoaded', function () {
-        const orderStatusSelect = document.getElementById('orderStatus');
-        if (orderStatusSelect) {
-          orderStatusSelect.setAttribute('disabled', 'disabled');
-        }
-      });
-    }
-    if (user.role === 'Officer') {
-      localStorage.removeItem('authToken');
-      window.location.href = '../index.html';
-    }
-  }
 
 if (downloadAllBtn) {
     downloadAllBtn.addEventListener('click', async (event) => {
@@ -404,6 +384,19 @@ document.getElementById('openMap').addEventListener('click', function () {
         document.getElementById('appointmentTime').value = dt.toTimeString().slice(0, 5);
       }
 
+      // Show/Hide Bike role action buttons based on order status
+      const bikeActionContainer = document.getElementById('bike-action-buttons');
+      const mainSubmitBtn = document.getElementById('submittaskBtn');
+      const userRole = getUserRole();
+
+      if (userRole === 'Bike' && order.order_status === 'เปิดงาน') {
+        if(bikeActionContainer) bikeActionContainer.classList.remove('d-none');
+        if(mainSubmitBtn) mainSubmitBtn.classList.add('d-none');
+      } else {
+        if(bikeActionContainer) bikeActionContainer.classList.add('d-none');
+        if(mainSubmitBtn) mainSubmitBtn.classList.remove('d-none');
+      }
+
       // 🔹 order_details
       if (order_details) {
         document.getElementById('phone').value = order_details.tell_1;
@@ -461,7 +454,7 @@ document.getElementById('openMap').addEventListener('click', function () {
           const formattedDate = date.toLocaleDateString('th-TH', {
             year: 'numeric', month: 'short', day: 'numeric'
           }) + ' - ' + date.toLocaleTimeString('th-TH', {
-            hour: '2-digit', minute: '2-digit'
+            hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok'
           }) + ' น.';
 
           const li = document.createElement('li');
@@ -760,71 +753,78 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Disable all form elements inside the main form
-      const form = document.getElementById('taskForm');
-      if (form) {
-        const elements = form.querySelectorAll('input, textarea, select, button');
-        elements.forEach(el => {
-          // Don't disable the file inputs for image upload
-          if (el.type !== 'file') {
-            el.disabled = true;
+      const orderStatus = document.getElementById('orderStatus').value;
+
+      // If the job is not yet accepted, disable everything.
+      if (orderStatus === 'เปิดงาน') {
+          const form = document.getElementById('taskForm');
+          if (form) {
+            const elements = form.querySelectorAll('input, textarea, select, button');
+            elements.forEach(el => {
+                el.disabled = true;
+            });
           }
-        });
-      }
+          // But re-enable the action buttons
+          const acceptBtn = document.getElementById('acceptJobBtn');
+          const declineBtn = document.getElementById('declineJobBtn');
+          if(acceptBtn) acceptBtn.disabled = false;
+          if(declineBtn) declineBtn.disabled = false;
 
-      // Re-enable the specific image upload functionality
-      // The image galleries in the 'ข้อมูลรูปภาพ' tab
-      document.querySelectorAll('.image-gallery input[type="file"]').forEach(input => {
-        input.disabled = false;
-        // Also enable the label to allow clicking
-        const label = input.closest('.image-gallery');
-        if (label) {
-            // We can't "enable" a label, but we can make sure it's clickable.
-            // The disabling of child buttons might be an issue, let's re-enable them.
-            label.querySelectorAll('button').forEach(btn => btn.disabled = false);
-        }
-      });
-      
-      // Re-enable the 'Upload Picture' tab functionality
-      const uploadTab = document.getElementById('tab-upload');
-      if(uploadTab){
-        const uploadElements = uploadTab.querySelectorAll('input, select, button');
-        uploadElements.forEach(el => {
-            el.disabled = false;
-        });
-      }
+      } else {
+          // If the job is accepted or in another state, enable photo uploads.
+          const form = document.getElementById('taskForm');
+          if (form) {
+            const elements = form.querySelectorAll('input, textarea, select, button');
+            elements.forEach(el => {
+              if (el.type !== 'file') {
+                el.disabled = true;
+              }
+            });
+          }
 
+          document.querySelectorAll('.image-gallery input[type="file"]').forEach(input => {
+            input.disabled = false;
+            const label = input.closest('.image-gallery');
+            if (label) {
+                label.querySelectorAll('button').forEach(btn => btn.disabled = false);
+            }
+          });
+          
+          const uploadTab = document.getElementById('tab-upload');
+          if(uploadTab){
+            const uploadElements = uploadTab.querySelectorAll('input, select, button');
+            uploadElements.forEach(el => {
+                el.disabled = false;
+            });
+          }
 
-      // Disable tab buttons except for 'ข้อมูลรูปภาพ' and 'Upload Picture'
-      const tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
-      tabButtons.forEach(button => {
-        const target = button.getAttribute('data-bs-target');
-        if (target !== '#tab-contact' && target !== '#tab-upload') {
-          button.disabled = true;
-        } else {
-          button.disabled = false; // Explicitly enable the allowed tabs
-        }
-      });
-      
-      // Ensure the correct tab is shown if others are disabled
-        const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
-        const homeTabButton = document.querySelector('button[data-bs-target="#tab-home"]');
-        const contactTabPane = document.getElementById('tab-contact');
-        const homeTabPane = document.getElementById('tab-home');
+          const tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
+          tabButtons.forEach(button => {
+            const target = button.getAttribute('data-bs-target');
+            if (target !== '#tab-contact' && target !== '#tab-upload') {
+              button.disabled = true;
+            } else {
+              button.disabled = false;
+            }
+          });
+          
+          const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
+          const homeTabButton = document.querySelector('button[data-bs-target="#tab-home"]');
+          const contactTabPane = document.getElementById('tab-contact');
+          const homeTabPane = document.getElementById('tab-home');
 
-        if(contactTabButton && homeTabButton && contactTabPane && homeTabPane){
-            homeTabButton.classList.remove('active');
-            homeTabPane.classList.remove('active', 'show');
-            contactTabButton.classList.add('active');
-            contactTabPane.classList.add('active', 'show');
-        }
+          if(contactTabButton && homeTabButton && contactTabPane && homeTabPane){
+              homeTabButton.classList.remove('active');
+              homeTabPane.classList.remove('active', 'show');
+              contactTabButton.classList.add('active');
+              contactTabPane.classList.add('active', 'show');
+          }
 
-
-      // Specifically disable the main submit button at the bottom
-      const mainSubmitBtn = document.getElementById('submittaskBtn');
-      if (mainSubmitBtn) {
-        mainSubmitBtn.disabled = true;
-        mainSubmitBtn.style.display = 'none'; // Also hide it
+          const mainSubmitBtn = document.getElementById('submittaskBtn');
+          if (mainSubmitBtn) {
+            mainSubmitBtn.disabled = true;
+            mainSubmitBtn.style.display = 'none';
+          }
       }
     }
 
@@ -894,6 +894,57 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       console.log('❌ ไม่พบปุ่ม #submittaskBtn');
     }
+
+    // Bike Action Buttons
+    const acceptJobBtn = document.getElementById('acceptJobBtn');
+    const declineJobBtn = document.getElementById('declineJobBtn');
+
+    if(acceptJobBtn) {
+        acceptJobBtn.addEventListener('click', () => handleBikeResponse('รับงาน'));
+    }
+    if(declineJobBtn) {
+        declineJobBtn.addEventListener('click', () => handleBikeResponse('ปฏิเสธงาน'));
+    }
+
+    async function handleBikeResponse(status) {
+        const orderId = document.getElementById('taskId').value;
+        const token = localStorage.getItem('authToken') || '';
+        const created_by = document.getElementById('ownerName').value;
+
+        const data = {
+            order_status: status,
+            order_hist: [{
+                icon: status === 'รับงาน' ? "✔️" : "❌",
+                task: `สถานะอัปเดตเป็น: ${status}`,
+                detail: `อัปเดตโดยผู้ใช้: ${created_by}`,
+                created_by
+            }]
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${token}`
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(`✅ อัปเดตสถานะเป็น "${status}" เรียบร้อยแล้ว`);
+                window.location.reload();
+            } else {
+                alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+            }
+        } catch (error) {
+            alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+            console.error('Fetch error:', error);
+        }
+    }
+
+
 
     // ✅ ฟังชั่น submit ฟอร์ม
     form.addEventListener('submit', async function (e) {
