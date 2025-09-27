@@ -225,7 +225,7 @@
         const username = document.getElementById("username").value.trim();
         const password = document.getElementById("password").value.trim();
 
-        const apiUrl = 'https://be-claims-service.onrender.com/api/auth/login';
+        const apiUrl = `${API_BASE_URL}/api/auth/login`;
 
         let isValid = true;
 
@@ -271,12 +271,16 @@
 
           if (response.ok) {
             const data = await response.json();
-            localStorage.setItem('authToken', data.token); // Store token
-            localStorage.setItem('role', data.role); // Store role - ADD THIS LINE
-            if (data.role === 'Officer') {
-              window.location.href = 'html/task-attachments.html'; // Redirect after successful Agent login
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('role', data.role);
+
+            // Role-based redirection
+            if (data.role === 'Bike') {
+              window.location.href = 'html/bike-dashboard.html';
+            } else if (data.role === 'Officer') {
+              window.location.href = 'html/task-attachments.html';
             } else {
-              window.location.href = 'html/dashboard.html'; // Redirect after successful login
+              window.location.href = 'html/dashboard.html';
             }
 
           } else {
