@@ -211,6 +211,82 @@
   }
 
   // =========================================================
+  // PHOTO RENDERING LOGIC
+  // =========================================================
+    const photoCategories = {
+        around: {
+            title: 'ภาพถ่ายรอบคัน',
+            containerId: 'around-car-pics',
+            items: ['ด้านหน้ารถ', 'ด้านซ้ายส่วนหน้า', 'ด้านซ้ายตรง', 'ด้านซ้ายส่วนหลัง', 'ด้านท้ายรถ', 'ด้านขวาส่วนหลัง', 'ด้านขวาตรง', 'ด้านขวาส่วนหน้า', 'หลังคา']
+        },
+        interior: {
+            title: 'ภาพถ่ายภายในรถและอุปกรณ์ตกแต่ง',
+            containerId: 'interior-pics',
+            items: ['ล้อรถ 4 ล้อ ด้านหน้าขวา', 'ล้อรถ 4 ล้อ ด้านหน้าซ้าย', 'ล้อรถ 4 ล้อ ด้านหลังขวา', 'ล้อรถ 4 ล้อ ด้านหลังซ้าย', 'ปียาง/ขนาดยาง', 'ห้องเครื่อง', 'วิทยุ', 'จอไมล์', 'กระจกมองหน้า', 'ฟิล์ม', 'กล้องหน้ารถ', 'แผงหน้าปัดหน้า', 'อื่นๆ']
+        },
+        damage: {
+            title: 'ภาพถ่ายความเสียหาย',
+            containerId: 'damage-pics',
+            items: ['ความเสียหาย 1', 'ความเสียหาย 2', 'ความเสียหาย 3', 'ความเสียหาย 4', 'ความเสียหาย 5', 'ความเสียหาย 6', 'ความเสียหาย 7', 'ความเสียหาย 8', 'ความเสียหาย 9', 'ความเสียหาย 10']
+        },
+        documents: {
+            title: 'เอกสาร',
+            containerId: 'document-pics',
+            items: ['ใบขับขี่', 'บัตรประชาชน', 'รายการจดทะเบียนรถ', 'เลขตัวถังหรือเลขคัสซี', 'ใบตรวจสภาพ', 'ลายเซ็น']
+        }
+    };
+
+    function checkAllPhotosTaken() {
+        const allPhotoItems = document.querySelectorAll('.photo-item');
+        if (allPhotoItems.length === 0) return;
+
+        let allTaken = true;
+        allPhotoItems.forEach(item => {
+            if (item.dataset.taken !== 'true') {
+                allTaken = false;
+            }
+        });
+
+        const submitBtn = document.getElementById('bike-submit-work-btn');
+        if (submitBtn) {
+            submitBtn.disabled = !allTaken;
+        }
+    }
+
+    function renderPhotoCategories() {
+        for (const categoryKey in photoCategories) {
+            const category = photoCategories[categoryKey];
+            const container = document.getElementById(category.containerId);
+            if (container) {
+                container.innerHTML = ''; // Clear existing items
+                category.items.forEach(itemText => {
+                    const col = document.createElement('div');
+                    col.className = 'col-6 col-md-4 mb-2';
+                    
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'photo-item p-2';
+                    itemDiv.innerHTML = `<i class="bx bx-camera bx-sm d-block mb-1"></i><span>${itemText}</span>`;
+                    itemDiv.dataset.taken = 'false'; // Initial state
+                    
+                    itemDiv.addEventListener('click', () => {
+                        if (itemDiv.dataset.taken === 'true') return; // Don't re-trigger
+                        // Placeholder for taking a picture
+                        alert(`เปิดกล้องเพื่อถ่ายรูป: ${itemText}`);
+                        itemDiv.style.backgroundColor = '#d7f5dd'; // Greenish for done
+                        itemDiv.style.borderColor = '#71dd37';
+                        itemDiv.dataset.taken = 'true';
+                        checkAllPhotosTaken(); // Check if all are done
+                    });
+
+                    col.appendChild(itemDiv);
+                    container.appendChild(col);
+                });
+            }
+        }
+        checkAllPhotosTaken(); // Initial check to disable button
+    }
+
+  // =========================================================
   // ROLE-BASED UI RESTRICTIONS
   // =========================================================
 
@@ -296,18 +372,95 @@ class UIBikePermissionManager extends UIPermissionManager {
             return;
         }
 
-        // Replace the entire form with a simple read-only view
-        cardBody.innerHTML = `
+        const acceptStates = ['รับเรื่องแล้ว'];
+        const workingStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน', 'แก้ไข'];
+
+        if (acceptStates.includes(orderStatus)) {
+            // State 1: Show Accept/Reject buttons
+            let buttonsHTML = `
+                <div class="mt-4 d-grid gap-2 d-md-flex">
+                    <button class="btn btn-danger me-md-2" id="bike-reject-btn">ปฏิเสธงาน</button>
+                    <button class="btn btn-primary" id="bike-accept-btn">รับงาน</button>
+                </div>
+            `;
+            cardBody.innerHTML = `
+                <div class="py-3 px-4 mb-4 rounded bg-white border">
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
+                    <p><strong>รหัสงาน:</strong> ${order.id || '-'}</p>
+                    <p><strong>ชื่อผู้เอาประกัน:</strong> ${details.c_insure || '-'}</p>
+                    <p><strong>เบอร์โทรศัพท์:</strong> ${details.c_tell || '-'}</p>
+                    <p><strong>ทะเบียนรถ:</strong> ${order.car_registration || '-'}</p>
+                </div>
+                ${buttonsHTML}
+                <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
+            `;
+
+            document.getElementById('bike-accept-btn').addEventListener('click', async () => {
+                const success = await updateStatus('รับงาน');
+                if (success) {
+                    alert('รับงานเรียบร้อยแล้ว! กำลังโหลดหน้าอัปโหลดรูปภาพ...');
+                    window.location.reload();
+                }
+            });
+
+            document.getElementById('bike-reject-btn').addEventListener('click', async () => {
+                const success = await updateStatus('ปฏิเสธงาน');
+                if (success) {
+                    alert('ปฏิเสธงานเรียบร้อยแล้ว');
+                    window.location.href = 'dashboard.html';
+                }
+            });
+
+        } else if (workingStates.includes(orderStatus)) {
+            // State 2: Show Photo Upload UI
+            cardBody.innerHTML = `
+                <div class="photo-category">
+                    <h6><i class="bx bx-camera"></i> ภาพถ่ายรอบคัน</h6>
+                    <div class="row g-2" id="around-car-pics"></div>
+                </div>
+                <div class="photo-category">
+                    <h6><i class="bx bx-car"></i> ภาพถ่ายภายในรถและอุปกรณ์ตกแต่ง</h6>
+                    <div class="row g-2" id="interior-pics"></div>
+                </div>
+                <div class="photo-category">
+                    <h6><i class="bx bx-error-alt"></i> ภาพถ่ายความเสียหาย</h6>
+                    <div class="row g-2" id="damage-pics"></div>
+                </div>
+                 <div class="photo-category">
+                    <h6><i class="bx bx-file"></i> เอกสาร</h6>
+                    <div class="row g-2" id="document-pics"></div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary w-100" id="bike-submit-work-btn" disabled>ส่งงาน</button>
+                </div>
+                 <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
+            `;
+
+            renderPhotoCategories(); // This function needs to be defined or moved
+
+            document.getElementById('bike-submit-work-btn').addEventListener('click', async () => {
+                 const confirmSubmit = confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?');
+                if (confirmSubmit) {
+                    const success = await updateStatus('ส่งงาน/ตรวจสอบเบื้องต้น');
+                    if (success) {
+                        alert('ส่งงานเรียบร้อยแล้ว');
+                        window.location.href = 'dashboard.html';
+                    }
+                }
+            });
+
+        } else {
+            // Default read-only view for other statuses
+            cardBody.innerHTML = `
             <div class="py-3 px-4 mb-4 rounded bg-white border">
                 <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
                 <p><strong>รหัสงาน:</strong> ${order.id || '-'}</p>
+                <p><strong>สถานะ:</strong> ${order.order_status || '-'}</p>
                 <p><strong>ชื่อผู้เอาประกัน:</strong> ${details.c_insure || '-'}</p>
-                <p><strong>เบอร์โทรศัพท์:</strong> ${details.c_tell || '-'}</p>
-                <p><strong>ทะเบียนรถ:</strong> ${order.car_registration || '-'}</p>
-                <p><strong>จังหวัดทะเบียนรถ:</strong> ${details.c_car_province || '-'}</p>
             </div>
-            <a href="dashboard.html" class="btn btn-secondary w-100">กลับไปหน้าหลัก</a>
+            <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
         `;
+        }
     }
 }
 
