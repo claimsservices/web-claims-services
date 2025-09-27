@@ -220,14 +220,13 @@ class UIPermissionManager {
         this.form = document.getElementById('taskForm');
         this.saveBtn = document.getElementById('submittaskBtn');
         this.statusDropdown = document.getElementById('orderStatus');
+        this.tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
     }
 
     disableAll() {
         if (!this.form) return;
         this.form.querySelectorAll('input, textarea, select, button').forEach(el => {
-            if (!el.classList.contains('nav-link')) { // Explicitly ignore tab buttons
-                el.disabled = true;
-            }
+            el.disabled = true;
         });
         if (this.saveBtn) this.saveBtn.style.display = 'none';
     }
@@ -235,9 +234,7 @@ class UIPermissionManager {
     enableAll() {
         if (!this.form) return;
         this.form.querySelectorAll('input, textarea, select, button').forEach(el => {
-            if (!el.classList.contains('nav-link')) { // Explicitly ignore tab buttons
-                el.disabled = false;
-            }
+            el.disabled = false;
         });
         if (this.saveBtn) {
             this.saveBtn.disabled = false;
@@ -247,15 +244,11 @@ class UIPermissionManager {
 
     setReadOnlyAll() {
         if (!this.form) return;
-        // Make text inputs readonly
         this.form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], textarea').forEach(el => {
             el.readOnly = true;
         });
-        // Disable interactive elements
         this.form.querySelectorAll('select, button, input[type="checkbox"]').forEach(el => {
-            if (!el.classList.contains('nav-link')) { // Don't disable tab buttons
-                el.disabled = true;
-            }
+            el.disabled = true;
         });
         if (this.saveBtn) this.saveBtn.style.display = 'none';
     }
@@ -273,13 +266,13 @@ class UIPermissionManager {
     }
 
     configure(orderStatus) {
-        this.disableAll();
+        // Default behavior: do nothing, leave everything enabled.
     }
 }
 
 class UIAdminPermissionManager extends UIPermissionManager {
     configure(orderStatus) {
-        this.enableAll();
+        // Admin can do everything. Do nothing to the UI, leave all enabled.
     }
 }
 
@@ -287,44 +280,61 @@ class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus) {
         this.disableAll();
 
+        // Re-enable specific tabs
+        this.tabButtons.forEach(button => {
+            const target = button.getAttribute('data-bs-target');
+            if (target === '#tab-contact' || target === '#tab-upload') {
+                button.disabled = false;
+            }
+        });
+
+        // Re-enable upload functionality
+        document.querySelectorAll('.image-gallery input[type="file"], .image-gallery button').forEach(el => { el.disabled = false; });
+        const uploadTab = document.getElementById('tab-upload');
+        if (uploadTab) uploadTab.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
+
+        // Handle status dropdown
         const initialBikeStates = ['เปิดงาน', 'รับเรื่องแล้ว'];
         const postAcceptStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน'];
         let allowedStatuses = [];
 
         if (initialBikeStates.includes(orderStatus)) {
-            allowedStatuses = ['รับงาน', 'ปฏิเสธงาน'];
+            allowedStatuses = ['รับงาน', 'ปฏิเสธงาน', orderStatus];
         } else if (postAcceptStates.includes(orderStatus)) {
             allowedStatuses = ['เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน', 'ส่งงาน/ตรวจสอบเบื้องต้น', orderStatus];
-            document.querySelectorAll('.image-gallery input[type="file"], .image-gallery button').forEach(el => { el.disabled = false; });
-            const uploadTab = document.getElementById('tab-upload');
-            if (uploadTab) uploadTab.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
-            const tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
-            tabButtons.forEach(button => {
-                const target = button.getAttribute('data-bs-target');
-                if (target === '#tab-contact' || target === '#tab-upload') button.disabled = false;
-            });
-            const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
-            if (contactTabButton && typeof bootstrap !== 'undefined') new bootstrap.Tab(contactTabButton).show();
         }
-
         if (allowedStatuses.length > 0) {
             this.applyStatusPermissions(allowedStatuses);
         }
 
-        const dropdownIdsToHide = ['jobType', 'channel', 'processType', 'carProvince', 'carBrand', 'carModel', 'insuranceCompany', 'insuranceBranch', 'responsiblePerson'];
-        dropdownIdsToHide.forEach(id => {
-            const el = document.getElementById(id);
-            const container = el ? el.closest('.mb-3') : null;
-            if (container) container.style.display = 'none';
-        });
+        // Force active tab to be the image tab, replicating legacy code behavior
+        const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
+        const homeTabButton = document.querySelector('button[data-bs-target="#tab-home"]');
+        const contactTabPane = document.getElementById('tab-contact');
+        const homeTabPane = document.getElementById('tab-home');
+        if(contactTabButton && homeTabButton && contactTabPane && homeTabPane){
+            homeTabButton.classList.remove('active');
+            homeTabPane.classList.remove('active', 'show');
+            contactTabButton.classList.add('active');
+            contactTabPane.classList.add('active', 'show');
+        }
     }
 }
 
 class UIInsurancePermissionManager extends UIPermissionManager {
     configure(orderStatus) {
         this.setReadOnlyAll();
-        let allowedStatuses = [];
 
+        // Re-enable necessary tabs for viewing
+        this.tabButtons.forEach(button => {
+            const target = button.getAttribute('data-bs-target');
+            if (target === '#tab-home' || target === '#tab-contact') {
+                button.disabled = false;
+            }
+        });
+
+        // Handle status dropdown
+        let allowedStatuses = [];
         if (orderStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
             allowedStatuses = ['รออนุมัติ', orderStatus];
         } else if (orderStatus === 'Pre-Approved') {
