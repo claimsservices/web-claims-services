@@ -274,13 +274,10 @@
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('role', data.role);
 
-            // Role-based redirection
-            if (data.role === 'Bike') {
-              window.location.href = 'html/bike-dashboard.html';
-            } else if (data.role === 'Officer') {
-              window.location.href = 'html/task-attachments.html';
+            if (data.role === 'Officer') {
+              window.location.href = 'html/task-attachments.html'; // Redirect after successful Agent login
             } else {
-              window.location.href = 'html/dashboard.html';
+              window.location.href = 'html/dashboard.html'; // Redirect after successful login
             }
 
           } else {

@@ -180,9 +180,8 @@
         }
       }
 
-      if (order_pic && order_pic.length > 0) renderUploadedImages(order_pic);
-
-      applyRoleBasedRestrictions();
+      // Pass the full result to apply restrictions
+      applyRoleBasedRestrictions(result);
 
     } catch (err) {
       alert('❌ ไม่สามารถโหลดข้อมูลได้');
@@ -226,7 +225,9 @@ class UIPermissionManager {
     disableAll() {
         if (!this.form) return;
         this.form.querySelectorAll('input, textarea, select, button').forEach(el => {
-            el.disabled = true;
+            if (!el.classList.contains('nav-link')) { // Explicitly ignore tab buttons
+                el.disabled = true;
+            }
         });
         if (this.saveBtn) this.saveBtn.style.display = 'none';
     }
@@ -234,7 +235,9 @@ class UIPermissionManager {
     enableAll() {
         if (!this.form) return;
         this.form.querySelectorAll('input, textarea, select, button').forEach(el => {
-            el.disabled = false;
+            if (!el.classList.contains('nav-link')) { // Explicitly ignore tab buttons
+                el.disabled = false;
+            }
         });
         if (this.saveBtn) {
             this.saveBtn.disabled = false;
@@ -244,11 +247,15 @@ class UIPermissionManager {
 
     setReadOnlyAll() {
         if (!this.form) return;
+        // Make text inputs readonly
         this.form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], textarea').forEach(el => {
             el.readOnly = true;
         });
+        // Disable interactive elements
         this.form.querySelectorAll('select, button, input[type="checkbox"]').forEach(el => {
-            el.disabled = true;
+            if (!el.classList.contains('nav-link')) { // Don't disable tab buttons
+                el.disabled = true;
+            }
         });
         if (this.saveBtn) this.saveBtn.style.display = 'none';
     }
@@ -265,87 +272,50 @@ class UIPermissionManager {
         }
     }
 
-    configure(orderStatus) {
-        // Default behavior: do nothing, leave everything enabled.
+    configure(orderStatus, data) {
+        this.disableAll();
     }
 }
 
 class UIAdminPermissionManager extends UIPermissionManager {
-    configure(orderStatus) {
-        // Admin can do everything. Do nothing to the UI, leave all enabled.
+    configure(orderStatus, data) {
+        this.enableAll();
     }
 }
 
 class UIBikePermissionManager extends UIPermissionManager {
-    configure(orderStatus) {
-        this.disableAll();
+    configure(orderStatus, data) {
+        const cardBody = document.querySelector('.card-body');
+        if (!cardBody) return;
 
-        const initialBikeStates = ['เปิดงาน', 'รับเรื่องแล้ว'];
-        const postAcceptStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน'];
-        const revisionState = 'แก้ไข';
-        let allowedStatuses = [];
+        const details = data?.order_details;
+        const order = data?.order;
 
-        if (initialBikeStates.includes(orderStatus)) {
-            allowedStatuses = ['รับงาน', 'ปฏิเสธงาน', orderStatus];
-        } else if (postAcceptStates.includes(orderStatus)) {
-            allowedStatuses = ['เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน', 'ส่งงาน/ตรวจสอบเบื้องต้น', orderStatus];
-        } else if (orderStatus === revisionState) {
-            allowedStatuses = ['ส่งงาน/ตรวจสอบเบื้องต้น', orderStatus];
+        if (!details || !order) {
+            cardBody.innerHTML = '<p class="text-center text-danger">ไม่สามารถโหลดข้อมูลได้</p>';
+            return;
         }
 
-        // Enable UI for working states (post-accept or revision)
-        if (postAcceptStates.includes(orderStatus) || orderStatus === revisionState) {
-            // Enable picture tabs and functionality
-            this.tabButtons.forEach(button => {
-                const target = button.getAttribute('data-bs-target');
-                if (target === '#tab-contact' || target === '#tab-upload') {
-                    button.disabled = false;
-                }
-            });
-            document.querySelectorAll('.image-gallery input[type="file"], .image-gallery button').forEach(el => { el.disabled = false; });
-            const uploadTab = document.getElementById('tab-upload');
-            if (uploadTab) uploadTab.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
-
-            // If in revision state, enable all form fields for editing
-            if (orderStatus === revisionState) {
-                this.enableAll();
-            }
-
-            // Always show save button in these states
-            if (this.saveBtn) {
-                this.saveBtn.disabled = false;
-                this.saveBtn.style.display = 'inline-block';
-            }
-        }
-
-        // Apply the specific status options for the dropdown
-        if (allowedStatuses.length > 0) {
-            this.applyStatusPermissions(allowedStatuses);
-        }
-
-        const dropdownIdsToHide = ['jobType', 'channel', 'processType', 'carProvince', 'carBrand', 'carModel', 'insuranceCompany', 'insuranceBranch', 'responsiblePerson'];
-        dropdownIdsToHide.forEach(id => {
-            const el = document.getElementById(id);
-            const container = el ? el.closest('.mb-3') : null;
-            if (container) container.style.display = 'none';
-        });
+        // Replace the entire form with a simple read-only view
+        cardBody.innerHTML = `
+            <div class="py-3 px-4 mb-4 rounded bg-white border">
+                <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
+                <p><strong>รหัสงาน:</strong> ${order.id || '-'}</p>
+                <p><strong>ชื่อผู้เอาประกัน:</strong> ${details.c_insure || '-'}</p>
+                <p><strong>เบอร์โทรศัพท์:</strong> ${details.c_tell || '-'}</p>
+                <p><strong>ทะเบียนรถ:</strong> ${order.car_registration || '-'}</p>
+                <p><strong>จังหวัดทะเบียนรถ:</strong> ${details.c_car_province || '-'}</p>
+            </div>
+            <a href="dashboard.html" class="btn btn-secondary w-100">กลับไปหน้าหลัก</a>
+        `;
     }
 }
 
 class UIInsurancePermissionManager extends UIPermissionManager {
-    configure(orderStatus) {
+    configure(orderStatus, data) {
         this.setReadOnlyAll();
-
-        // Re-enable necessary tabs for viewing
-        this.tabButtons.forEach(button => {
-            const target = button.getAttribute('data-bs-target');
-            if (target === '#tab-home' || target === '#tab-contact') {
-                button.disabled = false;
-            }
-        });
-
-        // Handle status dropdown
         let allowedStatuses = [];
+
         if (orderStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
             allowedStatuses = ['รออนุมัติ', orderStatus];
         } else if (orderStatus === 'Pre-Approved') {
@@ -373,11 +343,11 @@ function getUIPermissionManager(role) {
     }
 }
 
-function applyRoleBasedRestrictions() {
+function applyRoleBasedRestrictions(data) {
     const userRole = getUserRole();
-    const orderStatus = document.getElementById('orderStatus').value;
+    const orderStatus = data.order.order_status;
     const permissionManager = getUIPermissionManager(userRole);
-    permissionManager.configure(orderStatus);
+    permissionManager.configure(orderStatus, data);
 }
 
 
