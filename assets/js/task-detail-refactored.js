@@ -280,44 +280,55 @@ class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus) {
         this.disableAll();
 
-        // Re-enable specific tabs
-        this.tabButtons.forEach(button => {
-            const target = button.getAttribute('data-bs-target');
-            if (target === '#tab-contact' || target === '#tab-upload') {
-                button.disabled = false;
-            }
-        });
-
-        // Re-enable upload functionality
-        document.querySelectorAll('.image-gallery input[type="file"], .image-gallery button').forEach(el => { el.disabled = false; });
-        const uploadTab = document.getElementById('tab-upload');
-        if (uploadTab) uploadTab.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
-
-        // Handle status dropdown
         const initialBikeStates = ['เปิดงาน', 'รับเรื่องแล้ว'];
         const postAcceptStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน'];
+        const revisionState = 'แก้ไข';
         let allowedStatuses = [];
 
         if (initialBikeStates.includes(orderStatus)) {
             allowedStatuses = ['รับงาน', 'ปฏิเสธงาน', orderStatus];
         } else if (postAcceptStates.includes(orderStatus)) {
             allowedStatuses = ['เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน', 'ส่งงาน/ตรวจสอบเบื้องต้น', orderStatus];
+        } else if (orderStatus === revisionState) {
+            allowedStatuses = ['ส่งงาน/ตรวจสอบเบื้องต้น', orderStatus];
         }
+
+        // Enable UI for working states (post-accept or revision)
+        if (postAcceptStates.includes(orderStatus) || orderStatus === revisionState) {
+            // Enable picture tabs and functionality
+            this.tabButtons.forEach(button => {
+                const target = button.getAttribute('data-bs-target');
+                if (target === '#tab-contact' || target === '#tab-upload') {
+                    button.disabled = false;
+                }
+            });
+            document.querySelectorAll('.image-gallery input[type="file"], .image-gallery button').forEach(el => { el.disabled = false; });
+            const uploadTab = document.getElementById('tab-upload');
+            if (uploadTab) uploadTab.querySelectorAll('input, select, button').forEach(el => { el.disabled = false; });
+
+            // If in revision state, enable all form fields for editing
+            if (orderStatus === revisionState) {
+                this.enableAll();
+            }
+
+            // Always show save button in these states
+            if (this.saveBtn) {
+                this.saveBtn.disabled = false;
+                this.saveBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Apply the specific status options for the dropdown
         if (allowedStatuses.length > 0) {
             this.applyStatusPermissions(allowedStatuses);
         }
 
-        // Force active tab to be the image tab, replicating legacy code behavior
-        const contactTabButton = document.querySelector('button[data-bs-target="#tab-contact"]');
-        const homeTabButton = document.querySelector('button[data-bs-target="#tab-home"]');
-        const contactTabPane = document.getElementById('tab-contact');
-        const homeTabPane = document.getElementById('tab-home');
-        if(contactTabButton && homeTabButton && contactTabPane && homeTabPane){
-            homeTabButton.classList.remove('active');
-            homeTabPane.classList.remove('active', 'show');
-            contactTabButton.classList.add('active');
-            contactTabPane.classList.add('active', 'show');
-        }
+        const dropdownIdsToHide = ['jobType', 'channel', 'processType', 'carProvince', 'carBrand', 'carModel', 'insuranceCompany', 'insuranceBranch', 'responsiblePerson'];
+        dropdownIdsToHide.forEach(id => {
+            const el = document.getElementById(id);
+            const container = el ? el.closest('.mb-3') : null;
+            if (container) container.style.display = 'none';
+        });
     }
 }
 
