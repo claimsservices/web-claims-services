@@ -210,6 +210,26 @@
     }
   }
 
+  async function updateStatus(orderId, newStatus) {
+      const token = localStorage.getItem('authToken') || '';
+      try {
+          const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', 'Authorization': token },
+              body: JSON.stringify({ order_status: newStatus })
+          });
+          if (!response.ok) {
+              const errData = await response.json();
+              throw new Error(errData.message || 'ไม่สามารถอัปเดตสถานะได้');
+          }
+          return true;
+      } catch (error) {
+          console.error('Status update error:', error);
+          alert(`เกิดข้อผิดพลาด: ${error.message}`);
+          return false;
+      }
+  }
+
   // =========================================================
   // PHOTO RENDERING LOGIC
   // =========================================================
@@ -366,8 +386,9 @@ class UIBikePermissionManager extends UIPermissionManager {
 
         const details = data?.order_details;
         const order = data?.order;
+        const orderId = order?.id;
 
-        if (!details || !order) {
+        if (!details || !order || !orderId) {
             cardBody.innerHTML = '<p class="text-center text-danger">ไม่สามารถโหลดข้อมูลได้</p>';
             return;
         }
@@ -396,15 +417,15 @@ class UIBikePermissionManager extends UIPermissionManager {
             `;
 
             document.getElementById('bike-accept-btn').addEventListener('click', async () => {
-                const success = await updateStatus('รับงาน');
+                const success = await updateStatus(orderId, 'รับงาน');
                 if (success) {
-                    alert('รับงานเรียบร้อยแล้ว! กำลังโหลดหน้าอัปโหลดรูปภาพ...');
+                    alert('รับงานเรียบร้อยแล้ว! กำลังเตรียมหน้าอัปโหลดรูปภาพ...');
                     window.location.reload();
                 }
             });
 
             document.getElementById('bike-reject-btn').addEventListener('click', async () => {
-                const success = await updateStatus('ปฏิเสธงาน');
+                const success = await updateStatus(orderId, 'ปฏิเสธงาน');
                 if (success) {
                     alert('ปฏิเสธงานเรียบร้อยแล้ว');
                     window.location.href = 'dashboard.html';
@@ -436,12 +457,12 @@ class UIBikePermissionManager extends UIPermissionManager {
                  <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
             `;
 
-            renderPhotoCategories(); // This function needs to be defined or moved
+            renderPhotoCategories();
 
             document.getElementById('bike-submit-work-btn').addEventListener('click', async () => {
                  const confirmSubmit = confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?');
                 if (confirmSubmit) {
-                    const success = await updateStatus('ส่งงาน/ตรวจสอบเบื้องต้น');
+                    const success = await updateStatus(orderId, 'ส่งงาน/ตรวจสอบเบื้องต้น');
                     if (success) {
                         alert('ส่งงานเรียบร้อยแล้ว');
                         window.location.href = 'dashboard.html';
