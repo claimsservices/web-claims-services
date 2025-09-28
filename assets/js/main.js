@@ -4,6 +4,38 @@
 
 'use strict';
 
+// Simple logging utility to avoid build issues
+const log = {
+  info: function() { console.info.apply(console, arguments); },
+  warn: function() { console.warn.apply(console, arguments); },
+  error: function() { console.error.apply(console, arguments); },
+  // Add other console methods as needed
+};
+
+// Set log level based on environment (e.g., development, production)
+// In a real application, you might get this from a config file or environment variable
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  // Development mode: show info, warnings, and errors
+  log.level = 'info';
+} else {
+  // Production mode: only show warnings and errors
+  log.level = 'warn';
+}
+
+// Override console methods based on log level
+for (const level in log) {
+  if (typeof console[level] === 'function' && log.hasOwnProperty(level)) {
+    const originalMethod = console[level];
+    console[level] = function() {
+      if (log.level === 'info' || (log.level === 'warn' && (level === 'warn' || level === 'error')) || (log.level === 'error' && level === 'error')) {
+        originalMethod.apply(console, arguments);
+      }
+    };
+  }
+}
+
+log.info('Frontend application started with simple logger.');
+
 let menu, animate;
 
 (function () {

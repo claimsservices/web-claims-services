@@ -4,7 +4,7 @@
 
   const accessToken = localStorage.getItem('authToken');
   const RETURN_LOGIN_PAGE = '../index.html';
-  const API_BASE_URL = 'https://be-claims-service.onrender.com';
+  const API_BASE_URL = 'https://be-claims-service.onrender.com'; // สำหรับ Production/Deployed. หากต้องการใช้ Local ให้เปลี่ยนเป็น 'http://localhost:8181'
   const LOGIN_PAGE = '../index.html';
   const API_URL = `${API_BASE_URL}/api/auth/profile`;
 

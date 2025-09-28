@@ -125,7 +125,7 @@ fetch('/version.json')
   });
 
 // API and constants
-const API_BASE_URL = 'https://be-claims-service.onrender.com';
+const API_BASE_URL = 'https://be-claims-service.onrender.com'; // สำหรับ Production/Deployed. หากต้องการใช้ Local ให้เปลี่ยนเป็น 'http://localhost:8181'
 const ORDER_STATUS_API_URL = `${API_BASE_URL}/api/order-status/inquiry`;
 
 // User profile loading
@@ -247,12 +247,12 @@ function renderTableData(page) {
 
     let rowContent = `
       <td><a href="task-detail.html?id=${item.id}" class="text-primary" target="_blank" rel="noopener noreferrer">${item.id}</a></td>
-      <td>${item.insur_comp || ''}</td>
     `;
 
     const userRole = getUserRole();
     if (userRole === 'Insurance') {
       rowContent += `
+        <td>${item.insur_comp || ''}</td>
         <td>${item.appointment_date || ''}</td>
         <td>${item.car_registration || ''}</td>
         <td>${item.location || ''}</td>
@@ -267,8 +267,9 @@ function renderTableData(page) {
         <td>${amountToDisplay}</td>
         <td>${item.owner_full_name || ''}</td>
       `;
-    } else {
+    } else { // Default for other roles
       rowContent += `
+        <td>${item.insur_comp || ''}</td>
         <td>${item.order_date || ''}</td>
         <td>${item.appointment_date || ''}</td>
         <td>${item.car_registration || ''}</td>

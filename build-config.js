@@ -7,7 +7,6 @@ module.exports = {
       'html-demo',
       'dist',
       'build',
-      'assets',
       'tasks',
       'node_modules',
       '_temp',
