@@ -125,7 +125,7 @@ fetch('/version.json')
   });
 
 // API and constants
-const API_BASE_URL = 'http://localhost:8181';
+const API_BASE_URL = 'https://be-claims-service.onrender.com';
 const ORDER_STATUS_API_URL = `${API_BASE_URL}/api/order-status/inquiry`;
 
 // User profile loading
