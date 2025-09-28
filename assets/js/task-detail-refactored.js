@@ -88,8 +88,8 @@
   async function loadOrderData(orderId) {
     const token = localStorage.getItem('authToken') || '';
     try {
-      const response = await fetch(`${API_BASE_URL}/api/order-detail/inquiry`, {
-        method: 'POST',
+                  console.log('Making API call to /order-detail/inquiry with method:', 'POST');
+                  const response = await fetch(`${API_BASE_URL}/api/order-detail/inquiry`, {        method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
         body: JSON.stringify({ order_id: orderId })
       });
