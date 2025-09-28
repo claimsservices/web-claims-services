@@ -204,23 +204,13 @@ async function fetchData(filter = {}) {
       return;
     }
 
-    const userRole = getUserRole();
-    let endpoint = `${API_BASE_URL}/api/orders/inquiry`;
-    let body = filter;
-
-    // If the user is a Bike, use the specific endpoint for them
-    if (userRole === 'Bike') {
-      endpoint = `${API_BASE_URL}/api/order-agent/inquiry`;
-      body = {}; // Agent endpoint doesn't need a filter body
-    }
-
-    const res = await fetch(endpoint, {
+    const res = await fetch(`${API_BASE_URL}/api/orders/inquiry`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': token // Use raw token for consistency
+        'Authorization': token
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(filter)
     });
 
     if (!res.ok) throw new Error('Fetch failed');
