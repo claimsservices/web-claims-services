@@ -125,7 +125,7 @@ fetch('/version.json')
   });
 
 // API and constants
-const API_BASE_URL = 'https://be-claims-service.onrender.com';
+const API_BASE_URL = 'http://localhost:8181';
 const ORDER_STATUS_API_URL = `${API_BASE_URL}/api/order-status/inquiry`;
 
 // User profile loading
@@ -204,13 +204,23 @@ async function fetchData(filter = {}) {
       return;
     }
 
-    const res = await fetch(`${API_BASE_URL}/api/orders/inquiry`, {
+    const userRole = getUserRole();
+    let endpoint = `${API_BASE_URL}/api/orders/inquiry`;
+    let body = filter;
+
+    // If the user is a Bike, use the specific endpoint for them
+    if (userRole === 'Bike') {
+      endpoint = `${API_BASE_URL}/api/order-agent/inquiry`;
+      body = {}; // Agent endpoint doesn't need a filter body
+    }
+
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': token
       },
-      body: JSON.stringify(filter)
+      body: JSON.stringify(body)
     });
 
     if (!res.ok) throw new Error('Fetch failed');
