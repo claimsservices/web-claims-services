@@ -181,6 +181,11 @@
         }
       }
 
+      // Render existing images if they exist
+      if (order_pic && order_pic.length > 0) {
+        renderUploadedImages(order_pic);
+      }
+
       // Pass the full result to apply restrictions
       applyRoleBasedRestrictions(result);
 
@@ -1017,13 +1022,50 @@ function applyRoleBasedRestrictions(data) {
   'documents': document.getElementById('other-documents-section')?.querySelector('.row'), 'signature':
   document.getElementById('signature-documents-section')?.querySelector('.row') }; imageFields.forEach(field => { const targetSection = sectionsMap[field.section];
    if (targetSection) targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field)); }); }
-  function renderUploadedImages(orderPics) { imageFields.forEach(field => { const inputElem = document.querySelector(`input[name="${field.name}"]`); if (inputElem) {
-   const label = inputElem.closest('label.image-gallery'); if (label) { const img = label.querySelector('img'); const title = label.querySelector('.title'); const
-  col = label.closest('.col-4'); if (img) { img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; img.alt = field.altText;
-  img.style.display = 'block'; } if (title) title.textContent = field.altText; if (col) col.style.display = 'block'; } } }); uploadedPicCache.clear(); for (const
-  pic of orderPics) { const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`); if (!inputElem) continue; const label =
-  inputElem.closest('label.image-gallery'); if (!label) continue; const img = label.querySelector('img'); const titleDiv = label.querySelector('.title'); const col
-   = label.closest('.col-4'); if (!img || !titleDiv || !col) continue; img.alt = pic.pic_title || 'uploaded image'; titleDiv.textContent = pic.pic_title ||
-  pic.pic_type; img.onload = () => { if (pic.pic.startsWith('blob:')) URL.revokeObjectURL(pic.pic); if (img.naturalWidth > 0) { col.style.display = 'block';
-  img.style.display = 'block'; } }; img.onerror = () => { img.style.display = 'none'; col.style.display = 'none'; }; if (pic.pic) { img.src = pic.pic + '?t=' + new
-   Date().getTime(); } else { continue; } uploadedPicCache.add(pic.pic_type); } }
+  function renderUploadedImages(orderPics) {
+    // Helper to create a download URL for Cloudinary
+    const createDownloadUrl = (cloudinaryUrl) => {
+        if (!cloudinaryUrl || !cloudinaryUrl.includes('/upload/')) {
+            return '#'; // Return a safe link if it's not a valid Cloudinary URL
+        }
+        return cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+    };
+
+    orderPics.forEach(pic => {
+        if (!pic.pic_title || !pic.pic) return;
+
+        const titleDivs = document.querySelectorAll('div.title');
+        let found = false;
+        titleDivs.forEach(div => {
+            const label = div.closest('label.image-gallery');
+            // Use flexible matching (.includes) and ensure the slot isn't already filled
+            if (!found && label && !label.hasAttribute('data-filled') && div.innerText.trim().includes(pic.pic_title.trim())) {
+                
+                label.setAttribute('data-filled', 'true'); // Mark as filled
+
+                const imgTag = label.querySelector('img');
+                const icon = label.querySelector('i');
+
+                if (imgTag) {
+                    imgTag.src = pic.pic;
+                    imgTag.style.display = 'block';
+                }
+                if (icon) {
+                    icon.style.display = 'none';
+                }
+
+                // Add a download button
+                const downloadUrl = createDownloadUrl(pic.pic);
+                const downloadBtn = document.createElement('a');
+                downloadBtn.href = downloadUrl;
+                downloadBtn.setAttribute('download', '');
+                downloadBtn.className = 'btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2';
+                downloadBtn.innerHTML = '<i class="bi bi-download"></i>';
+                downloadBtn.title = 'ดาวน์โหลดรูปภาพ';
+                label.appendChild(downloadBtn);
+
+                found = true; // Mark as found and move to the next picture
+            }
+        });
+    });
+}

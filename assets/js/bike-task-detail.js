@@ -13,15 +13,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Element Selectors ---
     const acceptView = document.getElementById('accept-view');
     const workingView = document.getElementById('working-view');
+    const imageUploadInput = document.getElementById('image-upload-input');
+    const imagePreviewModalEl = document.getElementById('imagePreviewModal');
+    const previewImage = document.getElementById('preview-image');
+    const replaceImageBtn = document.getElementById('replace-image-btn');
 
-    // Accept View Elements
-    const acceptClaimId = document.getElementById('accept-claim-id');
-    const acceptCustomerName = document.getElementById('accept-customer-name');
-    const acceptCustomerPhone = document.getElementById('accept-customer-phone');
-    const acceptLocation = document.getElementById('accept-location');
-    const acceptBtn = document.getElementById('accept-btn');
-    const rejectBtn = document.getElementById('reject-btn');
-    const callBtn1 = document.getElementById('call-btn-1');
+    // --- Modal Instance ---
+    const previewModal = new bootstrap.Modal(imagePreviewModalEl);
 
     // --- Get Order ID from URL ---
     const params = new URLSearchParams(window.location.search);
@@ -32,7 +30,10 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    // --- State Management ---
     let currentOrderData = null;
+    let uploadedImages = {}; // To store { 'title': 'url' }
+    let currentPhotoTitle = null; // To know which photo item is being uploaded/replaced
 
     // --- Main Function to Load Task Details ---
     async function loadTaskDetails() {
@@ -50,8 +51,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const result = await response.json();
             currentOrderData = result;
+            
+            if (result.order_pic && result.order_pic.length > 0) {
+                result.order_pic.forEach(pic => {
+                    uploadedImages[pic.pic_title] = pic.pic;
+                });
+            }
 
-            // Populate Accept View Details
             if (result.order) {
                 acceptClaimId.textContent = result.order.id;
                 acceptLocation.textContent = result.order.location;
@@ -61,17 +67,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 acceptCustomerPhone.textContent = result.order_details.tell_1;
             }
 
-            // Switch views based on status
             const status = result.order.order_status;
-            const workingStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน'];
-            const acceptStates = ['รับเรื่องแล้ว', 'แก้ไข'];
+            const workingStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน', 'แก้ไข'];
+            const acceptStates = ['รับเรื่องแล้ว'];
 
             if (acceptStates.includes(status)) {
                 showAcceptView();
             } else if (workingStates.includes(status)) {
                 showWorkingView();
             } else {
-                // For other statuses, just show details in a read-only like mode
                 showAcceptView();
                 acceptBtn.style.display = 'none';
                 rejectBtn.style.display = 'none';
@@ -84,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- View Switching Functions ---
+    // --- View Switching ---
     function showAcceptView() {
         acceptView.style.display = 'block';
         workingView.style.display = 'none';
@@ -96,28 +100,12 @@ document.addEventListener('DOMContentLoaded', function () {
         renderPhotoCategories();
     }
 
-    // --- Photo Rendering Logic ---
+    // --- Photo Rendering & Upload Logic ---
     const photoCategories = {
-        around: {
-            title: 'ภาพถ่ายรอบคัน',
-            containerId: 'around-car-pics',
-            items: ['ด้านหน้ารถ', 'ด้านซ้ายส่วนหน้า', 'ด้านซ้ายตรง', 'ด้านซ้ายส่วนหลัง', 'ด้านท้ายรถ', 'ด้านขวาส่วนหลัง', 'ด้านขวาตรง', 'ด้านขวาส่วนหน้า', 'หลังคา']
-        },
-        interior: {
-            title: 'ภาพถ่ายภายในรถและอุปกรณ์ตกแต่ง',
-            containerId: 'interior-pics',
-            items: ['ล้อรถ 4 ล้อ ด้านหน้าขวา', 'ล้อรถ 4 ล้อ ด้านหน้าซ้าย', 'ล้อรถ 4 ล้อ ด้านหลังขวา', 'ล้อรถ 4 ล้อ ด้านหลังซ้าย', 'ปียาง/ขนาดยาง', 'ห้องเครื่อง', 'วิทยุ', 'จอไมล์', 'กระจกมองหน้า', 'ฟิล์ม', 'กล้องหน้ารถ', 'แผงหน้าปัดหน้า', 'อื่นๆ']
-        },
-        damage: {
-            title: 'ภาพถ่ายความเสียหาย',
-            containerId: 'damage-pics',
-            items: ['ความเสียหาย 1', 'ความเสียหาย 2', 'ความเสียหาย 3', 'ความเสียหาย 4', 'ความเสียหาย 5', 'ความเสียหาย 6', 'ความเสียหาย 7', 'ความเสียหาย 8', 'ความเสียหาย 9', 'ความเสียหาย 10']
-        },
-        documents: {
-            title: 'เอกสาร',
-            containerId: 'document-pics',
-            items: ['ใบขับขี่', 'บัตรประชาชน', 'รายการจดทะเบียนรถ', 'เลขตัวถังหรือเลขคัสซี', 'ใบตรวจสภาพ', 'ลายเซ็น']
-        }
+        around: { title: 'ภาพถ่ายรอบคัน', containerId: 'around-car-pics', items: ['ด้านหน้ารถ', 'ด้านซ้ายส่วนหน้า', 'ด้านซ้ายตรง', 'ด้านซ้ายส่วนหลัง', 'ด้านท้ายรถ', 'ด้านขวาส่วนหลัง', 'ด้านขวาตรง', 'ด้านขวาส่วนหน้า', 'หลังคา'] },
+        interior: { title: 'ภาพถ่ายภายในรถและอุปกรณ์ตกแต่ง', containerId: 'interior-pics', items: ['ล้อรถ 4 ล้อ ด้านหน้าขวา', 'ล้อรถ 4 ล้อ ด้านหน้าซ้าย', 'ล้อรถ 4 ล้อ ด้านหลังขวา', 'ล้อรถ 4 ล้อ ด้านหลังซ้าย', 'ปียาง/ขนาดยาง', 'ห้องเครื่อง', 'วิทยุ', 'จอไมล์', 'กระจกมองหน้า', 'ฟิล์ม', 'กล้องหน้ารถ', 'แผงหน้าปัดหน้า', 'อื่นๆ'] },
+        damage: { title: 'ภาพถ่ายความเสียหาย', containerId: 'damage-pics', items: ['ความเสียหาย 1', 'ความเสียหาย 2', 'ความเสียหาย 3', 'ความเสียหาย 4', 'ความเสียหาย 5', 'ความเสียหาย 6', 'ความเสียหาย 7', 'ความเสียหาย 8', 'ความเสียหาย 9', 'ความเสียหาย 10'] },
+        documents: { title: 'เอกสาร', containerId: 'document-pics', items: ['ใบขับขี่', 'บัตรประชาชน', 'รายการจดทะเบียนรถ', 'เลขตัวถังหรือเลขคัสซี', 'ใบตรวจสภาพ', 'ลายเซ็น'] }
     };
 
     function renderPhotoCategories() {
@@ -125,20 +113,34 @@ document.addEventListener('DOMContentLoaded', function () {
             const category = photoCategories[categoryKey];
             const container = document.getElementById(category.containerId);
             if (container) {
-                container.innerHTML = ''; // Clear existing items
+                container.innerHTML = '';
                 category.items.forEach(itemText => {
                     const col = document.createElement('div');
                     col.className = 'col-6 col-md-4 mb-2';
                     
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'photo-item p-2';
-                    itemDiv.innerHTML = `<i class="bx bx-camera bx-sm d-block mb-1"></i><span>${itemText}</span>`;
+                    itemDiv.setAttribute('data-title', itemText);
+                    
+                    const imageUrl = uploadedImages[itemText];
+                    if (imageUrl) {
+                        itemDiv.innerHTML = `<i class="bx bx-check-circle bx-sm d-block mb-1 text-success"></i><span>${itemText}</span>`;
+                        itemDiv.style.borderColor = '#71dd37';
+                    } else {
+                        itemDiv.innerHTML = `<i class="bx bx-camera bx-sm d-block mb-1"></i><span>${itemText}</span>`;
+                    }
                     
                     itemDiv.addEventListener('click', () => {
-                        // Placeholder for taking a picture
-                        alert(`เปิดกล้องเพื่อถ่ายรูป: ${itemText}`);
-                        itemDiv.style.backgroundColor = '#e7f2ff';
-                        itemDiv.style.borderColor = '#03c3ec';
+                        currentPhotoTitle = itemText;
+                        const existingImageUrl = uploadedImages[itemText];
+                        if (existingImageUrl) {
+                            // If image exists, show preview modal
+                            previewImage.src = existingImageUrl;
+                            previewModal.show();
+                        } else {
+                            // If no image, trigger upload
+                            imageUploadInput.click();
+                        }
                     });
 
                     col.appendChild(itemDiv);
@@ -148,7 +150,49 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    async function handleImageUpload(event) {
+        const files = event.target.files;
+        if (!files.length || !currentPhotoTitle) return;
+
+        const formData = new FormData();
+        formData.append('images', files[0]); // Simplified to one file per click for clarity
+
+        const itemDiv = document.querySelector(`.photo-item[data-title="${currentPhotoTitle}"]`);
+        if(itemDiv) itemDiv.innerHTML = `<div class="spinner-border spinner-border-sm text-primary" role="status"></div><span>Uploading...</span>`;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/image/transactions`, {
+                method: 'POST',
+                headers: { 'Authorization': token },
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Image upload failed');
+
+            const result = await response.json();
+            if (result.uploaded && result.uploaded.length > 0) {
+                uploadedImages[currentPhotoTitle] = result.uploaded[0].url;
+                renderPhotoCategories(); // Re-render to update the UI with a checkmark
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ');
+            renderPhotoCategories(); // Re-render to revert UI on failure
+        } finally {
+            imageUploadInput.value = '';
+            currentPhotoTitle = null;
+        }
+    }
+
     // --- Event Listeners ---
+    replaceImageBtn.addEventListener('click', () => {
+        previewModal.hide();
+        // currentPhotoTitle is already set from the item click
+        if (currentPhotoTitle) {
+            imageUploadInput.click();
+        }
+    });
+
     async function updateStatus(newStatus) {
         try {
             const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
@@ -194,19 +238,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const saveWorkBtn = document.getElementById('save-work-btn');
     if (saveWorkBtn) {
-        saveWorkBtn.addEventListener('click', async () => {
+        saveWorkBtn.addEventListener('click', () => {
             const confirmSubmit = confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?');
             if (confirmSubmit) {
-                // Note: The backend will automatically change this to 'รออนุมัติ'
-                const success = await updateStatus('ส่งงาน/ตรวจสอบเบื้องต้น');
-                if (success) {
-                    alert('ส่งงานเรียบร้อยแล้ว');
-                    window.location.href = DASHBOARD_PAGE;
-                }
+                submitWork();
             }
         });
     }
 
-    // --- Initial Load ---
+    async function submitWork() {
+        const picArray = Object.keys(uploadedImages).map(title => ({
+            pic: uploadedImages[title],
+            pic_type: 'image',
+            pic_title: title
+        }));
+
+        const body = {
+            order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
+            order_pic: picArray
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/order-pic/update/${orderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.message || 'ไม่สามารถส่งงานได้');
+            }
+            
+            alert('ส่งงานเรียบร้อยแล้ว');
+            window.location.href = DASHBOARD_PAGE;
+
+        } catch (error) {
+            console.error('Submit work error:', error);
+            alert(`เกิดข้อผิดพลาดในการส่งงาน: ${error.message}`);
+        }
+    }
+
+    // --- Initial Load & Event Binding ---
+    imageUploadInput.addEventListener('change', handleImageUpload);
     loadTaskDetails();
 });
