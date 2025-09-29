@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         const existingImageUrl = uploadedImages[itemText];
                         if (existingImageUrl) {
                             // If image exists, show preview modal
+                            document.getElementById('imagePreviewModalLabel').textContent = `ดูรูปภาพ: ${currentPhotoTitle}`;
                             previewImage.src = existingImageUrl;
                             previewModal.show();
                         } else {
