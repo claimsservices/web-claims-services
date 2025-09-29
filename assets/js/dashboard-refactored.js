@@ -209,12 +209,6 @@ async function fetchData(filter = {}) {
     let endpoint = `${API_BASE_URL}/api/orders/inquiry`;
     let body = filter;
 
-    // If the user is a Bike, use the specific endpoint for them
-    if (userRole === 'Bike') {
-      endpoint = `${API_BASE_URL}/api/order-agent/inquiry`;
-      body = {}; // Agent endpoint doesn't need a filter body
-    }
-
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -261,6 +255,7 @@ function renderTableData(page) {
       `;
     } else if (userRole === 'Bike') {
       rowContent += `
+        <td>${item.insur_comp || ''}</td>
         <td>${item.appointment_date || ''}</td>
         <td>${item.car_registration || ''}</td>
         <td>${item.location || ''}</td>
