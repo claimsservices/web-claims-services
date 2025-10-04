@@ -458,6 +458,34 @@ class UIBikePermissionManager extends UIPermissionManager {
                 }
             });
 
+            // --- Direct listener for Bike role image clicks ---
+            const imagePreviewModalEl = document.getElementById('imagePreviewModal');
+            const imagePreviewModal = imagePreviewModalEl ? bootstrap.Modal.getInstance(imagePreviewModalEl) || new bootstrap.Modal(imagePreviewModalEl) : null;
+            const previewImage = document.getElementById('previewImage');
+
+            cardBody.querySelectorAll('label.image-gallery').forEach(label => {
+                label.addEventListener('click', e => {
+                    if (e.target.closest('.delete-btn') || e.target.closest('.edit-title-btn')) {
+                        return; // Let the global listener handle these buttons
+                    }
+                    e.preventDefault();
+
+                    const img = label.querySelector('img');
+                    const fileInput = label.querySelector('input[type="file"]');
+
+                    if (img && img.src && !img.src.includes('data:image/gif') && fileInput) {
+                         const fieldName = fileInput.name;
+                         const field = imageFields.find(f => f.name === fieldName);
+                         if (field && imagePreviewModal) {
+                             // The global `context` variable is used by the modal's replace button
+                             context = { field: field, imgElement: img, labelElement: label };
+                             previewImage.src = img.src;
+                             imagePreviewModal.show();
+                         }
+                    }
+                });
+            });
+
         } else {
             // Default read-only view for other statuses
             cardBody.innerHTML = `
