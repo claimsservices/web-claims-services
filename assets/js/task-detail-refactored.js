@@ -239,45 +239,7 @@
   // =========================================================
   // PHOTO RENDERING LOGIC
   // =========================================================
-    const photoCategories = {
-        around: {
-            title: 'ภาพถ่ายรอบคัน',
-            containerId: 'around-car-pics',
-            items: ['ด้านหน้ารถ', 'ด้านซ้ายส่วนหน้า', 'ด้านซ้ายตรง', 'ด้านซ้ายส่วนหลัง', 'ด้านท้ายรถ', 'ด้านขวาส่วนหลัง', 'ด้านขวาตรง', 'ด้านขวาส่วนหน้า', 'หลังคา']
-        },
-        interior: {
-            title: 'ภาพถ่ายภายในรถและอุปกรณ์ตกแต่ง',
-            containerId: 'interior-pics',
-            items: ['ล้อรถ 4 ล้อ ด้านหน้าขวา', 'ล้อรถ 4 ล้อ ด้านหน้าซ้าย', 'ล้อรถ 4 ล้อ ด้านหลังขวา', 'ล้อรถ 4 ล้อ ด้านหลังซ้าย', 'ปียาง/ขนาดยาง', 'ห้องเครื่อง', 'วิทยุ', 'จอไมล์', 'กระจกมองหน้า', 'ฟิล์ม', 'กล้องหน้ารถ', 'แผงหน้าปัดหน้า', 'อื่นๆ']
-        },
-        damage: {
-            title: 'ภาพถ่ายความเสียหาย',
-            containerId: 'damage-pics',
-            items: ['ความเสียหาย 1', 'ความเสียหาย 2', 'ความเสียหาย 3', 'ความเสียหาย 4', 'ความเสียหาย 5', 'ความเสียหาย 6', 'ความเสียหาย 7', 'ความเสียหาย 8', 'ความเสียหาย 9', 'ความเสียหาย 10']
-        },
-        documents: {
-            title: 'เอกสาร',
-            containerId: 'document-pics',
-            items: ['ใบขับขี่', 'บัตรประชาชน', 'รายการจดทะเบียนรถ', 'เลขตัวถังหรือเลขคัสซี', 'ใบตรวจสภาพ', 'ลายเซ็น']
-        }
-    };
 
-    function checkAllPhotosTaken() {
-        const allPhotoItems = document.querySelectorAll('.photo-item');
-        if (allPhotoItems.length === 0) return;
-
-        let allTaken = true;
-        allPhotoItems.forEach(item => {
-            if (item.dataset.taken !== 'true') {
-                allTaken = false;
-            }
-        });
-
-        const submitBtn = document.getElementById('bike-submit-work-btn');
-        if (submitBtn) {
-            submitBtn.disabled = !allTaken;
-        }
-    }
 
 
 
@@ -359,20 +321,14 @@ class UIBikePermissionManager extends UIPermissionManager {
         const cardBody = document.querySelector('.card-body');
         if (!cardBody) return;
 
-        const details = data?.order_details;
         const order = data?.order;
         const orderId = order?.id;
-
-        if (!details || !order || !orderId) {
-            cardBody.innerHTML = '<p class="text-center text-danger">ไม่สามารถโหลดข้อมูลได้</p>';
-            return;
-        }
 
         const acceptStates = ['รับเรื่องแล้ว'];
         const workingStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน', 'แก้ไข'];
 
         if (acceptStates.includes(orderStatus)) {
-            // State 1: Show Accept/Reject buttons
+            // This state has a simple, unique UI - it can remain as is.
             let buttonsHTML = `
                 <div class="mt-4 d-grid gap-2 d-md-flex">
                     <button class="btn btn-danger me-md-2" id="bike-reject-btn">ปฏิเสธงาน</button>
@@ -383,8 +339,8 @@ class UIBikePermissionManager extends UIPermissionManager {
                 <div class="py-3 px-4 mb-4 rounded bg-white border">
                     <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
                     <p><strong>รหัสงาน:</strong> ${order.id || '-'}</p>
-                    <p><strong>ชื่อผู้เอาประกัน:</strong> ${details.c_insure || '-'}</p>
-                    <p><strong>เบอร์โทรศัพท์:</strong> ${details.c_tell || '-'}</p>
+                    <p><strong>ชื่อผู้เอาประกัน:</strong> ${data.order_details?.c_insure || '-'}</p>
+                    <p><strong>เบอร์โทรศัพท์:</strong> ${data.order_details?.c_tell || '-'}</p>
                     <p><strong>ทะเบียนรถ:</strong> ${order.car_registration || '-'}</p>
                 </div>
                 ${buttonsHTML}
@@ -394,7 +350,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             document.getElementById('bike-accept-btn').addEventListener('click', async () => {
                 const success = await updateStatus(orderId, 'รับงาน');
                 if (success) {
-                    alert('รับงานเรียบร้อยแล้ว! กำลังเตรียมหน้าอัปโหลดรูปภาพ...');
+                    alert('รับงานเรียบร้อยแล้ว! กำลังโหลดหน้าอัปโหลดรูปภาพ...');
                     window.location.reload();
                 }
             });
@@ -408,138 +364,103 @@ class UIBikePermissionManager extends UIPermissionManager {
             });
 
         } else if (workingStates.includes(orderStatus)) {
-            // State 2: Use the standard, robust image upload UI
-            cardBody.innerHTML = `
-                <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
-                    <section class="upload-section mb-4" id="around-images-section">
-                      <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
-                      <div class="row"></div>
-                    </section>
-                    <section class="upload-section mb-4" id="accessories-images-section">
-                      <h5><i class="bi bi-speedometer2 text-primary me-2"></i>ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง</h5>
-                      <div class="row"></div>
-                    </section>
-                    <section class="upload-section mb-4" id="inspection-images-section">
-                      <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
-                      <div class="row"></div>
-                    </section>
-                    <section class="upload-section mb-4" id="fiber-documents-section">
-                      <h5><i class="bi bi-file-earmark-check-fill text-success me-2"></i>เอกสารใบตรวจสภาพรถ</h5>
-                      <div class="row"></div>
-                    </section>
-                    <section class="upload-section mb-4" id="other-documents-section">
-                      <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารอื่นๆ</h5>
-                      <div class="row"></div>
-                    </section>
-                    <section class="upload-section mb-4" id="signature-documents-section">
-                      <h5><i class="bi bi-pen-fill text-info me-2"></i>ลายเซ็น</h5>
-                      <div class="row"></div>
-                    </section>
-                </div>
-                <div class="mt-4">
-                    <button class="btn btn-primary w-100" id="bike-submit-work-btn">ส่งงาน</button>
-                </div>
-                 <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
+            // --- UNIFIED UI LOGIC ---
+            // 1. Enable all form fields, just like an Admin
+            this.enableAll();
+
+            // 2. Hide the default Admin save button
+            if (this.saveBtn) {
+                this.saveBtn.style.display = 'none';
+            }
+
+            // 3. Create and inject the Bike-specific buttons
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'mt-4 d-grid gap-2 d-md-flex justify-content-md-end';
+            buttonContainer.innerHTML = `
+                <button class="btn btn-primary" id="bike-save-btn">บันทึกข้อมูล</button>
+                <button class="btn btn-success" id="bike-submit-work-btn">ส่งงาน</button>
             `;
+            const homeTabPane = document.getElementById('tab-home');
+            if (homeTabPane) {
+                // Find the existing button container and append to it, or append to the pane itself
+                const existingButtonRow = homeTabPane.querySelector('.row.mt-4');
+                if(existingButtonRow) {
+                    existingButtonRow.innerHTML = ''; // Clear it
+                    existingButtonRow.appendChild(buttonContainer);
+                } else {
+                    homeTabPane.appendChild(buttonContainer);
+                }
+            }
 
-            // Call the global, working functions
-            populateImageSections();
-            renderUploadedImages(data.order_pic || []);
+            // 4. Attach listeners to the new buttons
+            const created_by = document.getElementById('user-info').innerText;
 
-            // Re-attach listener for the submit button
-            document.getElementById('bike-submit-work-btn').addEventListener('click', async () => {
-                const confirmSubmit = confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?');
-                if (confirmSubmit) {
-                    // Gather image URLs before submitting
-                    const orderPic = [];
-                    const created_by = document.getElementById('user-info').innerText;
-                    document.querySelectorAll('.upload-section img').forEach(img => {
-                        if (!img.src || img.src.includes('data:image/gif')) return;
-                        const input = img.closest('label')?.querySelector('input[type="file"]');
-                        const picType = input?.name || 'unknown';
-                        const title = img.closest('label')?.querySelector('.title')?.innerText || '';
-                        orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
+            const gatherImageData = () => {
+                const orderPic = [];
+                document.querySelectorAll('.upload-section img').forEach(img => {
+                    if (!img.src || img.src.includes('data:image/gif')) return;
+                    const input = img.closest('label')?.querySelector('input[type="file"]');
+                    const picType = input?.name || 'unknown';
+                    const title = img.closest('label')?.querySelector('.title')?.innerText || '';
+                    orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
+                });
+                return orderPic;
+            };
+
+            const callUpdateApi = async (payload) => {
+                try {
+                    const token = localStorage.getItem('authToken') || '';
+                    const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                        body: JSON.stringify(payload)
                     });
-
-                    // Create the data payload
-                    const data = {
-                        order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
-                        order_pic: orderPic,
-                        updated_by: created_by,
-                        order_hist: [{ icon: "📝", task: "ส่งงาน", detail: `ส่งงานโดยผู้ใช้: ${created_by}`, created_by }]
-                    };
-
-                    // Call the API directly instead of using updateStatus to include the payload
-                    try {
-                        const token = localStorage.getItem('authToken') || '';
-                        const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                            body: JSON.stringify(data)
-                        });
-
-                        if (response.ok) {
-                            alert('ส่งงานเรียบร้อยแล้ว');
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            const errData = await response.json();
-                            throw new Error(errData.message || 'ไม่สามารถส่งงานได้');
-                        }
-                    } catch (error) {
-                        console.error('Submit work error:', error);
-                        alert(`เกิดข้อผิดพลาด: ${error.message}`);
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.message || 'API Error');
                     }
+                    return true;
+                } catch (error) {
+                    console.error('Update API error:', error);
+                    alert(`เกิดข้อผิดพลาด: ${error.message}`);
+                    return false;
+                }
+            };
+
+            // --- Listener for SAVE button ---
+            document.getElementById('bike-save-btn').addEventListener('click', async () => {
+                const saveData = {
+                    order_pic: gatherImageData(),
+                    updated_by: created_by,
+                    order_hist: [{ icon: "💾", task: "บันทึกรูปภาพ", detail: `บันทึกโดย: ${created_by}`, created_by }]
+                };
+                const success = await callUpdateApi(saveData);
+                if (success) {
+                    alert('✅ บันทึกข้อมูลรูปภาพเรียบร้อยแล้ว');
                 }
             });
 
-            // --- Direct listener for Bike role image clicks ---
-            const imagePreviewModalEl = document.getElementById('imagePreviewModal');
-            const imagePreviewModal = imagePreviewModalEl ? bootstrap.Modal.getInstance(imagePreviewModalEl) || new bootstrap.Modal(imagePreviewModalEl) : null;
-            const previewImage = document.getElementById('previewImage');
+            // --- Listener for SUBMIT button ---
+            document.getElementById('bike-submit-work-btn').addEventListener('click', async () => {
+                if (!confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?')) return;
+                
+                const submitData = {
+                    order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
+                    order_pic: gatherImageData(),
+                    updated_by: created_by,
+                    order_hist: [{ icon: "📝", task: "ส่งงาน", detail: `ส่งงานโดยผู้ใช้: ${created_by}`, created_by }]
+                };
 
-            cardBody.querySelectorAll('label.image-gallery').forEach(label => {
-                label.addEventListener('click', e => {
-                    // Let the global listener handle delete/edit buttons, which are not part of this special case
-                    if (e.target.closest('.delete-btn') || e.target.closest('.edit-title-btn')) {
-                        return;
-                    }
-
-                    const img = label.querySelector('img');
-                    const isPlaceholder = !img || !img.src || img.src.includes('data:image/gif');
-
-                    if (isPlaceholder) {
-                        // It's an empty slot. Let the default action proceed to trigger the file input.
-                        return;
-                    } else {
-                        // It's an existing image. Prevent default and show the modal.
-                        e.preventDefault();
-                        const fileInput = label.querySelector('input[type="file"]');
-                        if (!fileInput) return;
-
-                        const fieldName = fileInput.name;
-                        const field = imageFields.find(f => f.name === fieldName);
-                        if (field && imagePreviewModal) {
-                            context = { field: field, imgElement: img, labelElement: label };
-                            previewImage.src = img.src;
-                            imagePreviewModal.show();
-                        }
-                    }
-                });
+                const success = await callUpdateApi(submitData);
+                if (success) {
+                    alert('ส่งงานเรียบร้อยแล้ว');
+                    window.location.href = 'dashboard.html';
+                }
             });
 
-
-
         } else {
-            // Default read-only view for other statuses
-            cardBody.innerHTML = `
-            <div class="py-3 px-4 mb-4 rounded bg-white border">
-                <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
-                <p><strong>รหัสงาน:</strong> ${order.id || '-'}</p>
-                <p><strong>สถานะ:</strong> ${order.order_status || '-'}</p>
-                <p><strong>ชื่อผู้เอาประกัน:</strong> ${details.c_insure || '-'}</p>
-            </div>
-            <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
-        `;
+            // Default read-only view
+            this.setReadOnlyAll();
         }
     }
 }
