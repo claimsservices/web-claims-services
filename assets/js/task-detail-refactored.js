@@ -550,6 +550,16 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         if (allowedStatuses.length > 0) {
             this.applyStatusPermissions(allowedStatuses);
         }
+
+        // Hide empty image slots for Insurance role
+        document.querySelectorAll('.image-gallery').forEach(label => {
+            if (!label.hasAttribute('data-filled')) {
+                const parentColDiv = label.closest('.col-4.mb-3.text-center');
+                if (parentColDiv) {
+                    parentColDiv.style.display = 'none';
+                }
+            }
+        });
     }
 }
 
@@ -624,7 +634,7 @@ function applyRoleBasedRestrictions(data) {
         if (imageElements.length === 0) { alert('ไม่มีภาพให้ดาวน์โหลด'); return; }
         await Promise.all(
           imageElements.map(async (img, i) => {
-            const url = img.src;
+            const url = createDownloadUrl(img.src); // Use the download URL
             const label = img.closest('label');
             const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
             const safeName = title.replace(/[^\wก-๙\s-]/g, '').replace(/\s+/g, '_');
@@ -1002,8 +1012,7 @@ function applyRoleBasedRestrictions(data) {
           const labelText = labels[i] || `Item ${i + 1}`;
           const idRenderValue = idRender[i] || selected;
           const isUploaded = uploadedPicCache.has(idRenderValue);
-          const fileInputHTML = isUploaded ? `<div class="text-danger small">📁 ไฟล์อัปโหลดแล้ว</div>` : `<input type="file" class="form-control" id="${fileInputId}"
-  accept="image/*" />`;
+          const fileInputHTML = isUploaded ? `<div class="text-danger small">📁 ไฟล์อัปโหลดแล้ว</div>` : `<input type="file" class="form-control" id="${fileInputId}" accept="image/*" capture="camera" />`;
           group.innerHTML = `
             <label class="form-label d-block mb-1">${labelText}</label>
             <div class="row g-2 align-items-center">
@@ -1154,6 +1163,7 @@ function applyRoleBasedRestrictions(data) {
     fileInput.id = fileInputId; // Assign the unique ID
     fileInput.hidden = true;
     fileInput.accept = 'image/*';
+    fileInput.setAttribute('capture', 'camera'); // Add capture attribute
 
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
@@ -1277,6 +1287,7 @@ function applyRoleBasedRestrictions(data) {
                 if (icon) {
                     icon.style.display = 'none';
                 }
+
 
                 // Add a download button
                 const downloadUrl = createDownloadUrl(pic.pic);
