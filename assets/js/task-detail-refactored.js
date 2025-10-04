@@ -806,64 +806,90 @@ function applyRoleBasedRestrictions(data) {
       }
     });
 
-    const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
-    const previewImage = document.getElementById('previewImage');
-    let currentInputToReplace = null;
-    
-    const replaceBtn = document.getElementById('replace-image-btn');
-    if (replaceBtn && !replaceBtn.hasAttribute('data-listener-set')) {
-        replaceBtn.addEventListener('click', () => {
-            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('imagePreviewModal'));
-            if (modalInstance) modalInstance.hide();
-            if (currentInputToReplace) currentInputToReplace.click();
-        });
-        replaceBtn.setAttribute('data-listener-set', 'true');
-    }
 
-    document.addEventListener('click', function(e) {
-      const label = e.target.closest('label.image-gallery');
-      if (label && !e.target.closest('.delete-btn') && !e.target.closest('.edit-title-btn')) {
-        e.preventDefault();
-        const img = label.querySelector('img');
-        if (img && img.src && !img.src.includes('data:image/gif')) {
-          previewImage.src = img.src;
-          currentInputToReplace = label.querySelector('input[type="file"]');
-          imagePreviewModal.show();
+    // --- Start of Image Preview and Replace Logic ---
+    const imagePreviewModalEl = document.getElementById('imagePreviewModal');
+    if (imagePreviewModalEl) {
+        const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
+        const previewImage = document.getElementById('previewImage');
+        const replaceBtn = document.getElementById('replace-image-btn');
+        let currentInputToReplace = null;
+
+        // Listener for the "Replace Image" button in the modal
+        if (replaceBtn && !replaceBtn.hasAttribute('data-listener-set')) {
+            replaceBtn.addEventListener('click', () => {
+                const modalInstance = bootstrap.Modal.getInstance(imagePreviewModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+                if (currentInputToReplace) {
+                    currentInputToReplace.click(); // Trigger file input
+                }
+            });
+            replaceBtn.setAttribute('data-listener-set', 'true');
         }
-      }
-      const btn = e.target.closest('.delete-btn');
-      if (btn) {
-        e.stopPropagation();
-        if (!window.confirm('คุณต้องการลบภาพนี้หรือไม่?')) return;
-        const label = btn.closest('label.image-gallery');
-        if (!label) return;
-        const input = label.querySelector('input[type="file"]');
-        if(input) uploadedPicCache.delete(input.name);
-        if (input) input.value = '';
-        const img = label.querySelector('img');
-        if (img) {
-          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-          img.style.display = 'block';
-        }
-        const title = label.querySelector('.title');
-        if (title) {
-          const field = imageFields.find(f => f.name === input.name);
-          if(field) title.textContent = field.altText;
-        }
-      }
-      const editBtn = e.target.closest('.edit-title-btn');
-      if (editBtn) {
-        e.stopPropagation();
-        const label = editBtn.closest('label.image-gallery');
-        const titleDiv = label.querySelector('.title');
-        const currentTitle = titleDiv.textContent.trim();
-        const newTitle = prompt('แก้ไขชื่อภาพ:', currentTitle);
-        if (newTitle && newTitle.trim() !== '') {
-          titleDiv.textContent = newTitle.trim();
-          titleDiv.setAttribute('data-custom', 'true');
-        }
-      }
-    });
+
+        // Delegated listener for all image-related actions
+        document.addEventListener('click', function(e) {
+            const label = e.target.closest('label.image-gallery');
+
+            // Handle clicking on an image to open the preview modal
+            if (label && !e.target.closest('.delete-btn') && !e.target.closest('.edit-title-btn')) {
+                e.preventDefault();
+                const img = label.querySelector('img');
+                if (img && img.src && !img.src.includes('data:image/gif')) {
+                    previewImage.src = img.src;
+                    currentInputToReplace = label.querySelector('input[type="file"]');
+                    imagePreviewModal.show();
+                }
+            }
+
+            // Handle clicking the delete button
+            const deleteBtn = e.target.closest('.delete-btn');
+            if (deleteBtn) {
+                e.stopPropagation();
+                e.preventDefault(); // Prevent label from triggering file input
+                if (!window.confirm('คุณต้องการลบภาพนี้หรือไม่?')) return;
+                
+                const label = deleteBtn.closest('label.image-gallery');
+                if (!label) return;
+
+                const input = label.querySelector('input[type="file"]');
+                if (input) {
+                    uploadedPicCache.delete(input.name);
+                    input.value = '';
+                }
+
+                const img = label.querySelector('img');
+                if (img) {
+                    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                    img.style.display = 'block';
+                }
+
+                const title = label.querySelector('.title');
+                if (title) {
+                    const field = imageFields.find(f => f.name === input.name);
+                    if (field) title.textContent = field.altText;
+                }
+            }
+
+            // Handle clicking the edit title button
+            const editBtn = e.target.closest('.edit-title-btn');
+            if (editBtn) {
+                e.stopPropagation();
+                e.preventDefault(); // Prevent label from triggering file input
+                const label = editBtn.closest('label.image-gallery');
+                const titleDiv = label.querySelector('.title');
+                const currentTitle = titleDiv.textContent.trim();
+                const newTitle = prompt('แก้ไขชื่อภาพ:', currentTitle);
+                if (newTitle && newTitle.trim() !== '') {
+                    titleDiv.textContent = newTitle.trim();
+                    titleDiv.setAttribute('data-custom', 'true');
+                }
+            }
+        });
+    }
+    // --- End of Image Preview and Replace Logic ---
 
     const categorySelect = document.getElementById('categorySelect');
     if(categorySelect) {
@@ -1040,6 +1066,52 @@ function applyRoleBasedRestrictions(data) {
     fileInput.accept = 'image/*';
     fileInput.capture = 'environment';
     fileInput.hidden = true;
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const customName = titleDiv.textContent.trim();
+        const folderName = document.getElementById('taskId')?.value.trim() || 'default';
+        
+        const formData = new FormData();
+        formData.append('folder', folderName);
+        formData.append('category', field.section); // Use the section from the field object
+        formData.append('images', file, customName + '.' + file.name.split('.').pop());
+
+        // Show a simple loading state on the image
+        img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, { 
+                method: 'POST', 
+                body: formData 
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.uploaded && result.uploaded.length > 0) {
+                    // Update UI with the new image URL
+                    img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
+                    img.style.display = 'block';
+                    
+                    // Mark as filled
+                    label.setAttribute('data-filled', 'true');
+                    uploadedPicCache.add(fileInput.name);
+                } else {
+                    throw new Error('Upload response did not contain uploaded file information.');
+                }
+            } else {
+                const errorResult = await response.json();
+                throw new Error(errorResult.message || 'Upload failed');
+            }
+        } catch (err) {
+            console.error('Upload error:', err);
+            alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
+            // Restore placeholder on error
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        }
+    });
 
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
