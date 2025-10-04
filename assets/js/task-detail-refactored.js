@@ -527,41 +527,6 @@ class UIBikePermissionManager extends UIPermissionManager {
                 });
             });
 
-            // --- Direct listener for Bike role image clicks ---
-            const imagePreviewModalEl = document.getElementById('imagePreviewModal');
-            const imagePreviewModal = imagePreviewModalEl ? bootstrap.Modal.getInstance(imagePreviewModalEl) || new bootstrap.Modal(imagePreviewModalEl) : null;
-            const previewImage = document.getElementById('previewImage');
-
-            cardBody.querySelectorAll('label.image-gallery').forEach(label => {
-                label.addEventListener('click', e => {
-                    // Let the global listener handle delete/edit buttons, which are not part of this special case
-                    if (e.target.closest('.delete-btn') || e.target.closest('.edit-title-btn')) {
-                        return;
-                    }
-
-                    const img = label.querySelector('img');
-                    const isPlaceholder = !img || !img.src || img.src.includes('data:image/gif');
-
-                    if (isPlaceholder) {
-                        // It's an empty slot. Let the default action proceed to trigger the file input.
-                        return;
-                    } else {
-                        // It's an existing image. Prevent default and show the modal.
-                        e.preventDefault();
-                        const fileInput = label.querySelector('input[type="file"]');
-                        if (!fileInput) return;
-
-                        const fieldName = fileInput.name;
-                        const field = imageFields.find(f => f.name === fieldName);
-                        if (field && imagePreviewModal) {
-                            context = { field: field, imgElement: img, labelElement: label };
-                            previewImage.src = img.src;
-                            imagePreviewModal.show();
-                        }
-                    }
-                });
-            });
-
 
 
         } else {
