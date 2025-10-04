@@ -436,9 +436,8 @@ class UIBikePermissionManager extends UIPermissionManager {
                       <div class="row"></div>
                     </section>
                 </div>
-                <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button class="btn btn-primary" id="bike-save-btn">บันทึกข้อมูล</button>
-                    <button class="btn btn-success" id="bike-submit-work-btn">ส่งงาน</button>
+                <div class="mt-4">
+                    <button class="btn btn-primary w-100" id="bike-submit-work-btn">ส่งงาน</button>
                 </div>
                  <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
             `;
@@ -447,68 +446,49 @@ class UIBikePermissionManager extends UIPermissionManager {
             populateImageSections();
             renderUploadedImages(data.order_pic || []);
 
-            const created_by = document.getElementById('user-info').innerText;
-
-            const gatherImageData = () => {
-                const orderPic = [];
-                document.querySelectorAll('.upload-section img').forEach(img => {
-                    if (!img.src || img.src.includes('data:image/gif')) return;
-                    const input = img.closest('label')?.querySelector('input[type="file"]');
-                    const picType = input?.name || 'unknown';
-                    const title = img.closest('label')?.querySelector('.title')?.innerText || '';
-                    orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
-                });
-                return orderPic;
-            };
-
-            const callUpdateApi = async (payload) => {
-                try {
-                    const token = localStorage.getItem('authToken') || '';
-                    const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.message || 'API Error');
-                    }
-                    return true;
-                } catch (error) {
-                    console.error('Update API error:', error);
-                    alert(`เกิดข้อผิดพลาด: ${error.message}`);
-                    return false;
-                }
-            };
-
-            // --- Listener for SAVE button ---
-            document.getElementById('bike-save-btn').addEventListener('click', async () => {
-                const saveData = {
-                    order_pic: gatherImageData(),
-                    updated_by: created_by,
-                    order_hist: [{ icon: "💾", task: "บันทึกรูปภาพ", detail: `บันทึกโดย: ${created_by}`, created_by }]
-                };
-                const success = await callUpdateApi(saveData);
-                if (success) {
-                    alert('✅ บันทึกข้อมูลรูปภาพเรียบร้อยแล้ว');
-                }
-            });
-
-            // --- Listener for SUBMIT button ---
+            // Re-attach listener for the submit button
             document.getElementById('bike-submit-work-btn').addEventListener('click', async () => {
-                if (!confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?')) return;
-                
-                const submitData = {
-                    order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
-                    order_pic: gatherImageData(),
-                    updated_by: created_by,
-                    order_hist: [{ icon: "📝", task: "ส่งงาน", detail: `ส่งงานโดยผู้ใช้: ${created_by}`, created_by }]
-                };
+                const confirmSubmit = confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?');
+                if (confirmSubmit) {
+                    // Gather image URLs before submitting
+                    const orderPic = [];
+                    const created_by = document.getElementById('user-info').innerText;
+                    document.querySelectorAll('.upload-section img').forEach(img => {
+                        if (!img.src || img.src.includes('data:image/gif')) return;
+                        const input = img.closest('label')?.querySelector('input[type="file"]');
+                        const picType = input?.name || 'unknown';
+                        const title = img.closest('label')?.querySelector('.title')?.innerText || '';
+                        orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
+                    });
 
-                const success = await callUpdateApi(submitData);
-                if (success) {
-                    alert('ส่งงานเรียบร้อยแล้ว');
-                    window.location.href = 'dashboard.html';
+                    // Create the data payload
+                    const data = {
+                        order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
+                        order_pic: orderPic,
+                        updated_by: created_by,
+                        order_hist: [{ icon: "📝", task: "ส่งงาน", detail: `ส่งงานโดยผู้ใช้: ${created_by}`, created_by }]
+                    };
+
+                    // Call the API directly instead of using updateStatus to include the payload
+                    try {
+                        const token = localStorage.getItem('authToken') || '';
+                        const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                            body: JSON.stringify(data)
+                        });
+
+                        if (response.ok) {
+                            alert('ส่งงานเรียบร้อยแล้ว');
+                            window.location.href = 'dashboard.html';
+                        } else {
+                            const errData = await response.json();
+                            throw new Error(errData.message || 'ไม่สามารถส่งงานได้');
+                        }
+                    } catch (error) {
+                        console.error('Submit work error:', error);
+                        alert(`เกิดข้อผิดพลาด: ${error.message}`);
+                    }
                 }
             });
 
