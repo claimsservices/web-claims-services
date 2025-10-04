@@ -452,7 +452,7 @@ class UIBikePermissionManager extends UIPermissionManager {
                 if (confirmSubmit) {
                     // Gather image URLs before submitting
                     const orderPic = [];
-                    const created_by = document.getElementById('ownerName').value;
+                    const created_by = document.getElementById('user-info').innerText;
                     document.querySelectorAll('.upload-section img').forEach(img => {
                         if (!img.src || img.src.includes('data:image/gif')) return;
                         const input = img.closest('label')?.querySelector('input[type="file"]');
