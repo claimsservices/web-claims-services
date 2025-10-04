@@ -285,17 +285,7 @@
             return acc;
         }, {});
 
-        let currentInputToReplace = null;
 
-        const replaceBtn = document.getElementById('replace-image-btn');
-        if (replaceBtn && !replaceBtn.hasAttribute('data-listener-set')) {
-            replaceBtn.addEventListener('click', () => {
-                const imagePreviewModal = bootstrap.Modal.getInstance(document.getElementById('imagePreviewModal'));
-                if (imagePreviewModal) imagePreviewModal.hide();
-                if (currentInputToReplace) currentInputToReplace.click();
-            });
-            replaceBtn.setAttribute('data-listener-set', 'true');
-        }
 
         for (const categoryKey in photoCategories) {
             const category = photoCategories[categoryKey];
@@ -818,6 +808,18 @@ function applyRoleBasedRestrictions(data) {
 
     const imagePreviewModal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
     const previewImage = document.getElementById('previewImage');
+    let currentInputToReplace = null;
+    
+    const replaceBtn = document.getElementById('replace-image-btn');
+    if (replaceBtn && !replaceBtn.hasAttribute('data-listener-set')) {
+        replaceBtn.addEventListener('click', () => {
+            const modalInstance = bootstrap.Modal.getInstance(document.getElementById('imagePreviewModal'));
+            if (modalInstance) modalInstance.hide();
+            if (currentInputToReplace) currentInputToReplace.click();
+        });
+        replaceBtn.setAttribute('data-listener-set', 'true');
+    }
+
     document.addEventListener('click', function(e) {
       const label = e.target.closest('label.image-gallery');
       if (label && !e.target.closest('.delete-btn') && !e.target.closest('.edit-title-btn')) {
@@ -825,6 +827,7 @@ function applyRoleBasedRestrictions(data) {
         const img = label.querySelector('img');
         if (img && img.src && !img.src.includes('data:image/gif')) {
           previewImage.src = img.src;
+          currentInputToReplace = label.querySelector('input[type="file"]');
           imagePreviewModal.show();
         }
       }
