@@ -634,16 +634,32 @@ function applyRoleBasedRestrictions(data) {
         if (imageElements.length === 0) { alert('ไม่มีภาพให้ดาวน์โหลด'); return; }
         await Promise.all(
           imageElements.map(async (img, i) => {
-            const url = createDownloadUrl(img.src); // Use the download URL
+            const url = img.src;
             const label = img.closest('label');
             const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
-            const safeName = title.replace(/[^\wก-๙\s-]/g, '').replace(/\s+/g, '_');
+            const safeName = title.replace(/[\W_]+/g, '').replace(/\s+/g, '_'); // More robust safe name
+
+            if (!img.complete) {
+                console.warn(`Image not fully loaded, skipping: ${url}`);
+                return;
+            }
+
             try {
-              const response = await fetch(url);
-              if (!response.ok) throw new Error(`โหลดภาพไม่ได้: ${url}`);
-              const blob = await response.blob();
-              zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
-            } catch (err) { console.warn(`ข้ามภาพที่โหลดไม่ได้: ${url}`, err); }
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9)); // Use JPEG for smaller size
+                if (blob) {
+                    zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
+                } else {
+                    throw new Error('Failed to create blob from canvas.');
+                }
+            } catch (err) {
+                console.warn(`ข้ามภาพที่โหลดไม่ได้ (Canvas error): ${url}`, err);
+            }
           })
         );
         const zipBlob = await zip.generateAsync({ type: 'blob' });
