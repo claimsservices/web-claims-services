@@ -944,7 +944,12 @@ function applyRoleBasedRestrictions(data) {
               const progressWrapper = document.getElementById('uploadProgressWrapper');
               progressWrapper.classList.remove('d-none');
               try {
-                const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, { method: 'POST', body: formData });
+                const token = localStorage.getItem('authToken') || '';
+                const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, { 
+                    method: 'POST',
+                    headers: { 'Authorization': token },
+                    body: formData 
+                });
                 if (response.ok) {
                   const result = await response.json();
                   const inputElem = document.querySelector(`input[name="${idRenderValue}"]`);
@@ -1042,106 +1047,88 @@ function applyRoleBasedRestrictions(data) {
       { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
       { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' }
   ];
-  function renderImageUploadBlock(field) {
-    const colDiv = document.createElement('div');
-    colDiv.className = 'col-4 mb-3 text-center';
-
-    const label = document.createElement('label');
-    label.className = 'image-gallery w-100';
-    label.style.cssText = 'cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;';
-
-    const img = document.createElement('img');
-    img.alt = field.altText;
-    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-    img.style.cssText = 'width:100%; height:100%; object-fit: cover; display:block;';
-
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'title';
-    titleDiv.style.cssText = 'position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;';
-    titleDiv.textContent = field.altText;
-
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.name = field.name;
-    fileInput.accept = 'image/*';
-    fileInput.capture = 'environment';
-    fileInput.hidden = true;
-
-    fileInput.addEventListener('change', async () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-
-        const customName = titleDiv.textContent.trim();
-        const folderName = document.getElementById('taskId')?.value.trim() || 'default';
-        
-        const formData = new FormData();
-        formData.append('folder', folderName);
-        formData.append('category', field.section); // Use the section from the field object
-        formData.append('images', file, customName + '.' + file.name.split('.').pop());
-
-        // Show a simple loading state on the image
-        img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif';
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, { 
-                method: 'POST', 
-                body: formData 
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.uploaded && result.uploaded.length > 0) {
-                    // Update UI with the new image URL
-                    img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
-                    img.style.display = 'block';
-                    
-                    // Mark as filled
-                    label.setAttribute('data-filled', 'true');
-                    uploadedPicCache.add(fileInput.name);
-                } else {
-                    throw new Error('Upload response did not contain uploaded file information.');
-                }
-            } else {
-                const errorResult = await response.json();
-                throw new Error(errorResult.message || 'Upload failed');
-            }
-        } catch (err) {
-            console.error('Upload error:', err);
-            alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
-            // Restore placeholder on error
-            img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        }
-    });
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.type = 'button';
-    deleteBtn.className = 'delete-btn';
-    deleteBtn.title = 'ลบภาพ';
-    deleteBtn.style.cssText = 'position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;';
-    deleteBtn.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
-
-    const editBtn = document.createElement('button');
-    editBtn.type = 'button';
-    editBtn.className = 'edit-title-btn';
-    editBtn.title = 'แก้ไขชื่อภาพ';
-    editBtn.style.cssText = 'position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);';
-    editBtn.textContent = 'A';
-
-    label.appendChild(img);
-    label.appendChild(titleDiv);
-    label.appendChild(fileInput);
-    label.appendChild(deleteBtn);
-    label.appendChild(editBtn);
-    colDiv.appendChild(label);
-
-    return colDiv.outerHTML;
+  function renderImageUploadBlock(field, fileInputId) {
+    const html = `
+        <div class="col-4 mb-3 text-center">
+            <label class="image-gallery w-100" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${field.altText}" style="width:100%; height:100%; object-fit: cover; display:block;">
+                <div class="title" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
+                    ${field.altText}
+                </div>
+                <input type="file" id="${fileInputId}" name="${field.name}" hidden accept="image/*" capture="environment">
+                <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
+                <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">A</button>
+            </label>
+        </div>
+    `;
+    return html;
 }
-  function populateImageSections() { const sectionsMap = { 'around': document.getElementById('around-images-section')?.querySelector('.row'), 'accessories':
-  document.getElementById('accessories-images-section')?.querySelector('.row'), 'inspection':
-  document.getElementById('inspection-images-section')?.querySelector('.row'), 'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
-  'documents': document.getElementById('other-documents-section')?.querySelector('.row'), 'signature':
-  document.getElementById('signature-documents-section')?.querySelector('.row') }; imageFields.forEach(field => { const targetSection = sectionsMap[field.section];
-   if (targetSection) targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field)); }); }
+  function populateImageSections() {
+      const sectionsMap = {
+          'around': document.getElementById('around-images-section')?.querySelector('.row'),
+          'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+          'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+          'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+          'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+          'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+      };
+
+      imageFields.forEach(field => {
+          const targetSection = sectionsMap[field.section];
+          if (targetSection) {
+              const fileInputId = `file-input-${field.name}`;
+              targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field, fileInputId));
+              
+              const fileInput = document.getElementById(fileInputId);
+              if (fileInput) {
+                  fileInput.addEventListener('change', async () => {
+                      const file = fileInput.files[0];
+                      if (!file) return;
+
+                      const label = fileInput.closest('label');
+                      const img = label.querySelector('img');
+                      const titleDiv = label.querySelector('.title');
+                      const customName = titleDiv.textContent.trim();
+                      const folderName = document.getElementById('taskId')?.value.trim() || 'default';
+
+                      const formData = new FormData();
+                      formData.append('folder', folderName);
+                      formData.append('category', field.section);
+                      formData.append('images', file, customName + '.' + file.name.split('.').pop());
+
+                      img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif';
+
+                      try {
+                          const token = localStorage.getItem('authToken') || '';
+                          const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+                              method: 'POST',
+                              headers: { 'Authorization': token },
+                              body: formData
+                          });
+
+                          if (response.ok) {
+                              const result = await response.json();
+                              if (result.uploaded && result.uploaded.length > 0) {
+                                  img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
+                                  label.setAttribute('data-filled', 'true');
+                                  uploadedPicCache.add(fileInput.name);
+                              } else {
+                                  throw new Error('Upload response did not contain uploaded file information.');
+                              }
+                          } else {
+                              const errorResult = await response.json();
+                              throw new Error(errorResult.message || 'Upload failed');
+                          }
+                      } catch (err) {
+                          console.error('Upload error:', err);
+                          alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
+                          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                      }
+                  });
+              }
+          }
+      });
+  }
   function renderUploadedImages(orderPics) {
     // Helper to create a download URL for Cloudinary
     const createDownloadUrl = (cloudinaryUrl) => {
