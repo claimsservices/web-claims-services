@@ -364,35 +364,45 @@ class UIBikePermissionManager extends UIPermissionManager {
             });
 
         } else if (workingStates.includes(orderStatus)) {
-            // --- UNIFIED UI LOGIC ---
-            // 1. Enable all form fields, just like an Admin
-            this.enableAll();
-
-            // 2. Hide the default Admin save button
-            if (this.saveBtn) {
-                this.saveBtn.style.display = 'none';
-            }
-
-            // 3. Create and inject the Bike-specific buttons
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'mt-4 d-grid gap-2 d-md-flex justify-content-md-end';
-            buttonContainer.innerHTML = `
-                <button class="btn btn-primary" id="bike-save-btn">บันทึกข้อมูล</button>
-                <button class="btn btn-success" id="bike-submit-work-btn">ส่งงาน</button>
+            // State 2: Use the standard, robust image upload UI
+            cardBody.innerHTML = `
+                <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
+                    <section class="upload-section mb-4" id="around-images-section">
+                      <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
+                      <div class="row"></div>
+                    </section>
+                    <section class="upload-section mb-4" id="accessories-images-section">
+                      <h5><i class="bi bi-speedometer2 text-primary me-2"></i>ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง</h5>
+                      <div class="row"></div>
+                    </section>
+                    <section class="upload-section mb-4" id="inspection-images-section">
+                      <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
+                      <div class="row"></div>
+                    </section>
+                    <section class="upload-section mb-4" id="fiber-documents-section">
+                      <h5><i class="bi bi-file-earmark-check-fill text-success me-2"></i>เอกสารใบตรวจสภาพรถ</h5>
+                      <div class="row"></div>
+                    </section>
+                    <section class="upload-section mb-4" id="other-documents-section">
+                      <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารอื่นๆ</h5>
+                      <div class="row"></div>
+                    </section>
+                    <section class="upload-section mb-4" id="signature-documents-section">
+                      <h5><i class="bi bi-pen-fill text-info me-2"></i>ลายเซ็น</h5>
+                      <div class="row"></div>
+                    </section>
+                </div>
+                <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-primary" id="bike-save-btn">บันทึกข้อมูล</button>
+                    <button class="btn btn-success" id="bike-submit-work-btn">ส่งงาน</button>
+                </div>
+                 <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
             `;
-            const homeTabPane = document.getElementById('tab-home');
-            if (homeTabPane) {
-                // Find the existing button container and append to it, or append to the pane itself
-                const existingButtonRow = homeTabPane.querySelector('.row.mt-4');
-                if(existingButtonRow) {
-                    existingButtonRow.innerHTML = ''; // Clear it
-                    existingButtonRow.appendChild(buttonContainer);
-                } else {
-                    homeTabPane.appendChild(buttonContainer);
-                }
-            }
 
-            // 4. Attach listeners to the new buttons
+            // Call the global, working functions
+            populateImageSections();
+            renderUploadedImages(data.order_pic || []);
+
             const created_by = document.getElementById('user-info').innerText;
 
             const gatherImageData = () => {
@@ -410,7 +420,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             const callUpdateApi = async (payload) => {
                 try {
                     const token = localStorage.getItem('authToken') || '';
-                    const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
+                    const response = await fetch(`${API_BASE_URL}/api/order-pic/update/${orderId}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', 'Authorization': token },
                         body: JSON.stringify(payload)
@@ -430,6 +440,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             // --- Listener for SAVE button ---
             document.getElementById('bike-save-btn').addEventListener('click', async () => {
                 const saveData = {
+                    order_status: order.order_status, // Keep current status
                     order_pic: gatherImageData(),
                     updated_by: created_by,
                     order_hist: [{ icon: "💾", task: "บันทึกรูปภาพ", detail: `บันทึกโดย: ${created_by}`, created_by }]
