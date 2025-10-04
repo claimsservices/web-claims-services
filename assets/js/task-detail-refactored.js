@@ -634,31 +634,28 @@ function applyRoleBasedRestrictions(data) {
         if (imageElements.length === 0) { alert('ไม่มีภาพให้ดาวน์โหลด'); return; }
         await Promise.all(
           imageElements.map(async (img, i) => {
-            const url = img.src;
+            const originalImageUrl = img.src; // This is the Cloudinary URL
             const label = img.closest('label');
             const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
             const safeName = title.replace(/[\W_]+/g, '').replace(/\s+/g, '_'); // More robust safe name
 
-            if (!img.complete) {
-                console.warn(`Image not fully loaded, skipping: ${url}`);
-                return;
-            }
-
             try {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
+                const token = localStorage.getItem('authToken') || '';
+                const response = await fetch(`${API_BASE_URL}/api/upload/proxy-download`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({ imageUrl: originalImageUrl })
+                });
 
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9)); // Use JPEG for smaller size
-                if (blob) {
-                    zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
-                } else {
-                    throw new Error('Failed to create blob from canvas.');
-                }
+                if (!response.ok) throw new Error(`Failed to download image from proxy: ${response.statusText}`);
+
+                const blob = await response.blob();
+                zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
             } catch (err) {
-                console.warn(`ข้ามภาพที่โหลดไม่ได้ (Canvas error): ${url}`, err);
+                console.warn(`ข้ามภาพที่โหลดไม่ได้ (Proxy error): ${originalImageUrl}`, err);
             }
           })
         );
