@@ -33,6 +33,38 @@
     return el ? el.value : null;
   }
 
+  function hideFormFields(fieldIds) {
+    fieldIds.forEach(id => {
+      const fieldElement = document.getElementById(id);
+      if (fieldElement) {
+        // Find the closest parent div with class 'mb-3' or 'col-md-3' and hide it
+        let parentDiv = fieldElement.closest('.mb-3') || fieldElement.closest('.col-md-3');
+        if (parentDiv) {
+          parentDiv.style.display = 'none';
+        } else {
+          fieldElement.style.display = 'none'; // Fallback if no suitable parent found
+        }
+      }
+    });
+  }
+
+  function hideTabs(tabIds) {
+    tabIds.forEach(id => {
+      const tabElement = document.getElementById(id);
+      if (tabElement) {
+        tabElement.style.display = 'none';
+      }
+    });
+  }
+
+  function hideUserManagementMenu() {
+    const userRole = getUserRole();
+    const userManagementMenu = document.getElementById('user-management-menu');
+    if (userManagementMenu && (userRole === 'Insurance' || userRole === 'Bike')) {
+      userManagementMenu.style.display = 'none';
+    }
+  }
+
   if (!accessToken) {
     window.location.href = RETURN_LOGIN_PAGE;
   }
@@ -285,12 +317,19 @@ class UIPermissionManager {
             el.readOnly = true;
         });
         // Disable interactive elements
-        this.form.querySelectorAll('select, button, input[type="checkbox"]').forEach(el => {
+        this.form.querySelectorAll('select, button, input[type="checkbox"], input[type="file"]').forEach(el => {
             if (!el.classList.contains('nav-link')) { // Don't disable tab buttons
                 el.disabled = true;
             }
         });
+        // Hide image manipulation buttons
+        const replaceImageBtn = document.getElementById('replace-image-btn');
+        if (replaceImageBtn) replaceImageBtn.style.display = 'none';
+        document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => btn.style.display = 'none');
+
         if (this.saveBtn) this.saveBtn.style.display = 'none';
+        const saveImagesBtn = document.getElementById('save-images-btn');
+        if (saveImagesBtn) saveImagesBtn.style.display = 'none';
     }
 
     applyStatusPermissions(allowedStatuses = []) {
@@ -318,6 +357,24 @@ class UIAdminPermissionManager extends UIPermissionManager {
 
 class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
+        // Hide specific tabs for Bike role
+        hideTabs(['tab-car-inspection-li', 'tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
+
+        // Hide specific form fields for Bike role
+        hideFormFields([
+            'taskId',
+            'phone',
+            'ownerName',
+            'processType',
+            'transactionDate',
+            'phone2',
+            'jobType',
+            'orderStatus',
+            'creatorName',
+            'phone3',
+            'channel'
+        ]);
+
         const cardBody = document.querySelector('.card-body');
         if (!cardBody) return;
 
@@ -481,6 +538,9 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         this.setReadOnlyAll();
         let allowedStatuses = [];
 
+        // Hide specific tabs for Insurance role
+        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
+
         if (orderStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
             allowedStatuses = ['รออนุมัติ', orderStatus];
         } else if (orderStatus === 'Pre-Approved') {
@@ -582,6 +642,7 @@ function applyRoleBasedRestrictions(data) {
     }
 
     loadUserProfile();
+    hideUserManagementMenu(); // Call the new function here
     populateImageSections();
 
     const userRole = getUserRole();
