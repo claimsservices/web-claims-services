@@ -853,24 +853,40 @@ function applyRoleBasedRestrictions(data) {
         document.addEventListener('click', function(e) {
             const label = e.target.closest('label.image-gallery');
 
-            // Handle clicking on an image to open the preview modal
-            if (label && !e.target.closest('.delete-btn') && !e.target.closest('.edit-title-btn')) {
-                e.preventDefault();
-                const img = label.querySelector('img');
-                const fileInput = label.querySelector('input[type="file"]');
-                
-                if (img && img.src && !img.src.includes('data:image/gif') && fileInput) {
-                    const fieldName = fileInput.name;
-                    const field = imageFields.find(f => f.name === fieldName);
-                    if (field) {
-                        // Store context for the replace button
-                        context = { field: field, imgElement: img, labelElement: label };
-                        previewImage.src = img.src;
-                        imagePreviewModal.show();
-                    }
-                }
+            // Exit if not a relevant click
+            if (!label || e.target.closest('.delete-btn') || e.target.closest('.edit-title-btn')) {
+                return;
             }
 
+            const img = label.querySelector('img');
+            const isPlaceholder = !img || !img.src || img.src.includes('data:image/gif');
+
+            if (isPlaceholder) {
+                // This is an empty slot. Let the default browser action proceed.
+                // The click will fall through to the hidden file input, which has a 'change' listener
+                // that will handle the new upload. We do nothing here.
+                return;
+            } else {
+                // This is an existing image. Prevent the default action (which would open the file dialog)
+                // and instead open our modal for the replacement workflow.
+                e.preventDefault();
+                
+                const fileInput = label.querySelector('input[type="file"]');
+                if (!fileInput) return;
+
+                const fieldName = fileInput.name;
+                const field = imageFields.find(f => f.name === fieldName);
+                if (field) {
+                    // The global `context` variable is used by the modal's replace button
+                    context = { field: field, imgElement: img, labelElement: label };
+                    previewImage.src = img.src;
+                    imagePreviewModal.show();
+                }
+            }
+        });
+
+        // Separate listeners for buttons to keep logic clear
+        document.addEventListener('click', function(e) {
             // Handle clicking the delete button
             const deleteBtn = e.target.closest('.delete-btn');
             if (deleteBtn) {
@@ -1068,7 +1084,7 @@ function applyRoleBasedRestrictions(data) {
       { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
       { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' }
   ];
-  function renderImageUploadBlock(field) {
+  function renderImageUploadBlock(field, fileInputId) {
     const colDiv = document.createElement('div');
     colDiv.className = 'col-4 mb-3 text-center';
 
@@ -1089,7 +1105,9 @@ function applyRoleBasedRestrictions(data) {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.name = field.name;
+    fileInput.id = fileInputId; // Assign the unique ID
     fileInput.hidden = true;
+    fileInput.accept = 'image/*';
 
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
@@ -1116,21 +1134,71 @@ function applyRoleBasedRestrictions(data) {
 }
 
   function populateImageSections() {
-    const sectionsMap = {
-        'around': document.getElementById('around-images-section')?.querySelector('.row'),
-        'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
-        'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
-        'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
-        'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
-        'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
-    };
-    imageFields.forEach(field => {
-        const targetSection = sectionsMap[field.section];
-        if (targetSection) {
-            targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field));
-        }
-    });
-}
+      const sectionsMap = {
+          'around': document.getElementById('around-images-section')?.querySelector('.row'),
+          'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+          'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+          'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+          'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+          'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+      };
+
+      imageFields.forEach(field => {
+          const targetSection = sectionsMap[field.section];
+          if (targetSection) {
+              const fileInputId = `file-input-${field.name}`;
+              targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field, fileInputId));
+              
+              const fileInput = document.getElementById(fileInputId);
+              if (fileInput) {
+                  fileInput.addEventListener('change', async () => {
+                      const file = fileInput.files[0];
+                      if (!file) return;
+
+                      const label = fileInput.closest('label');
+                      const img = label.querySelector('img');
+                      const titleDiv = label.querySelector('.title');
+                      const customName = titleDiv.textContent.trim();
+                      const folderName = document.getElementById('taskId')?.value.trim() || 'default';
+
+                      const formData = new FormData();
+                      formData.append('folder', folderName);
+                      formData.append('category', field.section);
+                      formData.append('images', file, customName + '.' + file.name.split('.').pop());
+
+                      img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif';
+
+                      try {
+                          const token = localStorage.getItem('authToken') || '';
+                          const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+                              method: 'POST',
+                              headers: { 'Authorization': token },
+                              body: formData
+                          });
+
+                          if (response.ok) {
+                              const result = await response.json();
+                              if (result.uploaded && result.uploaded.length > 0) {
+                                  img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
+                                  label.setAttribute('data-filled', 'true');
+                                  uploadedPicCache.add(fileInput.name);
+                              } else {
+                                  throw new Error('Upload response did not contain uploaded file information.');
+                              }
+                          } else {
+                              const errorResult = await response.json();
+                              throw new Error(errorResult.message || 'Upload failed');
+                          }
+                      } catch (err) {
+                          console.error('Upload error:', err);
+                          alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
+                          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                      }
+                  });
+              }
+          }
+      });
+  }
 
   function renderUploadedImages(orderPics) {
     // Helper to create a download URL for Cloudinary
