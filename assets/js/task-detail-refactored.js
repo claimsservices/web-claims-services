@@ -484,7 +484,6 @@ class UIBikePermissionManager extends UIPermissionManager {
             // --- Listener for SAVE button ---
             document.getElementById('bike-save-btn').addEventListener('click', async () => {
                 const saveData = {
-                    order_status: order.order_status, // Keep current status
                     order_pic: gatherImageData(),
                     updated_by: created_by,
                     order_hist: [{ icon: "💾", task: "บันทึกรูปภาพ", detail: `บันทึกโดย: ${created_by}`, created_by }]
