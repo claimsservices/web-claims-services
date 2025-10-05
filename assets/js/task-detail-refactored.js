@@ -318,7 +318,8 @@ class UIPermissionManager {
         });
         // Disable interactive elements
         this.form.querySelectorAll('select, button, input[type="checkbox"], input[type="file"]').forEach(el => {
-            if (!el.classList.contains('nav-link')) { // Don't disable tab buttons
+            // Don't disable tab buttons or the downloadAllBtn
+            if (!el.classList.contains('nav-link') && el.id !== 'downloadAllBtn') {
                 el.disabled = true;
             }
         });
@@ -625,6 +626,7 @@ function applyRoleBasedRestrictions(data) {
     if (downloadAllBtn) {
       downloadAllBtn.addEventListener('click', async (event) => {
         event.preventDefault();
+        console.log('Download All button clicked.');
         const zip = new JSZip();
         const orderId = document.getElementById('taskId').value.trim();
         const imageElements = Array.from(document.querySelectorAll('.image-gallery img')).filter(img => {
@@ -632,12 +634,15 @@ function applyRoleBasedRestrictions(data) {
           return (img.src && img.src.startsWith('https') && style.display !== 'none' && img.complete);
         });
         if (imageElements.length === 0) { alert('ไม่มีภาพให้ดาวน์โหลด'); return; }
+        console.log(`Found ${imageElements.length} images to download.`);
         await Promise.all(
           imageElements.map(async (img, i) => {
             const originalImageUrl = img.src; // This is the Cloudinary URL
             const label = img.closest('label');
             const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
             const safeName = title.replace(/[\W_]+/g, '').replace(/\s+/g, '_'); // More robust safe name
+
+            console.log(`Attempting to download image ${i + 1}: ${originalImageUrl}`);
 
             try {
                 const token = localStorage.getItem('authToken') || '';
@@ -650,10 +655,14 @@ function applyRoleBasedRestrictions(data) {
                     body: JSON.stringify({ imageUrl: originalImageUrl })
                 });
 
-                if (!response.ok) throw new Error(`Failed to download image from proxy: ${response.statusText}`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to download image from proxy: ${response.status} ${response.statusText} - ${errorText}`);
+                }
 
                 const blob = await response.blob();
                 zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
+                console.log(`Successfully added image ${i + 1} to zip: ${safeName}.jpg`);
             } catch (err) {
                 console.warn(`ข้ามภาพที่โหลดไม่ได้ (Proxy error): ${originalImageUrl}`, err);
             }
@@ -661,6 +670,7 @@ function applyRoleBasedRestrictions(data) {
         );
         const zipBlob = await zip.generateAsync({ type: 'blob' });
         saveAs(zipBlob, orderId + '.zip');
+        console.log('ZIP file generated and ready for download.');
       });
     }
 
@@ -856,105 +866,99 @@ function applyRoleBasedRestrictions(data) {
     if (imagePreviewModalEl) {
         const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
         const previewImage = document.getElementById('previewImage');
-        const replaceBtn = document.getElementById('replace-image-btn');
         let context = {}; // To store context for the replace button
 
         // Listener for the "Replace Image" button in the modal
-        if (replaceBtn && !replaceBtn.hasAttribute('data-listener-set')) {
-            replaceBtn.addEventListener('click', () => {
-                if (!context.field || !context.imgElement) return;
+        const replaceBtn = document.getElementById('replace-image-btn');
+        const downloadModalBtn = document.getElementById('download-modal-btn');
+        const userRole = getUserRole(); // Get user role
 
-                const modalInstance = bootstrap.Modal.getInstance(imagePreviewModalEl);
-                if (modalInstance) modalInstance.hide();
+        if (replaceBtn) {
+            console.log('Current user role for replaceBtn visibility:', userRole); // Add this log
+            // Hide replace button for Insurance role
+            if (userRole === 'Insurance') {
+                replaceBtn.style.display = 'none';
+                console.log('replaceBtn hidden for Insurance role.'); // Add this log
+            } else {
+                replaceBtn.style.display = 'inline-block'; // Ensure visible for other roles
+                console.log('replaceBtn visible for role:', userRole); // Add this log
+            }
+            // ...
+        }
 
-                // Create a temporary file input to handle the upload
-                const tempInput = document.createElement('input');
-                tempInput.type = 'file';
-                tempInput.accept = 'image/*';
-                
-                tempInput.addEventListener('change', async () => {
-                    const file = tempInput.files[0];
-                    if (!file) return;
+        // Listener for the "Download" button in the modal
+        if (downloadModalBtn) {
+            downloadModalBtn.addEventListener('click', async () => {
+                const imageUrlToDownload = previewImage.src; // Get image URL from the preview
+                if (!imageUrlToDownload || imageUrlToDownload.includes('data:image/gif')) {
+                    alert('ไม่มีรูปภาพให้ดาวน์โหลด');
+                    return;
+                }
 
-                    const { field, imgElement, labelElement } = context;
-                    const customName = labelElement.querySelector('.title').textContent.trim();
-                    const folderName = document.getElementById('taskId')?.value.trim() || 'default';
-                    
-                    const formData = new FormData();
-                    formData.append('folder', folderName);
-                    formData.append('category', field.section);
-                    formData.append('images', file, customName + '.' + file.name.split('.').pop());
+                try {
+                    const token = localStorage.getItem('authToken') || '';
+                    const response = await fetch(`${API_BASE_URL}/api/upload/proxy-download`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token
+                        },
+                        body: JSON.stringify({ imageUrl: imageUrlToDownload })
+                    });
 
-                    imgElement.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif';
-
-                    try {
-                        const token = localStorage.getItem('authToken') || '';
-                        const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
-                            method: 'POST',
-                            headers: { 'Authorization': token },
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            if (result.uploaded && result.uploaded.length > 0) {
-                                imgElement.src = result.uploaded[0].url + '?t=' + new Date().getTime();
-                                labelElement.setAttribute('data-filled', 'true');
-                                uploadedPicCache.add(field.name);
-                            } else { throw new Error('Upload response error.'); }
-                        } else { 
-                            const errorResult = await response.json();
-                            throw new Error(errorResult.message || 'Upload failed');
-                        }
-                    } catch (err) {
-                        console.error('Upload error:', err);
-                        alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
-                        imgElement.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Failed to download image from proxy: ${response.status} ${response.statusText} - ${errorText}`);
                     }
-                });
 
-                tempInput.click();
+                    const blob = await response.blob();
+                    const filenameWithQuery = imageUrlToDownload.split('/').pop();
+                    const filename = filenameWithQuery.split('?')[0]; // Strip query parameters
+                    saveAs(blob, filename);
+                    console.log(`Successfully downloaded image from modal: ${filename}`);
+                } catch (err) {
+                    console.error(`Error downloading image from modal: ${imageUrlToDownload}`, err);
+                    alert(`🚫 ไม่สามารถดาวน์โหลดรูปภาพได้: ${err.message}`);
+                }
             });
-            replaceBtn.setAttribute('data-listener-set', 'true');
         }
 
         // Delegated listener for all image-related actions
-        document.addEventListener('click', function(e) {
-            const label = e.target.closest('label.image-gallery');
-
-            // Exit if not a relevant click
-            if (!label || e.target.closest('.delete-btn') || e.target.closest('.edit-title-btn')) {
-                return;
-            }
-
-            const img = label.querySelector('img');
-            const isPlaceholder = !img || !img.src || img.src.includes('data:image/gif');
-
-            if (isPlaceholder) {
-                // This is an empty slot. Let the default browser action proceed.
-                // The click will fall through to the hidden file input, which has a 'change' listener
-                // that will handle the new upload. We do nothing here.
-                return;
-            } else {
-                // This is an existing image. Prevent the default action (which would open the file dialog)
-                // and instead open our modal for the replacement workflow.
-                e.preventDefault();
-                
-                const fileInput = label.querySelector('input[type="file"]');
-                if (!fileInput) return;
-
-                const fieldName = fileInput.name;
-                const field = imageFields.find(f => f.name === fieldName);
-                if (field) {
-                    // The global `context` variable is used by the modal's replace button
-                    context = { field: field, imgElement: img, labelElement: label };
-                    previewImage.src = img.src;
-                    imagePreviewModal.show();
-                }
-            }
-        });
-
-        // Separate listeners for buttons to keep logic clear
+                                document.addEventListener('click', function(e) {
+                                    const label = e.target.closest('label.image-gallery');
+                                    const isDownloadButton = e.target.closest('.btn.bi-download'); // Check if the clicked element or its ancestor is the download button
+                    
+                                    // Exit if not a relevant click, or if the click originated from the download button
+                                    if (!label || e.target.closest('.delete-btn') || e.target.closest('.edit-title-btn') || isDownloadButton) {
+                                        return;
+                                    }
+                    
+                                    const img = label.querySelector('img');
+                                    const isPlaceholder = !img || !img.src || img.src.includes('data:image/gif');
+                    
+                                    if (isPlaceholder) {
+                                        // This is an empty slot. Let the default browser action proceed.
+                                        // The click will fall through to the hidden file input, which has a 'change' listener
+                                        // that will handle the new upload. We do nothing here.
+                                        return;
+                                    } else {
+                                        // This is an existing image. Prevent the default action (which would open the file dialog)
+                                        // and instead open our modal for the replacement workflow.
+                                        e.preventDefault();
+                                        
+                                        const fileInput = label.querySelector('input[type="file"]');
+                                        if (!fileInput) return;
+                    
+                                        const fieldName = fileInput.name;
+                                        const field = imageFields.find(f => f.name === fieldName);
+                                        if (field) {
+                                            // The global `context` variable is used by the modal's replace button
+                                            context = { field: field, imgElement: img, labelElement: label };
+                                            previewImage.src = img.src;
+                                            imagePreviewModal.show();
+                                        }
+                                    }
+                                });        // Separate listeners for buttons to keep logic clear
         document.addEventListener('click', function(e) {
             // Handle clicking the delete button
             const deleteBtn = e.target.closest('.delete-btn');
