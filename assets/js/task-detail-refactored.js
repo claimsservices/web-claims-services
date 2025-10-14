@@ -187,6 +187,7 @@
         setValue('s_remark', order_details.s_remark);
         setValue('s_ins_remark', order_details.s_ins_remark);
         setValue('s_detail', order_details.s_detail);
+        document.getElementById('s_detail').readOnly = true; // Make the field readonly
         setChecked('fleetCar', order_details.s_fleet);
         setValue('creatorName', order_details.c_name);
       }
@@ -268,10 +269,48 @@
       }
   }
 
+  async function updateImageTitle(orderId, picUrl, newTitle) {
+    const token = localStorage.getItem('authToken') || '';
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/order-pic/update-title`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+            body: JSON.stringify({ orderId, picUrl, newTitle })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'ไม่สามารถอัปเดตชื่อรูปภาพได้');
+        }
+        alert('✅ ' + result.message);
+        return true;
+    } catch (error) {
+        console.error('Image title update error:', error);
+        alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+        return false;
+    }
+  }
+
   // =========================================================
   // PHOTO RENDERING LOGIC
   // =========================================================
 
+  function updateDamageDetailField() {
+    const damageImageTitles = [];
+    const damageSection = document.getElementById('inspection-images-section');
+    if (!damageSection) return;
+
+    damageSection.querySelectorAll('label.image-gallery[data-filled="true"]').forEach(label => {
+        const titleDiv = label.querySelector('.title');
+        if (titleDiv) {
+            damageImageTitles.push(titleDiv.textContent.trim());
+        }
+    });
+
+    const sDetailInput = document.getElementById('s_detail');
+    if (sDetailInput) {
+        sDetailInput.value = damageImageTitles.join(', ');
+    }
+  }
 
 
 
@@ -422,8 +461,29 @@ class UIBikePermissionManager extends UIPermissionManager {
             });
 
         } else if (workingStates.includes(orderStatus)) {
-            // State 2: Use the standard, robust image upload UI
+            // State 2: Add car details section and image upload UI
             cardBody.innerHTML = `
+                <div class="py-3 px-4 mb-4 rounded bg-white border">
+                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลรถ</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">ยี่ห้อรถ</label>
+                            <select class="form-select" id="carBrand"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">รุ่นรถ</label>
+                            <select class="form-select" id="carModel"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">เลขไมล์</label>
+                            <input type="text" class="form-control" placeholder="ระบุเลขไมล์ปัจจุบัน" id="c_mile">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">ประเภทรถ</label>
+                            <input type="text" class="form-control" placeholder="เช่น รถเก๋ง, รถกระบะ" id="carType">
+                        </div>
+                    </div>
+                </div>
                 <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
                     <section class="upload-section mb-4" id="around-images-section">
                       <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
@@ -456,6 +516,29 @@ class UIBikePermissionManager extends UIPermissionManager {
                 </div>
                  <a href="dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
             `;
+
+            // --- Repopulate and re-enable car fields ---
+            const brandSelect = document.getElementById('carBrand');
+            const modelSelect = document.getElementById('carModel');
+            // Populate brands
+            for (const brand in carModels) {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            }
+            // Set initial values
+            brandSelect.value = data.order_details?.c_brand || '';
+            brandSelect.dispatchEvent(new Event('change')); // Trigger model population
+            modelSelect.value = data.order_details?.c_version || '';
+            document.getElementById('c_mile').value = data.order_details?.c_mile || '';
+            document.getElementById('carType').value = data.order_details?.c_type || '';
+
+            // Enable fields
+            brandSelect.disabled = false;
+            modelSelect.disabled = false;
+            document.getElementById('c_mile').disabled = false;
+            document.getElementById('carType').disabled = false;
 
             // Call the global, working functions
             populateImageSections();
@@ -500,12 +583,16 @@ class UIBikePermissionManager extends UIPermissionManager {
                 const saveData = {
                     order_status: order.order_status, // Keep current status
                     order_pic: gatherImageData(),
+                    c_brand: document.getElementById('carBrand').value,
+                    c_version: document.getElementById('carModel').value,
+                    c_mile: document.getElementById('c_mile').value,
+                    c_type: document.getElementById('carType').value,
                     updated_by: created_by,
-                    order_hist: [{ icon: "💾", task: "บันทึกรูปภาพ", detail: `บันทึกโดย: ${created_by}`, created_by }]
+                    order_hist: [{ icon: "💾", task: "บันทึกข้อมูล & รูปภาพ", detail: `บันทึกโดย: ${created_by}`, created_by }]
                 };
                 const success = await callUpdateApi(saveData);
                 if (success) {
-                    alert('✅ บันทึกข้อมูลรูปภาพเรียบร้อยแล้ว');
+                    alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว');
                 }
             });
 
@@ -516,6 +603,10 @@ class UIBikePermissionManager extends UIPermissionManager {
                 const submitData = {
                     order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
                     order_pic: gatherImageData(),
+                    c_brand: document.getElementById('carBrand').value,
+                    c_version: document.getElementById('carModel').value,
+                    c_mile: document.getElementById('c_mile').value,
+                    c_type: document.getElementById('carType').value,
                     updated_by: created_by,
                     order_hist: [{ icon: "📝", task: "ส่งงาน", detail: `ส่งงานโดยผู้ใช้: ${created_by}`, created_by }]
                 };
@@ -981,6 +1072,7 @@ function applyRoleBasedRestrictions(data) {
                     img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                 }
                 label.removeAttribute('data-filled');
+                updateDamageDetailField(); // Update damage field on delete
             }
 
             // Handle clicking the edit title button
@@ -990,11 +1082,20 @@ function applyRoleBasedRestrictions(data) {
                 e.preventDefault();
                 const label = editBtn.closest('label.image-gallery');
                 const titleDiv = label.querySelector('.title');
+                const img = label.querySelector('img');
                 const currentTitle = titleDiv.textContent.trim();
                 const newTitle = prompt('แก้ไขชื่อภาพ:', currentTitle);
-                if (newTitle && newTitle.trim() !== '') {
-                    titleDiv.textContent = newTitle.trim();
-                    titleDiv.setAttribute('data-custom', 'true');
+
+                if (newTitle && newTitle.trim() !== '' && newTitle.trim() !== currentTitle) {
+                    const orderId = document.getElementById('taskId').value;
+                    const picUrl = img.src;
+                    updateImageTitle(orderId, picUrl, newTitle.trim()).then(success => {
+                        if (success) {
+                            titleDiv.textContent = newTitle.trim();
+                            titleDiv.setAttribute('data-custom', 'true');
+                            updateDamageDetailField(); // Update damage field on rename
+                        }
+                    });
                 }
             }
         });
@@ -1234,38 +1335,48 @@ function applyRoleBasedRestrictions(data) {
                       const customName = titleDiv.textContent.trim();
                       const folderName = document.getElementById('taskId')?.value.trim() || 'default';
 
-                      const formData = new FormData();
-                      formData.append('folder', folderName);
-                      formData.append('category', field.section);
-                      formData.append('images', file, customName + '.' + file.name.split('.').pop());
-
-                      img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif';
+                      img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif'; // Show loader
 
                       try {
-                          const token = localStorage.getItem('authToken') || '';
-                          const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
-                              method: 'POST',
-                              headers: { 'Authorization': token },
-                              body: formData
-                          });
+                        const options = {
+                          maxSizeMB: 1,
+                          maxWidthOrHeight: 1920,
+                          useWebWorker: true
+                        }
+                        console.log(`Original file size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+                        const compressedFile = await imageCompression(file, options);
+                        console.log(`Compressed file size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
 
-                          if (response.ok) {
-                              const result = await response.json();
-                              if (result.uploaded && result.uploaded.length > 0) {
-                                  img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
-                                  label.setAttribute('data-filled', 'true');
-                                  uploadedPicCache.add(fileInput.name);
-                              } else {
-                                  throw new Error('Upload response did not contain uploaded file information.');
-                              }
-                          } else {
-                              const errorResult = await response.json();
-                              throw new Error(errorResult.message || 'Upload failed');
-                          }
+                        const formData = new FormData();
+                        formData.append('folder', folderName);
+                        formData.append('category', field.section);
+                        formData.append('images', compressedFile, customName + '.' + file.name.split('.').pop());
+
+                        const token = localStorage.getItem('authToken') || '';
+                        const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+                            method: 'POST',
+                            headers: { 'Authorization': token },
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            if (result.uploaded && result.uploaded.length > 0) {
+                                img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
+                                label.setAttribute('data-filled', 'true');
+                                uploadedPicCache.add(fileInput.name);
+                                updateDamageDetailField(); // Update damage field on successful upload
+                            } else {
+                                throw new Error('Upload response did not contain uploaded file information.');
+                            }
+                        } else {
+                            const errorResult = await response.json();
+                            throw new Error(errorResult.message || 'Upload failed');
+                        }
                       } catch (err) {
                           console.error('Upload error:', err);
                           alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
-                          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+                          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Reset to placeholder on error
                       }
                   });
               }
@@ -1320,4 +1431,6 @@ function applyRoleBasedRestrictions(data) {
             }
         });
     });
+
+    updateDamageDetailField(); // Update the damage detail field after rendering
 }
