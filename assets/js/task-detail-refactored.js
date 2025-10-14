@@ -295,28 +295,52 @@
   // =========================================================
 
   function updateDamageDetailField() {
+    console.log('[DEBUG] updateDamageDetailField triggered.');
     const damageImageTitles = [];
     const damageSection = document.getElementById('inspection-images-section');
-    if (!damageSection) return;
+    
+    if (!damageSection) {
+        console.log('[DEBUG] Damage section (inspection-images-section) not found. Aborting.');
+        return;
+    }
+    console.log('[DEBUG] Damage section found.');
 
-    // Find all image elements within the damage section that are not placeholders
     const images = damageSection.querySelectorAll('img');
-    images.forEach(img => {
-        // Check if the image source is a real URL and not the placeholder GIF
-        if (img.src && !img.src.includes('data:image/gif')) {
+    console.log(`[DEBUG] Found ${images.length} total <img> elements in damage section.`);
+
+    images.forEach((img, index) => {
+        const imgSrc = img.src || '';
+        console.log(`[DEBUG] Image ${index}: src starts with "${imgSrc.substring(0, 30)}..."`);
+
+        if (imgSrc && !imgSrc.includes('data:image/gif')) {
+            console.log(`[DEBUG] Image ${index} is a real image.`);
             const label = img.closest('label.image-gallery');
             if (label) {
                 const titleDiv = label.querySelector('.title');
                 if (titleDiv) {
-                    damageImageTitles.push(titleDiv.textContent.trim());
+                    const title = titleDiv.textContent.trim();
+                    damageImageTitles.push(title);
+                    console.log(`[DEBUG] Collected title: "${title}"`);
+                } else {
+                    console.log(`[DEBUG] Image ${index} has a label but no .title div.`);
                 }
+            } else {
+                console.log(`[DEBUG] Image ${index} has no parent <label class="image-gallery">.`);
             }
+        } else {
+            console.log(`[DEBUG] Image ${index} is a placeholder. Skipping.`);
         }
     });
 
+    console.log(`[DEBUG] Total titles collected: ${damageImageTitles.length}. Titles: [${damageImageTitles.join(', ')}]`);
+
     const sDetailInput = document.getElementById('s_detail');
     if (sDetailInput) {
+        console.log('[DEBUG] Found s_detail textarea. Current value: "' + sDetailInput.value + '"');
         sDetailInput.value = damageImageTitles.join(', ');
+        console.log('[DEBUG] Set s_detail textarea value to: "' + sDetailInput.value + '"');
+    } else {
+        console.log('[DEBUG] Textarea with id "s_detail" NOT FOUND.');
     }
   }
 
