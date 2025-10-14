@@ -499,12 +499,6 @@ class UIBikePermissionManager extends UIPermissionManager {
                             <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
                         </div>
                     </div>
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label>
-                            <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
-                        </div>
-                    </div>
                 </div>
                 <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
                     <section class="upload-section mb-4" id="around-images-section">
