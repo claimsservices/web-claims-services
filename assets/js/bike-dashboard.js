@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
         workBtn.id = 'filter-work-btn';
         workBtn.className = 'btn btn-primary';
         workBtn.type = 'button';
-        workBtn.textContent = 'Filter A'; // Changed text for testing
+        workBtn.textContent = 'Work';
         buttonContainer.appendChild(workBtn);
 
         // Create Pre-Approved Button
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
         preApprovedBtn.id = 'filter-pre-approved-btn';
         preApprovedBtn.className = 'btn btn-outline-primary';
         preApprovedBtn.type = 'button';
-        preApprovedBtn.textContent = 'Filter B'; // Changed text for testing
+        preApprovedBtn.textContent = 'Pre Approved';
         buttonContainer.appendChild(preApprovedBtn);
 
         // Attach listeners

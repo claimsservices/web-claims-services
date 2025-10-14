@@ -3,13 +3,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const LOGIN_PAGE = '../index.html';
     const token = localStorage.getItem('authToken');
 
-    // 1. Auth Check
     if (!token) {
         window.location.href = LOGIN_PAGE;
         return;
     }
 
-    // 2. Decode JWT for user info
     function parseJwt(token) {
         try {
             const base64Url = token.split('.')[1];
@@ -31,7 +29,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // 3. Logout Button
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
@@ -41,10 +38,54 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 4. Fetch and Render Task List
-    async function fetchTasks() {
-        const container = document.getElementById('task-list-container');
+    let allTasks = [];
+    const container = document.getElementById('task-list-container');
+
+    function renderTasks() {
         if (!container) return;
+
+        const tasksToRender = allTasks.filter(task => task.order_status === 'Pre-approved');
+
+        container.innerHTML = ''; // Clear existing cards
+
+        if (tasksToRender.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted">ไม่มีงาน Pre-Approved</p>';
+            return;
+        }
+
+        tasksToRender.forEach(task => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.setAttribute('data-id', task.id);
+
+            const statusClass = task.order_status.replace(/\/|\s/g, '-');
+
+            card.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="task-id">${task.id}</span>
+                    <span class="task-status status-${statusClass}">${task.order_status}</span>
+                </div>
+                <div class="mb-1">
+                    <span class="task-info-label">ผู้แจ้ง:</span>
+                    <span>${task.creator || '-'}</span>
+                </div>
+                <div>
+                    <span class="task-info-label">สถานที่:</span>
+                    <span>${task.location || '-'}</span>
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                window.location.href = `task-detail.html?id=${task.id}`;
+            });
+
+            container.appendChild(card);
+        });
+    }
+
+    async function fetchTasks() {
+        if (!container) return;
+        container.innerHTML = '<p class="text-center text-muted">กำลังโหลดข้อมูล...</p>';
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/order-agent/inquiry`, {
@@ -53,49 +94,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json',
                     'Authorization': token
                 },
-                body: JSON.stringify({ order_status: 'Pre-approved' })
+                body: JSON.stringify({})
             });
 
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
             }
 
-            const tasks = await response.json();
-
-            if (tasks.length === 0) {
-                container.innerHTML = '<p class="text-center text-muted">ไม่มีงาน Pre-approved</p>';
-                return;
-            }
-
-            container.innerHTML = ''; // Clear loading/placeholder
-            tasks.forEach(task => {
-                const card = document.createElement('div');
-                card.className = 'task-card';
-                card.setAttribute('data-id', task.id);
-
-                const statusClass = task.order_status.replace(/\/|\s/g, '-');
-
-                card.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="task-id">${task.id}</span>
-                        <span class="task-status status-${statusClass}">${task.order_status}</span>
-                    </div>
-                    <div class="mb-1">
-                        <span class="task-info-label">ผู้แจ้ง:</span>
-                        <span>${task.creator || '-'}</span>
-                    </div>
-                    <div>
-                        <span class="task-info-label">สถานที่:</span>
-                        <span>${task.location || '-'}</span>
-                    </div>
-                `;
-
-                card.addEventListener('click', () => {
-                    window.location.href = `task-detail.html?id=${task.id}`;
-                });
-
-                container.appendChild(card);
-            });
+            allTasks = await response.json();
+            renderTasks();
 
         } catch (error) {
             console.error('Error fetching tasks:', error);
