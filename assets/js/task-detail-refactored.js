@@ -456,6 +456,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             `;
 
             cardBody.innerHTML = `
+                <input type="hidden" id="taskId" value="${order.id}">
                 <div class="py-3 px-4 mb-4 rounded bg-white border">
                     <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
                     <div class="row g-3">
