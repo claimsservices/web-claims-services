@@ -801,21 +801,17 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     });
 
     form.addEventListener('submit', async function (e) {
-      console.log('[DEBUG] Main form submit event triggered!');
       e.preventDefault();
 
       const currentUserRole = getUserRole();
-      console.log('[DEBUG] Role in submit handler:', currentUserRole);
-
       // The Bike role has its own dedicated save/submit buttons and logic, so we exit here.
       if (currentUserRole === 'Bike') {
-        console.log('[DEBUG] Role is "Bike", exiting submit handler.');
         return;
       }
 
       const token = localStorage.getItem('authToken') || '';
-      const currentOrderId = document.getElementById('taskId').value;
-      const created_by = document.getElementById('ownerName').value;
+      const currentOrderId = getSafeValue('taskId');
+      const created_by = getSafeValue('ownerName');
       let endpoint, data;
 
       const orderPic = [];
