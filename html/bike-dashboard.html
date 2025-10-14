@@ -95,30 +95,15 @@
             <!-- Content wrapper -->
             <div class="content-wrapper">
                 <div class="container-xxl flex-grow-1 container-p-y">
-                    <h4 class="fw-bold py-3 mb-4">Bike Dashboard</h4>
-
-                    <!-- Tabs -->
-                    <ul class="nav nav-tabs nav-fill mb-4" id="dashboardTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="queue-tab" data-bs-toggle="tab" data-bs-target="#queue-content" type="button" role="tab" aria-controls="queue-content" aria-selected="true">คิวงาน</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="pre-approved-tab" data-bs-toggle="tab" data-bs-target="#pre-approved-content" type="button" role="tab" aria-controls="pre-approved-content" aria-selected="false">งาน Pre-approved</button>
-                        </li>
-                    </ul>
-
-                    <!-- Tab Content -->
-                    <div class="tab-content" id="dashboardTabsContent">
-                        <div class="tab-pane fade show active" id="queue-content" role="tabpanel" aria-labelledby="queue-tab">
-                            <div class="py-3" id="task-list-container">
-                                <!-- Task cards for the main queue will be inserted here -->
-                            </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold py-3 mb-0">คิวงาน</h4>
+                        <div class="btn-group" role="group">
+                            <button type="button" id="filter-work-btn" class="btn btn-primary">Work</button>
+                            <button type="button" id="filter-pre-approved-btn" class="btn btn-outline-primary">Pre Approved</button>
                         </div>
-                        <div class="tab-pane fade" id="pre-approved-content" role="tabpanel" aria-labelledby="pre-approved-tab">
-                            <div class="py-3" id="pre-approved-task-list-container">
-                                <!-- Task cards for pre-approved tasks will be inserted here -->
-                            </div>
-                        </div>
+                    </div>
+                    <div id="task-list-container">
+                        <!-- Task cards will be inserted here by JavaScript -->
                     </div>
                 </div>
                 <!-- / Content -->
