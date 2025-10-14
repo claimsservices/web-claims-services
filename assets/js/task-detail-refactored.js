@@ -483,6 +483,12 @@ class UIBikePermissionManager extends UIPermissionManager {
                             <input type="text" class="form-control" placeholder="เช่น รถเก๋ง, รถกระบะ" id="carType">
                         </div>
                     </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label>
+                            <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
+                        </div>
+                    </div>
                 </div>
                 <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
                     <section class="upload-section mb-4" id="around-images-section">
@@ -539,6 +545,9 @@ class UIBikePermissionManager extends UIPermissionManager {
             modelSelect.disabled = false;
             document.getElementById('c_mile').disabled = false;
             document.getElementById('carType').disabled = false;
+
+            // Initialize the dropdown logic for the new elements
+            initCarModelDropdown(brandSelect, modelSelect);
 
             // Call the global, working functions
             populateImageSections();
@@ -677,30 +686,30 @@ function applyRoleBasedRestrictions(data) {
     permissionManager.configure(orderStatus, data);
 }
 
+function initCarModelDropdown(brandSelect, modelSelect) {
+  if (brandSelect && modelSelect) {
+    brandSelect.addEventListener('change', function () {
+      const selectedBrand = this.value;
+      const models = carModels[selectedBrand] || [];
+      modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
+      models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = model;
+        modelSelect.appendChild(option);
+      });
+      modelSelect.disabled = models.length === 0;
+    });
+  }
+}
+
 
   // =========================================================
   // DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
   // =========================================================
 
   document.addEventListener('DOMContentLoaded', function () {
-    const brandSelect = document.getElementById('carBrand');
-    const modelSelect = document.getElementById('carModel');
-    if (brandSelect && modelSelect) {
-      brandSelect.addEventListener('change', function () {
-        const selectedBrand = this.value;
-        const models = carModels[selectedBrand] || [];
-        modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
-        models.forEach(model => {
-          const option = document.createElement('option');
-          option.value = model;
-          option.textContent = model;
-          modelSelect.appendChild(option);
-        });
-        if (getUserRole() !== 'Bike') {
-          modelSelect.disabled = models.length === 0;
-        }
-      });
-    }
+    initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
 
     const openMapBtn = document.getElementById('openMap');
     if (openMapBtn) {

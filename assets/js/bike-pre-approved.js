@@ -53,20 +53,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json',
                     'Authorization': token
                 },
-                body: JSON.stringify({})
+                body: JSON.stringify({ order_status: 'Pre-approved' })
             });
 
             if (!response.ok) {
                 throw new Error('Failed to fetch tasks');
             }
 
-            const allTasks = await response.json();
-
-            // Filter out pre-approved tasks
-            const tasks = allTasks.filter(task => task.order_status !== 'Pre-approved');
+            const tasks = await response.json();
 
             if (tasks.length === 0) {
-                container.innerHTML = '<p class="text-center text-muted">ไม่มีงานในคิว</p>';
+                container.innerHTML = '<p class="text-center text-muted">ไม่มีงาน Pre-approved</p>';
                 return;
             }
 
@@ -76,7 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 card.className = 'task-card';
                 card.setAttribute('data-id', task.id);
 
-                // Sanitize status for use in CSS class
                 const statusClass = task.order_status.replace(/\/|\s/g, '-');
 
                 card.innerHTML = `
@@ -94,9 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 `;
 
-                // Add click event to navigate to detail page
                 card.addEventListener('click', () => {
-                    // NOTE: This assumes a new detail page `bike-task-detail.html` will be created.
                     window.location.href = `task-detail.html?id=${task.id}`;
                 });
 

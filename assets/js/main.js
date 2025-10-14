@@ -38,6 +38,17 @@ log.info('Frontend application started with simple logger.');
 
 let menu, animate;
 
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        return null;
+    }
+}
+
 (function () {
   // Initialize menu
   //-----------------
@@ -52,6 +63,38 @@ let menu, animate;
     window.Helpers.scrollToActive((animate = false));
     window.Helpers.mainMenu = menu;
   });
+
+  // Dynamically adjust menu for Bike role
+  const token = localStorage.getItem('authToken');
+  if (token) {
+      const decoded = parseJwt(token);
+      if (decoded && decoded.role === 'Bike') {
+          const taskManagementLink = document.querySelector('a[href="dashboard.html"]');
+          if (taskManagementLink) {
+              const parentLi = taskManagementLink.closest('.menu-item');
+              const parentUl = parentLi.closest('.menu-sub');
+              
+              // 1. Update existing link to be the main bike dashboard
+              taskManagementLink.href = 'bike-dashboard.html';
+
+              // 2. Create the new link for pre-approved tasks
+              const preApprovedLi = parentLi.cloneNode(true);
+              const preApprovedLink = preApprovedLi.querySelector('a');
+              preApprovedLink.href = 'bike-pre-approved.html';
+              preApprovedLink.querySelector('div').textContent = 'งาน Pre-approved';
+              
+              // Make the original link inactive and the current page active
+              parentLi.classList.remove('active');
+              if (window.location.pathname.endsWith('bike-dashboard.html')) {
+                  parentLi.classList.add('active');
+              } else if (window.location.pathname.endsWith('bike-pre-approved.html')) {
+                  preApprovedLi.classList.add('active');
+              }
+
+              parentUl.appendChild(preApprovedLi);
+          }
+      }
+  }
 
   // Initialize menu togglers and bind click on each
   let menuToggler = document.querySelectorAll('.layout-menu-toggle');
