@@ -270,32 +270,22 @@
   }
 
   async function updateImageTitle(orderId, picUrl, newTitle) {
-    console.log('[DEBUG-TITLE] updateImageTitle called with:', { orderId, picUrl, newTitle });
     const token = localStorage.getItem('authToken') || '';
-    const requestBody = { orderId, picUrl, newTitle };
-    console.log('[DEBUG-TITLE] Request Body:', requestBody);
-
     try {
         const response = await fetch(`${API_BASE_URL}/api/order-pic/update-title`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': token },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({ orderId, picUrl, newTitle })
         });
-        
         const result = await response.json();
-        console.log('[DEBUG-TITLE] API Response:', { status: response.status, ok: response.ok, body: result });
-
         if (!response.ok) {
             throw new Error(result.message || 'ไม่สามารถอัปเดตชื่อรูปภาพได้');
         }
-        
         alert('✅ ' + result.message);
-        console.log('[DEBUG-TITLE] API call successful. Returning true.');
         return true;
     } catch (error) {
         console.error('Image title update error:', error);
         alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
-        console.log('[DEBUG-TITLE] API call failed. Returning false.');
         return false;
     }
   }
@@ -305,28 +295,20 @@
   // =========================================================
 
   function updateDamageDetailField() {
-    const damageImageTitles = [];
-    const damageSection = document.getElementById('inspection-images-section');
-    if (!damageSection) return;
+    const allImageTitles = [];
+    // Query the whole document for image galleries that have been filled
+    const filledLabels = document.querySelectorAll('label.image-gallery[data-filled="true"]');
 
-    // Find all image elements within the damage section that are not placeholders
-    const images = damageSection.querySelectorAll('img');
-    images.forEach(img => {
-        // Check if the image source is a real URL and not the placeholder GIF
-        if (img.src && !img.src.includes('data:image/gif')) {
-            const label = img.closest('label.image-gallery');
-            if (label) {
-                const titleDiv = label.querySelector('.title');
-                if (titleDiv) {
-                    damageImageTitles.push(titleDiv.textContent.trim());
-                }
-            }
+    filledLabels.forEach(label => {
+        const titleDiv = label.querySelector('.title');
+        if (titleDiv) {
+            allImageTitles.push(titleDiv.textContent.trim());
         }
     });
 
     const sDetailInput = document.getElementById('s_detail');
     if (sDetailInput) {
-        sDetailInput.value = damageImageTitles.join(', ');
+        sDetailInput.value = allImageTitles.join(', ');
     }
   }
 
@@ -819,11 +801,15 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     });
 
     form.addEventListener('submit', async function (e) {
+      console.log('[DEBUG] Main form submit event triggered!');
       e.preventDefault();
 
       const currentUserRole = getUserRole();
+      console.log('[DEBUG] Role in submit handler:', currentUserRole);
+
       // The Bike role has its own dedicated save/submit buttons and logic, so we exit here.
       if (currentUserRole === 'Bike') {
+        console.log('[DEBUG] Role is "Bike", exiting submit handler.');
         return;
       }
 
@@ -1050,38 +1036,24 @@ function initCarModelDropdown(brandSelect, modelSelect) {
             // Handle clicking the edit title button
             const editBtn = e.target.closest('.edit-title-btn');
             if (editBtn) {
-                console.log('[DEBUG-TITLE] Edit title button clicked.');
                 e.stopPropagation();
                 e.preventDefault();
                 const label = editBtn.closest('label.image-gallery');
                 const titleDiv = label.querySelector('.title');
                 const img = label.querySelector('img');
                 const currentTitle = titleDiv.textContent.trim();
-                
                 const newTitle = prompt('แก้ไขชื่อภาพ:', currentTitle);
-                console.log(`[DEBUG-TITLE] Prompt returned: "${newTitle}"`);
 
                 if (newTitle && newTitle.trim() !== '' && newTitle.trim() !== currentTitle) {
-                    const trimmedNewTitle = newTitle.trim();
                     const orderId = document.getElementById('taskId').value;
                     const picUrl = img.src;
-                    
-                    console.log('[DEBUG-TITLE] Preparing to call updateImageTitle with:', { orderId, picUrl, newTitle: trimmedNewTitle });
-
-                    updateImageTitle(orderId, picUrl, trimmedNewTitle).then(success => {
-                        console.log(`[DEBUG-TITLE] updateImageTitle returned: ${success}`);
+                    updateImageTitle(orderId, picUrl, newTitle.trim()).then(success => {
                         if (success) {
-                            console.log(`[DEBUG-TITLE] Success is true. Updating UI. Old title: "${titleDiv.textContent}"`);
-                            titleDiv.textContent = trimmedNewTitle;
-                            console.log(`[DEBUG-TITLE] New title set in UI: "${titleDiv.textContent}"`);
+                            titleDiv.textContent = newTitle.trim();
                             titleDiv.setAttribute('data-custom', 'true');
                             updateDamageDetailField(); // Update damage field on rename
-                        } else {
-                            console.error('[DEBUG-TITLE] Success is false. UI not updated.');
                         }
                     });
-                } else {
-                    console.log('[DEBUG-TITLE] New title is null, empty, or same as old title. Aborting.');
                 }
             }
         });
@@ -1371,55 +1343,39 @@ function initCarModelDropdown(brandSelect, modelSelect) {
   }
 
       function renderUploadedImages(orderPics) {
-        console.log('[DEBUG-IMG] renderUploadedImages triggered.');
-    
+        // If there are no pictures, ensure the damage field is cleared.
         if (!orderPics || orderPics.length === 0) {
-            console.log('[DEBUG-IMG] orderPics array is empty or null. No images to render.');
             setTimeout(() => updateDamageDetailField(), 0);
             return;
         }
-        console.log(`[DEBUG-IMG] Received ${orderPics.length} pics from the server. Data:`, JSON.parse(JSON.stringify(orderPics)));
-    
+
         orderPics.forEach(pic => {
-            if (!pic.pic_type || !pic.pic) {
-                console.log('[DEBUG-IMG] Skipping a pic object because it lacks pic_type or pic src.', pic);
-                return;
-            }
-    
-            console.log(`[DEBUG-IMG] Processing pic_type: "${pic.pic_type}"`);
-            const selector = `input[type="file"][name="${pic.pic_type}"]`;
-            const fileInput = document.querySelector(selector);
-    
+            // Use pic_type for a reliable match against the input's name attribute.
+            if (!pic.pic_type || !pic.pic) return;
+
+            const fileInput = document.querySelector(`input[type="file"][name="${pic.pic_type}"]`);
             if (fileInput) {
-                console.log(`[DEBUG-IMG] SUCCESS: Found input element for "${pic.pic_type}".`);
                 const label = fileInput.closest('label.image-gallery');
                 
+                // Ensure we don't re-process a slot that's already filled.
                 if (label && !label.hasAttribute('data-filled')) {
-                    console.log(`[DEBUG-IMG] Slot for "${pic.pic_type}" is not filled. Rendering image...`);
                     label.setAttribute('data-filled', 'true');
-    
+
                     const imgTag = label.querySelector('img');
                     if (imgTag) {
                         imgTag.src = pic.pic;
                         imgTag.style.display = 'block';
-                        console.log(`[DEBUG-IMG] Set image src for "${pic.pic_type}".`);
                     }
-    
+
+                    // Update the title div with the title from the database, if available.
                     const titleDiv = label.querySelector('.title');
                     if (titleDiv && pic.pic_title) {
                         titleDiv.textContent = pic.pic_title;
-                        console.log(`[DEBUG-IMG] Set title to "${pic.pic_title}" for "${pic.pic_type}".`);
                     }
-                } else if (label) {
-                    console.log(`[DEBUG-IMG] Slot for "${pic.pic_type}" was already marked as filled. Skipping.`);
-                } else {
-                    console.log(`[DEBUG-IMG] Found input for "${pic.pic_type}" but could not find parent label.`);
                 }
-            } else {
-                console.error(`[DEBUG-IMG] FAILURE: Could not find input element with selector: ${selector}`);
             }
         });
-    
-        console.log('[DEBUG-IMG] Finished processing all pics. Calling updateDamageDetailField.');
+
+        // Call updateDamageDetailField after the loop to populate the textarea.
         setTimeout(() => updateDamageDetailField(), 0);
       }
