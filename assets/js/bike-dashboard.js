@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function () {
     const API_BASE_URL = 'https://be-claims-service.onrender.com';
     const LOGIN_PAGE = '../index.html';
@@ -142,3 +141,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     fetchTasks();
+});
