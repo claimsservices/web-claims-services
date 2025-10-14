@@ -295,30 +295,28 @@
   // =========================================================
 
   function updateDamageDetailField() {
-    console.log('--- updateDamageDetailField called ---');
     const damageImageTitles = [];
     const damageSection = document.getElementById('inspection-images-section');
-    console.log('damageSection:', damageSection);
     if (!damageSection) return;
 
-    const imageLabels = damageSection.querySelectorAll('label.image-gallery[data-filled="true"]');
-    console.log('Found image labels in damage section:', imageLabels.length);
-
-    imageLabels.forEach(label => {
-        const titleDiv = label.querySelector('.title');
-        if (titleDiv) {
-            const title = titleDiv.textContent.trim();
-            console.log('Found title:', title);
-            damageImageTitles.push(title);
+    // Find all image elements within the damage section that are not placeholders
+    const images = damageSection.querySelectorAll('img');
+    images.forEach(img => {
+        // Check if the image source is a real URL and not the placeholder GIF
+        if (img.src && !img.src.includes('data:image/gif')) {
+            const label = img.closest('label.image-gallery');
+            if (label) {
+                const titleDiv = label.querySelector('.title');
+                if (titleDiv) {
+                    damageImageTitles.push(titleDiv.textContent.trim());
+                }
+            }
         }
     });
 
-    console.log('Collected damage image titles:', damageImageTitles);
     const sDetailInput = document.getElementById('s_detail');
-    console.log('sDetailInput element:', sDetailInput);
     if (sDetailInput) {
         sDetailInput.value = damageImageTitles.join(', ');
-        console.log('sDetailInput value set to:', sDetailInput.value);
     }
   }
 

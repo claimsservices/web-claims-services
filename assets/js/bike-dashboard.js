@@ -40,12 +40,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     let allTasks = [];
+    let currentFilter = 'work'; // To preserve filter state on refresh
     const container = document.getElementById('task-list-container');
     const workBtn = document.getElementById('filter-work-btn');
     const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
-
-    console.log('workBtn element:', workBtn);
-    console.log('preApprovedBtn element:', preApprovedBtn);
+    const refreshBtn = document.getElementById('refreshBtn');
 
     function renderTasks(filterType = 'work') {
         if (!container) return;
@@ -110,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             allTasks = await response.json();
-            renderTasks('work'); // Render default view
+            renderTasks(currentFilter); // Render view based on current filter
 
         } catch (error) {
             console.error('Error fetching tasks:', error);
@@ -118,7 +117,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            fetchTasks();
+        });
+    }
+
     workBtn.addEventListener('click', () => {
+        currentFilter = 'work';
         workBtn.classList.add('btn-primary');
         workBtn.classList.remove('btn-outline-primary');
         preApprovedBtn.classList.add('btn-outline-primary');
@@ -127,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     preApprovedBtn.addEventListener('click', () => {
+        currentFilter = 'pre-approved';
         preApprovedBtn.classList.add('btn-primary');
         preApprovedBtn.classList.remove('btn-outline-primary');
         workBtn.classList.add('btn-outline-primary');
