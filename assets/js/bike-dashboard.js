@@ -42,7 +42,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let allTasks = [];
     let currentFilter = 'work';
     const container = document.getElementById('task-list-container');
-    const buttonContainer = document.getElementById('button-container');
+    const workBtn = document.getElementById('filter-work-btn');
+    const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
+    const refreshBtn = document.getElementById('refreshBtn');
 
     function renderTasks(filterType = 'work') {
         if (!container) return;
@@ -115,55 +117,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Dynamically create and append buttons
-    if (buttonContainer) {
-        // Create Refresh Button
-        const refreshBtn = document.createElement('button');
-        refreshBtn.id = 'refreshBtn';
-        refreshBtn.className = 'btn btn-outline-primary';
-        refreshBtn.type = 'button';
-        refreshBtn.textContent = 'ค้นหารายการ';
-        buttonContainer.appendChild(refreshBtn);
-
-        // Create Work Button
-        const workBtn = document.createElement('button');
-        workBtn.id = 'filter-work-btn';
-        workBtn.className = 'btn btn-primary';
-        workBtn.type = 'button';
-        workBtn.textContent = 'Work';
-        buttonContainer.appendChild(workBtn);
-
-        // Create Pre-Approved Button
-        const preApprovedBtn = document.createElement('button');
-        preApprovedBtn.id = 'filter-pre-approved-btn';
-        preApprovedBtn.className = 'btn btn-outline-primary';
-        preApprovedBtn.type = 'button';
-        preApprovedBtn.textContent = 'Pre Approved';
-        buttonContainer.appendChild(preApprovedBtn);
-
-        // Attach listeners
+    if (refreshBtn) {
         refreshBtn.addEventListener('click', () => {
             fetchTasks();
         });
-
-        workBtn.addEventListener('click', () => {
-            currentFilter = 'work';
-            workBtn.classList.add('btn-primary');
-            workBtn.classList.remove('btn-outline-primary');
-            preApprovedBtn.classList.add('btn-outline-primary');
-            preApprovedBtn.classList.remove('btn-primary');
-            renderTasks('work');
-        });
-
-        preApprovedBtn.addEventListener('click', () => {
-            currentFilter = 'pre-approved';
-            preApprovedBtn.classList.add('btn-primary');
-            preApprovedBtn.classList.remove('btn-outline-primary');
-            workBtn.classList.add('btn-outline-primary');
-            workBtn.classList.remove('btn-primary');
-            renderTasks('pre-approved');
-        });
     }
 
+    workBtn.addEventListener('click', () => {
+        currentFilter = 'work';
+        workBtn.classList.add('btn-primary');
+        workBtn.classList.remove('btn-outline-primary');
+        preApprovedBtn.classList.add('btn-outline-primary');
+        preApprovedBtn.classList.remove('btn-primary');
+        renderTasks('work');
+    });
+
+    preApprovedBtn.addEventListener('click', () => {
+        currentFilter = 'pre-approved';
+        preApprovedBtn.classList.add('btn-primary');
+        preApprovedBtn.classList.remove('btn-outline-primary');
+        workBtn.classList.add('btn-outline-primary');
+        workBtn.classList.remove('btn-primary');
+        renderTasks('pre-approved');
+    });
+
     fetchTasks();
-});

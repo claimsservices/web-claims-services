@@ -32,66 +32,108 @@ function getUserRole() {
 
 // DOMContentLoaded listener for UI adjustments
 document.addEventListener('DOMContentLoaded', () => {
-  const userRole = getUserRole();
-  console.log('User Role:', userRole);
-
-  const addNewItemBtn = document.getElementById('add-new-item-btn');
-  const headerOrderDate = document.getElementById('header-order-date');
-  const headerOrderType = document.getElementById('header-order-type');
-  const headerAmount = document.getElementById('header-amount');
-  const headerOwner = document.getElementById('header-owner');
-  const filterAssignedTo = document.getElementById('filterAssignedTo');
-  const summaryCards = document.getElementById('summaryCardsContainer');
-  const accountSettingsMenu = document.getElementById('account-settings-menu');
-  const exportExcelBtn = document.getElementById('exportExcelBtn');
-  const filterPanel = document.getElementById('filter-panel');
-  const filterControls = document.getElementById('filter-controls');
-
-  if (userRole === 'Insurance' || userRole === 'Bike') {
-    if(summaryCards) summaryCards.classList.add('hidden-by-role');
-    if(accountSettingsMenu) accountSettingsMenu.classList.add('hidden-by-role');
-    if(exportExcelBtn) exportExcelBtn.classList.add('hidden-by-role');
-  }
-
-  if (userRole === 'Bike') {
-    if(filterControls) filterControls.classList.add('hidden-by-role');
-    fetchData(getFilters()); // Automatically fetch data for Bike role on load
-  }
-  if (userRole === 'Insurance') {
-    if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
-    if (headerOrderDate) headerOrderDate.style.display = 'none';
-    if (headerOrderType) headerOrderType.style.display = 'none';
-    if (headerAmount) headerAmount.style.display = 'none';
-    if (headerOwner) headerOwner.style.display = 'none';
-  } else if (userRole === 'Bike') {
-    if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
-    if (headerOrderDate) headerOrderDate.style.display = 'none';
-    if (headerOrderType) headerOrderType.style.display = 'none';
-    if(filterAssignedTo) filterAssignedTo.style.display = 'none';
-  }
-
-  if (userRole === 'Insurance') {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      const decodedToken = parseJwt(token);
-      const userInsurComp = decodedToken ? decodedToken.insur_comp : '';
-      const userRoleSelect = document.getElementById('UserRole');
-      if (userRoleSelect && userInsurComp) {
-        userRoleSelect.value = userInsurComp;
-        userRoleSelect.disabled = true;
+    let currentFilterType = 'work'; // Default filter for Bike role
+  
+    const workBtn = document.getElementById('filter-work-btn');
+    const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
+  
+    // Event listeners for the new filter buttons
+    if (workBtn) {
+      workBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentFilterType = 'work';
+        workBtn.classList.add('btn-primary');
+        workBtn.classList.remove('btn-outline-primary');
+        preApprovedBtn.classList.add('btn-outline-primary');
+        preApprovedBtn.classList.remove('btn-primary');
+        fetchData({ order_status_not: 'Pre-Approved' });
+      });
+    }
+  
+    if (preApprovedBtn) {
+      preApprovedBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentFilterType = 'pre-approved';
+        preApprovedBtn.classList.add('btn-primary');
+        preApprovedBtn.classList.remove('btn-outline-primary');
+        workBtn.classList.add('btn-outline-primary');
+        workBtn.classList.remove('btn-primary');
+        fetchData({ order_status: 'Pre-Approved' });
+      });
+    }
+  
+    const userRole = getUserRole();
+    console.log('User Role:', userRole);
+  
+    const addNewItemBtn = document.getElementById('add-new-item-btn');
+    const headerOrderDate = document.getElementById('header-order-date');
+    const headerOrderType = document.getElementById('header-order-type');
+    const headerAmount = document.getElementById('header-amount');
+    const headerOwner = document.getElementById('header-owner');
+    const filterAssignedTo = document.getElementById('filterAssignedTo');
+    const summaryCards = document.getElementById('summaryCardsContainer');
+    const accountSettingsMenu = document.getElementById('account-settings-menu');
+    const exportExcelBtn = document.getElementById('exportExcelBtn');
+    const filterPanel = document.getElementById('filter-panel');
+    const filterControls = document.getElementById('filter-controls');
+  
+    // Role-based UI adjustments
+    if (userRole === 'Insurance' || userRole === 'Bike') {
+      if(summaryCards) summaryCards.classList.add('hidden-by-role');
+      if(accountSettingsMenu) accountSettingsMenu.classList.add('hidden-by-role');
+      if(exportExcelBtn) exportExcelBtn.classList.add('hidden-by-role');
+    }
+  
+    if (userRole === 'Bike') {
+      if(filterControls) filterControls.classList.add('hidden-by-role');
+      // Ensure the new filter buttons are visible for Bike role
+      if (workBtn) workBtn.style.display = 'inline-block';
+      if (preApprovedBtn) preApprovedBtn.style.display = 'inline-block';
+      
+      // Initial fetch for Bike role
+      fetchData({ order_status_not: 'Pre-Approved' }); // Default to Work tasks
+    } else {
+      // Hide the new filter buttons for non-Bike roles
+      if (workBtn) workBtn.style.display = 'none';
+      if (preApprovedBtn) preApprovedBtn.style.display = 'none';
+      // For non-Bike roles, fetch data with existing filters
+      fetchData(getFilters());
+    }
+  
+    if (userRole === 'Insurance') {
+      if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
+      if (headerOrderDate) headerOrderDate.style.display = 'none';
+      if (headerOrderType) headerOrderType.style.display = 'none';
+      if (headerAmount) headerAmount.style.display = 'none';
+      if (headerOwner) headerOwner.style.display = 'none';
+    } else if (userRole === 'Bike') {
+      if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
+      if (headerOrderDate) headerOrderDate.style.display = 'none';
+      if (headerOrderType) headerOrderType.style.display = 'none';
+      if(filterAssignedTo) filterAssignedTo.style.display = 'none';
+    }
+  
+    if (userRole === 'Insurance') {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        const decodedToken = parseJwt(token);
+        const userInsurComp = decodedToken ? decodedToken.insur_comp : '';
+        const userRoleSelect = document.getElementById('UserRole');
+        if (userRoleSelect && userInsurComp) {
+          userRoleSelect.value = userInsurComp;
+          userRoleSelect.disabled = true;
+        }
       }
     }
-  }
-
-  if (userRole === 'Operation Manager' || userRole === 'Director' || userRole === 'Developer') {
-    const adminMenu = document.getElementById('admin-menu');
-    if(adminMenu) adminMenu.style.display = 'block';
-  }
-  if (userRole === 'Officer') {
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
-  }
-
+  
+    if (userRole === 'Operation Manager' || userRole === 'Director' || userRole === 'Developer') {
+      const adminMenu = document.getElementById('admin-menu');
+      if(adminMenu) adminMenu.style.display = 'block';
+    }
+    if (userRole === 'Officer') {
+      localStorage.removeItem('authToken');
+      window.location.href = LOGIN_PAGE;
+    }
   loadUserProfile();
   setupFilterListeners();
   const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
