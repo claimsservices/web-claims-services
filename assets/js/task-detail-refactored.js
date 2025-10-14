@@ -535,7 +535,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             }
             // Set initial values
             brandSelect.value = data.order_details?.c_brand || '';
-            brandSelect.dispatchEvent(new Event('change')); // Trigger model population
+            populateModels(brandSelect, modelSelect); // Directly populate models
             modelSelect.value = data.order_details?.c_version || '';
             document.getElementById('c_mile').value = data.order_details?.c_mile || '';
             document.getElementById('carType').value = data.order_details?.c_type || '';
@@ -686,20 +686,23 @@ function applyRoleBasedRestrictions(data) {
     permissionManager.configure(orderStatus, data);
 }
 
+function populateModels(brandSelect, modelSelect) {
+  if (!brandSelect || !modelSelect) return;
+  const selectedBrand = brandSelect.value;
+  const models = carModels[selectedBrand] || [];
+  modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
+  models.forEach(model => {
+    const option = document.createElement('option');
+    option.value = model;
+    option.textContent = model;
+    modelSelect.appendChild(option);
+  });
+  modelSelect.disabled = models.length === 0;
+}
+
 function initCarModelDropdown(brandSelect, modelSelect) {
   if (brandSelect && modelSelect) {
-    brandSelect.addEventListener('change', function () {
-      const selectedBrand = this.value;
-      const models = carModels[selectedBrand] || [];
-      modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
-      models.forEach(model => {
-        const option = document.createElement('option');
-        option.value = model;
-        option.textContent = model;
-        modelSelect.appendChild(option);
-      });
-      modelSelect.disabled = models.length === 0;
-    });
+    brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
   }
 }
 
@@ -863,6 +866,13 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
+
+      const currentUserRole = getUserRole();
+      // The Bike role has its own dedicated save/submit buttons and logic, so we exit here.
+      if (currentUserRole === 'Bike') {
+        return;
+      }
+
       const token = localStorage.getItem('authToken') || '';
       const currentOrderId = document.getElementById('taskId').value;
       const created_by = document.getElementById('ownerName').value;
@@ -1441,5 +1451,6 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         });
     });
 
-    updateDamageDetailField(); // Update the damage detail field after rendering
+    // Use a timeout to ensure the DOM is fully updated before reading from it
+    setTimeout(() => updateDamageDetailField(), 0);
 }
