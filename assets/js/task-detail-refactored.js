@@ -1042,7 +1042,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 
                 if (newTitle && newTitle.trim() !== '' && newTitle.trim() !== currentTitle) {
                     const orderId = document.getElementById('taskId').value;
-                    const picUrl = img.src;
+                    const picUrl = img.src.split('?')[0];
                     updateImageTitle(orderId, picUrl, newTitle.trim()).then(success => {
                         if (success) {
                             titleDiv.textContent = newTitle.trim();
