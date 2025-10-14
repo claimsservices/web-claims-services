@@ -800,110 +800,111 @@ function initCarModelDropdown(brandSelect, modelSelect) {
       });
     });
 
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
+    if (getUserRole() !== 'Bike') {
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-      const currentUserRole = getUserRole();
-      // The Bike role has its own dedicated save/submit buttons and logic, so we exit here.
-      if (currentUserRole === 'Bike') {
-        return;
-      }
+        const currentUserRole = getUserRole();
 
-      const token = localStorage.getItem('authToken') || '';
-      const currentOrderId = getSafeValue('taskId');
-      const created_by = getSafeValue('ownerName');
-      let endpoint, data;
+        const token = localStorage.getItem('authToken') || '';
+        const currentOrderId = getSafeValue('taskId');
+        const created_by = getSafeValue('ownerName');
+        let endpoint, data;
 
-      const orderPic = [];
-      document.querySelectorAll('.upload-section img').forEach(img => {
-        if (!img.src || img.style.display === 'none' || !img.src.startsWith('http')) return;
-        const input = img.closest('label')?.querySelector('input[type="file"]');
-        const picType = input?.name || 'unknown';
-        const title = img.closest('label')?.querySelector('.title')?.innerText || '';
-        orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
-      });
-
-      if (currentUserRole === 'Bike' || currentUserRole === 'Insurance') {
-        endpoint = `${API_BASE_URL}/api/order-status/update/${currentOrderId}`;
-        data = {
-          order_status: document.getElementById('orderStatus').value,
-          updated_by: created_by,
-          order_hist: [{ icon: "📝", task: "อัปเดตสถานะ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
-        };
-         if (currentUserRole === 'Bike') data.order_pic = orderPic;
-
-      } else {
-        endpoint = `${API_BASE_URL}/api/orders/update/${currentOrderId}`;
-        const date = getSafeValue('appointmentDate');
-        const time = getSafeValue('appointmentTime');
-        let appointment_date = null;
-        if (date) appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
-        const s_start = getSafeValue('coverageStartDate')?.trim();
-        const s_end = getSafeValue('coverageEndDate')?.trim();
-        data = {
-          creator: getSafeValue('ownerName'),
-          owner: getSafeValue('responsiblePerson'),
-          order_type: getSafeValue('jobType'),
-          order_status: getSafeValue('orderStatus'),
-          channel: getSafeValue('channel'),
-          process_type: getSafeValue('processType'),
-          insur_comp: getSafeValue('insuranceCompany'),
-          order_date: getSafeValue('transactionDate'),
-          appointment_date: appointment_date,
-          car_registration: getSafeValue('carRegistration'),
-          location: getSafeValue('address'),
-          created_by,
-          incident_province: getSafeValue('carProvince'),
-          tell_1: getSafeValue('phone'),
-          tell_2: getSafeValue('phone2'),
-          tell_3: getSafeValue('phone3'),
-          c_insure: getSafeValue('c_insure'),
-          c_tell: getSafeValue('c_tell'),
-          c_licent: getSafeValue('carRegistration'),
-          c_car_province: getSafeValue('carProvince'),
-          c_brand: getSafeValue('carBrand'),
-          c_version: getSafeValue('carModel'),
-          c_year: getSafeValue('carYear'),
-          c_number: getSafeValue('carChassis'),
-          c_engine: getSafeValue('carEngine'),
-          c_mile: getSafeValue('c_mile'),
-          c_type: getSafeValue('carType'),
-          c_coller: getSafeValue('carColor'),
-          c_recieve: document.getElementById('received-doc')?.checked || false,
-          s_insure: getSafeValue('insuranceCompany'),
-          s_branch: getSafeValue('insuranceBranch'),
-          s_ref: getSafeValue('reference1'),
-          s_ref_2: getSafeValue('reference2'),
-          s_number: getSafeValue('policyNumber'),
-          ...(s_start ? { s_start } : {}),
-          ...(s_end ? { s_end } : {}),
-          s_type: getSafeValue('insuranceType'),
-          s_remark: getSafeValue('s_remark'),
-          s_ins_remark: getSafeValue('s_ins_remark'),
-          s_detail: getSafeValue('s_detail'),
-          s_fleet: document.getElementById('fleetCar')?.checked || false,
-          updated_by: created_by,
-          c_name: getSafeValue('creatorName'),
-          order_pic: orderPic,
-          order_hist: [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
-        };
-      }
-
-      try {
-        const response = await fetch(endpoint, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
-  JSON.stringify(data) });
-        const result = await response.json();
-        if (response.ok) {
-          alert('✅ อัปเดตข้อมูลเรียบร้อยแล้ว');
-          window.location.href = 'dashboard.html';
-        } else {
-          alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+        if (!currentOrderId || !created_by) {
+          console.error("Submit handler ran with missing critical data.");
+          return;
         }
-      } catch (error) {
-        alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
-        console.error('Fetch error:', error);
-      }
-    });
+
+        const orderPic = [];
+        document.querySelectorAll('.upload-section img').forEach(img => {
+          if (!img.src || img.style.display === 'none' || !img.src.startsWith('http')) return;
+          const input = img.closest('label')?.querySelector('input[type="file"]');
+          const picType = input?.name || 'unknown';
+          const title = img.closest('label')?.querySelector('.title')?.innerText || '';
+          orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
+        });
+
+        if (currentUserRole === 'Insurance') {
+          endpoint = `${API_BASE_URL}/api/order-status/update/${currentOrderId}`;
+          data = {
+            order_status: getSafeValue('orderStatus'),
+            updated_by: created_by,
+            order_hist: [{ icon: "📝", task: "อัปเดตสถานะ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
+          };
+        } else {
+          endpoint = `${API_BASE_URL}/api/orders/update/${currentOrderId}`;
+          const date = getSafeValue('appointmentDate');
+          const time = getSafeValue('appointmentTime');
+          let appointment_date = null;
+          if (date) appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
+          const s_start = getSafeValue('coverageStartDate')?.trim();
+          const s_end = getSafeValue('coverageEndDate')?.trim();
+          data = {
+            creator: getSafeValue('ownerName'),
+            owner: getSafeValue('responsiblePerson'),
+            order_type: getSafeValue('jobType'),
+            order_status: getSafeValue('orderStatus'),
+            channel: getSafeValue('channel'),
+            process_type: getSafeValue('processType'),
+            insur_comp: getSafeValue('insuranceCompany'),
+            order_date: getSafeValue('transactionDate'),
+            appointment_date: appointment_date,
+            car_registration: getSafeValue('carRegistration'),
+            location: getSafeValue('address'),
+            created_by,
+            incident_province: getSafeValue('carProvince'),
+            tell_1: getSafeValue('phone'),
+            tell_2: getSafeValue('phone2'),
+            tell_3: getSafeValue('phone3'),
+            c_insure: getSafeValue('c_insure'),
+            c_tell: getSafeValue('c_tell'),
+            c_licent: getSafeValue('carRegistration'),
+            c_car_province: getSafeValue('carProvince'),
+            c_brand: getSafeValue('carBrand'),
+            c_version: getSafeValue('carModel'),
+            c_year: getSafeValue('carYear'),
+            c_number: getSafeValue('carChassis'),
+            c_engine: getSafeValue('carEngine'),
+            c_mile: getSafeValue('c_mile'),
+            c_type: getSafeValue('carType'),
+            c_coller: getSafeValue('carColor'),
+            c_recieve: document.getElementById('received-doc')?.checked || false,
+            s_insure: getSafeValue('insuranceCompany'),
+            s_branch: getSafeValue('insuranceBranch'),
+            s_ref: getSafeValue('reference1'),
+            s_ref_2: getSafeValue('reference2'),
+            s_number: getSafeValue('policyNumber'),
+            ...(s_start ? { s_start } : {}),
+            ...(s_end ? { s_end } : {}),
+            s_type: getSafeValue('insuranceType'),
+            s_remark: getSafeValue('s_remark'),
+            s_ins_remark: getSafeValue('s_ins_remark'),
+            s_detail: getSafeValue('s_detail'),
+            s_fleet: document.getElementById('fleetCar')?.checked || false,
+            updated_by: created_by,
+            c_name: getSafeValue('creatorName'),
+            order_pic: orderPic,
+            order_hist: [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
+          };
+        }
+
+        try {
+          const response = await fetch(endpoint, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
+    JSON.stringify(data) });
+          const result = await response.json();
+          if (response.ok) {
+            alert('✅ อัปเดตข้อมูลเรียบร้อยแล้ว');
+            window.location.href = 'dashboard.html';
+          } else {
+            alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+          }
+        } catch (error) {
+          alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+          console.error('Fetch error:', error);
+        }
+      });
+    }
 
 
     // --- Start of Image Preview and Replace Logic ---
