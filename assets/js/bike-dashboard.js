@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const workBtn = document.getElementById('filter-work-btn');
     const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
 
+    console.log('workBtn element:', workBtn);
+    console.log('preApprovedBtn element:', preApprovedBtn);
+
     function renderTasks(filterType = 'work') {
         if (!container) return;
 

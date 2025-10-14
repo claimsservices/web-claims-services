@@ -295,20 +295,30 @@
   // =========================================================
 
   function updateDamageDetailField() {
+    console.log('--- updateDamageDetailField called ---');
     const damageImageTitles = [];
     const damageSection = document.getElementById('inspection-images-section');
+    console.log('damageSection:', damageSection);
     if (!damageSection) return;
 
-    damageSection.querySelectorAll('label.image-gallery[data-filled="true"]').forEach(label => {
+    const imageLabels = damageSection.querySelectorAll('label.image-gallery[data-filled="true"]');
+    console.log('Found image labels in damage section:', imageLabels.length);
+
+    imageLabels.forEach(label => {
         const titleDiv = label.querySelector('.title');
         if (titleDiv) {
-            damageImageTitles.push(titleDiv.textContent.trim());
+            const title = titleDiv.textContent.trim();
+            console.log('Found title:', title);
+            damageImageTitles.push(title);
         }
     });
 
+    console.log('Collected damage image titles:', damageImageTitles);
     const sDetailInput = document.getElementById('s_detail');
+    console.log('sDetailInput element:', sDetailInput);
     if (sDetailInput) {
         sDetailInput.value = damageImageTitles.join(', ');
+        console.log('sDetailInput value set to:', sDetailInput.value);
     }
   }
 
