@@ -46,6 +46,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
     const refreshBtn = document.getElementById('refreshBtn');
 
+    console.log('--- Button Element Check ---');
+    if (workBtn) {
+        console.log('SUCCESS: Found "Work" button element.');
+    } else {
+        console.error('FAILURE: "Work" button with id "filter-work-btn" NOT FOUND.');
+    }
+    if (preApprovedBtn) {
+        console.log('SUCCESS: Found "Pre Approved" button element.');
+    } else {
+        console.error('FAILURE: "Pre Approved" button with id "filter-pre-approved-btn" NOT FOUND.');
+    }
+    if (refreshBtn) {
+        console.log('SUCCESS: Found "Refresh" button element.');
+    } else {
+        console.error('FAILURE: "Refresh" button with id "refreshBtn" NOT FOUND.');
+    }
+    console.log('--------------------------');
+
     function renderTasks(filterType = 'work') {
         if (!container) return;
 
