@@ -489,18 +489,6 @@ class UIBikePermissionManager extends UIPermissionManager {
                             <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
                         </div>
                     </div>
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label>
-                            <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
-                        </div>
-                    </div>
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-12">
-                            <label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label>
-                            <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
-                        </div>
-                    </div>
                 </div>
                 <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
                     <section class="upload-section mb-4" id="around-images-section">
@@ -538,6 +526,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             // --- Repopulate and re-enable car fields ---
             const brandSelect = document.getElementById('carBrand');
             const modelSelect = document.getElementById('carModel');
+            
             // Populate brands
             for (const brand in carModels) {
                 const option = document.createElement('option');
@@ -546,13 +535,9 @@ class UIBikePermissionManager extends UIPermissionManager {
                 brandSelect.appendChild(option);
             }
 
-            // Populate brands
-            for (const brand in carModels) {
-                const option = document.createElement('option');
-                option.value = brand;
-                option.textContent = brand;
-                brandSelect.appendChild(option);
-            }
+            // Initialize the dropdown logic for the new elements
+            initCarModelDropdown(brandSelect, modelSelect);
+
             // Set initial values
             brandSelect.value = data.order_details?.c_brand || '';
             populateModels(brandSelect, modelSelect); // Directly populate models
@@ -565,9 +550,6 @@ class UIBikePermissionManager extends UIPermissionManager {
             modelSelect.disabled = false;
             document.getElementById('c_mile').disabled = false;
             document.getElementById('carType').disabled = false;
-
-            // Initialize the dropdown logic for the new elements
-            initCarModelDropdown(brandSelect, modelSelect);
 
             // Call the global, working functions
             populateImageSections();
@@ -896,7 +878,6 @@ function initCarModelDropdown(brandSelect, modelSelect) {
       const token = localStorage.getItem('authToken') || '';
       const currentOrderId = document.getElementById('taskId').value;
       const created_by = document.getElementById('ownerName').value;
-      const currentUserRole = getUserRole();
       let endpoint, data;
 
       const orderPic = [];
