@@ -295,52 +295,28 @@
   // =========================================================
 
   function updateDamageDetailField() {
-    console.log('[DEBUG] updateDamageDetailField triggered.');
     const damageImageTitles = [];
     const damageSection = document.getElementById('inspection-images-section');
-    
-    if (!damageSection) {
-        console.log('[DEBUG] Damage section (inspection-images-section) not found. Aborting.');
-        return;
-    }
-    console.log('[DEBUG] Damage section found.');
+    if (!damageSection) return;
 
+    // Find all image elements within the damage section that are not placeholders
     const images = damageSection.querySelectorAll('img');
-    console.log(`[DEBUG] Found ${images.length} total <img> elements in damage section.`);
-
-    images.forEach((img, index) => {
-        const imgSrc = img.src || '';
-        console.log(`[DEBUG] Image ${index}: src starts with "${imgSrc.substring(0, 30)}..."`);
-
-        if (imgSrc && !imgSrc.includes('data:image/gif')) {
-            console.log(`[DEBUG] Image ${index} is a real image.`);
+    images.forEach(img => {
+        // Check if the image source is a real URL and not the placeholder GIF
+        if (img.src && !img.src.includes('data:image/gif')) {
             const label = img.closest('label.image-gallery');
             if (label) {
                 const titleDiv = label.querySelector('.title');
                 if (titleDiv) {
-                    const title = titleDiv.textContent.trim();
-                    damageImageTitles.push(title);
-                    console.log(`[DEBUG] Collected title: "${title}"`);
-                } else {
-                    console.log(`[DEBUG] Image ${index} has a label but no .title div.`);
+                    damageImageTitles.push(titleDiv.textContent.trim());
                 }
-            } else {
-                console.log(`[DEBUG] Image ${index} has no parent <label class="image-gallery">.`);
             }
-        } else {
-            console.log(`[DEBUG] Image ${index} is a placeholder. Skipping.`);
         }
     });
 
-    console.log(`[DEBUG] Total titles collected: ${damageImageTitles.length}. Titles: [${damageImageTitles.join(', ')}]`);
-
     const sDetailInput = document.getElementById('s_detail');
     if (sDetailInput) {
-        console.log('[DEBUG] Found s_detail textarea. Current value: "' + sDetailInput.value + '"');
         sDetailInput.value = damageImageTitles.join(', ');
-        console.log('[DEBUG] Set s_detail textarea value to: "' + sDetailInput.value + '"');
-    } else {
-        console.log('[DEBUG] Textarea with id "s_detail" NOT FOUND.');
     }
   }
 
@@ -1436,54 +1412,40 @@ function initCarModelDropdown(brandSelect, modelSelect) {
       });
   }
 
-  function renderUploadedImages(orderPics) {
-    // Helper to create a download URL for Cloudinary
-    const createDownloadUrl = (cloudinaryUrl) => {
-        if (!cloudinaryUrl || !cloudinaryUrl.includes('/upload/')) {
-            return '#'; // Return a safe link if it's not a valid Cloudinary URL
-        }
-        return cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
-    };
-
-    orderPics.forEach(pic => {
-        if (!pic.pic_title || !pic.pic) return;
-
-        const titleDivs = document.querySelectorAll('div.title');
-        let found = false;
-        titleDivs.forEach(div => {
-            const label = div.closest('label.image-gallery');
-            // Use flexible matching (.includes) and ensure the slot isn't already filled
-            if (!found && label && !label.hasAttribute('data-filled') && div.innerText.trim().includes(pic.pic_title.trim())) {
-                
-                label.setAttribute('data-filled', 'true'); // Mark as filled
-
-                const imgTag = label.querySelector('img');
-                const icon = label.querySelector('i');
-
-                if (imgTag) {
-                    imgTag.src = pic.pic;
-                    imgTag.style.display = 'block';
-                }
-                if (icon) {
-                    icon.style.display = 'none';
-                }
-
-
-                // Add a download button
-                const downloadUrl = createDownloadUrl(pic.pic);
-                const downloadBtn = document.createElement('a');
-                downloadBtn.href = downloadUrl;
-                downloadBtn.setAttribute('download', '');
-                downloadBtn.className = 'btn btn-sm btn-outline-primary position-absolute top-0 end-0 m-2';
-                downloadBtn.innerHTML = '<i class="bi bi-download"></i>';
-                downloadBtn.title = 'ดาวน์โหลดรูปภาพ';
-                label.appendChild(downloadBtn);
-
-                found = true; // Mark as found and move to the next picture
-            }
-        });
-    });
-
-    // Use a timeout to ensure the DOM is fully updated before reading from it
-    setTimeout(() => updateDamageDetailField(), 0);
-}
+    function renderUploadedImages(orderPics) {
+      // If there are no pictures, ensure the damage field is cleared.
+      if (!orderPics || orderPics.length === 0) {
+          setTimeout(() => updateDamageDetailField(), 0);
+          return;
+      }
+  
+      orderPics.forEach(pic => {
+          // Use pic_type for a reliable match against the input's name attribute.
+          if (!pic.pic_type || !pic.pic) return;
+  
+          const fileInput = document.querySelector(`input[type="file"][name="${pic.pic_type}"]`);
+          if (fileInput) {
+              const label = fileInput.closest('label.image-gallery');
+              
+              // Ensure we don't re-process a slot that's already filled.
+              if (label && !label.hasAttribute('data-filled')) {
+                  label.setAttribute('data-filled', 'true');
+  
+                  const imgTag = label.querySelector('img');
+                  if (imgTag) {
+                      imgTag.src = pic.pic;
+                      imgTag.style.display = 'block';
+                  }
+  
+                  // Update the title div with the title from the database, if available.
+                  const titleDiv = label.querySelector('.title');
+                  if (titleDiv && pic.pic_title) {
+                      titleDiv.textContent = pic.pic_title;
+                  }
+              }
+          }
+      });
+  
+      // Call updateDamageDetailField after the loop to populate the textarea.
+      setTimeout(() => updateDamageDetailField(), 0);
+    }
