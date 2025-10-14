@@ -72,28 +72,26 @@ function parseJwt(token) {
           const taskManagementLink = document.querySelector('a[href="dashboard.html"]');
           if (taskManagementLink) {
               const parentLi = taskManagementLink.closest('.menu-item');
-              const parentUl = parentLi ? parentLi.closest('.menu-sub') : null;
+              const parentUl = parentLi.closest('.menu-sub');
+              
+              // 1. Update existing link to be the main bike dashboard
+              taskManagementLink.href = 'bike-dashboard.html';
 
-              if (parentLi && parentUl) {
-                // 1. Update existing link to be the main bike dashboard
-                taskManagementLink.href = 'bike-dashboard.html';
-
-                // 2. Create the new link for pre-approved tasks
-                const preApprovedLi = parentLi.cloneNode(true);
-                const preApprovedLink = preApprovedLi.querySelector('a');
-                preApprovedLink.href = 'bike-pre-approved.html';
-                preApprovedLink.querySelector('div').textContent = 'งาน Pre-approved';
-                
-                // Make the original link inactive and the current page active
-                parentLi.classList.remove('active');
-                if (window.location.pathname.endsWith('bike-dashboard.html')) {
-                    parentLi.classList.add('active');
-                } else if (window.location.pathname.endsWith('bike-pre-approved.html')) {
-                    preApprovedLi.classList.add('active');
-                }
-
-                parentUl.appendChild(preApprovedLi);
+              // 2. Create the new link for pre-approved tasks
+              const preApprovedLi = parentLi.cloneNode(true);
+              const preApprovedLink = preApprovedLi.querySelector('a');
+              preApprovedLink.href = 'bike-pre-approved.html';
+              preApprovedLink.querySelector('div').textContent = 'งาน Pre-approved';
+              
+              // Make the original link inactive and the current page active
+              parentLi.classList.remove('active');
+              if (window.location.pathname.endsWith('bike-dashboard.html')) {
+                  parentLi.classList.add('active');
+              } else if (window.location.pathname.endsWith('bike-pre-approved.html')) {
+                  preApprovedLi.classList.add('active');
               }
+
+              parentUl.appendChild(preApprovedLi);
           }
       }
   }

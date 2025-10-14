@@ -489,6 +489,18 @@ class UIBikePermissionManager extends UIPermissionManager {
                             <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
                         </div>
                     </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label>
+                            <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-12">
+                            <label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label>
+                            <textarea class="form-control" id="s_detail" rows="3" readonly></textarea>
+                        </div>
+                    </div>
                 </div>
                 <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
                     <section class="upload-section mb-4" id="around-images-section">
@@ -526,6 +538,14 @@ class UIBikePermissionManager extends UIPermissionManager {
             // --- Repopulate and re-enable car fields ---
             const brandSelect = document.getElementById('carBrand');
             const modelSelect = document.getElementById('carModel');
+            // Populate brands
+            for (const brand in carModels) {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            }
+
             // Populate brands
             for (const brand in carModels) {
                 const option = document.createElement('option');

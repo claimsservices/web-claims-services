@@ -41,10 +41,41 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 4. Fetch and Render Task List
+    // 4. Helper function to render a single task card
+    function renderTaskCard(task) {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.setAttribute('data-id', task.id);
+
+        const statusClass = task.order_status.replace(/\/|\s/g, '-');
+
+        card.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="task-id">${task.id}</span>
+                <span class="task-status status-${statusClass}">${task.order_status}</span>
+            </div>
+            <div class="mb-1">
+                <span class="task-info-label">ผู้แจ้ง:</span>
+                <span>${task.creator || '-'}</span>
+            </div>
+            <div>
+                <span class="task-info-label">สถานที่:</span>
+                <span>${task.location || '-'}</span>
+            </div>
+        `;
+
+        card.addEventListener('click', () => {
+            window.location.href = `task-detail.html?id=${task.id}`;
+        });
+
+        return card;
+    }
+
+    // 5. Fetch and Render Task Lists
     async function fetchTasks() {
-        const container = document.getElementById('task-list-container');
-        if (!container) return;
+        const queueContainer = document.getElementById('task-list-container');
+        const preApprovedContainer = document.getElementById('pre-approved-task-list-container');
+        if (!queueContainer || !preApprovedContainer) return;
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/order-agent/inquiry`, {
@@ -60,52 +91,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error('Failed to fetch tasks');
             }
 
-            const allTasks = await response.json();
+            const tasks = await response.json();
 
-            // Filter out pre-approved tasks
-            const tasks = allTasks.filter(task => task.order_status !== 'Pre-approved');
+            const preApprovedTasks = tasks.filter(task => task.order_status === 'Pre-approved');
+            const otherTasks = tasks.filter(task => task.order_status !== 'Pre-approved');
 
-            if (tasks.length === 0) {
-                container.innerHTML = '<p class="text-center text-muted">ไม่มีงานในคิว</p>';
-                return;
+            // Render tasks in the main queue
+            queueContainer.innerHTML = '';
+            if (otherTasks.length === 0) {
+                queueContainer.innerHTML = '<p class="text-center text-muted">ไม่มีงานในคิว</p>';
+            } else {
+                otherTasks.forEach(task => {
+                    const card = renderTaskCard(task);
+                    queueContainer.appendChild(card);
+                });
             }
 
-            container.innerHTML = ''; // Clear loading/placeholder
-            tasks.forEach(task => {
-                const card = document.createElement('div');
-                card.className = 'task-card';
-                card.setAttribute('data-id', task.id);
-
-                // Sanitize status for use in CSS class
-                const statusClass = task.order_status.replace(/\/|\s/g, '-');
-
-                card.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="task-id">${task.id}</span>
-                        <span class="task-status status-${statusClass}">${task.order_status}</span>
-                    </div>
-                    <div class="mb-1">
-                        <span class="task-info-label">ผู้แจ้ง:</span>
-                        <span>${task.creator || '-'}</span>
-                    </div>
-                    <div>
-                        <span class="task-info-label">สถานที่:</span>
-                        <span>${task.location || '-'}</span>
-                    </div>
-                `;
-
-                // Add click event to navigate to detail page
-                card.addEventListener('click', () => {
-                    // NOTE: This assumes a new detail page `bike-task-detail.html` will be created.
-                    window.location.href = `task-detail.html?id=${task.id}`;
+            // Render tasks in the pre-approved queue
+            preApprovedContainer.innerHTML = '';
+            if (preApprovedTasks.length === 0) {
+                preApprovedContainer.innerHTML = '<p class="text-center text-muted">ไม่มีงานที่รอ Pre-approved</p>';
+            } else {
+                preApprovedTasks.forEach(task => {
+                    const card = renderTaskCard(task);
+                    preApprovedContainer.appendChild(card);
                 });
-
-                container.appendChild(card);
-            });
+            }
 
         } catch (error) {
             console.error('Error fetching tasks:', error);
-            container.innerHTML = '<p class="text-center text-danger">ไม่สามารถโหลดข้อมูลงานได้</p>';
+            queueContainer.innerHTML = '<p class="text-center text-danger">ไม่สามารถโหลดข้อมูลงานได้</p>';
+            preApprovedContainer.innerHTML = '<p class="text-center text-danger">ไม่สามารถโหลดข้อมูลงานได้</p>';
         }
     }
 
