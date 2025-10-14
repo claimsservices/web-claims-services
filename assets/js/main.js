@@ -192,4 +192,29 @@ function parseJwt(token) {
 
   // Auto update menu collapsed/expanded based on the themeConfig
   window.Helpers.setCollapsed(true, false);
+
+  // Fetch and display app version
+  fetch('/version.json')
+    .then(res => res.json())
+    .then(frontendVersionData => {
+        const feVersion = `FE: ${frontendVersionData.version}`;
+        const appVersionEl = document.getElementById("appVersion");
+        if(appVersionEl) appVersionEl.textContent = feVersion;
+
+        // Fetch backend version
+        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8181' : 'https://be-claims-service.onrender.com';
+        fetch(`${API_BASE_URL}/api/version`)
+            .then(res => res.json())
+            .then(backendVersionData => {
+                const beVersion = `BE: ${backendVersionData.version}`;
+                if(appVersionEl) appVersionEl.textContent = `${feVersion} | ${beVersion}`;
+            })
+            .catch(() => {
+                if(appVersionEl) appVersionEl.textContent = `${feVersion} | BE: -`;
+            });
+    })
+    .catch(() => { 
+        const appVersionEl = document.getElementById("appVersion");
+        if(appVersionEl) appVersionEl.textContent = "FE: - | BE: -"; 
+    });
 })();
