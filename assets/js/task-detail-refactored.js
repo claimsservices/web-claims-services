@@ -412,23 +412,21 @@ class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
         this.setReadOnlyAll(); // Start by making everything read-only
 
-        // 1. Fields to HIDE for the bike role
+        // 1. Fields to HIDE for the bike role (including customer info fields from the form)
         const fieldsToHide = [
             'taskId', 'transactionDate', 'creatorName', 'phone', 'phone2', 'phone3',
-            'ownerName', 'jobType', 'channel', 'processType'
+            'ownerName', 'jobType', 'channel', 'processType',
+            'c_insure', 'c_tell',
+            'carProvince', 'carEngine', 'carChassis', 'carYear', 'insuranceCompany',
+            'insuranceBranch', 'reference1', 'reference2', 'policyNumber',
+            'coverageStartDate', 'coverageEndDate', 'insuranceType', 's_ins_remark', 's_remark'
         ];
         hideFormFields(fieldsToHide);
 
-        // 2. Hide the customer info card
-        const bikeCard = document.getElementById('bike-customer-info-card');
-        if (bikeCard) {
-            bikeCard.style.display = 'none';
-        }
-
-        // 3. Hide unnecessary tabs, including the 'Upload' tab now
+        // 2. Hide unnecessary tabs, including the 'Upload' tab now
         hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
 
-        // 4. Configure the status dropdown
+        // 3. Configure the status dropdown
         const statusDropdown = document.getElementById('orderStatus');
         if (statusDropdown) {
             statusDropdown.disabled = false;
@@ -454,7 +452,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             });
         }
 
-        // 5. Show and enable specific car fields
+        // 4. Show and enable specific car fields
         const fieldsToShowAndEdit = ['carBrand', 'c_mile', 'carType', 'carModel'];
         fieldsToShowAndEdit.forEach(id => {
             const el = document.getElementById(id);
@@ -476,7 +474,7 @@ class UIBikePermissionManager extends UIPermissionManager {
         const tabHomeLink = document.querySelector('button[data-bs-target="#tab-home"]');
         if(tabHomeLink) tabHomeLink.parentElement.style.display = 'block';
 
-        // 6. Keep Image Viewing Tab Active
+        // 5. Keep Image Viewing Tab Active
         const imageTabLink = document.querySelector('button[data-bs-target="#tab-contact"]');
         if(imageTabLink) imageTabLink.parentElement.style.display = 'block';
         const imageTab = document.getElementById('tab-contact');
@@ -497,7 +495,7 @@ class UIBikePermissionManager extends UIPermissionManager {
             btn.disabled = false;
         });
 
-        // 7. Re-enable the main save button
+        // 6. Re-enable the main save button
         if (this.saveBtn) {
             this.saveBtn.style.display = 'inline-block';
             this.saveBtn.disabled = false;
