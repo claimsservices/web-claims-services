@@ -869,12 +869,15 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         let errorMessages = [];
     
         // --- 1. Update Order Status ---
-        const statusPayload = {
-          order_status: getSafeValue('orderStatus'),
-          updated_by: updated_by,
-          order_hist: [{ icon: "🚲", task: "อัปเดตสถานะ", detail: `อัปเดตสถานะโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
-        };
-        const statusEndpoint = `${API_BASE_URL}/api/order-status/update/${currentOrderId}`;
+            let newStatus = getSafeValue('orderStatus');
+            if (newStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
+                newStatus = 'รออนุมัติ';
+            }
+            const statusPayload = {
+              order_status: newStatus,
+              updated_by: updated_by,
+              order_hist: [{ icon: "🚲", task: "อัปเดตสถานะ", detail: `อัปเดตสถานะโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
+            };        const statusEndpoint = `${API_BASE_URL}/api/order-status/update/${currentOrderId}`;
     
         try {
           const statusResponse = await fetch(statusEndpoint, {
