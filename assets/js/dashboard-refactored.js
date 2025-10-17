@@ -196,8 +196,10 @@ async function loadUserProfile() {
     const response = await fetch(ORDER_STATUS_API_URL, {
       method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': `${token}`,
       },
+      body: JSON.stringify(body) // Add the body
     });
 
     if (!response.ok) {

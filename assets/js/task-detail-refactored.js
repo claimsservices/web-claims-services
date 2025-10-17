@@ -231,6 +231,12 @@
         if (bikeCard && order_details) {
           bikeName.textContent = order_details.c_insure || '-';
           bikePhone.textContent = order_details.c_tell || '-';
+          const callBtn = document.getElementById('call-customer-btn');
+          if (callBtn && order_details.c_tell) {
+            callBtn.href = `tel:${order_details.c_tell.replace(/[^0-9]/g, '')}`;
+          } else if (callBtn) {
+            callBtn.style.display = 'none';
+          }
           bikeCard.style.display = 'block';
         }
       }
