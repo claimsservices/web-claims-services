@@ -222,6 +222,19 @@
       // Pass the full result to apply restrictions
       applyRoleBasedRestrictions(result);
 
+      // Specifically for Bike role, show the customer info card
+      if (userRole === 'Bike') {
+        const bikeCard = document.getElementById('bike-customer-info-card');
+        const bikeName = document.getElementById('bike-customer-name');
+        const bikePhone = document.getElementById('bike-customer-phone');
+
+        if (bikeCard && order_details) {
+          bikeName.textContent = order_details.c_insure || '-';
+          bikePhone.textContent = order_details.c_tell || '-';
+          bikeCard.style.display = 'block';
+        }
+      }
+
     } catch (err) {
       alert('❌ ไม่สามารถโหลดข้อมูลได้');
       console.error('Inquiry Error:', err);
