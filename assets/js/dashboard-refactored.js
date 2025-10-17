@@ -175,14 +175,14 @@ const ORDER_STATUS_API_URL = `${API_BASE_URL}/api/order-status/inquiry`;
 async function loadUserProfile() {
   const token = localStorage.getItem('authToken');
   if (!token) {
-    window.location.href = LOGIN_PAGE;
+    window.location.href = RETURN_LOGIN_PAGE;
     return;
   }
 
   const decoded = parseJwt(token);
   if (decoded && isTokenExpired(decoded)) {
     localStorage.removeItem('authToken');
-    window.location.href = LOGIN_PAGE;
+    window.location.href = RETURN_LOGIN_PAGE;
     return;
   }
 
@@ -193,18 +193,29 @@ async function loadUserProfile() {
   }
 
   try {
+    const userRole = getUserRole(); // Get user role here
+
+    let body = {};
+    if (userRole === 'Admin' || userRole === 'Director' || userRole === 'Developer') {
+        body = {
+            total_orders_status_not: 'ยกเลิก',
+            pending_orders_status: 'เปิดงาน',
+            in_progress_orders_status: 'รับเรื่อง'
+        };
+    }
+
     const response = await fetch(ORDER_STATUS_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `${token}`,
       },
-      body: JSON.stringify(body) // Add the body
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
       localStorage.removeItem('authToken');
-      window.location.href = LOGIN_PAGE;
+      window.location.href = RETURN_LOGIN_PAGE;
       return;
     }
 
