@@ -425,28 +425,16 @@ class UIBikePermissionManager extends UIPermissionManager {
             bikeCard.style.display = 'none';
         }
 
-        // 3. Hide all content within the main "ตรวจสภาพรถ" tab, as it's not for bikes
-        const tabHomeContent = document.getElementById('tab-home');
-        if (tabHomeContent) {
-            // Hide all direct children (the white boxes) inside the tab pane
-            Array.from(tabHomeContent.children).forEach(child => {
-                child.style.display = 'none';
-            });
-        }
-        
-        // 4. Hide unnecessary tabs, but keep image-related ones
-        hideTabs(['tab-car-inspection-li', 'tab-appointments-li', 'tab-note-li', 'tab-history-li']);
+        // 3. Hide unnecessary tabs, including the 'Upload' tab now
+        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
 
-        // 5. Configure the status dropdown
+        // 4. Configure the status dropdown
         const statusDropdown = document.getElementById('orderStatus');
         if (statusDropdown) {
-            statusDropdown.disabled = false; // Make it editable
-
+            statusDropdown.disabled = false;
             const allowedStatuses = ["รับงาน", "เริ่มงาน", "ถึงที่เกิดเหตุ", "ส่งงาน"];
             const currentStatus = statusDropdown.value;
-            
-            statusDropdown.innerHTML = ''; // Clear existing options
-
+            statusDropdown.innerHTML = '';
             if (!allowedStatuses.includes(currentStatus)) {
                 const placeholder = document.createElement('option');
                 placeholder.value = currentStatus;
@@ -455,7 +443,6 @@ class UIBikePermissionManager extends UIPermissionManager {
                 placeholder.selected = true;
                 statusDropdown.appendChild(placeholder);
             }
-
             allowedStatuses.forEach(status => {
                 const option = document.createElement('option');
                 option.value = status;
@@ -467,41 +454,53 @@ class UIBikePermissionManager extends UIPermissionManager {
             });
         }
 
-        // 6. --- Keep Image Section Logic Active ---
+        // 5. Show and enable specific car fields
+        const fieldsToShowAndEdit = ['carBrand', 'c_mile', 'carType', 'carModel'];
+        fieldsToShowAndEdit.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.disabled = false;
+                if (el.readOnly) el.readOnly = false;
+                const parentDiv = el.closest('.mb-3');
+                if (parentDiv) {
+                    parentDiv.style.display = 'block';
+                    const boxContainer = parentDiv.closest('.py-3.px-4.rounded.bg-white.border');
+                    if (boxContainer) boxContainer.style.display = 'block';
+                }
+            }
+        });
+
+        // Ensure the parent tab content for the above fields is visible
+        const tabHome = document.getElementById('tab-home');
+        if(tabHome) tabHome.classList.add('active', 'show');
+        const tabHomeLink = document.querySelector('button[data-bs-target="#tab-home"]');
+        if(tabHomeLink) tabHomeLink.parentElement.style.display = 'block';
+
+        // 6. Keep Image Viewing Tab Active
+        const imageTabLink = document.querySelector('button[data-bs-target="#tab-contact"]');
+        if(imageTabLink) imageTabLink.parentElement.style.display = 'block';
         const imageTab = document.getElementById('tab-contact');
         if (imageTab) {
             imageTab.querySelectorAll('input, button, textarea, select').forEach(el => {
-                el.disabled = false;
+                if(el.id !== 'save-images-btn') el.disabled = false;
             });
         }
-        const uploadTabLink = document.querySelector('button[data-bs-target="#tab-upload"]');
-        if(uploadTabLink) uploadTabLink.parentElement.style.display = 'block';
-
-        const saveImagesBtn = document.getElementById('save-images-btn');
-        if(saveImagesBtn) {
-            saveImagesBtn.style.display = 'inline-block';
-            saveImagesBtn.disabled = false;
-        }
-
         const downloadAllBtn = document.getElementById('downloadAllBtn');
-        if(downloadAllBtn) {
-            downloadAllBtn.disabled = false;
-        }
-
+        if(downloadAllBtn) downloadAllBtn.disabled = false;
         const replaceImageBtn = document.getElementById('replace-image-btn');
         if (replaceImageBtn) {
             replaceImageBtn.style.display = 'inline-block';
             replaceImageBtn.disabled = false;
         }
-
         document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => {
             btn.style.display = 'block';
             btn.disabled = false;
         });
 
-        // 7. Hide the main save button, as we will use auto-save on status change
+        // 7. Re-enable the main save button
         if (this.saveBtn) {
-            this.saveBtn.style.display = 'none';
+            this.saveBtn.style.display = 'inline-block';
+            this.saveBtn.disabled = false;
         }
     }
 }
@@ -672,25 +671,6 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     const orderId = params.get('id');
     if (orderId) {
       loadOrderData(orderId);
-
-      // Add this block for Bike role to handle automatic status updates
-      if (getUserRole() === 'Bike') {
-        const statusDropdown = document.getElementById('orderStatus');
-        if (statusDropdown) {
-          statusDropdown.addEventListener('change', async function() {
-            const newStatus = this.value;
-            // Ensure the selected value is a valid, non-placeholder status
-            if (newStatus && !this.options[this.selectedIndex].disabled) {
-              const success = await updateStatus(orderId, newStatus);
-              if (success) {
-                alert('✅ อัปเดตสถานะเรียบร้อยแล้ว');
-                // Reload data to show updated history and ensure UI is consistent
-                loadOrderData(orderId);
-              }
-            }
-          });
-        }
-      }
     } else {
       const now = new Date();
       const options = { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:
@@ -856,7 +836,62 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           }
         } catch (error) {
           alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
-          console.error('Fetch error:', error);
+      });
+    }
+
+    if (getUserRole() === 'Bike') {
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const token = localStorage.getItem('authToken') || '';
+        const currentOrderId = getSafeValue('taskId');
+        const userInfoEl = document.getElementById('user-info');
+        const updated_by = userInfoEl ? userInfoEl.innerText : 'Bike User';
+
+        if (!currentOrderId) {
+          alert('❌ ไม่พบรหัสงาน ไม่สามารถบันทึกได้');
+          return;
+        }
+
+        // Collect data from the editable fields for Bike
+        const data = {
+          order_status: getSafeValue('orderStatus'),
+          c_brand: getSafeValue('carBrand'),
+          c_version: getSafeValue('carModel'),
+          c_mile: getSafeValue('c_mile'),
+          c_type: getSafeValue('carType'),
+          updated_by: updated_by,
+          order_hist: [{ icon: "🚲", task: "อัปเดตโดย Bike", detail: `อัปเดตโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
+        };
+
+        const orderPic = [];
+        document.querySelectorAll('.upload-section img').forEach(img => {
+          if (!img.src || img.style.display === 'none' || !img.src.startsWith('http')) return;
+          const input = img.closest('label')?.querySelector('input[type="file"]');
+          const picType = input?.name || 'unknown';
+          const title = img.closest('label')?.querySelector('.title')?.innerText || '';
+          orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: updated_by });
+        });
+        data.order_pic = orderPic;
+
+        const endpoint = `${API_BASE_URL}/api/orders/update/${currentOrderId}`;
+
+        try {
+          const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
+            body: JSON.stringify(data)
+          });
+          const result = await response.json();
+          if (response.ok) {
+            alert('✅ อัปเดตข้อมูลเรียบร้อยแล้ว');
+            window.location.href = 'dashboard.html';
+          } else {
+            alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+          }
+        } catch (error) {
+          alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+          console.error('Fetch error for Bike submit:', error);
         }
       });
     }
