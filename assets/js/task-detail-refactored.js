@@ -836,6 +836,8 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           }
         } catch (error) {
           alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+          console.error('Fetch error:', error);
+        }
       });
     }
 
