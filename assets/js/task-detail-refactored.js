@@ -842,28 +842,59 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     if (getUserRole() === 'Bike') {
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
-
+    
         const token = localStorage.getItem('authToken') || '';
         const currentOrderId = getSafeValue('taskId');
         const userInfoEl = document.getElementById('user-info');
         const updated_by = userInfoEl ? userInfoEl.innerText : 'Bike User';
-
+    
         if (!currentOrderId) {
           alert('❌ ไม่พบรหัสงาน ไม่สามารถบันทึกได้');
           return;
         }
-
-        // Collect data from the editable fields for Bike
-        const data = {
+    
+        let allSuccess = true;
+        let successMessages = [];
+        let errorMessages = [];
+    
+        // --- 1. Update Order Status ---
+        const statusPayload = {
           order_status: getSafeValue('orderStatus'),
+          updated_by: updated_by,
+          order_hist: [{ icon: "🚲", task: "อัปเดตสถานะ", detail: `อัปเดตสถานะโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
+        };
+        const statusEndpoint = `${API_BASE_URL}/api/order-status/update/${currentOrderId}`;
+    
+        try {
+          const statusResponse = await fetch(statusEndpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
+            body: JSON.stringify(statusPayload)
+          });
+          const statusResult = await statusResponse.json();
+          if (statusResponse.ok) {
+            successMessages.push('✅ อัปเดตสถานะเรียบร้อยแล้ว');
+          } else {
+            allSuccess = false;
+            errorMessages.push(`❌ ข้อผิดพลาดสถานะ: ${statusResult.message}`);
+          }
+        } catch (error) {
+          allSuccess = false;
+          errorMessages.push(`❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่ออัปเดตสถานะ: ${error.message}`);
+          console.error('Fetch error for status update:', error);
+        }
+    
+        // --- 2. Update Car Details and Pictures ---
+        const carDetailsPayload = {
           c_brand: getSafeValue('carBrand'),
           c_version: getSafeValue('carModel'),
           c_mile: getSafeValue('c_mile'),
           c_type: getSafeValue('carType'),
           updated_by: updated_by,
-          order_hist: [{ icon: "🚲", task: "อัปเดตโดย Bike", detail: `อัปเดตโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
+          order_hist: [{ icon: "🚗", task: "อัปเดตข้อมูลรถ", detail: `อัปเดตข้อมูลรถโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
         };
-
+    
+        // Collect picture data
         const orderPic = [];
         document.querySelectorAll('.upload-section img').forEach(img => {
           if (!img.src || img.style.display === 'none' || !img.src.startsWith('http')) return;
@@ -872,30 +903,38 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           const title = img.closest('label')?.querySelector('.title')?.innerText || '';
           orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: updated_by });
         });
-        data.order_pic = orderPic;
-
-        const endpoint = `${API_BASE_URL}/api/orders/update/${currentOrderId}`;
-
+        carDetailsPayload.order_pic = orderPic;
+    
+        const carDetailsEndpoint = `${API_BASE_URL}/api/order-pic/update/${currentOrderId}`;
+    
         try {
-          const response = await fetch(endpoint, {
+          const carDetailsResponse = await fetch(carDetailsEndpoint, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
-            body: JSON.stringify(data)
+            body: JSON.stringify(carDetailsPayload)
           });
-          const result = await response.json();
-          if (response.ok) {
-            alert('✅ อัปเดตข้อมูลเรียบร้อยแล้ว');
-            window.location.href = 'dashboard.html';
+          const carDetailsResult = await carDetailsResponse.json();
+          if (carDetailsResponse.ok) {
+            successMessages.push('✅ อัปเดตข้อมูลรถและรูปภาพเรียบร้อยแล้ว');
           } else {
-            alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+            allSuccess = false;
+            errorMessages.push(`❌ ข้อผิดพลาดข้อมูลรถ/รูปภาพ: ${carDetailsResult.message}`);
           }
         } catch (error) {
-          alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
-          console.error('Fetch error for Bike submit:', error);
+          allSuccess = false;
+          errorMessages.push(`❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่ออัปเดตข้อมูลรถ/รูปภาพ: ${error.message}`);
+          console.error('Fetch error for car details/pic update:', error);
+        }
+    
+        // --- Final Alert and Redirect ---
+        if (allSuccess) {
+          alert(successMessages.join('\n'));
+          window.location.href = 'dashboard.html';
+        } else {
+          alert(errorMessages.join('\n'));
         }
       });
     }
-
 
     // --- Start of Image Preview and Replace Logic ---
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
