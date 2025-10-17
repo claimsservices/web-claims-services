@@ -38,7 +38,8 @@ const babelLoader = () => ({
     plugins: [
       '@babel/plugin-transform-destructuring',
       '@babel/plugin-proposal-object-rest-spread',
-      '@babel/plugin-transform-template-literals'
+      '@babel/plugin-transform-optional-chaining',
+      '@babel/plugin-transform-nullish-coalescing-operator'
     ],
     babelrc: false
   }
