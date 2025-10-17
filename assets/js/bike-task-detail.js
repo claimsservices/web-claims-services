@@ -65,6 +65,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (result.order_details) {
                 acceptCustomerName.textContent = result.order_details.c_name;
                 acceptCustomerPhone.textContent = result.order_details.tell_1;
+                // Populate working view as well
+                document.getElementById('work-customer-name').textContent = result.order_details.c_name;
+                document.getElementById('work-customer-phone').textContent = result.order_details.tell_1;
             }
 
             const status = result.order.order_status;
@@ -236,6 +239,18 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('ไม่พบเบอร์โทรศัพท์ลูกค้า');
         }
     });
+
+    const callBtn2 = document.getElementById('call-btn-2');
+    if(callBtn2) {
+        callBtn2.addEventListener('click', () => {
+            const phoneNumber = currentOrderData?.order_details?.tell_1;
+            if (phoneNumber) {
+                window.location.href = `tel:${phoneNumber}`;
+            } else {
+                alert('ไม่พบเบอร์โทรศัพท์ลูกค้า');
+            }
+        });
+    }
 
     const saveWorkBtn = document.getElementById('save-work-btn');
     if (saveWorkBtn) {

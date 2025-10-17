@@ -96,12 +96,18 @@
 
                     <!-- View 2: Working View -->
                     <div id="working-view" style="display: none;">
+                        <div class="card detail-card mb-3">
+                            <div class="card-body">
+                                <p class="mb-1"><strong>ผู้เอาประกัน:</strong> <span id="work-customer-name"></span></p>
+                                <p class="mb-0"><strong>เบอร์โทร:</strong> <span id="work-customer-phone"></span></p>
+                            </div>
+                        </div>
                         <div class="top-action-bar rounded-3 mb-3">
                             <div class="d-flex justify-content-around">
-                                <button class="btn btn-text-secondary"><i class="bx bx-phone bx-sm"></i><br>โทร</button>
-                                <button class="btn btn-text-secondary"><i class="bx bx-map bx-sm"></i><br>นำทาง</button>
-                                <button class="btn btn-text-secondary"><i class="bx bx-images bx-sm"></i><br>รูปภาพ</button>
-                                <button class="btn btn-text-secondary"><i class="bx bx-send bx-sm"></i><br>ส่งงาน</button>
+                                <button class="btn btn-text-secondary" id="call-btn-2"><i class="bx bx-phone bx-sm"></i><br>โทร</button>
+                                <button class="btn btn-text-secondary" id="nav-btn"><i class="bx bx-map bx-sm"></i><br>นำทาง</button>
+                                <button class="btn btn-text-secondary" id="images-btn"><i class="bx bx-images bx-sm"></i><br>รูปภาพ</button>
+                                <button class="btn btn-text-secondary" id="send-work-btn"><i class="bx bx-send bx-sm"></i><br>ส่งงาน</button>
                             </div>
                         </div>
 
