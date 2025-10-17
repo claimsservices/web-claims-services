@@ -68,6 +68,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Populate working view as well
                 document.getElementById('work-customer-name').textContent = result.order_details.c_name;
                 document.getElementById('work-customer-phone').textContent = result.order_details.tell_1;
+
+                // Populate the new form
+                document.getElementById('work-form-customer-name').value = result.order_details.c_name || '';
+                document.getElementById('work-form-customer-phone').value = result.order_details.tell_1 || '';
+                document.getElementById('work-form-car-brand').value = result.order_details.c_brand || '';
+                document.getElementById('work-form-car-model').value = result.order_details.c_version || '';
+                document.getElementById('work-form-car-mileage').value = result.order_details.c_mile || '';
+                document.getElementById('work-form-car-type').value = result.order_details.c_type || '';
             }
 
             const status = result.order.order_status;
@@ -271,7 +279,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const body = {
             order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
-            order_pic: picArray
+            order_pic: picArray,
+            c_brand: document.getElementById('work-form-car-brand').value,
+            c_version: document.getElementById('work-form-car-model').value,
+            c_mile: document.getElementById('work-form-car-mileage').value,
+            c_type: document.getElementById('work-form-car-type').value
         };
 
         try {
