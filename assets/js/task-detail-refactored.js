@@ -412,14 +412,40 @@ class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
         this.setReadOnlyAll(); // Start by making everything read-only
 
-        // Hide tabs not relevant to Bike user
-        hideTabs(['tab-car-inspection-li', 'tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
+        // Define which fields to KEEP for the bike role
+        const fieldsToKeep = [
+            'c_insure', 'c_tell', 'carRegistration', 'carBrand', 
+            'carModel', 'c_mile', 'carType'
+        ];
 
-        // Hide the top-level form fields that are not needed
-        hideFormFields([
-            'taskId', 'phone', 'ownerName', 'processType', 'transactionDate', 'phone2', 'jobType', 
-            'orderStatus', 'creatorName', 'phone3', 'channel'
-        ]);
+        // Hide all fields in the main form first
+        const allFormInputs = Array.from(document.querySelectorAll('#tab-home input, #tab-home select, #tab-home textarea'));
+        allFormInputs.forEach(input => {
+            const parentDiv = input.closest('.mb-3') || input.closest('.form-check');
+            if (parentDiv) {
+                parentDiv.style.display = 'none';
+            }
+        });
+
+        // Now, un-hide the fields we want to keep
+        fieldsToKeep.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                const parentDiv = el.closest('.mb-3') || el.closest('.form-check');
+                if (parentDiv) {
+                    parentDiv.style.display = 'block';
+                }
+            }
+        });
+
+        // Make specific fields editable
+        ['carBrand', 'carModel', 'c_mile', 'carType'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.disabled = false;
+        });
+
+        // Hide unnecessary tabs
+        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
 
         // Show the specific bike info card
         const bikeCard = document.getElementById('bike-customer-info-card');
@@ -427,9 +453,10 @@ class UIBikePermissionManager extends UIPermissionManager {
             bikeCard.style.display = 'block';
         }
 
-        // Enable image uploading and saving for Bike role
+        // --- Image Section Logic ---
         const imageTab = document.getElementById('tab-contact');
         if (imageTab) {
+            imageTab.style.display = 'block'; // Ensure the whole tab is visible
             imageTab.querySelectorAll('input, button, textarea, select').forEach(el => {
                 el.disabled = false;
             });
@@ -455,6 +482,12 @@ class UIBikePermissionManager extends UIPermissionManager {
             btn.style.display = 'block';
             btn.disabled = false;
         });
+
+        // Re-enable the main save button for bikes
+        if (this.saveBtn) {
+            this.saveBtn.style.display = 'inline-block';
+            this.saveBtn.disabled = false;
+        }
     }
 }
 
