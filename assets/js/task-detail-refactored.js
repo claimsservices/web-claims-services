@@ -410,14 +410,16 @@ class UIAdminPermissionManager extends UIPermissionManager {
 
 class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
-        // Instead of clearing HTML, just hide unnecessary parts
         this.setReadOnlyAll(); // Start by making everything read-only
 
-        // Hide the main form content that is not for bikes
-        const mainForm = document.getElementById('taskForm');
-        if(mainForm) {
-            mainForm.style.display = 'none';
-        }
+        // Hide tabs not relevant to Bike user
+        hideTabs(['tab-car-inspection-li', 'tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
+
+        // Hide the top-level form fields that are not needed
+        hideFormFields([
+            'taskId', 'phone', 'ownerName', 'processType', 'transactionDate', 'phone2', 'jobType', 
+            'orderStatus', 'creatorName', 'phone3', 'channel'
+        ]);
 
         // Show the specific bike info card
         const bikeCard = document.getElementById('bike-customer-info-card');
@@ -425,9 +427,34 @@ class UIBikePermissionManager extends UIPermissionManager {
             bikeCard.style.display = 'block';
         }
 
-        // Depending on the status, you might want to show a different UI
-        // For now, we just show the info and stop, preventing the error.
-        // Further actions for bike role can be built out here.
+        // Enable image uploading and saving for Bike role
+        const imageTab = document.getElementById('tab-contact');
+        if (imageTab) {
+            imageTab.querySelectorAll('input, button, textarea, select').forEach(el => {
+                el.disabled = false;
+            });
+        }
+        const saveImagesBtn = document.getElementById('save-images-btn');
+        if(saveImagesBtn) {
+            saveImagesBtn.style.display = 'inline-block';
+            saveImagesBtn.disabled = false;
+        }
+
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        if(downloadAllBtn) {
+            downloadAllBtn.disabled = false;
+        }
+
+        const replaceImageBtn = document.getElementById('replace-image-btn');
+        if (replaceImageBtn) {
+            replaceImageBtn.style.display = 'inline-block';
+            replaceImageBtn.disabled = false;
+        }
+
+        document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => {
+            btn.style.display = 'block';
+            btn.disabled = false;
+        });
     }
 }
 
