@@ -430,7 +430,12 @@ class UIBikePermissionManager extends UIPermissionManager {
         const statusDropdown = document.getElementById('orderStatus');
         if (statusDropdown) {
             statusDropdown.disabled = false;
-            const allowedStatuses = ["รับงาน", "เริ่มงาน", "ถึงที่เกิดเหตุ", "ส่งงาน"];
+                        const allowedStatuses = [
+                            "รับงาน",
+                            "เริ่มงาน/กำลังเดินทาง",
+                            "ถึงที่เกิดเหตุ/ปฏิบัติงาน",
+                            "ส่งงาน/ตรวจสอบเบื้องต้น"
+                        ];
             const currentStatus = statusDropdown.value;
             statusDropdown.innerHTML = '';
             if (!allowedStatuses.includes(currentStatus)) {
