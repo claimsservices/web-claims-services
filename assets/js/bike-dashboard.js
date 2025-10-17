@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
             `;
 
             card.addEventListener('click', () => {
-                window.location.href = `task-detail.html?id=${task.id}`;
+                window.location.href = `bike-task-detail.html?id=${task.id}`;
             });
 
             container.appendChild(card);
