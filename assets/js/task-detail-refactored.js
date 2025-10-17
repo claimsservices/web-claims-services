@@ -410,88 +410,79 @@ class UIAdminPermissionManager extends UIPermissionManager {
 
 class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
-        this.setReadOnlyAll(); // Start by making everything read-only
+        // 1. Hide all high-level containers
+        const mainFormContainer = document.querySelector('.card-body .row.g-4');
+        if (mainFormContainer) {
+            mainFormContainer.style.display = 'none';
+        }
 
-        // Define which fields to KEEP for the bike role
-        const fieldsToKeep = [
-            'c_insure', 'c_tell', 'carRegistration', 'carBrand', 
-            'carModel', 'c_mile', 'carType'
-        ];
+        const tabSection = document.querySelector('.mt-4.p-4.border.rounded');
+        if (tabSection) {
+            tabSection.style.display = 'none';
+        }
 
-        // Hide all fields in the main form first
-        const allFormInputs = Array.from(document.querySelectorAll('#tab-home input, #tab-home select, #tab-home textarea'));
-        allFormInputs.forEach(input => {
-            const parentDiv = input.closest('.mb-3') || input.closest('.form-check');
-            if (parentDiv) {
-                parentDiv.style.display = 'none';
-            }
-        });
-
-        // Now, un-hide the fields we want to keep
-        fieldsToKeep.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                const parentDiv = el.closest('.mb-3') || el.closest('.form-check');
-                if (parentDiv) {
-                    parentDiv.style.display = 'block';
-                }
-            }
-        });
-
-        // Make specific fields editable
-        ['carBrand', 'carModel', 'c_mile', 'carType'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.disabled = false;
-                if (el.type === 'text') {
-                    el.readOnly = false;
-                }
-            }
-        });
-
-        // Hide unnecessary tabs
-        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
-
-        // Show the specific bike info card
         const bikeCard = document.getElementById('bike-customer-info-card');
         if (bikeCard) {
-            bikeCard.style.display = 'block';
+            bikeCard.style.display = 'none';
+        }
+        
+        const cardHeader = document.querySelector('.card-header.border-bottom');
+        if (cardHeader) {
+            // Hide all children of the header except the title if needed, or hide the whole thing
+            cardHeader.style.display = 'none';
         }
 
-        // --- Image Section Logic ---
-        const imageTab = document.getElementById('tab-contact');
-        if (imageTab) {
-            imageTab.style.display = 'block'; // Ensure the whole tab is visible
-            imageTab.querySelectorAll('input, button, textarea, select').forEach(el => {
-                el.disabled = false;
+        // 2. Specifically find and show the status field's container
+        const statusDropdown = document.getElementById('orderStatus');
+        if (statusDropdown) {
+            const statusContainer = statusDropdown.closest('.col-md-3');
+            if (statusContainer) {
+                statusContainer.style.display = 'block';
+                // Also make sure its parent row is visible and styled correctly
+                const parentRow = statusContainer.closest('.row.g-4');
+                if (parentRow) {
+                    parentRow.style.display = 'flex';
+                    parentRow.style.justifyContent = 'center'; // Center the single item
+                }
+            }
+
+            // 3. Make the dropdown editable
+            statusDropdown.disabled = false;
+
+            // 4. Set the allowed options
+            const allowedStatuses = ["รับงาน", "เริ่มงาน", "ถึงที่เกิดเหตุ", "ส่งงาน"];
+            const currentStatus = statusDropdown.value;
+
+            // Clear existing options
+            statusDropdown.innerHTML = '';
+
+            // Add a disabled placeholder for the current status if it's not in the allowed list
+            // This ensures the user sees the current state but can't re-select it if it's not a valid next step.
+            if (!allowedStatuses.includes(currentStatus)) {
+                 const placeholder = document.createElement('option');
+                 placeholder.value = currentStatus;
+                 placeholder.textContent = currentStatus;
+                 placeholder.disabled = true;
+                 placeholder.selected = true;
+                 statusDropdown.appendChild(placeholder);
+            }
+
+            // Add allowed statuses
+            allowedStatuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status;
+                option.textContent = status;
+                // Select the current status if it's in the allowed list
+                if (status === currentStatus) {
+                    option.selected = true;
+                }
+                statusDropdown.appendChild(option);
             });
         }
-        const saveImagesBtn = document.getElementById('save-images-btn');
-        if(saveImagesBtn) {
-            saveImagesBtn.style.display = 'inline-block';
-            saveImagesBtn.disabled = false;
-        }
 
-        const downloadAllBtn = document.getElementById('downloadAllBtn');
-        if(downloadAllBtn) {
-            downloadAllBtn.disabled = false;
-        }
-
-        const replaceImageBtn = document.getElementById('replace-image-btn');
-        if (replaceImageBtn) {
-            replaceImageBtn.style.display = 'inline-block';
-            replaceImageBtn.disabled = false;
-        }
-
-        document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => {
-            btn.style.display = 'block';
-            btn.disabled = false;
-        });
-
-        // Re-enable the main save button for bikes
+        // 5. Hide the main save button, as we'll save on change
         if (this.saveBtn) {
-            this.saveBtn.style.display = 'inline-block';
-            this.saveBtn.disabled = false;
+            this.saveBtn.style.display = 'none';
         }
     }
 }
@@ -662,6 +653,25 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     const orderId = params.get('id');
     if (orderId) {
       loadOrderData(orderId);
+
+      // Add this block for Bike role to handle automatic status updates
+      if (getUserRole() === 'Bike') {
+        const statusDropdown = document.getElementById('orderStatus');
+        if (statusDropdown) {
+          statusDropdown.addEventListener('change', async function() {
+            const newStatus = this.value;
+            // Ensure the selected value is a valid, non-placeholder status
+            if (newStatus && !this.options[this.selectedIndex].disabled) {
+              const success = await updateStatus(orderId, newStatus);
+              if (success) {
+                alert('✅ อัปเดตสถานะเรียบร้อยแล้ว');
+                // Reload data to show updated history and ensure UI is consistent
+                loadOrderData(orderId);
+              }
+            }
+          });
+        }
+      }
     } else {
       const now = new Date();
       const options = { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:
