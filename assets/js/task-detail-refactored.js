@@ -441,7 +441,12 @@ class UIBikePermissionManager extends UIPermissionManager {
         // Make specific fields editable
         ['carBrand', 'carModel', 'c_mile', 'carType'].forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.disabled = false;
+            if (el) {
+                el.disabled = false;
+                if (el.type === 'text') {
+                    el.readOnly = false;
+                }
+            }
         });
 
         // Hide unnecessary tabs
