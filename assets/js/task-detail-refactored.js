@@ -410,177 +410,24 @@ class UIAdminPermissionManager extends UIPermissionManager {
 
 class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
-        // Hide default page elements since we are building a custom UI for the Bike role
-        hideTabs(['tab-car-inspection-li', 'tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
-        hideFormFields([
-            'taskId', 'phone', 'ownerName', 'processType', 'transactionDate', 'phone2', 'jobType', 
-            'orderStatus', 'creatorName', 'phone3', 'channel'
-        ]);
+        // Instead of clearing HTML, just hide unnecessary parts
+        this.setReadOnlyAll(); // Start by making everything read-only
 
-        const cardBody = document.querySelector('.card-body');
-        if (!cardBody) return;
-
-        const order = data?.order;
-        const orderId = order?.id;
-
-        const acceptStates = ['รับเรื่องแล้ว'];
-        const workingStates = ['รับงาน', 'เริ่มงาน/กำลังเดินทาง', 'ถึงที่เกิดเหตุ/ปฏิบัติงาน', 'แก้ไข'];
-
-        if (acceptStates.includes(orderStatus)) {
-            // State 1: Acknowledgment view (accept/reject)
-            cardBody.innerHTML = `
-                <div class="py-3 px-4 mb-4 rounded bg-white border">
-                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
-                    <p><strong>รหัสงาน:</strong> ${order.id || '-'}</p>
-                    <p><strong>ชื่อผู้เอาประกัน:</strong> ${data.order_details?.c_insure || '-'}</p>
-                    <p><strong>เบอร์โทรศัพท์:</strong> ${data.order_details?.c_tell || '-'}</p>
-                    <p><strong>ทะเบียนรถ:</strong> ${order.car_registration || '-'}</p>
-                </div>
-                <div class="mt-4 d-grid gap-2 d-md-flex">
-                    <button class="btn btn-danger me-md-2" id="bike-reject-btn">ปฏิเสธงาน</button>
-                    <button class="btn btn-primary" id="bike-accept-btn">รับงาน</button>
-                </div>
-                <a href="bike-dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
-            `;
-
-            document.getElementById('bike-accept-btn').addEventListener('click', async () => {
-                if (await updateStatus(orderId, 'รับงาน')) {
-                    alert('รับงานเรียบร้อยแล้ว! กำลังโหลดหน้าอัปโหลดรูปภาพ...');
-                    window.location.reload();
-                }
-            });
-
-            document.getElementById('bike-reject-btn').addEventListener('click', async () => {
-                if (await updateStatus(orderId, 'ปฏิเสธงาน')) {
-                    alert('ปฏิเสธงานเรียบร้อยแล้ว');
-                    window.location.href = 'bike-dashboard.html';
-                }
-            });
-
-        } else {
-            // State 2 & 3: Working view (editable) and Submitted/Post-work view (read-only)
-            const isReadOnly = !workingStates.includes(orderStatus);
-            
-            const buttonsHTML = isReadOnly ? '' : `
-                <div class="mt-4 d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button class="btn btn-primary" id="bike-save-btn">บันทึกข้อมูล</button>
-                    <button class="btn btn-success" id="bike-submit-work-btn">ส่งงาน</button>
-                </div>
-            `;
-
-            cardBody.innerHTML = `
-                <input type="hidden" id="taskId" value="${order.id}">
-                <div class="py-3 px-4 mb-4 rounded bg-white border">
-                    <h6 class="fw-bold text-primary border-bottom pb-2 mb-4">ข้อมูลเจ้าของรถ</h6>
-                    <div class="row g-3">
-                        <div class="col-md-6"><label class="form-label fw-semibold">ยี่ห้อรถ</label><select class="form-select" id="carBrand"></select></div>
-                        <div class="col-md-6"><label class="form-label fw-semibold">รุ่นรถ</label><select class="form-select" id="carModel"></select></div>
-                        <div class="col-md-6"><label class="form-label fw-semibold">เลขไมล์</label><input type="text" class="form-control" placeholder="ระบุเลขไมล์ปัจจุบัน" id="c_mile"></div>
-                        <div class="col-md-6"><label class="form-label fw-semibold">ประเภทรถ</label><input type="text" class="form-control" placeholder="เช่น รถเก๋ง, รถกระบะ" id="carType"></div>
-                    </div>
-                    <div class="row g-3 mt-1">
-                        <div class="col-md-12"><label class="form-label fw-semibold">ข้อมูลความเสียหายโดยรวม</label><textarea class="form-control" id="s_detail" rows="3" readonly></textarea></div>
-                    </div>
-                </div>
-                <div class="tab-pane fade show active" id="tab-contact" role="tabpanel">
-                    <section class="upload-section mb-4" id="around-images-section"><h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5><div class="row"></div></section>
-                    <section class="upload-section mb-4" id="accessories-images-section"><h5><i class="bi bi-speedometer2 text-primary me-2"></i>ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง</h5><div class="row"></div></section>
-                    <section class="upload-section mb-4" id="inspection-images-section"><h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5><div class="row"></div></section>
-                    <section class="upload-section mb-4" id="fiber-documents-section"><h5><i class="bi bi-file-earmark-check-fill text-success me-2"></i>เอกสารใบตรวจสภาพรถ</h5><div class="row"></div></section>
-                    <section class="upload-section mb-4" id="other-documents-section"><h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารอื่นๆ</h5><div class="row"></div></section>
-                    <section class="upload-section mb-4" id="signature-documents-section"><h5><i class="bi bi-pen-fill text-info me-2"></i>ลายเซ็น</h5><div class="row"></div></section>
-                </div>
-                ${buttonsHTML}
-                <a href="bike-dashboard.html" class="btn btn-secondary w-100 mt-2">กลับไปหน้าหลัก</a>
-            `;
-
-            // --- Repopulate data (for both working and read-only states) ---
-            const brandSelect = document.getElementById('carBrand');
-            const modelSelect = document.getElementById('carModel');
-            for (const brand in carModels) {
-                brandSelect.appendChild(new Option(brand, brand));
-            }
-            initCarModelDropdown(brandSelect, modelSelect);
-            brandSelect.value = data.order_details?.c_brand || '';
-            populateModels(brandSelect, modelSelect);
-            modelSelect.value = data.order_details?.c_version || '';
-            document.getElementById('c_mile').value = data.order_details?.c_mile || '';
-            document.getElementById('carType').value = data.order_details?.c_type || '';
-
-            // Call the global functions to render image slots and fill them
-            populateImageSections();
-            renderUploadedImages(data.order_pic || []);
-
-            if (isReadOnly) {
-                // --- Make the entire view read-only ---
-                cardBody.querySelectorAll('input, textarea, select').forEach(el => el.disabled = true);
-                document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => btn.style.display = 'none');
-                document.querySelectorAll('label.image-gallery').forEach(label => label.style.pointerEvents = 'none');
-            } else {
-                // --- Activate the form for the working state ---
-                brandSelect.disabled = false;
-                modelSelect.disabled = false;
-                document.getElementById('c_mile').disabled = false;
-                document.getElementById('carType').disabled = false;
-
-                const created_by = document.getElementById('user-info').innerText;
-                const gatherImageData = () => {
-                    const orderPic = [];
-                    document.querySelectorAll('.upload-section img').forEach(img => {
-                        if (!img.src || img.src.includes('data:image/gif')) return;
-                        const input = img.closest('label')?.querySelector('input[type="file"]');
-                        const picType = input?.name || 'unknown';
-                        const title = img.closest('label')?.querySelector('.title')?.innerText || '';
-                        orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
-                    });
-                    return orderPic;
-                };
-
-                const callUpdateApi = async (payload) => {
-                    try {
-                        const response = await fetch(`${API_BASE_URL}/api/order-pic/update/${orderId}`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('authToken') || '' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (!response.ok) throw new Error((await response.json()).message || 'API Error');
-                        return true;
-                    } catch (error) {
-                        console.error('Update API error:', error);
-                        alert(`เกิดข้อผิดพลาด: ${error.message}`);
-                        return false;
-                    }
-                };
-
-                document.getElementById('bike-save-btn').addEventListener('click', async () => {
-                    const saveData = {
-                        order_status: order.order_status,
-                        order_pic: gatherImageData(),
-                        c_brand: document.getElementById('carBrand').value, c_version: document.getElementById('carModel').value,
-                        c_mile: document.getElementById('c_mile').value, c_type: document.getElementById('carType').value,
-                        updated_by: created_by,
-                        order_hist: [{ icon: "💾", task: "บันทึกข้อมูล & รูปภาพ", detail: `บันทึกโดย: ${created_by}`, created_by }]
-                    };
-                    if (await callUpdateApi(saveData)) alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว');
-                });
-
-                document.getElementById('bike-submit-work-btn').addEventListener('click', async () => {
-                    if (!confirm('คุณต้องการส่งงานเพื่อตรวจสอบใช่หรือไม่?')) return;
-                    const submitData = {
-                        order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
-                        order_pic: gatherImageData(),
-                        c_brand: document.getElementById('carBrand').value, c_version: document.getElementById('carModel').value,
-                        c_mile: document.getElementById('c_mile').value, c_type: document.getElementById('carType').value,
-                        updated_by: created_by,
-                        order_hist: [{ icon: "📝", task: "ส่งงาน", detail: `ส่งงานโดยผู้ใช้: ${created_by}`, created_by }]
-                    };
-                    if (await callUpdateApi(submitData)) {
-                        alert('ส่งงานเรียบร้อยแล้ว');
-                        window.location.href = 'bike-dashboard.html';
-                    }
-                });
-            }
+        // Hide the main form content that is not for bikes
+        const mainForm = document.getElementById('taskForm');
+        if(mainForm) {
+            mainForm.style.display = 'none';
         }
+
+        // Show the specific bike info card
+        const bikeCard = document.getElementById('bike-customer-info-card');
+        if (bikeCard) {
+            bikeCard.style.display = 'block';
+        }
+
+        // Depending on the status, you might want to show a different UI
+        // For now, we just show the info and stop, preventing the error.
+        // Further actions for bike role can be built out here.
     }
 }
 
