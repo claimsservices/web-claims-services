@@ -410,69 +410,56 @@ class UIAdminPermissionManager extends UIPermissionManager {
 
 class UIBikePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
-        // 1. Hide all high-level containers
-        const mainFormContainer = document.querySelector('.card-body .row.g-4');
-        if (mainFormContainer) {
-            mainFormContainer.style.display = 'none';
-        }
+        this.setReadOnlyAll(); // Start by making everything read-only
 
-        const tabSection = document.querySelector('.mt-4.p-4.border.rounded');
-        if (tabSection) {
-            tabSection.style.display = 'none';
-        }
+        // 1. Fields to HIDE for the bike role
+        const fieldsToHide = [
+            'taskId', 'transactionDate', 'creatorName', 'phone', 'phone2', 'phone3',
+            'ownerName', 'jobType', 'channel', 'processType'
+        ];
+        hideFormFields(fieldsToHide);
 
+        // 2. Hide the customer info card
         const bikeCard = document.getElementById('bike-customer-info-card');
         if (bikeCard) {
             bikeCard.style.display = 'none';
         }
-        
-        const cardHeader = document.querySelector('.card-header.border-bottom');
-        if (cardHeader) {
-            // Hide all children of the header except the title if needed, or hide the whole thing
-            cardHeader.style.display = 'none';
-        }
 
-        // 2. Specifically find and show the status field's container
+        // 3. Hide all content within the main "ตรวจสภาพรถ" tab, as it's not for bikes
+        const tabHomeContent = document.getElementById('tab-home');
+        if (tabHomeContent) {
+            // Hide all direct children (the white boxes) inside the tab pane
+            Array.from(tabHomeContent.children).forEach(child => {
+                child.style.display = 'none';
+            });
+        }
+        
+        // 4. Hide unnecessary tabs, but keep image-related ones
+        hideTabs(['tab-car-inspection-li', 'tab-appointments-li', 'tab-note-li', 'tab-history-li']);
+
+        // 5. Configure the status dropdown
         const statusDropdown = document.getElementById('orderStatus');
         if (statusDropdown) {
-            const statusContainer = statusDropdown.closest('.col-md-3');
-            if (statusContainer) {
-                statusContainer.style.display = 'block';
-                // Also make sure its parent row is visible and styled correctly
-                const parentRow = statusContainer.closest('.row.g-4');
-                if (parentRow) {
-                    parentRow.style.display = 'flex';
-                    parentRow.style.justifyContent = 'center'; // Center the single item
-                }
-            }
+            statusDropdown.disabled = false; // Make it editable
 
-            // 3. Make the dropdown editable
-            statusDropdown.disabled = false;
-
-            // 4. Set the allowed options
             const allowedStatuses = ["รับงาน", "เริ่มงาน", "ถึงที่เกิดเหตุ", "ส่งงาน"];
             const currentStatus = statusDropdown.value;
+            
+            statusDropdown.innerHTML = ''; // Clear existing options
 
-            // Clear existing options
-            statusDropdown.innerHTML = '';
-
-            // Add a disabled placeholder for the current status if it's not in the allowed list
-            // This ensures the user sees the current state but can't re-select it if it's not a valid next step.
             if (!allowedStatuses.includes(currentStatus)) {
-                 const placeholder = document.createElement('option');
-                 placeholder.value = currentStatus;
-                 placeholder.textContent = currentStatus;
-                 placeholder.disabled = true;
-                 placeholder.selected = true;
-                 statusDropdown.appendChild(placeholder);
+                const placeholder = document.createElement('option');
+                placeholder.value = currentStatus;
+                placeholder.textContent = currentStatus;
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                statusDropdown.appendChild(placeholder);
             }
 
-            // Add allowed statuses
             allowedStatuses.forEach(status => {
                 const option = document.createElement('option');
                 option.value = status;
                 option.textContent = status;
-                // Select the current status if it's in the allowed list
                 if (status === currentStatus) {
                     option.selected = true;
                 }
@@ -480,7 +467,39 @@ class UIBikePermissionManager extends UIPermissionManager {
             });
         }
 
-        // 5. Hide the main save button, as we'll save on change
+        // 6. --- Keep Image Section Logic Active ---
+        const imageTab = document.getElementById('tab-contact');
+        if (imageTab) {
+            imageTab.querySelectorAll('input, button, textarea, select').forEach(el => {
+                el.disabled = false;
+            });
+        }
+        const uploadTabLink = document.querySelector('button[data-bs-target="#tab-upload"]');
+        if(uploadTabLink) uploadTabLink.parentElement.style.display = 'block';
+
+        const saveImagesBtn = document.getElementById('save-images-btn');
+        if(saveImagesBtn) {
+            saveImagesBtn.style.display = 'inline-block';
+            saveImagesBtn.disabled = false;
+        }
+
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        if(downloadAllBtn) {
+            downloadAllBtn.disabled = false;
+        }
+
+        const replaceImageBtn = document.getElementById('replace-image-btn');
+        if (replaceImageBtn) {
+            replaceImageBtn.style.display = 'inline-block';
+            replaceImageBtn.disabled = false;
+        }
+
+        document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => {
+            btn.style.display = 'block';
+            btn.disabled = false;
+        });
+
+        // 7. Hide the main save button, as we will use auto-save on status change
         if (this.saveBtn) {
             this.saveBtn.style.display = 'none';
         }
