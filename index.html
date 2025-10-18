@@ -209,15 +209,14 @@
     <!-- endbuild -->
 
     <!-- Main JS -->
-    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/main.js" type="module"></script>
 
     <!-- Page JS -->
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
 
-    <script>
-      const API_BASE_URL = 'https://be-claims-service.onrender.com'; // URL สำหรับ Production/Deploy
-// const API_BASE_URL = 'http://localhost:8181'; // URL สำหรับ Local development
+    <script type="module">
+      import { API_BASE_URL } from './assets/js/api-config.js';
 
       document.getElementById("formAuthentication").addEventListener("submit", async function (event) {
         event.preventDefault();
