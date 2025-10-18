@@ -223,7 +223,7 @@ async function loadUserProfile() {
 
                       return;
 
-                    }            }
+                    }
     const result = await response.json();
     const order = result.order;
 
