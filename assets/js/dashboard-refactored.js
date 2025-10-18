@@ -213,12 +213,12 @@ async function loadUserProfile() {
       body: JSON.stringify(body)
     });
 
-    if (!response.ok) {
-      localStorage.removeItem('authToken');
-      window.location.href = RETURN_LOGIN_PAGE;
-      return;
-    }
-
+            if (!response.ok) {
+              console.error('API call to ORDER_STATUS_API_URL failed:', response.status, await response.text());
+              localStorage.removeItem('authToken');
+              window.location.href = RETURN_LOGIN_PAGE;
+              return;
+            }
     const result = await response.json();
     const order = result.order;
 
