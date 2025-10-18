@@ -202,7 +202,7 @@ function parseJwt(token) {
         if(appVersionEl) appVersionEl.textContent = feVersion;
 
         // Fetch backend version
-        const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8181' : 'https://be-claims-service.onrender.com';
+import { API_BASE_URL } from './api-config.js';
         fetch(`${API_BASE_URL}/api/version`)
             .then(res => res.json())
             .then(backendVersionData => {

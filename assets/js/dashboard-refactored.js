@@ -167,7 +167,7 @@ fetch('/version.json')
   });
 
 // API and constants
-const API_BASE_URL = 'https://be-claims-service.onrender.com'; // URL สำหรับ Production/Deploy
+import { API_BASE_URL } from './api-config.js';
 // const API_BASE_URL = 'http://localhost:8181'; // URL สำหรับ Local development
 const ORDER_STATUS_API_URL = `${API_BASE_URL}/api/order-status/inquiry`;
 

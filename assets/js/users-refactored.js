@@ -28,6 +28,8 @@ document.getElementById('user-role-regist').addEventListener('change', function 
 
 import { API_BASE_URL } from './api-config.js';
 
+import { API_BASE_URL } from './api-config.js';
+
 // Constants for URLs and other fixed strings
 const API_URL = `${API_BASE_URL}/api/auth/profile`;
 const API_URL_USERS = `${API_BASE_URL}/api/user-management/users`; // Update with your backend URL

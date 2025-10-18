@@ -16,7 +16,7 @@ fetch('/version.json')
           document.getElementById("appVersion").textContent = "App Version -";
         });
 
-const API_BASE_URL = 'https://be-claims-service.onrender.com';
+import { API_BASE_URL } from './api-config.js';
 
       // Function to decode JWT token and check for expiration
       function decodeJWT(token) {

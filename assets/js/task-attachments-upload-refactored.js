@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = 'https://be-claims-service.onrender.com';
+    import { API_BASE_URL } from './api-config.js';
     const LOGIN_PAGE = '../index.html';
     const token = localStorage.getItem('authToken');
 
