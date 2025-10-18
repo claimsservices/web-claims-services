@@ -214,11 +214,12 @@ async function loadUserProfile() {
     });
 
             if (!response.ok) {
-              console.error('API call to ORDER_STATUS_API_URL failed:', response.status, await response.text());
-              localStorage.removeItem('authToken');
-              window.location.href = RETURN_LOGIN_PAGE;
-              return;
-            }
+                        console.error('API call to ORDER_STATUS_API_URL failed:', response.status, await response.text());
+                        debugger; // Pause execution here
+                        alert('API call failed. Check console for details.'); // Alert user
+                        // localStorage.removeItem('authToken'); // Keep token for inspection
+                        // window.location.href = RETURN_LOGIN_PAGE; // Do not redirect immediately
+                        return;            }
     const result = await response.json();
     const order = result.order;
 
