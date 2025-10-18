@@ -4,6 +4,8 @@
 
 'use strict';
 
+import { API_BASE_URL } from './api-config.js';
+
 // Simple logging utility to avoid build issues
 const log = {
   info: function() { console.info.apply(console, arguments); },
@@ -202,7 +204,6 @@ function parseJwt(token) {
         if(appVersionEl) appVersionEl.textContent = feVersion;
 
         // Fetch backend version
-import { API_BASE_URL } from './api-config.js';
         fetch(`${API_BASE_URL}/api/version`)
             .then(res => res.json())
             .then(backendVersionData => {
