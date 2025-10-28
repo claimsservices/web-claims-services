@@ -51,8 +51,7 @@ const webpackConfig = {
 
   output: {
     path: conf.distPath,
-    filename: '[name].js',
-    libraryTarget: 'window'
+    filename: '[name].js'
   },
   module: {
     rules: [

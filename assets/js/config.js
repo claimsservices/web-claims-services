@@ -25,3 +25,5 @@ let config = {
     borderColor: '#eceef1'
   }
 };
+
+module.exports = config;
