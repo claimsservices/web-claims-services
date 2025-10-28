@@ -246,10 +246,6 @@ body {
   }
 
 /* Timestamp overlay for image preview modal */
-.modal-body {
-  position: relative;
-}
-
 .timestamp-overlay {
   position: absolute;
   bottom: 8px;

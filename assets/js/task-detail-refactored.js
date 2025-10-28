@@ -1057,7 +1057,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 
                                             // Add new timestamp overlay if the date exists on the image's data attribute
                                             if (img.dataset.createdDate) {
-                                                const modalBody = imagePreviewModalEl.querySelector('.modal-body');
+                                                const container = imagePreviewModalEl.querySelector('.image-preview-container');
                                                 const timestamp = new Date(img.dataset.createdDate);
                                                 // Format to DD-MM-YYYY HH:mm
                                                 const formattedTimestamp = timestamp.toLocaleString('en-GB', {
@@ -1073,8 +1073,8 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                                                 timestampOverlay.className = 'timestamp-overlay';
                                                 timestampOverlay.textContent = formattedTimestamp;
                                                 
-                                                if (modalBody) {
-                                                    modalBody.appendChild(timestampOverlay);
+                                                if (container) {
+                                                    container.appendChild(timestampOverlay);
                                                 }
                                             }
                                             // --- End of Timestamp Overlay Logic ---

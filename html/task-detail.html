@@ -939,7 +939,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <img id="previewImage" class="modal-image" src="" alt="Preview">
+        <div class="image-preview-container" style="position: relative; display: inline-block;"> <!-- Container for positioning -->
+          <img id="previewImage" class="modal-image" src="" alt="Preview">
+          <!-- Timestamp overlay will be injected here by JS -->
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
