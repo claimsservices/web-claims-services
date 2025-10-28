@@ -244,3 +244,22 @@ body {
     display: block;
     margin: 0 auto;
   }
+
+/* Timestamp overlay for image preview modal */
+.modal-body {
+  position: relative;
+}
+
+.timestamp-overlay {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  z-index: 1056; /* Higher than modal content */
+  pointer-events: none; /* Make sure it doesn't interfere with image interactions */
+}

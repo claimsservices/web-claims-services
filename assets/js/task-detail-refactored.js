@@ -1047,6 +1047,38 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                                         if (field) {
                                             // The global `context` variable is used by the modal's replace button
                                             context = { field: field, imgElement: img, labelElement: label };
+                                            
+                                            // --- Timestamp Overlay Logic ---
+                                            // Remove any existing timestamp overlay first
+                                            const existingOverlay = imagePreviewModalEl.querySelector('.timestamp-overlay');
+                                            if (existingOverlay) {
+                                                existingOverlay.remove();
+                                            }
+
+                                            // Add new timestamp overlay if the date exists on the image's data attribute
+                                            if (img.dataset.createdDate) {
+                                                const modalBody = imagePreviewModalEl.querySelector('.modal-body');
+                                                const timestamp = new Date(img.dataset.createdDate);
+                                                // Format to DD-MM-YYYY HH:mm
+                                                const formattedTimestamp = timestamp.toLocaleString('en-GB', {
+                                                    year: 'numeric',
+                                                    month: '2-digit',
+                                                    day: '2-digit',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    timeZone: 'Asia/Bangkok'
+                                                }).replace(/\//g, '-').replace(',', '');
+
+                                                const timestampOverlay = document.createElement('div');
+                                                timestampOverlay.className = 'timestamp-overlay';
+                                                timestampOverlay.textContent = formattedTimestamp;
+                                                
+                                                if (modalBody) {
+                                                    modalBody.appendChild(timestampOverlay);
+                                                }
+                                            }
+                                            // --- End of Timestamp Overlay Logic ---
+
                                             previewImage.src = img.src;
                                             imagePreviewModal.show();
                                         }
@@ -1409,6 +1441,10 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                     if (imgTag) {
                         imgTag.src = pic.pic;
                         imgTag.style.display = 'block';
+                        // Store the timestamp on the image element itself
+                        if (pic.created_date) {
+                            imgTag.dataset.createdDate = pic.created_date;
+                        }
                     }
 
                     // Update the title div with the title from the database, if available.
