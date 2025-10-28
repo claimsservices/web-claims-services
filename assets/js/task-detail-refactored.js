@@ -753,12 +753,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         const token = localStorage.getItem('authToken') || '';
         const currentOrderId = getSafeValue('taskId');
         const created_by = getSafeValue('ownerName');
-        let endpoint, data;
-
-        if (!currentOrderId || !created_by) {
-          console.error("Submit handler ran with missing critical data.");
-          return;
-        }
+        let endpoint, data, method;
 
         const orderPic = [];
         document.querySelectorAll('.upload-section img').forEach(img => {
@@ -769,22 +764,14 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
         });
 
-        if (currentUserRole === 'Insurance') {
-          endpoint = `${API_BASE_URL}/api/order-status/update/${currentOrderId}`;
-          data = {
-            order_status: getSafeValue('orderStatus'),
-            updated_by: created_by,
-            order_hist: [{ icon: "📝", task: "อัปเดตสถานะ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
-          };
-        } else {
-          endpoint = `${API_BASE_URL}/api/orders/update/${currentOrderId}`;
-          const date = getSafeValue('appointmentDate');
-          const time = getSafeValue('appointmentTime');
-          let appointment_date = null;
-          if (date) appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
-          const s_start = getSafeValue('coverageStartDate')?.trim();
-          const s_end = getSafeValue('coverageEndDate')?.trim();
-          data = {
+        const date = getSafeValue('appointmentDate');
+        const time = getSafeValue('appointmentTime');
+        let appointment_date = null;
+        if (date) appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
+        const s_start = getSafeValue('coverageStartDate')?.trim();
+        const s_end = getSafeValue('coverageEndDate')?.trim();
+
+        const commonData = {
             creator: getSafeValue('ownerName'),
             owner: getSafeValue('responsiblePerson'),
             order_type: getSafeValue('jobType'),
@@ -830,15 +817,32 @@ function initCarModelDropdown(brandSelect, modelSelect) {
             c_name: getSafeValue('creatorName'),
             order_pic: orderPic,
             order_hist: [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
-          };
+        };
+
+        if (!currentOrderId) { // Creating a new order
+            endpoint = `${API_BASE_URL}/api/orders/create`;
+            method = 'POST';
+            data = { ...commonData, created_by: created_by }; // Ensure created_by is passed for new orders
+        } else if (currentUserRole === 'Insurance') { // Updating status for Insurance role
+            endpoint = `${API_BASE_URL}/api/order-status/update/${currentOrderId}`;
+            method = 'PUT';
+            data = {
+                order_status: getSafeValue('orderStatus'),
+                updated_by: created_by,
+                order_hist: [{ icon: "📝", task: "อัปเดตสถานะ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
+            };
+        } else { // Updating existing order for other roles
+            endpoint = `${API_BASE_URL}/api/orders/update/${currentOrderId}`;
+            method = 'PUT';
+            data = commonData;
         }
 
         try {
-          const response = await fetch(endpoint, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
+          const response = await fetch(endpoint, { method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
     JSON.stringify(data) });
           const result = await response.json();
           if (response.ok) {
-            alert('✅ อัปเดตข้อมูลเรียบร้อยแล้ว');
+            alert('✅ ดำเนินการเรียบร้อยแล้ว'); // Changed message to be more generic
             window.location.href = 'dashboard.html';
           } else {
             alert('❌ เกิดข้อผิดพลาด: ' + result.message);
