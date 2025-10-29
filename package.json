@@ -42,6 +42,9 @@
     "serve": "npx gulp serve",
     "test": "jest"
   },
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
   "dependencies": {
     "@popperjs/core": "^2.9.2",
     "apexcharts-clevision": "^3.28.3",
@@ -87,6 +90,7 @@
     "gulp-useref": "^5.0.0",
     "html-loader": "~0.5.5",
     "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "js-beautify": "^1.10.3",
     "prettier": "^2.2.1",
     "sass-loader": "~8.0.0",
