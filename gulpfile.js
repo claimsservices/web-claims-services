@@ -6,6 +6,10 @@ const path = require('path');
 const env = require('gulp-environment');
 process.env.NODE_ENV = env.current.name;
 
+// Define BASE_URL based on the environment
+const API_BASE_URL = env.current.name === 'production'
+  ? 'http://localhost:5400'  // Production URL
+  : 'http://localhost:5400'; // Development URL
 
 
 let serverPath;
