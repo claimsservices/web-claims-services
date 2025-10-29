@@ -203,14 +203,13 @@ const imageFields = [
                 label.setAttribute('data-filled', 'true');
 
                 const imgTag = label.querySelector('img');
-                if (imgTag) {
-                    imgTag.src = pic.pic;
-                    imgTag.style.display = 'block';
-                    // Store the timestamp on the image element itself
-                    if (pic.created_date) {
-                        imgTag.dataset.createdDate = pic.created_date;
-                    }
-                }
+            if (imgTag) {
+                imgTag.src = pic.pic;
+                imgTag.style.display = 'block';
+                // Store the timestamp on the image element itself
+                // Ensure created_date is always set, even if pic.created_date is missing
+                imgTag.dataset.createdDate = pic.created_date || new Date().toISOString(); // Fallback to current date
+            }
 
                 // Update the title div with the title from the database, if available.
                 const titleDiv = label.querySelector('.title');
