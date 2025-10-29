@@ -549,6 +549,11 @@ function getUIPermissionManager(role) {
         case 'Admin':
         case 'Director':
         case 'Developer':
+        case 'Admin Officer':
+        case 'Officer':
+        case 'Leader':
+        case 'Sales Manager':
+        case 'Operation Manager':
             return new UIAdminPermissionManager();
         case 'Bike':
             return new UIBikePermissionManager();
