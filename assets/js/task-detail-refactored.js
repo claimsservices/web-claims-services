@@ -1087,56 +1087,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                                             imagePreviewModal.show();
                                         }
                                     }
-                                });        // Separate listeners for buttons to keep logic clear
-        document.addEventListener('click', function(e) {
-            // Handle clicking the delete button
-            const deleteBtn = e.target.closest('.delete-btn');
-            if (deleteBtn) {
-                e.stopPropagation();
-                e.preventDefault();
-                if (!window.confirm('คุณต้องการลบภาพนี้หรือไม่?')) return;
-                
-                const label = deleteBtn.closest('label.image-gallery');
-                if (!label) return;
-
-                const input = label.querySelector('input[type="file"]');
-                if (input) {
-                    uploadedPicCache.delete(input.name);
-                    input.value = '';
-                }
-
-                const img = label.querySelector('img');
-                if (img) {
-                    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-                }
-                label.removeAttribute('data-filled');
-                updateDamageDetailField(); // Update damage field on delete
-            }
-
-            // Handle clicking the edit title button
-            const editBtn = e.target.closest('.edit-title-btn');
-            if (editBtn) {
-                e.stopPropagation();
-                e.preventDefault();
-                const label = editBtn.closest('label.image-gallery');
-                const titleDiv = label.querySelector('.title');
-                const img = label.querySelector('img');
-                const currentTitle = titleDiv.textContent.trim();
-                const newTitle = prompt('แก้ไขชื่อภาพ:', currentTitle);
-
-                if (newTitle && newTitle.trim() !== '' && newTitle.trim() !== currentTitle) {
-                    const orderId = document.getElementById('taskId').value;
-                    const picUrl = img.src.split('?')[0];
-                    updateImageTitle(orderId, picUrl, newTitle.trim()).then(success => {
-                        if (success) {
-                            titleDiv.textContent = newTitle.trim();
-                            titleDiv.setAttribute('data-custom', 'true');
-                            updateDamageDetailField(); // Update damage field on rename
-                        }
-                    });
-                }
-            }
-        });
+                                });
     }
     // --- End of Image Preview and Replace Logic ---
 
@@ -1230,71 +1181,70 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         }
       });
     }
-  });
 
   // =========================================================
   // IMAGE UPLOAD HELPERS (GLOBAL SCOPE)
   // =========================================================
 
-  const uploadedPicCache = new Set();
-  const imageFields = [
-      { name: 'exterior_front', altText: 'ภาพถ่ายรอบคัน - ด้านหน้ารถ', section: 'around' },
-      { name: 'exterior_left_front', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า', section: 'around' },
-      { name: 'exterior_left_center', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายตรง', section: 'around' },
-      { name: 'exterior_left_rear', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง', section: 'around' },
-      { name: 'exterior_rear', altText: 'ภาพถ่ายรอบคัน - ด้านท้ายรถ', section: 'around' },
-      { name: 'exterior_right_rear', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง', section: 'around' },
-      { name: 'exterior_right_center', altText: 'ภาพถ่ายรอบคัน - ด้านขวาตรง', section: 'around' },
-      { name: 'exterior_right_front', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า', section: 'around' },
-      { name: 'exterior_roof', altText: 'ภาพถ่ายรอบคัน - หลังคา', section: 'around' },
-      { name: 'interior_wheels_1', altText: 'ล้อรถ 4 ล้อ 1', section: 'accessories' },
-      { name: 'interior_wheels_2', altText: 'ล้อรถ 4 ล้อ 2', section: 'accessories' },
-      { name: 'interior_wheels_3', altText: 'ล้อรถ 4 ล้อ 3', section: 'accessories' },
-      { name: 'interior_wheels_4', altText: 'ล้อรถ 4 ล้อ 4', section: 'accessories' },
-      { name: 'interior_dashboard', altText: 'ปีผลิต/ขนาดล้อ/ยางอะไหล่', section: 'accessories' },
-      { name: 'interior_6', altText: 'ห้องเครื่อง', section: 'accessories' },
-      { name: 'interior_7', altText: 'จอไมล์', section: 'accessories' },
-      { name: 'interior_8', altText: 'คอนโซล', section: 'accessories' },
-      { name: 'interior_9', altText: 'วิทยุ', section: 'accessories' },
-      { name: 'interior_10', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_11', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_12', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_13', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_14', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_15', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_16', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_17', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_18', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_19', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'interior_20', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-      { name: 'damage_images_1', altText: 'ภาพถ่ายความเสียหาย 1', section: 'inspection' },
-      { name: 'damage_images_2', altText: 'ภาพถ่ายความเสียหาย 2', section: 'inspection' },
-      { name: 'damage_images_3', altText: 'ภาพถ่ายความเสียหาย 3', section: 'inspection' },
-      { name: 'damage_images_4', altText: 'ภาพถ่ายความเสียหาย 4', section: 'inspection' },
-      { name: 'damage_images_5', altText: 'ภาพถ่ายความเสียหาย 5', section: 'inspection' },
-      { name: 'damage_images_6', altText: 'ภาพถ่ายความเสียหาย 6', section: 'inspection' },
-      { name: 'damage_images_7', altText: 'ภาพถ่ายความเสียหาย 7', section: 'inspection' },
-      { name: 'damage_images_8', altText: 'ภาพถ่ายความเสียหาย 8', section: 'inspection' },
-      { name: 'damage_images_9', altText: 'ภาพถ่ายความเสียหาย 9', section: 'inspection' },
-      { name: 'damage_images_10', altText: 'ภาพถ่ายความเสียหาย 10', section: 'inspection' },
-      { name: 'doc_identity', altText: 'เอกสารยืนยันตัวบุคคล', section: 'fiber' },
-      { name: 'doc_other_1', altText: 'เอกสารยืนยันตัวรถ', section: 'fiber' },
-      { name: 'doc_other_2', altText: 'เลขตัวถังและทะเบียนรถ', section: 'fiber' },
-      { name: 'doc_other_3', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-      { name: 'doc_other_4', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-      { name: 'doc_other_5', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-      { name: 'doc_other_6', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-      { name: 'doc_other_7', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-      { name: 'doc_other_8', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-      { name: 'license', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-      { name: 'id_card', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-      { name: 'car_doc', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-      { name: 'car_number', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-      { name: 'other_1', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-      { name: 'other_2', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-      { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-      { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' }
-  ];
+  // const uploadedPicCache = new Set();
+  // const imageFields = [
+  //     { name: 'exterior_front', altText: 'ภาพถ่ายรอบคัน - ด้านหน้ารถ', section: 'around' },
+  //     { name: 'exterior_left_front', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า', section: 'around' },
+  //     { name: 'exterior_left_center', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายตรง', section: 'around' },
+  //     { name: 'exterior_left_rear', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง', section: 'around' },
+  //     { name: 'exterior_rear', altText: 'ภาพถ่ายรอบคัน - ด้านท้ายรถ', section: 'around' },
+  //     { name: 'exterior_right_rear', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง', section: 'around' },
+  //     { name: 'exterior_right_center', altText: 'ภาพถ่ายรอบคัน - ด้านขวาตรง', section: 'around' },
+  //     { name: 'exterior_right_front', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า', section: 'around' },
+  //     { name: 'exterior_roof', altText: 'ภาพถ่ายรอบคัน - หลังคา', section: 'around' },
+  //     { name: 'interior_wheels_1', altText: 'ล้อรถ 4 ล้อ 1', section: 'accessories' },
+  //     { name: 'interior_wheels_2', altText: 'ล้อรถ 4 ล้อ 2', section: 'accessories' },
+  //     { name: 'interior_wheels_3', altText: 'ล้อรถ 4 ล้อ 3', section: 'accessories' },
+  //     { name: 'interior_wheels_4', altText: 'ล้อรถ 4 ล้อ 4', section: 'accessories' },
+  //     { name: 'interior_dashboard', altText: 'ปีผลิต/ขนาดล้อ/ยางอะไหล่', section: 'accessories' },
+  //     { name: 'interior_6', altText: 'ห้องเครื่อง', section: 'accessories' },
+  //     { name: 'interior_7', altText: 'จอไมล์', section: 'accessories' },
+  //     { name: 'interior_8', altText: 'คอนโซล', section: 'accessories' },
+  //     { name: 'interior_9', altText: 'วิทยุ', section: 'accessories' },
+  //     { name: 'interior_10', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_11', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_12', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_13', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_14', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_15', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_16', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_17', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_18', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_19', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'interior_20', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+  //     { name: 'damage_images_1', altText: 'ภาพถ่ายความเสียหาย 1', section: 'inspection' },
+  //     { name: 'damage_images_2', altText: 'ภาพถ่ายความเสียหาย 2', section: 'inspection' },
+  //     { name: 'damage_images_3', altText: 'ภาพถ่ายความเสียหาย 3', section: 'inspection' },
+  //     { name: 'damage_images_4', altText: 'ภาพถ่ายความเสียหาย 4', section: 'inspection' },
+  //     { name: 'damage_images_5', altText: 'ภาพถ่ายความเสียหาย 5', section: 'inspection' },
+  //     { name: 'damage_images_6', altText: 'ภาพถ่ายความเสียหาย 6', section: 'inspection' },
+  //     { name: 'damage_images_7', altText: 'ภาพถ่ายความเสียหาย 7', section: 'inspection' },
+  //     { name: 'damage_images_8', altText: 'ภาพถ่ายความเสียหาย 8', section: 'inspection' },
+  //     { name: 'damage_images_9', altText: 'ภาพถ่ายความเสียหาย 9', section: 'inspection' },
+  //     { name: 'damage_images_10', altText: 'ภาพถ่ายความเสียหาย 10', section: 'inspection' },
+  //     { name: 'doc_identity', altText: 'เอกสารยืนยันตัวบุคคล', section: 'fiber' },
+  //     { name: 'doc_other_1', altText: 'เอกสารยืนยันตัวรถ', section: 'fiber' },
+  //     { name: 'doc_other_2', altText: 'เลขตัวถังและทะเบียนรถ', section: 'fiber' },
+  //     { name: 'doc_other_3', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+  //     { name: 'doc_other_4', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+  //     { name: 'doc_other_5', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+  //     { name: 'doc_other_6', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+  //     { name: 'doc_other_7', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+  //     { name: 'doc_other_8', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+  //     { name: 'license', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+  //     { name: 'id_card', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+  //     { name: 'car_doc', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+  //     { name: 'car_number', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+  //     { name: 'other_1', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+  //     { name: 'other_2', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+  //     { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+  //     { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' }
+  // ];
   function renderImageUploadBlock(field, fileInputId) {
     const colDiv = document.createElement('div');
     colDiv.className = 'col-4 mb-3 text-center';
@@ -1422,44 +1372,45 @@ function initCarModelDropdown(brandSelect, modelSelect) {
       });
   }
 
-      function renderUploadedImages(orderPics) {
-        // If there are no pictures, ensure the damage field is cleared.
-        if (!orderPics || orderPics.length === 0) {
-            setTimeout(() => updateDamageDetailField(), 0);
-            return;
-        }
-
-        orderPics.forEach(pic => {
-            // Use pic_type for a reliable match against the input's name attribute.
-            if (!pic.pic_type || !pic.pic) return;
-
-            const fileInput = document.querySelector(`input[type="file"][name="${pic.pic_type}"]`);
-            if (fileInput) {
-                const label = fileInput.closest('label.image-gallery');
-                
-                // Ensure we don't re-process a slot that's already filled.
-                if (label && !label.hasAttribute('data-filled')) {
-                    label.setAttribute('data-filled', 'true');
-
-                    const imgTag = label.querySelector('img');
-                    if (imgTag) {
-                        imgTag.src = pic.pic;
-                        imgTag.style.display = 'block';
-                        // Store the timestamp on the image element itself
-                        if (pic.created_date) {
-                            imgTag.dataset.createdDate = pic.created_date;
+          function renderUploadedImages(orderPics) {
+            // If there are no pictures, ensure the damage field is cleared.
+            if (!orderPics || orderPics.length === 0) {
+                setTimeout(() => updateDamageDetailField(), 0);
+                return;
+            }
+    
+            orderPics.forEach(pic => {
+                // Use pic_type for a reliable match against the input's name attribute.
+                if (!pic.pic_type || !pic.pic) return;
+    
+                const fileInput = document.querySelector(`input[type="file"][name="${pic.pic_type}"]`);
+                if (fileInput) {
+                    const label = fileInput.closest('label.image-gallery');
+                    
+                    // Ensure we don't re-process a slot that's already filled.
+                    if (label && !label.hasAttribute('data-filled')) {
+                        label.setAttribute('data-filled', 'true');
+    
+                        const imgTag = label.querySelector('img');
+                        if (imgTag) {
+                            imgTag.src = pic.pic;
+                            imgTag.style.display = 'block';
+                            // Store the timestamp on the image element itself
+                            if (pic.created_date) {
+                                imgTag.dataset.createdDate = pic.created_date;
+                            }
+                        }
+    
+                        // Update the title div with the title from the database, if available.
+                        const titleDiv = label.querySelector('.title');
+                        if (titleDiv && pic.pic_title) {
+                            titleDiv.textContent = pic.pic_title;
                         }
                     }
-
-                    // Update the title div with the title from the database, if available.
-                    const titleDiv = label.querySelector('.title');
-                    if (titleDiv && pic.pic_title) {
-                        titleDiv.textContent = pic.pic_title;
-                    }
                 }
-            }
-        });
-
-        // Call updateDamageDetailField after the loop to populate the textarea.
-        setTimeout(() => updateDamageDetailField(), 0);
-      }
+            });
+    
+            // Call updateDamageDetailField after the loop to populate the textarea.
+            setTimeout(() => updateDamageDetailField(), 0);
+          }
+      });
