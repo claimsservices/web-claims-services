@@ -1290,6 +1290,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                                             }
 
                                             // Add new timestamp overlay if the date exists on the image's data attribute
+                                            console.log('img.dataset.createdDate:', img.dataset.createdDate); // Debugging line
                                             if (img.dataset.createdDate) {
                                                 const container = imagePreviewModalEl.querySelector('.image-preview-container');
                                                 const timestamp = new Date(img.dataset.createdDate);

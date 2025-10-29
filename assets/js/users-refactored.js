@@ -26,7 +26,7 @@ document.getElementById('user-role-regist').addEventListener('change', function 
     }
 });
 
-import { API_BASE_URL } from './api-config.js';
+import API_BASE_URL from './api-config.js';
 
 
 const API_URL = `${API_BASE_URL}/api/auth/profile`;
