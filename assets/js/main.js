@@ -4,7 +4,7 @@
 
 'use strict';
 
-import { API_BASE_URL } from './api-config.js';
+import API_BASE_URL from './api-config.js';
 
 // Simple logging utility to avoid build issues
 const log = {
