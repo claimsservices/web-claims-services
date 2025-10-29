@@ -274,11 +274,7 @@
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('role', data.role);
 
-            if (data.role === 'Bike') {
-              window.location.href = 'html/bike-task-detail.html';
-            } else {
-              window.location.href = 'html/dashboard.html'; // Redirect after successful login
-            }
+            window.location.href = 'html/dashboard.html'; // Redirect after successful login
 
           } else {
             const errorMessage = await response.text(); // Get backend error message
