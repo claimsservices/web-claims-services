@@ -3,9 +3,6 @@
   // =========================================================
 
   const accessToken = localStorage.getItem('authToken');
-  const RETURN_LOGIN_PAGE = '../index.html';
-  import { API_BASE_URL } from './api-config.js';
-  // const API_BASE_URL = 'http://localhost:8181'; // URL สำหรับ Local development
   const LOGIN_PAGE = '../index.html';
   const API_URL = `${API_BASE_URL}/api/auth/profile`;
 
@@ -66,7 +63,7 @@
   }
 
   if (!accessToken) {
-    window.location.href = RETURN_LOGIN_PAGE;
+    window.location.href = LOGIN_PAGE;
   }
 
   fetch('/version.json')
@@ -249,7 +246,7 @@
 
   async function loadAssignees(order, token) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user-management/assigners`, { headers: { 'authorization': token } });
+      const response = await fetch(`${API_BASE_URL}/api/user-management/assigners`, { headers: { 'Authorization': token } });
       if (!response.ok) throw new Error('Network error');
       const data = await response.json();
       const select = document.getElementById('responsiblePerson');
@@ -675,10 +672,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         const orderStatusSelect = document.getElementById('orderStatus');
         if (orderStatusSelect) orderStatusSelect.setAttribute('disabled', 'disabled');
       }
-              // if (userRole === 'Officer') {
-              //   localStorage.removeItem('authToken');
-              //   window.location.href = '../index.html';
-              // }    }
+
 
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get('id');
@@ -699,10 +693,10 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     if (!form) return;
 
     const logoutBtn = document.getElementById('logout');
-    if (logoutBtn) logoutBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); window.location.href = '../index.html';
+    if (logoutBtn) logoutBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE;
   });
     const logoutMenu = document.getElementById('logout-menu');
-    if (logoutMenu) logoutMenu.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); window.location.href = '../index.html';
+    if (logoutMenu) logoutMenu.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE;
    });
 
     const manualSubmitBtn = document.getElementById('submittaskBtn');
@@ -1186,65 +1180,65 @@ function initCarModelDropdown(brandSelect, modelSelect) {
   // IMAGE UPLOAD HELPERS (GLOBAL SCOPE)
   // =========================================================
 
-  // const uploadedPicCache = new Set();
-  // const imageFields = [
-  //     { name: 'exterior_front', altText: 'ภาพถ่ายรอบคัน - ด้านหน้ารถ', section: 'around' },
-  //     { name: 'exterior_left_front', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า', section: 'around' },
-  //     { name: 'exterior_left_center', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายตรง', section: 'around' },
-  //     { name: 'exterior_left_rear', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง', section: 'around' },
-  //     { name: 'exterior_rear', altText: 'ภาพถ่ายรอบคัน - ด้านท้ายรถ', section: 'around' },
-  //     { name: 'exterior_right_rear', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง', section: 'around' },
-  //     { name: 'exterior_right_center', altText: 'ภาพถ่ายรอบคัน - ด้านขวาตรง', section: 'around' },
-  //     { name: 'exterior_right_front', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า', section: 'around' },
-  //     { name: 'exterior_roof', altText: 'ภาพถ่ายรอบคัน - หลังคา', section: 'around' },
-  //     { name: 'interior_wheels_1', altText: 'ล้อรถ 4 ล้อ 1', section: 'accessories' },
-  //     { name: 'interior_wheels_2', altText: 'ล้อรถ 4 ล้อ 2', section: 'accessories' },
-  //     { name: 'interior_wheels_3', altText: 'ล้อรถ 4 ล้อ 3', section: 'accessories' },
-  //     { name: 'interior_wheels_4', altText: 'ล้อรถ 4 ล้อ 4', section: 'accessories' },
-  //     { name: 'interior_dashboard', altText: 'ปีผลิต/ขนาดล้อ/ยางอะไหล่', section: 'accessories' },
-  //     { name: 'interior_6', altText: 'ห้องเครื่อง', section: 'accessories' },
-  //     { name: 'interior_7', altText: 'จอไมล์', section: 'accessories' },
-  //     { name: 'interior_8', altText: 'คอนโซล', section: 'accessories' },
-  //     { name: 'interior_9', altText: 'วิทยุ', section: 'accessories' },
-  //     { name: 'interior_10', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_11', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_12', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_13', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_14', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_15', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_16', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_17', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_18', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_19', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'interior_20', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-  //     { name: 'damage_images_1', altText: 'ภาพถ่ายความเสียหาย 1', section: 'inspection' },
-  //     { name: 'damage_images_2', altText: 'ภาพถ่ายความเสียหาย 2', section: 'inspection' },
-  //     { name: 'damage_images_3', altText: 'ภาพถ่ายความเสียหาย 3', section: 'inspection' },
-  //     { name: 'damage_images_4', altText: 'ภาพถ่ายความเสียหาย 4', section: 'inspection' },
-  //     { name: 'damage_images_5', altText: 'ภาพถ่ายความเสียหาย 5', section: 'inspection' },
-  //     { name: 'damage_images_6', altText: 'ภาพถ่ายความเสียหาย 6', section: 'inspection' },
-  //     { name: 'damage_images_7', altText: 'ภาพถ่ายความเสียหาย 7', section: 'inspection' },
-  //     { name: 'damage_images_8', altText: 'ภาพถ่ายความเสียหาย 8', section: 'inspection' },
-  //     { name: 'damage_images_9', altText: 'ภาพถ่ายความเสียหาย 9', section: 'inspection' },
-  //     { name: 'damage_images_10', altText: 'ภาพถ่ายความเสียหาย 10', section: 'inspection' },
-  //     { name: 'doc_identity', altText: 'เอกสารยืนยันตัวบุคคล', section: 'fiber' },
-  //     { name: 'doc_other_1', altText: 'เอกสารยืนยันตัวรถ', section: 'fiber' },
-  //     { name: 'doc_other_2', altText: 'เลขตัวถังและทะเบียนรถ', section: 'fiber' },
-  //     { name: 'doc_other_3', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-  //     { name: 'doc_other_4', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-  //     { name: 'doc_other_5', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-  //     { name: 'doc_other_6', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-  //     { name: 'doc_other_7', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-  //     { name: 'doc_other_8', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-  //     { name: 'license', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-  //     { name: 'id_card', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-  //     { name: 'car_doc', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-  //     { name: 'car_number', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-  //     { name: 'other_1', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-  //     { name: 'other_2', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-  //     { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-  //     { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' }
-  // ];
+  const uploadedPicCache = new Set();
+  const imageFields = [
+      { name: 'exterior_front', altText: 'ภาพถ่ายรอบคัน - ด้านหน้ารถ', section: 'around' },
+      { name: 'exterior_left_front', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า', section: 'around' },
+      { name: 'exterior_left_center', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายตรง', section: 'around' },
+      { name: 'exterior_left_rear', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง', section: 'around' },
+      { name: 'exterior_rear', altText: 'ภาพถ่ายรอบคัน - ด้านท้ายรถ', section: 'around' },
+      { name: 'exterior_right_rear', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง', section: 'around' },
+      { name: 'exterior_right_center', altText: 'ภาพถ่ายรอบคัน - ด้านขวาตรง', section: 'around' },
+      { name: 'exterior_right_front', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า', section: 'around' },
+      { name: 'exterior_roof', altText: 'ภาพถ่ายรอบคัน - หลังคา', section: 'around' },
+      { name: 'interior_wheels_1', altText: 'ล้อรถ 4 ล้อ 1', section: 'accessories' },
+      { name: 'interior_wheels_2', altText: 'ล้อรถ 4 ล้อ 2', section: 'accessories' },
+      { name: 'interior_wheels_3', altText: 'ล้อรถ 4 ล้อ 3', section: 'accessories' },
+      { name: 'interior_wheels_4', altText: 'ล้อรถ 4 ล้อ 4', section: 'accessories' },
+      { name: 'interior_dashboard', altText: 'ปีผลิต/ขนาดล้อ/ยางอะไหล่', section: 'accessories' },
+      { name: 'interior_6', altText: 'ห้องเครื่อง', section: 'accessories' },
+      { name: 'interior_7', altText: 'จอไมล์', section: 'accessories' },
+      { name: 'interior_8', altText: 'คอนโซล', section: 'accessories' },
+      { name: 'interior_9', altText: 'วิทยุ', section: 'accessories' },
+      { name: 'interior_10', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_11', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_12', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_13', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_14', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_15', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_16', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_17', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_18', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_19', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'interior_20', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
+      { name: 'damage_images_1', altText: 'ภาพถ่ายความเสียหาย 1', section: 'inspection' },
+      { name: 'damage_images_2', altText: 'ภาพถ่ายความเสียหาย 2', section: 'inspection' },
+      { name: 'damage_images_3', altText: 'ภาพถ่ายความเสียหาย 3', section: 'inspection' },
+      { name: 'damage_images_4', altText: 'ภาพถ่ายความเสียหาย 4', section: 'inspection' },
+      { name: 'damage_images_5', altText: 'ภาพถ่ายความเสียหาย 5', section: 'inspection' },
+      { name: 'damage_images_6', altText: 'ภาพถ่ายความเสียหาย 6', section: 'inspection' },
+      { name: 'damage_images_7', altText: 'ภาพถ่ายความเสียหาย 7', section: 'inspection' },
+      { name: 'damage_images_8', altText: 'ภาพถ่ายความเสียหาย 8', section: 'inspection' },
+      { name: 'damage_images_9', altText: 'ภาพถ่ายความเสียหาย 9', section: 'inspection' },
+      { name: 'damage_images_10', altText: 'ภาพถ่ายความเสียหาย 10', section: 'inspection' },
+      { name: 'doc_identity', altText: 'เอกสารยืนยันตัวบุคคล', section: 'fiber' },
+      { name: 'doc_other_1', altText: 'เอกสารยืนยันตัวรถ', section: 'fiber' },
+      { name: 'doc_other_2', altText: 'เลขตัวถังและทะเบียนรถ', section: 'fiber' },
+      { name: 'doc_other_3', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+      { name: 'doc_other_4', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+      { name: 'doc_other_5', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+      { name: 'doc_other_6', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+      { name: 'doc_other_7', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+      { name: 'doc_other_8', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
+      { name: 'license', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+      { name: 'id_card', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+      { name: 'car_doc', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+      { name: 'car_number', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+      { name: 'other_1', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+      { name: 'other_2', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+      { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
+      { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' }
+  ];
   function renderImageUploadBlock(field, fileInputId) {
     const colDiv = document.createElement('div');
     colDiv.className = 'col-4 mb-3 text-center';
@@ -1413,4 +1407,6 @@ function initCarModelDropdown(brandSelect, modelSelect) {
             // Call updateDamageDetailField after the loop to populate the textarea.
             setTimeout(() => updateDamageDetailField(), 0);
           }
-      });
+      }
+  // เพิ่มบรรทัดนี้เพื่อปิด DOMContentLoaded listener ที่ขาดไป
+  });
