@@ -675,11 +675,10 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         const orderStatusSelect = document.getElementById('orderStatus');
         if (orderStatusSelect) orderStatusSelect.setAttribute('disabled', 'disabled');
       }
-      if (userRole === 'Officer') {
-        localStorage.removeItem('authToken');
-        window.location.href = '../index.html';
-      }
-    }
+              // if (userRole === 'Officer') {
+              //   localStorage.removeItem('authToken');
+              //   window.location.href = '../index.html';
+              // }    }
 
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get('id');
