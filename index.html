@@ -274,8 +274,8 @@
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('role', data.role);
 
-            if (data.role === 'Officer') {
-              window.location.href = 'html/task-attachments.html'; // Redirect after successful Agent login
+            if (data.role === 'Bike') {
+              window.location.href = 'html/bike-task-detail.html';
             } else {
               window.location.href = 'html/dashboard.html'; // Redirect after successful login
             }
