@@ -193,7 +193,7 @@ async function loadUserProfile() {
     const userRole = getUserRole(); // Get user role here
 
     let body = {};
-    if (userRole === 'Admin' || userRole === 'Director' || userRole === 'Developer') {
+    if (userRole === 'Admin' || userRole === 'Director' || userRole === 'Developer' || userRole === 'Admin Officer' || userRole === 'Officer' || userRole === 'Leader' || userRole === 'Sales Manager') {
         body = {
             total_orders_status_not: 'ยกเลิก',
             pending_orders_status: 'เปิดงาน',
