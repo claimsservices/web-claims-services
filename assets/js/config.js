@@ -26,4 +26,4 @@ let config = {
   }
 };
 
-module.exports = config;
+window.config = config;
