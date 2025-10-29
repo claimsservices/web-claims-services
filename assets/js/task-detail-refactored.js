@@ -4,7 +4,7 @@
 
   const accessToken = localStorage.getItem('authToken');
   const LOGIN_PAGE = '../index.html';
-  const API_URL = `${API_BASE_URL}/api/auth/profile`;
+
 
   function parseJwt(token) {
     try {
@@ -82,6 +82,7 @@
 
   async function loadUserProfile() {
     const token = localStorage.getItem('authToken');
+    const API_URL = `${API_BASE_URL}/api/auth/profile`;
     if (!token) { window.location.href = LOGIN_PAGE; return; }
     const decoded = parseJwt(token);
     if (!decoded) { localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE; return; }
