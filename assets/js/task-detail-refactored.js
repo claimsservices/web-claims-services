@@ -1,3 +1,4 @@
+import { API_BASE_URL } from './api-config.js';
 // =========================================================
   // HELPERS & CONFIG
   // =========================================================
@@ -589,6 +590,83 @@ function initCarModelDropdown(brandSelect, modelSelect) {
   }
 }
 
+
+  function populateImageSections() {
+      const sectionsMap = {
+          'around': document.getElementById('around-images-section')?.querySelector('.row'),
+          'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+          'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+          'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+          'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+          'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+      };
+
+      imageFields.forEach(field => {
+          const targetSection = sectionsMap[field.section];
+          if (targetSection) {
+              const fileInputId = `file-input-${field.name}`;
+              targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field, fileInputId));
+              
+              const fileInput = document.getElementById(fileInputId);
+              if (fileInput) {
+                  fileInput.addEventListener('change', async () => {
+                      const file = fileInput.files[0];
+                      if (!file) return;
+
+                      const label = fileInput.closest('label');
+                      const img = label.querySelector('img');
+                      const titleDiv = label.querySelector('.title');
+                      const customName = titleDiv.textContent.trim();
+                      const folderName = document.getElementById('taskId')?.value.trim() || 'default';
+
+                      img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif'; // Show loader
+
+                      try {
+                        const options = {
+                          maxSizeMB: 1,
+                          maxWidthOrHeight: 1920,
+                          useWebWorker: true
+                        }
+                        console.log(`Original file size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+                        const compressedFile = await imageCompression(file, options);
+                        console.log(`Compressed file size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
+
+                        const formData = new FormData();
+                        formData.append('folder', folderName);
+                        formData.append('category', field.section);
+                        formData.append('images', compressedFile, customName + '.' + file.name.split('.').pop());
+
+                        const token = localStorage.getItem('authToken') || '';
+                        const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+                            method: 'POST',
+                            headers: { 'Authorization': token },
+                            body: formData
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            if (result.uploaded && result.uploaded.length > 0) {
+                                img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
+                                label.setAttribute('data-filled', 'true');
+                                uploadedPicCache.add(fileInput.name);
+                                updateDamageDetailField(); // Update damage field on successful upload
+                            } else {
+                                throw new Error('Upload response did not contain uploaded file information.');
+                            }
+                        } else {
+                            const errorResult = await response.json();
+                            throw new Error(errorResult.message || 'Upload failed');
+                        }
+                      } catch (err) {
+                          console.error('Upload error:', err);
+                          alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
+                          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Reset to placeholder on error
+                      }
+                  });
+              }
+          }
+      });
+  }
 
   // =========================================================
   // DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
@@ -1290,83 +1368,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     return colDiv.outerHTML;
 }
 
-  function populateImageSections() {
-      const sectionsMap = {
-          'around': document.getElementById('around-images-section')?.querySelector('.row'),
-          'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
-          'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
-          'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
-          'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
-          'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
-      };
-
-      imageFields.forEach(field => {
-          const targetSection = sectionsMap[field.section];
-          if (targetSection) {
-              const fileInputId = `file-input-${field.name}`;
-              targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field, fileInputId));
-              
-              const fileInput = document.getElementById(fileInputId);
-              if (fileInput) {
-                  fileInput.addEventListener('change', async () => {
-                      const file = fileInput.files[0];
-                      if (!file) return;
-
-                      const label = fileInput.closest('label');
-                      const img = label.querySelector('img');
-                      const titleDiv = label.querySelector('.title');
-                      const customName = titleDiv.textContent.trim();
-                      const folderName = document.getElementById('taskId')?.value.trim() || 'default';
-
-                      img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif'; // Show loader
-
-                      try {
-                        const options = {
-                          maxSizeMB: 1,
-                          maxWidthOrHeight: 1920,
-                          useWebWorker: true
-                        }
-                        console.log(`Original file size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
-                        const compressedFile = await imageCompression(file, options);
-                        console.log(`Compressed file size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
-
-                        const formData = new FormData();
-                        formData.append('folder', folderName);
-                        formData.append('category', field.section);
-                        formData.append('images', compressedFile, customName + '.' + file.name.split('.').pop());
-
-                        const token = localStorage.getItem('authToken') || '';
-                        const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
-                            method: 'POST',
-                            headers: { 'Authorization': token },
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            if (result.uploaded && result.uploaded.length > 0) {
-                                img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
-                                label.setAttribute('data-filled', 'true');
-                                uploadedPicCache.add(fileInput.name);
-                                updateDamageDetailField(); // Update damage field on successful upload
-                            } else {
-                                throw new Error('Upload response did not contain uploaded file information.');
-                            }
-                        } else {
-                            const errorResult = await response.json();
-                            throw new Error(errorResult.message || 'Upload failed');
-                        }
-                      } catch (err) {
-                          console.error('Upload error:', err);
-                          alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
-                          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Reset to placeholder on error
-                      }
-                  });
-              }
-          }
-      });
-  }
-
+  
           function renderUploadedImages(orderPics) {
             // If there are no pictures, ensure the damage field is cleared.
             if (!orderPics || orderPics.length === 0) {
