@@ -126,13 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   
-    if (userRole === 'Operation Manager' || userRole === 'Director' || userRole === 'Developer') {
+    const adminRoles = ['Operation Manager', 'Director', 'Developer', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager'];
+    if (adminRoles.includes(userRole)) {
       const adminMenu = document.getElementById('admin-menu');
       if(adminMenu) adminMenu.style.display = 'block';
-    }
-    if (userRole === 'Officer') {
-      localStorage.removeItem('authToken');
-      window.location.href = LOGIN_PAGE;
     }
   loadUserProfile();
   setupFilterListeners();
