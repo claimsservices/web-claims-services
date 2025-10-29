@@ -1308,7 +1308,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                                                 timestampOverlay.className = 'timestamp-overlay';
                                                 timestampOverlay.textContent = formattedTimestamp;
                                                 // Force visibility and position for debugging
-                                                timestampOverlay.style.cssText = 'position: absolute; bottom: 10px; right: 10px; background-color: transparent; color: white; padding: 5px; border-radius: 3px; z-index: 1000;';
+                                                timestampOverlay.style.cssText = 'position: absolute; bottom: 10px; right: 10px; background-color: transparent; color: blue; padding: 5px; border-radius: 3px; z-index: 1000;';
                                                 
                                                 if (container) {
                                                     container.appendChild(timestampOverlay);
