@@ -241,19 +241,18 @@ document.getElementById('formAccountSettings').addEventListener('submit', async 
         }
       });
 
-// Check user role (example assumes role is stored in localStorage)
+// Check user role to display admin menu
   const token = localStorage.getItem('authToken');
   if (token) {
     const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+    const adminRoles = ['Director', 'Admin Officer', 'Officer', 'Operation Manager', 'Sales Manager', 'Leader', 'Developer'];
 
-    // Check if the user has the 'admin' role
-    if (user.role === 'Operation Manager' || user.role === 'Director' || user.role === 'Developer') {
-      // Show the admin menu
-      document.getElementById('admin-menu').style.display = 'block';
-    }
-    if (user.role === 'Officer') {
-      localStorage.removeItem('authToken');
-      window.location.href = '../index.html';
+    // Check if the user has an admin-equivalent role
+    if (adminRoles.includes(user.role)) {
+      const adminMenu = document.getElementById('admin-menu');
+      if (adminMenu) {
+        adminMenu.style.display = 'block';
+      }
     }
   }
 
