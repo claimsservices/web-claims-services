@@ -77,6 +77,5 @@ export default defineConfig({
     command: 'npm run serve',
     url: 'http://localhost:3001',
     reuseExistingServer: false,
-    env: { API_BASE_URL: 'http://localhost:8181' },
   },
 
