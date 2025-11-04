@@ -173,29 +173,35 @@ document.addEventListener('DOMContentLoaded', function() {
     accordionTriggerEl.addEventListener('hide.bs.collapse', accordionActiveFunction);
   });
 
-  // Auto update layout based on screen size
-  window.Helpers.setAutoUpdate(true);
-
-  // Toggle Password Visibility
-  window.Helpers.initPasswordToggle();
-
-  // Speech To Text
-  window.Helpers.initSpeechToText();
-
-  // Manage menu expanded/collapsed with templateCustomizer & local storage
-  //------------------------------------------------------------------
-
-  // If current layout is horizontal OR current window screen is small (overlay menu) than return from here
-  if (window.Helpers.isSmallScreen()) {
-    return;
-  }
-
-  // If current layout is vertical and current window screen is > small
-
-  // Auto update menu collapsed/expanded based on the themeConfig
-  window.Helpers.setCollapsed(true, false);
-
-  // Fetch and display app version
+    // Auto update layout based on screen size
+    if (window.Helpers) {
+      window.Helpers.setAutoUpdate(true);
+    }
+  
+    // Toggle Password Visibility
+    if (window.Helpers) {
+      window.Helpers.initPasswordToggle();
+    }
+  
+    // Speech To Text
+    if (window.Helpers) {
+      window.Helpers.initSpeechToText();
+    }
+  
+    // Manage menu expanded/collapsed with templateCustomizer & local storage
+    //------------------------------------------------------------------
+  
+    // If current layout is horizontal OR current window screen is small (overlay menu) than return from here
+    if (window.Helpers && window.Helpers.isSmallScreen()) {
+      return;
+    }
+  
+    // If current layout is vertical and current window screen is > small
+  
+    // Auto update menu collapsed/expanded based on the themeConfig
+    if (window.Helpers) {
+      window.Helpers.setCollapsed(true, false);
+    }  // Fetch and display app version
   fetch('/version.json')
     .then(res => res.json())
     .then(frontendVersionData => {
