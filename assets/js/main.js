@@ -51,7 +51,7 @@ function parseJwt(token) {
     }
 }
 
-(function () {
+document.addEventListener('DOMContentLoaded', function() {
   // Initialize menu
   //-----------------
 
@@ -218,4 +218,4 @@ function parseJwt(token) {
         const appVersionEl = document.getElementById("appVersion");
         if(appVersionEl) appVersionEl.textContent = "FE: - | BE: -"; 
     });
-})();
+});
