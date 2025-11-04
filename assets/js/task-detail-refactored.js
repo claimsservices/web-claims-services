@@ -1,64 +1,8 @@
 import API_BASE_URL from './api-config.js';
+import { getQueryParam, navigateTo } from './navigation.js';
 
 
-const imageFields = [
-    { name: 'exterior_front', altText: 'ภาพถ่ายรอบคัน - ด้านหน้ารถ', section: 'around' },
-    { name: 'exterior_left_front', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า', section: 'around' },
-    { name: 'exterior_left_center', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายตรง', section: 'around' },
-    { name: 'exterior_left_rear', altText: 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง', section: 'around' },
-    { name: 'exterior_rear', altText: 'ภาพถ่ายรอบคัน - ด้านท้ายรถ', section: 'around' },
-    { name: 'exterior_right_rear', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง', section: 'around' },
-    { name: 'exterior_right_center', altText: 'ภาพถ่ายรอบคัน - ด้านขวาตรง', section: 'around' },
-    { name: 'exterior_right_front', altText: 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า', section: 'around' },
-    { name: 'exterior_roof', altText: 'ภาพถ่ายรอบคัน - หลังคา', section: 'around' },
-    { name: 'interior_wheels_1', altText: 'ล้อรถ 4 ล้อ 1', section: 'accessories' },
-    { name: 'interior_wheels_2', altText: 'ล้อรถ 4 ล้อ 2', section: 'accessories' },
-    { name: 'interior_wheels_3', altText: 'ล้อรถ 4 ล้อ 3', section: 'accessories' },
-    { name: 'interior_wheels_4', altText: 'ล้อรถ 4 ล้อ 4', section: 'accessories' },
-    { name: 'interior_dashboard', altText: 'ปีผลิต/ขนาดล้อ/ยางอะไหล่', section: 'accessories' },
-    { name: 'interior_6', altText: 'ห้องเครื่อง', section: 'accessories' },
-    { name: 'interior_7', altText: 'จอไมล์', section: 'accessories' },
-    { name: 'interior_8', altText: 'คอนโซล', section: 'accessories' },
-    { name: 'interior_9', altText: 'วิทยุ', section: 'accessories' },
-    { name: 'interior_10', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_11', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_12', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_13', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_14', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_15', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_16', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_17', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_18', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_19', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'interior_20', altText: 'กล้องติดหน้ารถ', section: 'accessories' },
-    { name: 'damage_images_1', altText: 'ภาพถ่ายความเสียหาย 1', section: 'inspection' },
-    { name: 'damage_images_2', altText: 'ภาพถ่ายความเสียหาย 2', section: 'inspection' },
-    { name: 'damage_images_3', altText: 'ภาพถ่ายความเสียหาย 3', section: 'inspection' },
-    { name: 'damage_images_4', altText: 'ภาพถ่ายความเสียหาย 4', section: 'inspection' },
-    { name: 'damage_images_5', altText: 'ภาพถ่ายความเสียหาย 5', section: 'inspection' },
-    { name: 'damage_images_6', altText: 'ภาพถ่ายความเสียหาย 6', section: 'inspection' },
-    { name: 'damage_images_7', altText: 'ภาพถ่ายความเสียหาย 7', section: 'inspection' },
-    { name: 'damage_images_8', altText: 'ภาพถ่ายความเสียหาย 8', section: 'inspection' },
-    { name: 'damage_images_9', altText: 'ภาพถ่ายความเสียหาย 9', section: 'inspection' },
-    { name: 'damage_images_10', altText: 'ภาพถ่ายความเสียหาย 10', section: 'inspection' },
-    { name: 'doc_identity', altText: 'เอกสารยืนยันตัวบุคคล', section: 'fiber' },
-    { name: 'doc_other_1', altText: 'เอกสารยืนยันตัวรถ', section: 'fiber' },
-    { name: 'doc_other_2', altText: 'เลขตัวถังและทะเบียนรถ', section: 'fiber' },
-    { name: 'doc_other_3', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-    { name: 'doc_other_4', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-    { name: 'doc_other_5', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-    { name: 'doc_other_6', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-    { name: 'doc_other_7', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-    { name: 'doc_other_8', altText: 'เอกสารอื่น ๆ', section: 'fiber' },
-    { name: 'license', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-    { name: 'id_card', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-    { name: 'car_doc', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-    { name: 'car_number', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-    { name: 'other_1', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-    { name: 'other_2', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-    { name: 'other_3', altText: 'เอกสารอื่น ๆ', section: 'documents' },
-    { name: 'doc_other_9', altText: 'ลายเซ็น', section: 'signature' }
-];
+
 
 // =========================================================
   // HELPERS & CONFIG
@@ -128,7 +72,7 @@ const imageFields = [
   }
 
   if (!accessToken) {
-    window.location.href = LOGIN_PAGE;
+    navigateTo(LOGIN_PAGE);
   }
 
   fetch('/version.json')
@@ -148,9 +92,9 @@ const imageFields = [
   async function loadUserProfile() {
     const token = localStorage.getItem('authToken');
     const API_URL = `${API_BASE_URL}/api/auth/profile`;
-    if (!token) { window.location.href = LOGIN_PAGE; return; }
+    if (!token) { navigateTo(LOGIN_PAGE); return; }
     const decoded = parseJwt(token);
-    if (!decoded) { localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE; return; }
+    if (!decoded) { localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE); return; }
 
     const { first_name, last_name, role, myPicture } = decoded;
     const userInfoEl = document.getElementById('user-info');
@@ -164,7 +108,7 @@ const imageFields = [
 
     if (isTokenExpired(decoded)) {
       localStorage.removeItem('authToken');
-      window.location.href = LOGIN_PAGE;
+      navigateTo(LOGIN_PAGE);
       return;
     }
 
@@ -172,12 +116,12 @@ const imageFields = [
       const response = await fetch(API_URL, { headers: { 'Authorization': `${token}` } });
       if (!response.ok) {
         localStorage.removeItem('authToken');
-        window.location.href = LOGIN_PAGE;
+        navigateTo(LOGIN_PAGE);
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
       localStorage.removeItem('authToken');
-      window.location.href = LOGIN_PAGE;
+      navigateTo(LOGIN_PAGE);
     }
   }
 
@@ -190,32 +134,40 @@ const imageFields = [
         return;
     }
 
+    const sectionsMap = {
+        'around': document.getElementById('around-images-section')?.querySelector('.row'),
+        'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+        'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+        'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+        'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+        'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+    };
+
     orderPics.forEach(pic => {
-        // Use pic_type for a reliable match against the input's name attribute.
         if (!pic.pic_type || !pic.pic) return;
 
-        const fileInput = document.querySelector(`input[type="file"][name="${pic.pic_type}"]`);
-        if (fileInput) {
-            const label = fileInput.closest('label.image-gallery');
-            
-            // Ensure we don't re-process a slot that's already filled.
-            if (label && !label.hasAttribute('data-filled')) {
-                label.setAttribute('data-filled', 'true');
-
-                const imgTag = label.querySelector('img');
-            if (imgTag) {
-                imgTag.src = pic.pic;
-                imgTag.style.display = 'block';
-                // Store the timestamp on the image element itself
-                // Ensure created_date is always set, even if pic.created_date is missing
-                imgTag.dataset.createdDate = pic.created_date || new Date().toISOString(); // Fallback to current date
-            }
-
-                // Update the title div with the title from the database, if available.
-                const titleDiv = label.querySelector('.title');
-                if (titleDiv && pic.pic_title) {
-                    titleDiv.textContent = pic.pic_title;
-                }
+        const targetSection = sectionsMap[pic.pic_type]; // Use pic_type to determine section
+        if (targetSection) {
+            const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
+            const newSlotHtml = `
+                <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${pic.pic_type}">
+                    <label class="image-gallery w-100" data-filled="true" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+                        <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || 'Uploaded Image'}" data-created-date="${pic.created_date || new Date().toISOString()}">
+                        <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
+                            ${pic.pic_title || 'กรุณาใส่ชื่อ'}
+                        </div>
+                        <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${pic.pic_type}" hidden accept="image/*" capture="camera">
+                        <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
+                        <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">A</button>
+                    </label>
+                </div>
+            `;
+            // Find the "Add Image" button for this category and insert before it
+            const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${pic.pic_type}"]`);
+            if (addImageBtn) {
+                addImageBtn.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
+            } else {
+                targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
             }
         }
     });
@@ -698,55 +650,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 }
 
 
-  function renderImageUploadBlock(field, fileInputId) {
-    const colDiv = document.createElement('div');
-    colDiv.className = 'col-4 mb-3 text-center';
 
-    const label = document.createElement('label');
-    label.className = 'image-gallery w-100';
-    label.style.cssText = 'cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;';
-
-    const img = document.createElement('img');
-    img.alt = field.altText;
-    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-    img.style.cssText = 'width:100%; height:100%; object-fit: cover; display:block;';
-
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'title';
-    titleDiv.style.cssText = 'position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;';
-    titleDiv.textContent = field.altText;
-
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.name = field.name;
-    fileInput.id = fileInputId; // Assign the unique ID
-    fileInput.hidden = true;
-    fileInput.accept = 'image/*';
-    fileInput.setAttribute('capture', 'camera'); // Add capture attribute
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.type = 'button';
-    deleteBtn.className = 'delete-btn';
-    deleteBtn.title = 'ลบภาพ';
-    deleteBtn.style.cssText = 'position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;';
-    deleteBtn.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
-
-    const editBtn = document.createElement('button');
-    editBtn.type = 'button';
-    editBtn.className = 'edit-title-btn';
-    editBtn.title = 'แก้ไขชื่อภาพ';
-    editBtn.style.cssText = 'position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);';
-    editBtn.textContent = 'A';
-
-    label.appendChild(img);
-    label.appendChild(titleDiv);
-    label.appendChild(fileInput);
-    label.appendChild(deleteBtn);
-    label.appendChild(editBtn);
-    colDiv.appendChild(label);
-
-    return colDiv.outerHTML;
-}
 
   function populateImageSections() {
       const sectionsMap = {
@@ -758,71 +662,25 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
       };
 
-      imageFields.forEach(field => {
-          const targetSection = sectionsMap[field.section];
-          if (targetSection) {
-              const fileInputId = `file-input-${field.name}`;
-              targetSection.insertAdjacentHTML('beforeend', renderImageUploadBlock(field, fileInputId));
-              
-              const fileInput = document.getElementById(fileInputId);
-              if (fileInput) {
-                  fileInput.addEventListener('change', async () => {
-                      const file = fileInput.files[0];
-                      if (!file) return;
-
-                      const label = fileInput.closest('label');
-                      const img = label.querySelector('img');
-                      const titleDiv = label.querySelector('.title');
-                      const customName = titleDiv.textContent.trim();
-                      const folderName = document.getElementById('taskId')?.value.trim() || 'default';
-
-                      img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif'; // Show loader
-
-                      try {
-                        const options = {
-                          maxSizeMB: 1,
-                          maxWidthOrHeight: 1920,
-                          useWebWorker: true
-                        }
-                        console.log(`Original file size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
-                        const compressedFile = await imageCompression(file, options);
-                        console.log(`Compressed file size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
-
-                        const formData = new FormData();
-                        formData.append('folder', folderName);
-                        formData.append('category', field.section);
-                        formData.append('images', compressedFile, customName + '.' + file.name.split('.').pop());
-
-                        const token = localStorage.getItem('authToken') || '';
-                        const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
-                            method: 'POST',
-                            headers: { 'Authorization': token },
-                            body: formData
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            if (result.uploaded && result.uploaded.length > 0) {
-                                img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
-                                label.setAttribute('data-filled', 'true');
-                                uploadedPicCache.add(fileInput.name);
-                                updateDamageDetailField(); // Update damage field on successful upload
-                            } else {
-                                throw new Error('Upload response did not contain uploaded file information.');
-                            }
-                        } else {
-                            const errorResult = await response.json();
-                            throw new Error(errorResult.message || 'Upload failed');
-                        }
-                      } catch (err) {
-                          console.error('Upload error:', err);
-                          alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
-                          img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Reset to placeholder on error
-                      }
-                  });
-              }
-          }
+      // Clear existing static image blocks if any
+      Object.values(sectionsMap).forEach(section => {
+          if (section) section.innerHTML = '';
       });
+
+      // Render "Add Image" buttons for each category
+      for (const category in sectionsMap) {
+          const targetSection = sectionsMap[category];
+          if (targetSection) {
+              const addImageButtonHtml = `
+                  <div class="col-4 mb-3 text-center">
+                      <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
+                          <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
+                      </button>
+                  </div>
+              `;
+              targetSection.insertAdjacentHTML('beforeend', addImageButtonHtml);
+          }
+      }
   }
 
   // =========================================================
@@ -861,7 +719,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
             const originalImageUrl = img.src; // This is the Cloudinary URL
             const label = img.closest('label');
             const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
-            const safeName = title.replace(/[\W_]+/g, '').replace(/\s+/g, '_'); // More robust safe name
+            const safeName = title.replace(/[\[\\\]^$.|?*+()]/g, '').replace(/\s+/g, '_'); // More robust safe name
 
             console.log(`Attempting to download image ${i + 1}: ${originalImageUrl}`);
 
@@ -869,10 +727,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                 const token = localStorage.getItem('authToken') || '';
                 const response = await fetch(`${API_BASE_URL}/api/upload/proxy-download`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': token
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
                     body: JSON.stringify({ imageUrl: originalImageUrl })
                 });
 
@@ -895,6 +750,104 @@ function initCarModelDropdown(brandSelect, modelSelect) {
       });
     }
 
+    // --- Dynamic Image Upload Logic ---
+    function renderNewImageUploadSlot(category) {
+        const uniqueId = `dynamic-upload-${category}-${Date.now()}`;
+        const newSlotHtml = `
+            <div class="col-4 mb-3 text-center dynamic-image-slot">
+                <label class="image-gallery w-100" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="New Image">
+                    <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
+                        กรุณาใส่ชื่อ
+                    </div>
+                    <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${category}" hidden accept="image/*" capture="camera">
+                    <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
+                </label>
+            </div>
+        `;
+        return newSlotHtml;
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('add-image-btn')) {
+            const category = e.target.dataset.category;
+            const newSlotHtml = renderNewImageUploadSlot(category);
+            e.target.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
+        }
+    });
+
+    // Delegated event listener for dynamically created file inputs
+    document.addEventListener('change', async function(e) {
+        if (e.target && e.target.name === 'dynamic_image') {
+            const fileInput = e.target;
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const label = fileInput.closest('label');
+            const img = label.querySelector('img');
+            const titleDiv = label.querySelector('.title');
+            const customName = titleDiv.textContent.trim();
+            const folderName = document.getElementById('taskId')?.value.trim() || 'default';
+            const category = fileInput.dataset.category;
+
+            img.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif'; // Show loader
+
+            try {
+                const options = {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true
+                }
+                console.log(`Original file size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+                const compressedFile = await imageCompression(file, options);
+                console.log(`Compressed file size: ${(compressedFile.size / 1024 / 1024).toFixed(2)} MB`);
+
+                const formData = new FormData();
+                formData.append('folder', folderName);
+                formData.append('category', category);
+                formData.append('images', compressedFile, customName + '.' + file.name.split('.').pop());
+
+                const token = localStorage.getItem('authToken') || '';
+                const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+                    method: 'POST',
+                    headers: { 'Authorization': token },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.uploaded && result.uploaded.length > 0) {
+                        img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
+                        label.setAttribute('data-filled', 'true');
+                        updateDamageDetailField(); // Update damage field on successful upload
+                    } else {
+                        throw new Error('Upload response did not contain uploaded file information.');
+                    }
+                } else {
+                    const errorResult = await response.json();
+                    throw new Error(errorResult.message || 'Upload failed');
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+                alert('🚫 ไม่สามารถอัปโหลดรูปภาพได้: ' + err.message);
+                img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; // Reset to placeholder on error
+            }
+        }
+    });
+
+    // Delegated event listener for delete buttons on dynamic image slots
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.closest('.delete-btn')) {
+            e.preventDefault();
+            const deleteBtn = e.target.closest('.delete-btn');
+            const imageSlot = deleteBtn.closest('.dynamic-image-slot');
+            if (imageSlot) {
+                imageSlot.remove();
+                updateDamageDetailField(); // Update the summary field after removal
+            }
+        }
+    });
+
     loadUserProfile();
     hideUserManagementMenu(); // Call the new function here
     populateImageSections();
@@ -910,8 +863,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
       }
 
 
-    const params = new URLSearchParams(window.location.search);
-    const orderId = params.get('id');
+    const orderId = getQueryParam('id');
     if (orderId) {
       loadOrderData(orderId);
     } else {
@@ -929,10 +881,10 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     if (!form) return;
 
     const logoutBtn = document.getElementById('logout');
-    if (logoutBtn) logoutBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE;
+    if (logoutBtn) logoutBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE);
   });
     const logoutMenu = document.getElementById('logout-menu');
-    if (logoutMenu) logoutMenu.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE;
+    if (logoutMenu) logoutMenu.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE);
    });
 
     const manualSubmitBtn = document.getElementById('submittaskBtn');
@@ -990,12 +942,16 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         let endpoint, data, method;
 
         const orderPic = [];
-        document.querySelectorAll('.upload-section img').forEach(img => {
-          if (!img.src || img.style.display === 'none' || !img.src.startsWith('http')) return;
-          const input = img.closest('label')?.querySelector('input[type="file"]');
-          const picType = input?.name || 'unknown';
-          const title = img.closest('label')?.querySelector('.title')?.innerText || '';
-          orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: created_by });
+        document.querySelectorAll('label.image-gallery[data-filled="true"]').forEach(label => {
+            const img = label.querySelector('img');
+            const titleDiv = label.querySelector('.title');
+            const fileInput = label.querySelector('input[type="file"]');
+
+            if (img && img.src && img.src.startsWith('http') && titleDiv && fileInput) {
+                const picType = fileInput.dataset.category || 'unknown'; // Get category from data-category
+                const title = titleDiv.textContent.trim();
+                orderPic.push({ pic: img.src.split('?')[0], pic_type: picType, pic_title: title, created_by: created_by });
+            }
         });
 
         const date = getSafeValue('appointmentDate');
@@ -1077,7 +1033,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           const result = await response.json();
           if (response.ok) {
             alert('✅ ดำเนินการเรียบร้อยแล้ว'); // Changed message to be more generic
-            window.location.href = 'dashboard.html';
+navigateTo('dashboard.html');
           } else {
             alert('❌ เกิดข้อผิดพลาด: ' + result.message);
           }
@@ -1148,12 +1104,16 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     
         // Collect picture data
         const orderPic = [];
-        document.querySelectorAll('.upload-section img').forEach(img => {
-          if (!img.src || img.style.display === 'none' || !img.src.startsWith('http')) return;
-          const input = img.closest('label')?.querySelector('input[type="file"]');
-          const picType = input?.name || 'unknown';
-          const title = img.closest('label')?.querySelector('.title')?.innerText || '';
-          orderPic.push({ pic: img.src, pic_type: picType, pic_title: title, created_by: updated_by });
+        document.querySelectorAll('label.image-gallery[data-filled="true"]').forEach(label => {
+            const img = label.querySelector('img');
+            const titleDiv = label.querySelector('.title');
+            const fileInput = label.querySelector('input[type="file"]');
+
+            if (img && img.src && img.src.startsWith('http') && titleDiv && fileInput) {
+                const picType = fileInput.dataset.category || 'unknown'; // Get category from data-category
+                const title = titleDiv.textContent.trim();
+                orderPic.push({ pic: img.src.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
+            }
         });
         carDetailsPayload.order_pic = orderPic;
     
@@ -1181,7 +1141,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         // --- Final Alert and Redirect ---
         if (allSuccess) {
           alert(successMessages.join('\n'));
-          window.location.href = 'dashboard.html';
+          navigateTo('dashboard.html');
         } else {
           alert(errorMessages.join('\n'));
         }
@@ -1226,10 +1186,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                     const token = localStorage.getItem('authToken') || '';
                     const response = await fetch(`${API_BASE_URL}/api/upload/proxy-download`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': token
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
                         body: JSON.stringify({ imageUrl: imageUrlToDownload })
                     });
 
@@ -1324,98 +1281,36 @@ function initCarModelDropdown(brandSelect, modelSelect) {
     }
     // --- End of Image Preview and Replace Logic ---
 
-    const categorySelect = document.getElementById('categorySelect');
-    if(categorySelect) {
-      const categoryConfig = {
-          accessories: { count: 20, labels: Array.from({length: 20}, (_, i) => `อุปกรณ์ตกแต่ง ${i + 1}.`), idRender: Array.from({length: 20}, (_, i) => `interior_${i + 1}`) },
-          documents: { count: 8, labels: ['ใบขับขี่', 'บัตรประชาชน', 'เอกสารยืนยันตัวรถ', 'เลขตัวถังและทะเบียนรถ', 'ลายเซ็น', 'อื่นๆ', 'อื่นๆ', 'อื่นๆ'], idRender: ['license',      
-  'id_card', 'car_doc', 'car_number', 'doc_other_9', 'other_1', 'other_2', 'other_3'] },
-          inspection: { count: 10, labels: Array.from({length: 10}, (_, i) => `รายละเอียดความเสียหาย ${i + 1}.`), idRender: Array.from({length: 10}, (_, i) =>
-  `damage_images_${i + 1}`) },
-          around: { count: 9, labels: ['ภาพถ่ายรอบคัน - ด้านหน้ารถ', 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า', 'ภาพถ่ายรอบคัน - ด้านซ้ายตรง', 'ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง',
-  'ภาพถ่ายรอบคัน - ด้านท้ายรถ', 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง', 'ภาพถ่ายรอบคัน - ด้านขวาตรง', 'ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า', 'หลังคา'], idRender: ['exterior_front',
-  'exterior_left_front', 'exterior_left_center', 'exterior_left_rear', 'exterior_rear', 'exterior_right_rear', 'exterior_right_center', 'exterior_right_front',
-  'exterior_roof'] },
-          signature: { count: 1, labels: ['ลายเซ็น'], idRender: ['doc_other_9'] },
-          fiber: { count: 9, labels: Array.from({length: 9}, (_, i) => `ใบตรวจสภาพรถ ${i + 1}`), idRender: Array.from({length: 9}, (_, i) => `doc_other_${i+1}`) }
-      };
-      categorySelect.addEventListener('change', function () {
-        const selected = this.value;
-        const area = document.getElementById('dynamicUploadArea');
-        area.innerHTML = '';
-        if (!selected || !categoryConfig[selected]) return;
-        const { count, labels, idRender } = categoryConfig[selected];
-        for (let i = 0; i < count; i++) {
-          const group = document.createElement('div');
-          group.className = 'mb-3 col-md-6';
-          const fileInputId = `fileInput-${selected}-${i + 1}`;
-          const labelText = labels[i] || `Item ${i + 1}`;
-          const idRenderValue = idRender[i] || selected;
-          const isUploaded = uploadedPicCache.has(idRenderValue);
-          const fileInputHTML = isUploaded ? `<div class="text-danger small">📁 ไฟล์อัปโหลดแล้ว</div>` : `<input type="file" class="form-control" id="${fileInputId}" accept="image/*" capture="camera" />`;
-          group.innerHTML = `
-            <label class="form-label d-block mb-1">${labelText}</label>
-            <div class="row g-2 align-items-center">
-              <div class="col-6"><input type="text" class="form-control" placeholder="ระบุชื่อไฟล์" ${isUploaded ? 'disabled' : ''} /></div>
-              <div class="col-6">${fileInputHTML}</div>
-            </div>`;
-          area.appendChild(group);
-          setTimeout(() => {
-            const fileInput = document.getElementById(fileInputId);
-            if(!fileInput) return;
-            const textInput = group.querySelector('input[type="text"]');
-            fileInput.addEventListener('change', async () => {
-              const file = fileInput.files[0];
-              if (!file) return;
-              const customName = textInput.value.trim() || file.name.split('.').slice(0, -1).join('.') || `image_${i}`;
-              const folderName = document.getElementById('taskId')?.value.trim() || 'default';
-              const formData = new FormData();
-              formData.append('folder', folderName);
-              formData.append('category', selected);
-              formData.append('images', file, customName + '.' + file.name.split('.').pop());
-              const progressWrapper = document.getElementById('uploadProgressWrapper');
-              progressWrapper.classList.remove('d-none');
-              try {
-                const token = localStorage.getItem('authToken') || '';
-                const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, { 
-                    method: 'POST',
-                    headers: { 'Authorization': token },
-                    body: formData 
-                });
-                if (response.ok) {
-                  const result = await response.json();
-                  const inputElem = document.querySelector(`input[name="${idRenderValue}"]`);
-                  if (inputElem) {
-                    const label = inputElem.closest('label.image-gallery');
-                    if (label) {
-                      const previewImg = label.querySelector('img');
-                      const titleDiv = label.querySelector('.title');
-                      const col = label.closest('.col-4');
-                      if (previewImg) {
-                        previewImg.src = result.uploaded[0].url + '?t=' + new Date().getTime();
-                        previewImg.style.display = 'block';
-                        previewImg.alt = customName;
-                      }
-                      if (titleDiv) titleDiv.textContent = customName;
-                      if (col) col.style.display = 'block';
-                    }
-                  }
-                } else {
-                  alert('❌ อัปโหลดไม่สำเร็จ');
+    
+
+    document.addEventListener('click', async function(e) {
+        if (e.target && e.target.closest('.edit-title-btn')) {
+            e.preventDefault();
+            const editBtn = e.target.closest('.edit-title-btn');
+            const label = editBtn.closest('label.image-gallery');
+            const img = label.querySelector('img');
+            const titleDiv = label.querySelector('.title');
+
+            if (!img || !img.src.startsWith('http')) {
+                alert('ไม่สามารถแก้ไขชื่อรูปภาพที่ยังไม่ได้อัปโหลด');
+                return;
+            }
+
+            const currentTitle = titleDiv.textContent;
+            const newTitle = prompt('กรุณาใส่ชื่อรูปภาพใหม่:', currentTitle);
+
+            if (newTitle && newTitle.trim() !== '' && newTitle !== currentTitle) {
+                const orderId = getSafeValue('taskId');
+                const picUrl = img.src.split('?')[0]; // Remove cache-busting query params
+
+                const success = await updateImageTitle(orderId, picUrl, newTitle.trim());
+                if (success) {
+                    titleDiv.textContent = newTitle.trim();
+                    updateDamageDetailField(); // Update the summary field
                 }
-              } catch (err) {
-                console.error(err);
-                alert('🚫 ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
-              } finally {
-                progressWrapper.classList.add('d-none');
-              }
-            });
-          }, 0);
+            }
         }
-      });
-    }
-
-
+    });
 
 
   

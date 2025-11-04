@@ -1,6 +1,7 @@
 const path = require('path');
 const glob = require('glob');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const webpack = require('webpack'); // Add this line
 
 // -------------------------------------------------------------------------------
 // Config
@@ -23,7 +24,7 @@ const packageRegex = package => `(?:\\\\|\\/)${package}(?:\\\\|\\/).+?\\.js$`;
 // Build config
 
 const collectEntries = () => {
-  const fileList = glob.sync(`!(${conf.exclude.join('|')})/**/!(_)*.@(js|es6)`) || [];
+  const fileList = glob.sync('js/**/!(_)*.@(js|es6)') || [];
   const fileListFiltered = fileList.filter(str => !str.includes('formvalidation'));
   return fileListFiltered.reduce((entries, file) => {
     const filePath = file.replace(/\\/g, '/');
@@ -86,7 +87,11 @@ const webpackConfig = {
       }
     ]
   },
-  plugins: [],
+  plugins: [
+    new webpack.DefinePlugin({
+      'API_BASE_URL': JSON.stringify(process.env.API_BASE_URL || 'https://be-claims-service.onrender.com'),
+    }),
+  ],
   resolve: {
     extensions: ['.js'],
     alias: {

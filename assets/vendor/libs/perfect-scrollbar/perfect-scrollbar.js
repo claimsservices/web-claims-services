@@ -1,4 +1,4 @@
-(function(e, a) { for(var i in a) e[i] = a[i]; }(window, /******/ (function(modules) { // webpackBootstrap
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -94,7 +94,7 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! perfect-scrollbar/dist/perfect-scrollbar */ \"./node_modules/perfect-scrollbar/dist/perfect-scrollbar.js\");\n/* harmony import */ var perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, \"PerfectScrollbar\", function() { return perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0___default.a; });\n\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9saWJzL3BlcmZlY3Qtc2Nyb2xsYmFyL3BlcmZlY3Qtc2Nyb2xsYmFyLmpzP2IyYzMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7QUFBQTtBQUFBO0FBQUE7QUFBQSIsImZpbGUiOiIuL2xpYnMvcGVyZmVjdC1zY3JvbGxiYXIvcGVyZmVjdC1zY3JvbGxiYXIuanMuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgUGVyZmVjdFNjcm9sbGJhciBmcm9tICdwZXJmZWN0LXNjcm9sbGJhci9kaXN0L3BlcmZlY3Qtc2Nyb2xsYmFyJztcblxuZXhwb3J0IHsgUGVyZmVjdFNjcm9sbGJhciB9O1xuIl0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///./libs/perfect-scrollbar/perfect-scrollbar.js\n");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! perfect-scrollbar/dist/perfect-scrollbar */ \"./node_modules/perfect-scrollbar/dist/perfect-scrollbar.js\");\n/* harmony import */ var perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, \"PerfectScrollbar\", function() { return perfect_scrollbar_dist_perfect_scrollbar__WEBPACK_IMPORTED_MODULE_0___default.a; });\n\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9saWJzL3BlcmZlY3Qtc2Nyb2xsYmFyL3BlcmZlY3Qtc2Nyb2xsYmFyLmpzP2IyYzMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7QUFBQTtBQUFBO0FBQUE7QUFBd0UiLCJmaWxlIjoiLi9saWJzL3BlcmZlY3Qtc2Nyb2xsYmFyL3BlcmZlY3Qtc2Nyb2xsYmFyLmpzLmpzIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IFBlcmZlY3RTY3JvbGxiYXIgZnJvbSAncGVyZmVjdC1zY3JvbGxiYXIvZGlzdC9wZXJmZWN0LXNjcm9sbGJhcic7XHJcblxyXG5leHBvcnQgeyBQZXJmZWN0U2Nyb2xsYmFyIH07XHJcbiJdLCJzb3VyY2VSb290IjoiIn0=\n//# sourceURL=webpack-internal:///./libs/perfect-scrollbar/perfect-scrollbar.js\n");
 
 /***/ }),
 
@@ -109,4 +109,4 @@ eval("/*!\n * perfect-scrollbar v1.5.3\n * Copyright 2021 Hyunje Jun, MDBootstra
 
 /***/ })
 
-/******/ })));
+/******/ });

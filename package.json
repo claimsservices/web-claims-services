@@ -28,7 +28,7 @@
     "freebies"
   ],
   "scripts": {
-    "build": "npx gulp build",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider --max-old-space-size=4096 && npx gulp build",
     "build:js": "npx gulp build:js",
     "build:css": "npx gulp build:css",
     "build:fonts": "npx gulp build:fonts",
@@ -43,13 +43,26 @@
     "test": "jest"
   },
   "jest": {
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "testURL": "http://localhost/",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/assets/vendor/"
+    ],
+    "testRegex": "/__tests__/.*\\.test\\.js$",
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.css$": "<rootDir>/__mocks__/styleMock.js"
+    }
   },
   "dependencies": {
     "@popperjs/core": "^2.9.2",
     "apexcharts-clevision": "^3.28.3",
     "bootstrap": "~5.1.3",
     "boxicons": "~2.0.9",
+    "browser-image-compression": "^2.0.2",
     "highlight.js": "~9.17.1",
     "jquery": "~3.5.1",
     "loglevel": "^1.9.2",
@@ -57,7 +70,7 @@
     "perfect-scrollbar": "~1.5.1"
   },
   "devDependencies": {
-    "@babel/core": "~7.7.7",
+    "@babel/core": "^7.8.0",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.7.4",
     "@babel/plugin-proposal-object-rest-spread": "~7.7.7",
     "@babel/plugin-transform-destructuring": "~7.7.4",
@@ -66,6 +79,7 @@
     "@babel/plugin-transform-template-literals": "~7.7.4",
     "@babel/preset-env": "~7.7.7",
     "ansi-colors": "~4.1.1",
+    "babel-jest": "^29.7.0",
     "babel-loader": "~8.0.4",
     "browser-sync": "^2.26.7",
     "color-support": "~1.1.3",
@@ -89,6 +103,7 @@
     "gulp-sourcemaps": "~2.6.4",
     "gulp-useref": "^5.0.0",
     "html-loader": "~0.5.5",
+    "http-server": "^14.1.1",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "js-beautify": "^1.10.3",

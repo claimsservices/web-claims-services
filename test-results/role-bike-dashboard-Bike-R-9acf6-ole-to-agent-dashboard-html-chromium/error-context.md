@@ -1,0 +1,178 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - link "Logo" [ref=e7] [cursor=pointer]:
+            - /url: "#"
+            - img "Logo" [ref=e9]
+          - generic [ref=e10]:
+            - generic [ref=e11]: Welcome to
+            - generic [ref=e12]: ST Application
+        - text: 
+      - list [ref=e13]:
+        - listitem [ref=e14]:
+          - link " Application Service" [ref=e15] [cursor=pointer]:
+            - /url: dashboard.html
+            - generic [ref=e16]: 
+            - generic [ref=e17]: Application Service
+          - list [ref=e18]:
+            - listitem [ref=e19]:
+              - link " Task Management" [ref=e20] [cursor=pointer]:
+                - /url: dashboard.html
+                - generic [ref=e21]: 
+                - generic [ref=e22]: Task Management
+        - listitem [ref=e23]:
+          - link " User Management" [ref=e24] [cursor=pointer]:
+            - /url: javascript:void(0);
+            - generic [ref=e25]: 
+            - generic [ref=e26]: User Management
+      - link " Logout" [ref=e29] [cursor=pointer]:
+        - /url: javascript:void(0)
+        - generic [ref=e30]: 
+        - text: Logout
+    - generic [ref=e31]:
+      - navigation [ref=e32]:
+        - text: 
+        - list [ref=e34]:
+          - listitem [ref=e35]:
+            - link [ref=e36] [cursor=pointer]:
+              - /url: javascript:void(0);
+            - text:  
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e45]:
+                - heading "N/A" [level=4] [ref=e46]
+                - paragraph
+              - text: งานทั้งหมด
+            - generic [ref=e49] [cursor=pointer]: 
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - heading "N/A" [level=4] [ref=e56]
+              - text: งานยังไม่ได้นัดหมาย
+            - generic [ref=e59] [cursor=pointer]: 
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - heading "N/A" [level=4] [ref=e66]
+              - text: งานรอ Assign
+            - generic [ref=e69] [cursor=pointer]: 
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - heading "N/A" [level=4] [ref=e76]
+              - text: งานแจ้งเตือน
+            - generic [ref=e79] [cursor=pointer]: 
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - generic [ref=e83]:
+              - combobox [ref=e85]:
+                - option "บริษัทประกันภัย" [selected]
+                - option "บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)"
+                - option "บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท จรัญประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)"
+                - option "บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)"
+                - option "บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)"
+                - option "บริษัท ทิพยประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ทูนประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท เทเวศประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ไทยพัฒนาประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ไทยไพบูลย์ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ไทยรับประกันภัยต่อ จำกัด (มหาชน)"
+                - option "บริษัท ไทยเศรษฐกิจประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ธนชาตประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท นวกิจประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท บางกอกสหประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ประกันภัยไทยวิวัฒน์ จำกัด (มหาชน)"
+                - option "บริษัท ฟอลคอนประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท มิตรแท้ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท เมืองไทยประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท รู้ใจประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท วิริยะประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท สหมงคลประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท อินทรประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)"
+                - option "บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)"
+                - option "บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)"
+                - option "บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)"
+                - option "บริษัท เอสที เซอร์วิส เทรนนิ่ง"
+              - combobox [ref=e87]:
+                - option "สาขา" [selected]
+              - combobox [ref=e89]:
+                - option "งานทั้งหมด" [selected]
+                - option "งานยังไม่ได้นัดหมาย"
+                - option "งานรอ Assign"
+                - option "งานแจ้งเตือน"
+              - combobox [ref=e91]:
+                - option "ประเภทงาน" [selected]
+                - option "Inspection"
+                - option "Roadside Assist"
+              - combobox [ref=e93]:
+                - option "สถานะงาน" [selected]
+                - option "เปิดงาน"
+                - option "รับเรื่องแล้ว"
+                - option "รับงาน"
+                - option "ปฏิเสธงาน"
+                - option "เริ่มงาน/กำลังเดินทาง"
+                - option "ถึงที่เกิดเหตุ/ปฏิบัติงาน"
+                - option "รออนุมัติ"
+                - option "Pre-Approved"
+                - option "คีย์งานแล้ว"
+                - option "ผ่าน"
+                - option "ไม่ผ่าน"
+                - option "ยกเลิก"
+              - combobox [ref=e95]:
+                - option "วันที่สร้างงาน" [selected]
+                - option "วันที่นัดหมาย"
+              - generic [ref=e97]:
+                - generic [ref=e99]: 
+                - textbox "เลือกช่วงวันที่" [ref=e100]
+                - button "เลือกช่วง" [ref=e101] [cursor=pointer]
+              - textbox "รหัสงาน" [ref=e103]
+              - textbox "ผู้สร้างงาน" [ref=e105]
+              - textbox "ผู้รับผิดชอบ" [ref=e107]
+            - generic [ref=e108]:
+              - group "Task filters" [ref=e109]:
+                - button "Work" [ref=e110] [cursor=pointer]
+                - button "Pre Approved" [ref=e111] [cursor=pointer]
+              - button "ค้นหารายการ" [ref=e112] [cursor=pointer]
+          - generic [ref=e115]:
+            - button "" [ref=e116] [cursor=pointer]:
+              - generic [ref=e117]: 
+            - button " เพิ่มรายการใหม่" [ref=e118] [cursor=pointer]:
+              - generic [ref=e119]: 
+              - generic [ref=e120]: เพิ่มรายการใหม่
+          - generic [ref=e121]:
+            - table [ref=e122]:
+              - rowgroup [ref=e123]:
+                - row "รหัสงาน บริษัทประกัน วันที่ทำรายการ วันที่นัดหมาย ทะเบียนรถ สถานที่ ประเภทงาน สถานะงาน ยอดเงิน ผู้รับผิดชอบ" [ref=e124]:
+                  - cell "รหัสงาน" [ref=e125]
+                  - cell "บริษัทประกัน" [ref=e126]
+                  - cell "วันที่ทำรายการ" [ref=e127]
+                  - cell "วันที่นัดหมาย" [ref=e128]
+                  - cell "ทะเบียนรถ" [ref=e129]
+                  - cell "สถานที่" [ref=e130]
+                  - cell "ประเภทงาน" [ref=e131]
+                  - cell "สถานะงาน" [ref=e132]
+                  - cell "ยอดเงิน" [ref=e133]
+                  - cell "ผู้รับผิดชอบ" [ref=e134]
+              - rowgroup
+            - generic [ref=e135]:
+              - list
+  - text: "-->"
+  - img
+```

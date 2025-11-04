@@ -74,8 +74,14 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run serve',
+    command: 'set NODE_OPTIONS=--openssl-legacy-provider --max-old-space-size=8192 && npm run build && http-server . -p 3001', // Increase memory limit to 8GB
     url: 'http://localhost:3001',
     reuseExistingServer: false,
+    env: {
+      NODE_OPTIONS: '--openssl-legacy-provider', // Add this line
+      API_BASE_URL: 'http://localhost:8181'
+    },
+    timeout: 120 * 1000, // Give frontend server 120 seconds to start
   },
+    });
 

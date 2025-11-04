@@ -1,4 +1,4 @@
-(function(e, a) { for(var i in a) e[i] = a[i]; }(window, /******/ (function(modules) { // webpackBootstrap
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -94,7 +94,7 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @popperjs/core/dist/umd/popper.min */ \"./node_modules/@popperjs/core/dist/umd/popper.min.js\");\n/* harmony import */ var _popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, \"Popper\", function() { return _popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0___default.a; });\n // Required to enable animations on dropdowns/tooltips/popovers\n// Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false\n\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9saWJzL3BvcHBlci9wb3BwZXIuanM/NTgwMyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtBQUFBO0FBQUE7QUFBQTtDQUVBO0FBQ0EiLCJmaWxlIjoiLi9saWJzL3BvcHBlci9wb3BwZXIuanMuanMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgUG9wcGVyIGZyb20gJ0Bwb3BwZXJqcy9jb3JlL2Rpc3QvdW1kL3BvcHBlci5taW4nO1xuXG4vLyBSZXF1aXJlZCB0byBlbmFibGUgYW5pbWF0aW9ucyBvbiBkcm9wZG93bnMvdG9vbHRpcHMvcG9wb3ZlcnNcbi8vIFBvcHBlci5EZWZhdWx0cy5tb2RpZmllcnMuY29tcHV0ZVN0eWxlLmdwdUFjY2VsZXJhdGlvbiA9IGZhbHNlXG5cbmV4cG9ydCB7IFBvcHBlciB9O1xuIl0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///./libs/popper/popper.js\n");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @popperjs/core/dist/umd/popper.min */ \"./node_modules/@popperjs/core/dist/umd/popper.min.js\");\n/* harmony import */ var _popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0__);\n/* harmony reexport (default from non-harmony) */ __webpack_require__.d(__webpack_exports__, \"Popper\", function() { return _popperjs_core_dist_umd_popper_min__WEBPACK_IMPORTED_MODULE_0___default.a; });\n\n\n// Required to enable animations on dropdowns/tooltips/popovers\n// Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false\n\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9saWJzL3BvcHBlci9wb3BwZXIuanM/NTgwMyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQTtBQUFBO0FBQUE7QUFBQTtBQUF3RDs7QUFFeEQ7QUFDQSIsImZpbGUiOiIuL2xpYnMvcG9wcGVyL3BvcHBlci5qcy5qcyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBQb3BwZXIgZnJvbSAnQHBvcHBlcmpzL2NvcmUvZGlzdC91bWQvcG9wcGVyLm1pbic7XHJcblxyXG4vLyBSZXF1aXJlZCB0byBlbmFibGUgYW5pbWF0aW9ucyBvbiBkcm9wZG93bnMvdG9vbHRpcHMvcG9wb3ZlcnNcclxuLy8gUG9wcGVyLkRlZmF1bHRzLm1vZGlmaWVycy5jb21wdXRlU3R5bGUuZ3B1QWNjZWxlcmF0aW9uID0gZmFsc2VcclxuXHJcbmV4cG9ydCB7IFBvcHBlciB9O1xyXG4iXSwic291cmNlUm9vdCI6IiJ9\n//# sourceURL=webpack-internal:///./libs/popper/popper.js\n");
 
 /***/ }),
 
@@ -109,4 +109,4 @@ eval("/**\n * @popperjs/core v2.11.2 - MIT License\n */\n\n!function(e,t){ true?
 
 /***/ })
 
-/******/ })));
+/******/ });
