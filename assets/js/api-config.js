@@ -1,3 +1,4 @@
-const API_BASE_URL = 'https://be-claims-service.onrender.com';
+window.API_BASE_URL = 'https://be-claims-service.onrender.com';
 
-export default API_BASE_URL;
+// No longer exporting as a module, as it's now global
+// export default API_BASE_URL;

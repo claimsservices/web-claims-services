@@ -4,8 +4,6 @@
 
 'use strict';
 
-import API_BASE_URL from './api-config.js';
-
 // Simple logging utility to avoid build issues
 const log = {
   info: function() { console.info.apply(console, arguments); },
@@ -210,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(appVersionEl) appVersionEl.textContent = feVersion;
 
         // Fetch backend version
-        fetch(`${API_BASE_URL}/api/version`)
+        fetch(`${window.API_BASE_URL}/api/version`)
             .then(res => res.json())
             .then(backendVersionData => {
                 const beVersion = `BE: ${backendVersionData.version}`;

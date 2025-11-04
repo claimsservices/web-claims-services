@@ -1,4 +1,3 @@
-import API_BASE_URL from '../assets/js/api-config.js';
 import { navigateTo } from '../assets/js/navigation.js';
 
 document.getElementById("formAuthentication").addEventListener("submit", async function (event) {
@@ -8,7 +7,7 @@ document.getElementById("formAuthentication").addEventListener("submit", async f
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  const apiUrl = `${API_BASE_URL}/api/auth/login`;
+  const apiUrl = `${window.API_BASE_URL}/api/auth/login`;
 
   let isValid = true;
 
