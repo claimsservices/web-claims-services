@@ -23,10 +23,9 @@ fetch('/version.json')
     }
   });
 
-import { API_BASE_URL } from './api-config.js';
 // Constants for URLs and other fixed strings
 const LOGIN_PAGE = '../index.html';
-const API_URL = `${API_BASE_URL}/api/auth/profile`;
+const API_URL = `${window.API_BASE_URL}/api/auth/profile`;
 
 // Function to decode JWT token and check for expiration
 function decodeJWT(token) {
@@ -152,7 +151,7 @@ let allData = []; // จะเก็บข้อมูลที่ได้จ�
 
 async function fetchData() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/order-agent/inquiry`, {
+    const res = await fetch(`${window.API_BASE_URL}/api/order-agent/inquiry`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

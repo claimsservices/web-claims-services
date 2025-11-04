@@ -17,10 +17,9 @@ fetch('/version.json')
           document.getElementById("appVersion").textContent = "App Version -";
         });
 
-import { API_BASE_URL } from './api-config.js';
       // Constants for URLs and other fixed strings
       const LOGIN_PAGE = '../index.html';
-      const API_URL = `${API_BASE_URL}/api/auth/profile`;
+      const API_URL = `${window.API_BASE_URL}/api/auth/profile`;
 
       // Function to decode JWT token and check for expiration
       function decodeJWT(token) {
@@ -139,7 +138,7 @@ const itemsPerPage = 20;
 
   async function fetchData() {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/history-agent/inquiry`, {
+      const res = await fetch(`${window.API_BASE_URL}/api/history-agent/inquiry`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
