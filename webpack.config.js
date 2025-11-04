@@ -87,11 +87,7 @@ const webpackConfig = {
       }
     ]
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      'API_BASE_URL': JSON.stringify(process.env.API_BASE_URL || 'https://be-claims-service.onrender.com'),
-    }),
-  ],
+  plugins: [],
   resolve: {
     extensions: ['.js'],
     alias: {

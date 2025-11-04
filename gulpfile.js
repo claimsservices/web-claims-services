@@ -8,8 +8,8 @@ process.env.NODE_ENV = env.current.name;
 
 // Define BASE_URL based on the environment
 const API_BASE_URL = env.current.name === 'production'
-  ? 'http://localhost:5400'  // Production URL
-  : 'http://localhost:5400'; // Development URL
+  ? 'https://be-claims-service.onrender.com'  // Production URL
+  : 'http://localhost:8181'; // Development URL
 
 
 let serverPath;
@@ -42,7 +42,7 @@ function srcGlob(...src) {
 // Tasks
 // -------------------------------------------------------------------------------
 
-const buildTasks = require('./tasks/build')(conf, srcGlob);
+const buildTasks = require('./tasks/build')(conf, srcGlob, API_BASE_URL);
 const prodTasks = require('./tasks/prod')(conf);
 
 // Clean build directory
