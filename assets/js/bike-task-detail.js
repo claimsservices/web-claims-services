@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    import { API_BASE_URL } from './api-config.js';
+
     const LOGIN_PAGE = '../index.html';
     const DASHBOARD_PAGE = 'bike-dashboard.html';
     const token = localStorage.getItem('authToken');
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Main Function to Load Task Details ---
     async function loadTaskDetails() {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/order-detail/inquiry`, {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/order-detail/inquiry`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': token },
                 body: JSON.stringify({ order_id: orderId })
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if(itemDiv) itemDiv.innerHTML = `<div class="spinner-border spinner-border-sm text-primary" role="status"></div><span>Uploading...</span>`;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/image/transactions`, {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/image/transactions`, {
                 method: 'POST',
                 headers: { 'Authorization': token },
                 body: formData
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function updateStatus(newStatus) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/order-status/update/${orderId}`, {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': token },
                 body: JSON.stringify({ order_status: newStatus })
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/order-pic/update/${orderId}`, {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/update/${orderId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': token },
                 body: JSON.stringify(body)

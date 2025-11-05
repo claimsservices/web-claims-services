@@ -16,7 +16,7 @@ fetch('/version.json')
           document.getElementById("appVersion").textContent = "App Version -";
         });
 
-import { API_BASE_URL } from './api-config.js';
+
 
       // Function to decode JWT token and check for expiration
       function decodeJWT(token) {
@@ -97,7 +97,7 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
         };
     
         try {
-          const response = await fetch(`${API_BASE_URL}/api/auth/update-password`, {
+          const response = await fetch(`https://be-claims-service.onrender.com/api/auth/update-password`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

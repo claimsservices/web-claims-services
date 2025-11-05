@@ -16,7 +16,7 @@ fetch('/version.json')
           document.getElementById("appVersion").textContent = "App Version -";
         });
 
-import { API_BASE_URL } from './api-config.js';
+
       // Constants for URLs and other fixed strings
       const LOGIN_PAGE = '../index.html';
 
@@ -82,7 +82,7 @@ import { API_BASE_URL } from './api-config.js';
 
         // If the token is valid, fetch user profile
         try {
-          const response = await fetch(`${API_BASE_URL}/api/user-management/user`, {
+          const response = await fetch(`https://be-claims-service.onrender.com/api/user-management/user`, {
             method: 'GET',
             headers: {
               'Authorization': `${token}`,  // Use the token in the Authorization header
@@ -160,7 +160,7 @@ const uploadInput = document.getElementById('upload');
         formData.append('image', file);
     
         try {
-          const res = await fetch(`${API_BASE_URL}/api/upload/image/users`, {
+          const res = await fetch(`https://be-claims-service.onrender.com/api/upload/image/users`, {
             method: 'POST',
             headers: {
               'Authorization': token // <== ส่ง token
@@ -216,7 +216,7 @@ document.getElementById('formAccountSettings').addEventListener('submit', async 
         };
     
         try {
-          const response = await fetch(`${API_BASE_URL}/api/user-management/update-user`, {
+          const response = await fetch(`https://be-claims-service.onrender.com/api/user-management/update-user`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',

@@ -19,7 +19,7 @@ fetch('/version.json')
 
       // Constants for URLs and other fixed strings
       const LOGIN_PAGE = '../index.html';
-      const API_URL = `${window.API_BASE_URL}/api/auth/profile`;
+      const API_URL = `https://be-claims-service.onrender.com/api/auth/profile`;
 
       // Function to decode JWT token and check for expiration
       function decodeJWT(token) {
@@ -138,7 +138,7 @@ const itemsPerPage = 20;
 
   async function fetchData() {
     try {
-      const res = await fetch(`${window.API_BASE_URL}/api/history-agent/inquiry`, {
+      const res = await fetch(`https://be-claims-service.onrender.com/api/history-agent/inquiry`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

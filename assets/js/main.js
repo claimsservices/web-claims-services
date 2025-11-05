@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let layoutMenuEl = document.querySelectorAll('#layout-menu');
   layoutMenuEl.forEach(function (element) {
-    menu = new Menu(element, {
+    menu = new window.Menu(element, {
       orientation: 'vertical',
       closeChildren: false
     });
@@ -113,8 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let timeout = null;
     elem.onmouseenter = function () {
       // Set timeout to be a timer which will invoke callback after 300ms (not for small screen)
-      if (!Helpers.isSmallScreen()) {
-        timeout = setTimeout(callback, 300);
+      if (!window.Helpers.isSmallScreen()) {
       } else {
         timeout = setTimeout(callback, 0);
       }

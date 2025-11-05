@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    import { API_BASE_URL } from './api-config.js';
+
     const LOGIN_PAGE = '../index.html';
     const token = localStorage.getItem('authToken');
 
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Main Data Loading --- //
     async function loadOrderData(orderId) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/order-detail/inquiry`, {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/order-detail/inquiry`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

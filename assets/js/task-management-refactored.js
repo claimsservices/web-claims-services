@@ -7,10 +7,10 @@ fetch('/version.json')
           document.getElementById("appVersion").textContent = "App Version -";
         });
 
-import API_BASE_URL from './api-config.js';
+
       // Constants for URLs and other fixed strings
       const LOGIN_PAGE = '../index.html';
-      const API_URL = `${API_BASE_URL}/api/auth/profile`;
+      const API_URL = `https://be-claims-service.onrender.com/api/auth/profile`;
 
       // Function to decode JWT token and check for expiration
       function decodeJWT(token) {
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
         uploadBtn.disabled = true;
 
         try {
-          const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+          const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
             method: 'POST',
             body: formData
           });
@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function loadAssignees(order, token) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user-management/assigners`, {
+      const response = await fetch(`https://be-claims-service.onrender.com/api/user-management/assigners`, {
         method: 'GET',
         headers: {
           'authorization': token
@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.log('Form data:', data);
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/orders/create`, {
+        const response = await fetch(`https://be-claims-service.onrender.com/api/orders/create`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

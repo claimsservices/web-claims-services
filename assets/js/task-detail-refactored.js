@@ -90,7 +90,7 @@ import { getQueryParam, navigateTo } from './navigation.js';
 
   async function loadUserProfile() {
     const token = localStorage.getItem('authToken');
-    const API_URL = `${window.API_BASE_URL}/api/auth/profile`;
+    const API_URL = `https://be-claims-service.onrender.com/api/auth/profile`;
     if (!token) { navigateTo(LOGIN_PAGE); return; }
     const decoded = parseJwt(token);
     if (!decoded) { localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE); return; }
@@ -178,7 +178,7 @@ import { getQueryParam, navigateTo } from './navigation.js';
   async function loadOrderData(orderId) {
     const token = localStorage.getItem('authToken') || '';
     try {
-                  const response = await fetch(`${window.API_BASE_URL}/api/order-detail/inquiry`, {        method: 'POST',
+                  const response = await fetch(`https://be-claims-service.onrender.com/api/order-detail/inquiry`, {        method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
         body: JSON.stringify({ order_id: orderId })
       });
@@ -305,7 +305,7 @@ import { getQueryParam, navigateTo } from './navigation.js';
 
   async function loadAssignees(order, token) {
     try {
-      const response = await fetch(`${window.API_BASE_URL}/api/user-management/assigners`, { headers: { 'Authorization': token } });
+      const response = await fetch(`https://be-claims-service.onrender.com/api/user-management/assigners`, { headers: { 'Authorization': token } });
       if (!response.ok) throw new Error('Network error');
       const data = await response.json();
       const select = document.getElementById('responsiblePerson');
@@ -327,7 +327,7 @@ import { getQueryParam, navigateTo } from './navigation.js';
   async function updateStatus(orderId, newStatus) {
       const token = localStorage.getItem('authToken') || '';
       try {
-          const response = await fetch(`${window.API_BASE_URL}/api/order-status/update/${orderId}`, {
+          const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', 'Authorization': token },
               body: JSON.stringify({ order_status: newStatus })
@@ -347,7 +347,7 @@ import { getQueryParam, navigateTo } from './navigation.js';
   async function updateImageTitle(orderId, picUrl, newTitle) {
     const token = localStorage.getItem('authToken') || '';
     try {
-        const response = await fetch(`${window.API_BASE_URL}/api/order-pic/update-title`, {
+        const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/update-title`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': token },
             body: JSON.stringify({ orderId, picUrl, newTitle })
@@ -723,8 +723,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 
             try {
                 const token = localStorage.getItem('authToken') || '';
-                const response = await fetch(`${window.API_BASE_URL}/api/upload/proxy-download`, {
-                    method: 'POST',
+                                    const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {                    method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': token },
                     body: JSON.stringify({ imageUrl: originalImageUrl })
                 });
@@ -806,7 +805,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                 formData.append('images', compressedFile, customName + '.' + file.name.split('.').pop());
 
                 const token = localStorage.getItem('authToken') || '';
-                const response = await fetch(`${window.API_BASE_URL}/api/upload/image/transactions`, {
+                const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
                     method: 'POST',
                     headers: { 'Authorization': token },
                     body: formData
@@ -1008,11 +1007,11 @@ function initCarModelDropdown(brandSelect, modelSelect) {
         };
 
         if (!currentOrderId) { // Creating a new order
-            endpoint = `${window.API_BASE_URL}/api/orders/create`;
+            endpoint = `https://be-claims-service.onrender.com/api/orders/create`;
             method = 'POST';
             data = { ...commonData, created_by: created_by }; // Ensure created_by is passed for new orders
         } else if (currentUserRole === 'Insurance') { // Updating status for Insurance role
-            endpoint = `${window.API_BASE_URL}/api/order-status/update/${currentOrderId}`;
+            endpoint = `https://be-claims-service.onrender.com/api/order-status/update/${currentOrderId}`;
             method = 'PUT';
             data = {
                 order_status: getSafeValue('orderStatus'),
@@ -1020,7 +1019,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
                 order_hist: [{ icon: "📝", task: "อัปเดตสถานะ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
             };
         } else { // Updating existing order for other roles
-            endpoint = `${window.API_BASE_URL}/api/orders/update/${currentOrderId}`;
+            endpoint = `https://be-claims-service.onrender.com/api/orders/update/${currentOrderId}`;
             method = 'PUT';
             data = commonData;
         }
@@ -1069,7 +1068,7 @@ navigateTo('dashboard.html');
               order_status: newStatus,
               updated_by: updated_by,
               order_hist: [{ icon: "🚲", task: "อัปเดตสถานะ", detail: `อัปเดตสถานะโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
-            };        const statusEndpoint = `${window.API_BASE_URL}/api/order-status/update/${currentOrderId}`;    
+            };        const statusEndpoint = `https://be-claims-service.onrender.com/api/order-status/update/${currentOrderId}`;    
         try {
           const statusResponse = await fetch(statusEndpoint, {
             method: 'PUT',
@@ -1114,7 +1113,7 @@ navigateTo('dashboard.html');
         });
         carDetailsPayload.order_pic = orderPic;
     
-        const carDetailsEndpoint = `${window.API_BASE_URL}/api/order-pic/update/${currentOrderId}`;
+        const carDetailsEndpoint = `https://be-claims-service.onrender.com/api/order-pic/update/${currentOrderId}`;
     
         try {
           const carDetailsResponse = await fetch(carDetailsEndpoint, {
@@ -1181,7 +1180,7 @@ navigateTo('dashboard.html');
 
                 try {
                     const token = localStorage.getItem('authToken') || '';
-                    const response = await fetch(`${window.API_BASE_URL}/api/upload/proxy-download`, {
+                  const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': token },
                         body: JSON.stringify({ imageUrl: imageUrlToDownload })

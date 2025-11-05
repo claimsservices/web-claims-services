@@ -1,5 +1,5 @@
 
-import API_BASE_URL from './api-config.js';
+
 
 // --- Authentication and User Profile --- //
 const accessToken = localStorage.getItem('authToken');
@@ -56,7 +56,7 @@ let allData = [];
 
 async function fetchData() {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/order-agent/inquiry`, {
+    const res = await fetch(`https://be-claims-service.onrender.com/api/order-agent/inquiry`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

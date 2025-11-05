@@ -26,11 +26,11 @@ document.getElementById('user-role-regist').addEventListener('change', function 
     }
 });
 
-import API_BASE_URL from './api-config.js';
 
 
-const API_URL = `${API_BASE_URL}/api/auth/profile`;
-const API_URL_USERS = `${API_BASE_URL}/api/user-management/users`; // Update with your backend URL
+
+const API_URL = `https://be-claims-service.onrender.com/api/auth/profile`;
+const API_URL_USERS = `https://be-claims-service.onrender.com/api/user-management/users`; // Update with your backend URL
 
 // Function to decode JWT token and check for expiration
 function decodeJWT(token) {
@@ -408,7 +408,7 @@ addNewUserForm.onsubmit = async function (e) {
 
     if (currentEditUsername) { // EDIT MODE
 
-        url = `${API_BASE_URL}/api/user-management/update-user`;
+        url = `https://be-claims-service.onrender.com/api/user-management/update-user`;
 
         method = 'PUT';
 
@@ -418,7 +418,7 @@ addNewUserForm.onsubmit = async function (e) {
 
     } else { // ADD MODE
 
-        url = `${API_BASE_URL}/api/auth/register`;
+        url = `https://be-claims-service.onrender.com/api/auth/register`;
 
         method = 'POST';
 
@@ -550,7 +550,7 @@ document.addEventListener('click', async (event) => {
 
         try {
 
-            const response = await fetch(`${API_BASE_URL}/api/user-management/delete-user`, {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/user-management/delete-user`, {
 
                 method: 'DELETE',
 

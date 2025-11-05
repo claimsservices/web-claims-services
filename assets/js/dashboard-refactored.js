@@ -164,9 +164,9 @@ fetch('/version.json')
   });
 
 // API and constants
-import API_BASE_URL from './api-config.js';
+
 // const API_BASE_URL = 'http://localhost:8181'; // URL สำหรับ Local development
-const ORDER_STATUS_API_URL = `${API_BASE_URL}/api/order-status/inquiry`;
+const ORDER_STATUS_API_URL = `https://be-claims-service.onrender.com/api/order-status/inquiry`;
 
 // User profile loading
 async function loadUserProfile() {
@@ -263,7 +263,7 @@ async function fetchData(filter = {}) {
     }
 
     const userRole = getUserRole();
-    let endpoint = `${API_BASE_URL}/api/orders/inquiry`;
+    let endpoint = `https://be-claims-service.onrender.com/api/orders/inquiry`;
     let body = filter;
 
     const res = await fetch(endpoint, {
