@@ -13,47 +13,386 @@ const localStorageMock = (() => {
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-// Mock fetch
-global.fetch = jest.fn();
+
 
 const { navigateTo } = require('../assets/js/navigation.js');
 
+
+
 let mockLocationHref = '';
 
+
+
+
+
+
+
+let originalWindow;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const mockWindow = {
+
+
+
+
+
+
+
+  ...window, // Copy existing window properties
+
+
+
+
+
+
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 jest.mock('../assets/js/navigation.js', () => ({
+
+
+
+
+
+
+
   navigateTo: jest.fn(url => { mockLocationHref = url; }),
+
+
+
+
+
+
+
 }));
 
-Object.defineProperty(window, 'location', {
-  configurable: true,
-  value: {
-    get href() { return mockLocationHref; },
-    set href(url) { mockLocationHref = url; },
-    assign: jest.fn(url => { mockLocationHref = url; }),
-    replace: jest.fn(url => { mockLocationHref = url; }),
-    reload: jest.fn(),
-  },
-});
 
-global.flatpickr = jest.fn(() => {
-  return {
-    destroy: jest.fn(),
-    // Add other methods that might be called on a flatpickr instance if needed
-  };
-});
+
+
+
+
+
+const mockElements = {};
+
+
+
+
+
+
+
+const getMockElement = (id) => {
+
+
+
+
+
+
+
+  if (!mockElements[id]) {
+
+
+
+
+
+
+
+    mockElements[id] = {
+
+
+
+
+
+
+
+      textContent: '',
+
+
+
+
+
+
+
+      innerText: '',
+
+
+
+
+
+
+
+      src: '',
+
+
+
+
+
+
+
+      value: '',
+
+
+
+
+
+
+
+      style: { display: '' },
+
+
+
+
+
+
+
+      addEventListener: jest.fn(),
+
+
+
+
+
+
+
+      removeEventListener: jest.fn(),
+
+
+
+
+
+
+
+      classList: { add: jest.fn(), remove: jest.fn() },
+
+
+
+
+
+
+
+      setAttribute: jest.fn(),
+
+
+
+
+
+
+
+      removeAttribute: jest.fn(),
+
+
+
+
+
+
+
+      appendChild: jest.fn(),
+
+
+
+
+
+
+
+      removeChild: jest.fn(),
+
+
+
+
+
+
+
+      children: [],
+
+
+
+
+
+
+
+      dataset: {},
+
+
+
+
+
+
+
+      focus: jest.fn(),
+
+
+
+
+
+
+
+      click: jest.fn(),
+
+
+
+
+
+
+
+      dispatchEvent: jest.fn(),
+
+
+
+
+
+
+
+    };
+
+
+
+
+
+
+
+  }
+
+
+
+
+
+
+
+  return mockElements[id];
+
+
+
+
+
+
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Mock document.getElementById
+
+
+
+
+
+
+
+document.getElementById = jest.fn(id => getMockElement(id));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 describe('history-attachments-refactored.js', () => {
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.useFakeTimers();
+    originalWindow = global.window;
+    global.window = mockWindow;
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      enumerable: true,
+      get: jest.fn(() => mockLocationHref),
+      set: jest.fn(url => { mockLocationHref = url; }),
+    });
+    Object.defineProperty(window.location, 'assign', {
+      configurable: true,
+      enumerable: true,
+      value: jest.fn(url => { mockLocationHref = url; }),
+    });
+    Object.defineProperty(window.location, 'replace', {
+      configurable: true,
+      enumerable: true,
+      value: jest.fn(url => { mockLocationHref = url; }),
+    });
+    Object.defineProperty(window.location, 'reload', {
+      configurable: true,
+      enumerable: true,
+      value: jest.fn(),
+    });
     localStorageMock.clear();
+    global.fetch = jest.fn();
+    global.flatpickr = jest.fn(() => {
+      return {
+        destroy: jest.fn(),
+        // Add other methods that might be called on a flatpickr instance if needed
+      };
+    });
     global.fetch.mockClear();
-    mockLocationHref = ''; // Reset href
-    window.location.assign.mockClear();
-    window.location.replace.mockClear();
-    window.location.reload.mockClear();
     global.flatpickr.mockClear();
+    global.fetch.mockImplementation((url) => {
+      if (url === '/version.json') {
+        return Promise.resolve({
+          json: () => Promise.resolve({ version: '1.0.0' })
+        });
+      }
+      // Default mock for other fetch calls if needed
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+    });
+    mockLocationHref = ''; // Reset href
 
     // Reset mock elements
     Object.keys(mockElements).forEach(key => delete mockElements[key]);
@@ -69,15 +408,102 @@ describe('history-attachments-refactored.js', () => {
     getMockElement('userTableBody').innerHTML = '';
     getMockElement('pagination-container').innerHTML = '';
     getMockElement('filterDateTime').value = '';
+    getMockElement('logout'); // Ensure mock is created
+    getMockElement('logout-menu'); // Ensure mock is created
+
+    document.getElementById('logout').addEventListener = jest.fn();
+    document.getElementById('logout-menu').addEventListener = jest.fn();
 
     // Import the module under test
     require('../assets/js/history-attachments-refactored.js');
   });
 
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+          afterEach(() => {
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+            global.window = originalWindow;
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+            jest.restoreAllMocks();
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+            jest.clearAllTimers();
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+          });
+
+
+
   test('should redirect to login if no authToken', () => {
     localStorageMock.getItem.mockReturnValueOnce(null); // No token
     require('../assets/js/history-attachments-refactored.js'); // Re-import to trigger initial checks
-    expect(window.location.href).toBe('../index.html');
+    expect(mockLocation.href).toBe('../index.html');
   });
 
   test('should load user profile and set UI elements', async () => {
@@ -85,15 +511,19 @@ describe('history-attachments-refactored.js', () => {
     
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({}), // Mock profile fetch
+      json: () => Promise.resolve({ first_name: 'John', last_info: 'Doe', role: 'Admin', myPicture: 'https://example.com/avatar.png' }), // Mock profile fetch
     });
 
     // Manually trigger DOMContentLoaded
-    document.dispatchEvent(new Event('DOMContentLoaded'));
+    await Promise.resolve(); // Allow promises to resolve
+    await jest.runAllTimers(); // Run any timers
+    await jest.runOnlyPendingTimers(); // Run any pending timers
+    await Promise.resolve(); // Clear microtasks
 
     expect(getMockElement('user-info').innerText).toBe('John Doe');
     expect(getMockElement('user-role').innerText).toBe('Admin');
     expect(getMockElement('userAvatar').src).toBe('https://example.com/avatar.png');
+    expect(global.fetch).toHaveBeenCalledWith('https://be-claims-service.onrender.com/api/auth/profile', expect.any(Object));
     expect(global.fetch).toHaveBeenCalledWith('https://be-claims-service.onrender.com/api/auth/profile', expect.any(Object));
   });
 
@@ -110,6 +540,10 @@ describe('history-attachments-refactored.js', () => {
     // Manually trigger fetchData (it's called directly in the script)
     // We need to re-import to ensure fetchData is called after mocks are set up
     require('../assets/js/history-attachments-refactored.js');
+    await Promise.resolve(); // Allow promises to resolve
+    await jest.runAllTimers(); // Run any timers
+    await jest.runOnlyPendingTimers(); // Run any pending promises
+    await Promise.resolve(); // Clear microtasks
 
     expect(global.fetch).toHaveBeenCalledWith(
       'https://be-claims-service.onrender.com/api/history-agent/inquiry',
@@ -131,9 +565,11 @@ describe('history-attachments-refactored.js', () => {
 
   test('should handle logout', async () => {
     const logoutBtn = getMockElement('logout');
-    logoutBtn.addEventListener.mock.calls[0][1]({ preventDefault: jest.fn() }); // Simulate click
+    expect(logoutBtn.addEventListener).toHaveBeenCalledWith('click', expect.any(Function));
+    const clickHandler = logoutBtn.addEventListener.mock.calls[0][1];
+    clickHandler({ preventDefault: jest.fn() }); // Simulate click
 
     expect(localStorageMock.removeItem).toHaveBeenCalledWith('authToken');
-    expect(window.location.href).toBe('../index.html');
+    expect(mockLocation.href).toBe('../index.html');
   });
 });

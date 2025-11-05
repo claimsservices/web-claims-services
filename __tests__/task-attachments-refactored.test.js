@@ -20,31 +20,22 @@ jest.mock('../assets/js/navigation.js', () => ({
 }));
 const { navigateTo } = require('../assets/js/navigation.js');
 
-let mockLocationHref = '';
+
 
 describe('task-attachments-refactored.js', () => {
   let mockTaskForm;
 
-  beforeAll(() => {
-    const mockLocation = {
-      href: mockLocationHref,
-      assign: jest.fn(url => { mockLocationHref = url; }),
-      pathname: '',
-      search: '',
-      hash: '',
-    };
+const mockLocation = {
+  href: mockLocationHref,
+  assign: jest.fn(url => { mockLocationHref = url; }),
+  replace: jest.fn(url => { mockLocationHref = url; }),
+  reload: jest.fn(),
+};
 
-    Object.defineProperty(window, 'location', {
-      configurable: true,
-      value: mockLocation,
-    });
-  });
-
-  beforeEach(() => {
-    // Reset mockLocationHref before each test
-    mockLocationHref = '';
-    window.location.assign(mockLocationHref);
-  });
+Object.defineProperty(window, 'location', {
+  configurable: true,
+  value: mockLocation,
+});
 
   afterAll(() => {
     // Restore original window.location if necessary, though Jest usually handles this
