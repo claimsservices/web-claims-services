@@ -4,8 +4,6 @@
 
 'use strict';
 
-import { Helpers } from '../vendor/js/helpers.js';
-
 
 
 // Simple logging utility to avoid build issues
@@ -72,8 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
         closeChildren: false
       });
       // Change parameter to true if you want scroll animation
-      Helpers.scrollToActive(false);
-      Helpers.mainMenu = menu;
+      window.Helpers.scrollToActive(false);
+      window.Helpers.mainMenu = menu;
     } else {
       log.error('window.Menu is not a constructor function. Menu initialization skipped.');
     }
@@ -129,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
   menuToggler.forEach(item => {
     item.addEventListener('click', event => {
       event.preventDefault();
-      Helpers.toggleCollapsed();
+      window.Helpers.toggleCollapsed();
     });
   });
 
@@ -137,8 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let delay = function(elem, callback) {
     let timeout = null;
     elem.onmouseenter = function() {
-      if (!Helpers.isSmallScreen()) {
-      } else {
+      if (!window.Helpers.isSmallScreen()) {
         timeout = setTimeout(callback, 0);
       }
     };
@@ -152,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (document.getElementById('layout-menu')) {
     delay(document.getElementById('layout-menu'), function() {
-      if (!Helpers.isSmallScreen()) {
+      if (!window.Helpers.isSmallScreen()) {
         document.querySelector('.layout-menu-toggle').classList.add('d-block');
       }
     });
@@ -196,24 +193,24 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Auto update layout based on screen size
-  Helpers.setAutoUpdate(true);
+  window.Helpers.setAutoUpdate(true);
 
   // Toggle Password Visibility
-  Helpers.initPasswordToggle();
+  window.Helpers.initPasswordToggle();
 
   // Speech To Text
-  Helpers.initSpeechToText();
+  window.Helpers.initSpeechToText();
 
   // Manage menu expanded/collapsed with templateCustomizer & local storage
   //------------------------------------------------------------------
 
   // If current layout is horizontal OR current window screen is small (overlay menu) then return from here
-  if (Helpers.isSmallScreen()) {
+  if (window.Helpers.isSmallScreen()) {
     return;
   }
 
   // If current layout is vertical and current window screen is > small
-  Helpers.setCollapsed(true, false);
+  window.Helpers.setCollapsed(true, false);
 
   // Fetch and display app version
   fetch('/version.json')
