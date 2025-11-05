@@ -43,6 +43,7 @@
     "test": "jest"
   },
   "jest": {
+    "setupFiles": ["<rootDir>/__tests__/setup.js"],
     "testEnvironment": "jsdom",
     "testURL": "http://localhost/",
     "testPathIgnorePatterns": [

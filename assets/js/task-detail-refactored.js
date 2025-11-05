@@ -1,6 +1,6 @@
 import { getQueryParam, navigateTo } from './navigation.js';
 
-const staticImageConfig = {
+export const staticImageConfig = {
     around: [
         { name: "exterior_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
         { name: "exterior_left_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
@@ -199,8 +199,7 @@ const staticImageConfig = {
 
   const uploadedPicCache = new Set();
 
-  function renderUploadedImages(orderPics) {
-    console.log('renderUploadedImages: Starting function with orderPics:', orderPics);
+export function renderUploadedImages(orderPics) {
     // If there are no pictures, ensure the damage field is cleared.
     if (!orderPics || orderPics.length === 0) {
         console.log('renderUploadedImages: No pictures to render or orderPics is empty.');
@@ -245,7 +244,7 @@ const staticImageConfig = {
                 if (img) {
                     img.src = pic.pic;
                     img.alt = pic.pic_title || 'Uploaded Image';
-                    img.style.display = 'block';
+                    img.style.display = 'block'; // Ensure image is visible
                     if (pic.created_date) {
                         img.dataset.createdDate = pic.created_date;
                     }
@@ -253,9 +252,14 @@ const staticImageConfig = {
                 if (titleDiv) {
                     titleDiv.textContent = pic.pic_title || 'กรุณาใส่ชื่อ';
                 }
-                if (deleteBtn) deleteBtn.style.display = 'block';
-                if (editTitleBtn) editTitleBtn.style.display = 'flex';
+                if (deleteBtn) deleteBtn.style.display = 'block'; // Ensure delete button is visible
+                if (editTitleBtn) editTitleBtn.style.display = 'flex'; // Ensure edit button is visible
                 label.dataset.filled = 'true';
+                // Also ensure the parent col-4 is visible if it was hidden
+                const parentCol = label.closest('.col-4.mb-3.text-center');
+                if (parentCol) {
+                    parentCol.style.display = 'block';
+                }
                 filledExistingSlot = true;
                 console.log('renderUploadedImages: Filled existing placeholder for pic_type:', pic.pic_type);
             }
@@ -486,7 +490,7 @@ const staticImageConfig = {
   // PHOTO RENDERING LOGIC
   // =========================================================
 
-  function updateDamageDetailField() {
+export function updateDamageDetailField() {
     const allImageTitles = [];
     // Query the whole document for image galleries that have been filled
     const filledLabels = document.querySelectorAll('label.image-gallery[data-filled="true"]');
@@ -767,7 +771,7 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 
 
 
-  function populateImageSections() {
+export function populateImageSections() {
       const sectionsMap = {
           'around': document.getElementById('around-images-section')?.querySelector('.row'),
           'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
