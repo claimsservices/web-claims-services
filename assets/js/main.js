@@ -4,6 +4,8 @@
 
 'use strict';
 
+import { Helpers } from '../assets/vendor/js/helpers.js';
+
 // Simple logging utility to avoid build issues
 const log = {
   info: function() { console.info.apply(console, arguments); },
@@ -68,8 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
         closeChildren: false
       });
       // Change parameter to true if you want scroll animation
-      window.Helpers.scrollToActive(false);
-      window.Helpers.mainMenu = menu;
+      Helpers.scrollToActive(false);
+      Helpers.mainMenu = menu;
     } else {
       log.error('window.Menu is not a constructor function. Menu initialization skipped.');
     }
@@ -125,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function() {
   menuToggler.forEach(item => {
     item.addEventListener('click', event => {
       event.preventDefault();
-      window.Helpers.toggleCollapsed();
+      Helpers.toggleCollapsed();
     });
   });
 
@@ -133,8 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let delay = function(elem, callback) {
     let timeout = null;
     elem.onmouseenter = function() {
-      // Set timeout to be a timer which will invoke callback after 300ms (not for small screen)
-      if (!window.Helpers.isSmallScreen()) {
+      if (!Helpers.isSmallScreen()) {
       } else {
         timeout = setTimeout(callback, 0);
       }
@@ -150,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('layout-menu')) {
     delay(document.getElementById('layout-menu'), function() {
       // not for small screen
-      if (!window.Helpers.isSmallScreen()) {
+      if (!Helpers.isSmallScreen()) {
         document.querySelector('.layout-menu-toggle').classList.add('d-block');
       }
     });
@@ -194,32 +195,24 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Auto update layout based on screen size
-  if (window.Helpers) {
-    window.Helpers.setAutoUpdate(true);
-  }
+  Helpers.setAutoUpdate(true);
 
   // Toggle Password Visibility
-  if (window.Helpers) {
-    window.Helpers.initPasswordToggle();
-  }
+  Helpers.initPasswordToggle();
 
   // Speech To Text
-  if (window.Helpers) {
-    window.Helpers.initSpeechToText();
-  }
+  Helpers.initSpeechToText();
 
   // Manage menu expanded/collapsed with templateCustomizer & local storage
   //------------------------------------------------------------------
 
   // If current layout is horizontal OR current window screen is small (overlay menu) then return from here
-  if (window.Helpers && window.Helpers.isSmallScreen()) {
+  if (Helpers.isSmallScreen()) {
     return;
   }
 
   // If current layout is vertical and current window screen is > small
-  if (window.Helpers) {
-    window.Helpers.setCollapsed(true, false);
-  }
+  Helpers.setCollapsed(true, false);
 
   // Fetch and display app version
   fetch('/version.json')

@@ -203,7 +203,7 @@ export function renderUploadedImages(orderPics) {
     // If there are no pictures, ensure the damage field is cleared.
     if (!orderPics || orderPics.length === 0) {
         console.log('renderUploadedImages: No pictures to render or orderPics is empty.');
-        setTimeout(() => updateDamageDetailField(), 0);
+        updateDamageDetailField();
         return;
     }
 
@@ -223,7 +223,7 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        const targetSection = sectionsMap[pic.pic_type];
+        const targetSection = sectionsMap[pic.pic_type] || sectionsMap['documents']; // Default to 'documents' if pic_type is not found
         if (!targetSection) {
             console.warn('renderUploadedImages: targetSection is null for pic_type:', pic.pic_type);
             return;
@@ -291,7 +291,7 @@ export function renderUploadedImages(orderPics) {
         }
     });
 
-    setTimeout(() => updateDamageDetailField(), 0);
+    updateDamageDetailField();
   }
 
   async function loadOrderData(orderId) {
@@ -364,7 +364,10 @@ export function renderUploadedImages(orderPics) {
         setValue('s_remark', order_details.s_remark);
         setValue('s_ins_remark', order_details.s_ins_remark);
         setValue('s_detail', order_details.s_detail);
-        document.getElementById('s_detail').readOnly = true; // Make the field readonly
+        const sDetailElement = document.getElementById('s_detail');
+        if (sDetailElement) {
+          sDetailElement.readOnly = true; // Make the field readonly
+        }
         setChecked('fleetCar', order_details.s_fleet);
         setValue('creatorName', order_details.c_name);
       }
@@ -490,7 +493,7 @@ export function renderUploadedImages(orderPics) {
   // PHOTO RENDERING LOGIC
   // =========================================================
 
-export function updateDamageDetailField() {
+window.updateDamageDetailField = function() {
     const allImageTitles = [];
     // Query the whole document for image galleries that have been filled
     const filledLabels = document.querySelectorAll('label.image-gallery[data-filled="true"]');

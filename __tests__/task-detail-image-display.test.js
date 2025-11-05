@@ -43,18 +43,14 @@ global.console.log = jest.fn(); // Mock console.log
 global.console.warn = jest.fn(); // Mock console.warn
 global.console.error = jest.fn(); // Mock console.error
 
+// Mock updateDamageDetailField before importing the module to ensure the mocked version is used
+var mockUpdateDamageDetailField = jest.fn();
+
+// Import the functions after the mock is set up
 import { staticImageConfig, populateImageSections, renderUploadedImages } from '../assets/js/task-detail-refactored.js';
 
-// Mock updateDamageDetailField separately
-const updateDamageDetailField = jest.fn();
 
-jest.mock('../assets/js/task-detail-refactored.js', () => {
-    const actual = jest.requireActual('../assets/js/task-detail-refactored.js');
-    return {
-        ...actual,
-        updateDamageDetailField: jest.fn(),
-    };
-});
+
 
 
 describe('Image Display Functionality', () => {
@@ -82,13 +78,29 @@ describe('Image Display Functionality', () => {
 
         // Clear mocks
         jest.clearAllMocks();
+        mockUpdateDamageDetailField.mockClear(); // Clear calls for the mock
         global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) }); // Default successful fetch
+
+        // Mock HTMLImageElement to prevent JSDOM from failing on image loading
+        Object.defineProperty(global.Image.prototype, 'src', {
+            set(src) {
+                this.setAttribute('src', src);
+            },
+            get() {
+                return this.getAttribute('src');
+            },
+        });
+
+        jest.useFakeTimers(); // Enable fake timers
+
+        // Import the functions after the mock is set up
+        ({ staticImageConfig, populateImageSections, renderUploadedImages } = require('../assets/js/task-detail-refactored.js'));
     });
 
-    // Mock updateDamageDetailField if it's not globally available after script execution
-    if (!updateDamageDetailField) {
-        updateDamageDetailField = jest.fn();
-    }
+    afterEach(() => {
+        jest.runOnlyPendingTimers(); // Run any pending timers after each test
+        jest.useRealTimers(); // Restore real timers
+    });
 
     describe('populateImageSections', () => {
         test('should render static placeholder slots and an Add Image button for each category', () => {
@@ -155,7 +167,7 @@ describe('Image Display Functionality', () => {
             const frontSlot = aroundSection.querySelector(`input[name="exterior_front"]`).closest('.dynamic-image-slot');
             const frontImg = frontSlot.querySelector('img');
             const frontTitle = frontSlot.querySelector('.title');
-            expect(frontImg.src).toContain('http://example.com/front.jpg');
+            expect(frontImg.getAttribute('src')).toBe('http://example.com/front.jpg');
             expect(frontImg.alt).toBe('Front View');
             expect(frontTitle.textContent.trim()).toBe('Front View');
             expect(frontSlot.querySelector('label.image-gallery').dataset.filled).toBe('true');
@@ -167,7 +179,7 @@ describe('Image Display Functionality', () => {
             const wheelSlot = accessoriesSection.querySelector(`input[name="interior_wheels_1"]`).closest('.dynamic-image-slot');
             const wheelImg = wheelSlot.querySelector('img');
             const wheelTitle = wheelSlot.querySelector('.title');
-            expect(wheelImg.src).toContain('http://example.com/wheel1.jpg');
+            expect(wheelImg.getAttribute('src')).toBe('http://example.com/wheel1.jpg');
             expect(wheelImg.alt).toBe('Wheel 1');
             expect(wheelTitle.textContent.trim()).toBe('Wheel 1');
             expect(wheelSlot.querySelector('label.image-gallery').dataset.filled).toBe('true');
@@ -181,20 +193,19 @@ describe('Image Display Functionality', () => {
                 { pic_type: 'non_existent_type', pic: 'http://example.com/new.jpg', pic_title: 'New Image' },
             ];
 
-            const initialAroundSlotsCount = aroundSection.querySelectorAll('.dynamic-image-slot').length;
-            const initialAddImageBtn = aroundSection.querySelector('.add-image-btn[data-category="around"]');
+            const initialDocumentsSlotsCount = documentsSection.querySelectorAll('.dynamic-image-slot').length;
 
             renderUploadedImages(mockOrderPics);
 
-            // Check if a new slot was added
-            const newAroundSlotsCount = aroundSection.querySelectorAll('.dynamic-image-slot').length;
-            expect(newAroundSlotsCount).toBe(initialAroundSlotsCount + 1);
+            // Check if a new slot was added to the documentsSection
+            const newDocumentsSlotsCount = documentsSection.querySelectorAll('.dynamic-image-slot').length;
+            expect(newDocumentsSlotsCount).toBe(initialDocumentsSlotsCount + 1);
 
-            const newSlot = aroundSection.querySelector(`input[name="dynamic_image"][data-category="non_existent_type"]`).closest('.dynamic-image-slot');
+            const newSlot = documentsSection.querySelector(`input[name="dynamic_image"][data-category="non_existent_type"]`).closest('.dynamic-image-slot');
             const newImg = newSlot.querySelector('img');
             const newTitle = newSlot.querySelector('.title');
 
-            expect(newImg.src).toContain('http://example.com/new.jpg');
+            expect(newImg.getAttribute('src')).toBe('http://example.com/new.jpg');
             expect(newImg.alt).toBe('New Image');
             expect(newTitle.textContent.trim()).toBe('New Image');
             expect(newSlot.querySelector('label.image-gallery').dataset.filled).toBe('true');
@@ -202,8 +213,8 @@ describe('Image Display Functionality', () => {
             expect(newSlot.querySelector('.delete-btn').style.display).toBe('block');
             expect(newSlot.querySelector('.edit-title-btn').style.display).toBe('flex');
 
-            // Ensure the new slot is inserted before the Add Image button
-            expect(newSlot.nextElementSibling).toBe(initialAddImageBtn.parentElement);
+            // Ensure the new slot is inserted at the end of the documentsSection
+            expect(newSlot.nextElementSibling).toBeNull();
         });
 
         test('should create new dynamic slots if all matching placeholders are filled', () => {
@@ -227,14 +238,15 @@ describe('Image Display Functionality', () => {
             const newImg = newSlot.querySelector('img');
             const newTitle = newSlot.querySelector('.title');
 
-            expect(newImg.src).toContain('http://example.com/extra.jpg');
+            expect(newImg.getAttribute('src')).toBe('http://example.com/extra.jpg');
             expect(newTitle.textContent.trim()).toBe('Extra Around');
             expect(newSlot.querySelector('label.image-gallery').dataset.filled).toBe('true');
         });
 
         test('should call updateDamageDetailField when orderPics is empty', () => {
             renderUploadedImages([]);
-            expect(updateDamageDetailField).toHaveBeenCalledTimes(1);
+            jest.runAllTimers(); // Advance timers to run setTimeout
+            expect(mockUpdateDamageDetailField).toHaveBeenCalledTimes(1);
         });
 
         test('should call updateDamageDetailField after rendering images', () => {
@@ -242,7 +254,8 @@ describe('Image Display Functionality', () => {
                 { pic_type: 'exterior_front', pic: 'http://example.com/front.jpg', pic_title: 'Front View' },
             ];
             renderUploadedImages(mockOrderPics);
-            expect(updateDamageDetailField).toHaveBeenCalledTimes(1);
+            jest.runAllTimers(); // Advance timers to run setTimeout
+            expect(mockUpdateDamageDetailField).toHaveBeenCalledTimes(1);
         });
     });
 });
