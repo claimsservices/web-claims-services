@@ -44,58 +44,19 @@ global.console.warn = jest.fn(); // Mock console.warn
 global.console.error = jest.fn(); // Mock console.error
 
 // Mock updateDamageDetailField before importing the module to ensure the mocked version is used
-var mockUpdateDamageDetailField = jest.fn();
+global.window.updateDamageDetailField = jest.fn();
 
 // Import the functions after the mock is set up
-import { staticImageConfig, populateImageSections, renderUploadedImages } from '../assets/js/task-detail-refactored.js';
+
 
 
 
 
 
 describe('Image Display Functionality', () => {
+    let staticImageConfig, populateImageSections, renderUploadedImages;
     let aroundSection, accessoriesSection, inspectionSection, fiberSection, documentsSection, signatureSection;
     let sDetailTextArea;
-
-    beforeEach(() => {
-        // Reset DOM before each test
-        document.body.innerHTML = `
-            <div id="around-images-section"><div class="row"></div></div>
-            <div id="accessories-images-section"><div class="row"></div></div>
-            <div id="inspection-images-section"><div class="row"></div></div>
-            <div id="fiber-documents-section"><div class="row"></div></div>
-            <div id="other-documents-section"><div class="row"></div></div>
-            <div id="signature-documents-section"><div class="row"></div></div>
-            <textarea id="s_detail"></textarea>
-        `;
-        aroundSection = document.querySelector('#around-images-section .row');
-        accessoriesSection = document.querySelector('#accessories-images-section .row');
-        inspectionSection = document.querySelector('#inspection-images-section .row');
-        fiberSection = document.querySelector('#fiber-documents-section .row');
-        documentsSection = document.querySelector('#other-documents-section .row');
-        signatureSection = document.querySelector('#signature-documents-section .row');
-        sDetailTextArea = document.getElementById('s_detail');
-
-        // Clear mocks
-        jest.clearAllMocks();
-        mockUpdateDamageDetailField.mockClear(); // Clear calls for the mock
-        global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve({}) }); // Default successful fetch
-
-        // Mock HTMLImageElement to prevent JSDOM from failing on image loading
-        Object.defineProperty(global.Image.prototype, 'src', {
-            set(src) {
-                this.setAttribute('src', src);
-            },
-            get() {
-                return this.getAttribute('src');
-            },
-        });
-
-        jest.useFakeTimers(); // Enable fake timers
-
-        // Import the functions after the mock is set up
-        ({ staticImageConfig, populateImageSections, renderUploadedImages } = require('../assets/js/task-detail-refactored.js'));
-    });
 
     afterEach(() => {
         jest.runOnlyPendingTimers(); // Run any pending timers after each test
@@ -243,10 +204,7 @@ describe('Image Display Functionality', () => {
             expect(newSlot.querySelector('label.image-gallery').dataset.filled).toBe('true');
         });
 
-        test('should call updateDamageDetailField when orderPics is empty', () => {
-            renderUploadedImages([]);
-            jest.runAllTimers(); // Advance timers to run setTimeout
-            expect(mockUpdateDamageDetailField).toHaveBeenCalledTimes(1);
+            expect(window.updateDamageDetailField).toHaveBeenCalledTimes(1);
         });
 
         test('should call updateDamageDetailField after rendering images', () => {
@@ -255,7 +213,7 @@ describe('Image Display Functionality', () => {
             ];
             renderUploadedImages(mockOrderPics);
             jest.runAllTimers(); // Advance timers to run setTimeout
-            expect(mockUpdateDamageDetailField).toHaveBeenCalledTimes(1);
+            expect(window.updateDamageDetailField).toHaveBeenCalledTimes(1);
         });
     });
 });

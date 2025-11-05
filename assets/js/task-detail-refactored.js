@@ -125,7 +125,6 @@ export const staticImageConfig = {
       }
     });
   }
-
   function hideTabs(tabIds) {
     tabIds.forEach(id => {
       const tabElement = document.getElementById(id);
@@ -1454,47 +1453,3 @@ navigateTo('dashboard.html');
 
 
   
-          function renderUploadedImages(orderPics) {
-            // If there are no pictures, ensure the damage field is cleared.
-            if (!orderPics || orderPics.length === 0) {
-                setTimeout(() => updateDamageDetailField(), 0);
-                return;
-            }
-    
-            orderPics.forEach(pic => {
-                // Use pic_type for a reliable match against the input's name attribute.
-                if (!pic.pic_type || !pic.pic) return;
-    
-                const fileInput = document.querySelector(`input[type="file"][name="${pic.pic_type}"]`);
-                if (fileInput) {
-                    const label = fileInput.closest('label.image-gallery');
-                    
-                    // Ensure we don't re-process a slot that's already filled.
-                    if (label && !label.hasAttribute('data-filled')) {
-                        label.setAttribute('data-filled', 'true');
-    
-                        const imgTag = label.querySelector('img');
-                        if (imgTag) {
-                            imgTag.src = pic.pic;
-                            imgTag.style.display = 'block';
-                            // Store the timestamp on the image element itself
-                            if (pic.created_date) {
-                                imgTag.dataset.createdDate = pic.created_date;
-                            }
-                        }
-    
-                        // Update the title div with the title from the database, if available.
-                        const titleDiv = label.querySelector('.title');
-                        if (titleDiv && pic.pic_title) {
-                            titleDiv.textContent = pic.pic_title;
-                        }
-                    }
-                }
-            });
-    
-            // Call updateDamageDetailField after the loop to populate the textarea.
-            setTimeout(() => updateDamageDetailField(), 0);
-          }
-      }
-  // เพิ่มบรรทัดนี้เพื่อปิด DOMContentLoaded listener ที่ขาดไป
-  });
