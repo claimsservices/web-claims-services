@@ -218,10 +218,14 @@
 
             <div class="card">
               <div class="card-header border-bottom">
-              <div class="card-header border-bottom">
                 <div class="row align-items-center g-3">
-                  
-
+                  <div class="col-md-4 ms-auto d-flex justify-content-end align-items-center">
+                    <div class="btn-group" role="group" aria-label="Task filters">
+                        <button type="button" id="filter-work-btn" class="btn btn-primary">Work</button>
+                        <button type="button" id="filter-pre-approved-btn" class="btn btn-outline-primary">Pre Approved</button>
+                    </div>
+                    <button id="searchBtn" class="btn btn-primary ms-2">ค้นหารายการ</button>
+                  </div>
                 </div>
               </div>
               <div class="table-responsive text-nowrap">
@@ -233,6 +237,7 @@
                       <th style="color: white;">สถานที่</th>
                       <th style="color: white;">ผู้สร้างงาน</th>
                       <th style="color: white;">สถานะงาน</th>
+                      <th style="color: white;">ยอดเงิน</th>
                     </tr>
                   </thead>
                   <tbody id="userTableBody" class="table-border-bottom-0">

@@ -120,6 +120,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     found = true; // Move to the next image
                 }
             });
+
+            // If no fixed slot was found, assume it's an "other" image and create a dynamic slot
+            if (!found) {
+                createOtherImageUploadSlot(image.pic, image.pic_title);
+            }
         });
     }
 
@@ -128,6 +133,80 @@ document.addEventListener('DOMContentLoaded', () => {
             return cloudinaryUrl; // Not a standard Cloudinary URL, return as is
         }
         return cloudinaryUrl.replace('/upload/', '/upload/fl_attachment/');
+    }
+
+    let otherUploadSlotCounter = 0; // To give unique IDs to new dynamic slots
+
+    function createOtherImageUploadSlot(initialFile = null, initialTitle = 'อื่นๆ') {
+        const container = document.getElementById('dynamic-other-upload-container');
+        const newSlotId = `other-image-slot-${++otherUploadSlotCounter}`;
+        const newPreviewId = `other-preview-container-${otherUploadSlotCounter}`;
+
+        const newSlot = document.createElement('div');
+        newSlot.className = 'col-md-4 col-lg-3 mb-3 text-center image-upload-slot'; // Added image-upload-slot class
+        newSlot.id = newSlotId;
+        newSlot.innerHTML = `
+            <label class="image-gallery w-100" style="cursor:pointer;">
+                <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
+                <i class="bi bi-camera fs-1"></i>
+                <div class="title">${initialTitle}</div>
+                <input type="file" name="other_images_${otherUploadSlotCounter}" accept="image/*" capture="environment" hidden>
+            </label>
+            <button class="btn btn-outline-danger btn-sm remove-other-image-slot-btn" type="button" style="position:absolute; top:5px; right:5px; display:none;">
+                <i class="bx bx-trash"></i>
+            </button>
+        `;
+        container.appendChild(newSlot);
+
+        const fileInput = newSlot.querySelector('input[type="file"]');
+        const previewImg = newSlot.querySelector('.preview-img');
+        const icon = newSlot.querySelector('i');
+        const removeBtn = newSlot.querySelector('.remove-other-image-slot-btn');
+        const label = newSlot.querySelector('label.image-gallery');
+
+        if (initialFile) {
+            previewImg.src = initialFile;
+            previewImg.style.display = 'block';
+            icon.style.display = 'none';
+            label.setAttribute('data-filled', 'true');
+            removeBtn.style.display = 'block'; // Show remove button for pre-filled slots
+        }
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImg.src = event.target.result;
+                    previewImg.style.display = 'block';
+                    icon.style.display = 'none';
+                    label.setAttribute('data-filled', 'true');
+                    removeBtn.style.display = 'block';
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            } else {
+                previewImg.src = '';
+                previewImg.style.display = 'none';
+                icon.style.display = 'block';
+                label.removeAttribute('data-filled');
+                removeBtn.style.display = 'none';
+            }
+        });
+
+        removeBtn.addEventListener('click', () => {
+            newSlot.remove();
+            // Hide remove button if only one dynamic slot remains
+            if (document.querySelectorAll('#dynamic-other-upload-container .image-upload-slot').length === 1) {
+                document.querySelector('#dynamic-other-upload-container .remove-other-image-slot-btn').style.display = 'none';
+            }
+        });
+
+        // Show remove button if more than one dynamic slot
+        if (document.querySelectorAll('#dynamic-other-upload-container .image-upload-slot').length > 1) {
+            document.querySelectorAll('#dynamic-other-upload-container .remove-other-image-slot-btn').forEach(btn => btn.style.display = 'block');
+        } else {
+            // Hide remove button for the first slot if it's the only one
+            removeBtn.style.display = 'none';
+        }
     }
 
     // --- Status & UI Control --- //
@@ -198,5 +277,84 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         alert('ไม่พบรหัสงานใน URL');
     }
+    
+    // Add event listener for dynamic other image slots
+    const addOtherImageSlotBtn = document.getElementById('add-other-image-slot-btn');
+    if (addOtherImageSlotBtn) {
+        addOtherImageSlotBtn.addEventListener('click', () => {
+            createOtherImageUploadSlot();
+        });
+    }
+
+    // Create initial empty dynamic slot
+    createOtherImageUploadSlot();
+
+    const uploadBtn = document.getElementById('uploadBtn');
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', async () => {
+            const allFiles = [];
+            const orderId = urlParams.get('id');
+
+            // Collect files from fixed slots
+            document.querySelectorAll('input[type="file"]:not([name^="other_images_"])').forEach(input => {
+                if (input.files && input.files.length > 0) {
+                    allFiles.push({
+                        file: input.files[0],
+                        pic_type: input.name,
+                        pic_title: input.closest('label').querySelector('.title').textContent
+                    });
+                }
+            });
+
+            // Collect files from dynamic "other" slots
+            document.querySelectorAll('#dynamic-other-upload-container input[type="file"]').forEach(input => {
+                if (input.files && input.files.length > 0) {
+                    allFiles.push({
+                        file: input.files[0],
+                        pic_type: input.name,
+                        pic_title: input.closest('label').querySelector('.title').textContent
+                    });
+                }
+            });
+
+            if (allFiles.length === 0) {
+                alert('กรุณาเลือกรูปภาพก่อนอัปโหลด');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('order_id', orderId); // Assuming orderId is available
+            formData.append('folder', `transactions/${orderId}`); // Dynamic folder name
+
+            allFiles.forEach(fileData => {
+                formData.append('images', fileData.file);
+                formData.append('pic_types', fileData.pic_type);
+                formData.append('pic_titles', fileData.pic_title);
+            });
+
+            try {
+                const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': token
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    alert('อัปโหลดรูปภาพสำเร็จ!');
+                    // Optionally refresh the page or update UI
+                    window.location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert(`เกิดข้อผิดพลาดในการอัปโหลด: ${errorData.message || response.statusText}`);
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
+            }
+        });
+    }
+
     document.body.classList.remove('loading');
 });

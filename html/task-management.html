@@ -1063,21 +1063,12 @@
                       <div class="tab-pane fade" id="tab-upload" role="tabpanel">
                         <div class="card p-4 shadow-sm">
                           <h5 class="mb-4"><i class="bx bx-upload me-1"></i> อัปโหลดรูปภาพ</h5>
-                          <button type="button" id="add-image-slot-btn" class="btn btn-success mb-3">
-                            <i class="bx bx-plus me-1"></i> เพิ่มช่องอัปโหลดรูปภาพ
-                          </button>
                           <form id="uploadForm">
-                            <div id="dynamic-upload-container">
-                              <div class="image-upload-slot mb-3" id="image-upload-slot-0">
-                                <div class="input-group">
-                                  <input type="file" class="form-control image-input-field" accept="image/*" multiple>
-                                  <button class="btn btn-outline-danger remove-image-slot-btn" type="button" style="display:none;">
-                                    <i class="bx bx-trash"></i>
-                                  </button>
-                                </div>
-                                <div class="row g-3 mt-2 preview-container"></div>
-                              </div>
+                            <div class="mb-3">
+                              <input type="file" id="imageInput" class="form-control" accept="image/*" multiple>
                             </div>
+                            <!-- Preview zone -->
+                            <div class="row g-3 mb-3" id="previewContainer"></div>
                             <!-- Progress bar -->
                             <div class="progress mb-3 d-none" id="uploadProgressWrapper">
                               <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-info"

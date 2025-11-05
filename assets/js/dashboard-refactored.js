@@ -294,7 +294,8 @@ function renderTableData(page) {
 
   paginatedData.forEach(item => {
     const row = document.createElement("tr");
-    const amountToDisplay = item.amount || '';
+    const showAmount = ['Pre-Approved', 'คีย์งานแล้ว', 'ผ่าน'].includes(item.order_status);
+    const amountToDisplay = showAmount ? (item.amount || '') : '';
 
     let rowContent = `
       <td><a href="task-detail.html?id=${item.id}" class="text-primary" target="_blank" rel="noopener noreferrer">${item.id}</a></td>

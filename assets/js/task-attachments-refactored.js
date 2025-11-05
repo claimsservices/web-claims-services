@@ -129,6 +129,39 @@ async function loadUserProfile() {
 // Call the function to load the user profile
 document.addEventListener('DOMContentLoaded', () => {
   loadUserProfile();
+
+  let currentFilterType = 'work'; // Default filter for Bike role
+
+  const workBtn = document.getElementById('filter-work-btn');
+  const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
+
+  // Event listeners for the new filter buttons
+  if (workBtn) {
+    workBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentFilterType = 'work';
+      workBtn.classList.add('btn-primary');
+      workBtn.classList.remove('btn-outline-primary');
+      preApprovedBtn.classList.add('btn-outline-primary');
+      preApprovedBtn.classList.remove('btn-primary');
+      fetchData({ order_status_not: 'Pre-Approved' });
+    });
+  }
+
+  if (preApprovedBtn) {
+    preApprovedBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentFilterType = 'pre-approved';
+      preApprovedBtn.classList.add('btn-primary');
+      preApprovedBtn.classList.remove('btn-outline-primary');
+      workBtn.classList.add('btn-outline-primary');
+      workBtn.classList.remove('btn-primary');
+      fetchData({ order_status: 'Pre-Approved' });
+    });
+  }
+
+  // Initial fetch for Bike role (default to Work tasks)
+  fetchData({ order_status_not: 'Pre-Approved' });
 });
 
 // Check user role (example assumes role is stored in localStorage)
@@ -149,7 +182,7 @@ const itemsPerPage = 20;
 let currentPage = 1;
 let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
 
-async function fetchData() {
+async function fetchData(filter = {}) {
   try {
     const res = await fetch(`https://be-claims-service.onrender.com/api/order-agent/inquiry`, {
       method: 'POST',
@@ -157,7 +190,7 @@ async function fetchData() {
         'Content-Type': 'application/json',
         'Authorization': `${token}`
       },
-      body: JSON.stringify({}) // สามารถใส่ filter ได้ เช่น { insur_comp: 'AIA' }
+      body: JSON.stringify(filter)
     });
 
     if (!res.ok) throw new Error('Fetch failed');
@@ -193,6 +226,7 @@ function renderTableData(page) {
     </td>
         <td>${item.creator}</td>
         <td>${item.order_status}</td>
+        <td>${item.amount || ''}</td>
       `;
       tableBody.appendChild(row);
     });

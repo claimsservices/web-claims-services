@@ -202,96 +202,25 @@ document.addEventListener('DOMContentLoaded', function () {
     const uploadBtn = document.getElementById('uploadBtn');
     const progressWrapper = document.getElementById('uploadProgressWrapper');
 
-    let uploadSlotCounter = 0; // To give unique IDs to new slots
+    if (imageInput) {
+      imageInput.addEventListener('change', () => {
+        previewContainer.innerHTML = '';
+        const files = Array.from(imageInput.files);
 
-    function createImageUploadSlot(initialFiles = []) {
-      const container = document.getElementById('dynamic-upload-container');
-      const newSlotId = `image-upload-slot-${++uploadSlotCounter}`;
-      const newPreviewId = `preview-container-${uploadSlotCounter}`;
-
-      const newSlot = document.createElement('div');
-      newSlot.className = 'image-upload-slot mb-3';
-      newSlot.id = newSlotId;
-      newSlot.innerHTML = `
-        <div class="input-group">
-          <input type="file" class="form-control image-input-field" accept="image/*" multiple>
-          <button class="btn btn-outline-danger remove-image-slot-btn" type="button">
-            <i class="bx bx-trash"></i>
-          </button>
-        </div>
-        <div class="row g-3 mt-2 preview-container" id="${newPreviewId}"></div>
-      `;
-      container.appendChild(newSlot);
-
-      const fileInput = newSlot.querySelector('.image-input-field');
-      const previewContainer = newSlot.querySelector('.preview-container');
-      const removeBtn = newSlot.querySelector('.remove-image-slot-btn');
-
-      // Handle initial files if any (for the first slot)
-      if (initialFiles.length > 0) {
-        displayPreviews(initialFiles, previewContainer);
-      }
-
-      fileInput.addEventListener('change', () => {
-        displayPreviews(Array.from(fileInput.files), previewContainer);
-      });
-
-      removeBtn.addEventListener('click', () => {
-        newSlot.remove();
-        // Hide remove button if only one slot remains
-        if (document.querySelectorAll('.image-upload-slot').length === 1) {
-          document.querySelector('.remove-image-slot-btn').style.display = 'none';
-        }
-      });
-
-      // Show remove button if more than one slot
-      if (document.querySelectorAll('.image-upload-slot').length > 1) {
-        document.querySelectorAll('.remove-image-slot-btn').forEach(btn => btn.style.display = 'block');
-      } else {
-        // Hide remove button for the first slot if it's the only one
-        removeBtn.style.display = 'none';
-      }
-    }
-
-    function displayPreviews(files, previewContainer) {
-      previewContainer.innerHTML = '';
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const col = document.createElement('div');
-          col.className = 'col-6 col-sm-4 col-md-3';
-          col.innerHTML = `
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const col = document.createElement('div');
+            col.className = 'col-6 col-sm-4 col-md-3';
+            col.innerHTML = `
             <div class="card shadow-sm border mb-2">
               <img src="${e.target.result}" class="card-img-top rounded" style="height: 120px; object-fit: cover;">
             </div>
           `;
-          previewContainer.appendChild(col);
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Initialize the first upload slot
-    const initialImageInput = document.querySelector('#image-upload-slot-0 .image-input-field');
-    const initialPreviewContainer = document.querySelector('#image-upload-slot-0 .preview-container');
-    const initialRemoveBtn = document.querySelector('#image-upload-slot-0 .remove-image-slot-btn');
-
-    if (initialImageInput) {
-      initialImageInput.addEventListener('change', () => {
-        displayPreviews(Array.from(initialImageInput.files), initialPreviewContainer);
-      });
-      initialRemoveBtn.addEventListener('click', () => {
-        document.getElementById('image-upload-slot-0').remove();
-        if (document.querySelectorAll('.image-upload-slot').length === 1) {
-          document.querySelector('.remove-image-slot-btn').style.display = 'none';
-        }
-      });
-    }
-
-    const addImageSlotBtn = document.getElementById('add-image-slot-btn');
-    if (addImageSlotBtn) {
-      addImageSlotBtn.addEventListener('click', () => {
-        createImageUploadSlot();
+            previewContainer.appendChild(col);
+          };
+          reader.readAsDataURL(file);
+        });
       });
     }
 
@@ -299,16 +228,10 @@ document.addEventListener('DOMContentLoaded', function () {
       uploadBtn.addEventListener('click', async function (e) {
         e.preventDefault();
 
-        const allFiles = [];
-        document.querySelectorAll('.image-input-field').forEach(input => {
-          if (input.files.length > 0) {
-            allFiles.push(...Array.from(input.files));
-          }
-        });
-
+        const files = imageInput.files;
         const folderName = taskIdInput?.value.trim() || 'default';
 
-        if (allFiles.length === 0) {
+        if (!files.length) {
           alert('กรุณาเลือกรูปภาพก่อนอัปโหลด');
           return;
         }
@@ -316,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const formData = new FormData();
         formData.append('folder', folderName);
 
-        for (const file of allFiles) {
+        for (const file of files) {
           formData.append('images', file);
         }
 
