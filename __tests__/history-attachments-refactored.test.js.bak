@@ -1,0 +1,139 @@
+// Mock window.API_BASE_URL
+window.API_BASE_URL = 'https://be-claims-service.onrender.com';
+
+// Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: jest.fn(key => store[key] || null),
+    setItem: jest.fn((key, value) => { store[key] = value.toString(); }),
+    removeItem: jest.fn(key => { delete store[key]; }),
+    clear: jest.fn(() => { store = {}; })
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// Mock fetch
+global.fetch = jest.fn();
+
+const { navigateTo } = require('../assets/js/navigation.js');
+
+let mockLocationHref = '';
+
+jest.mock('../assets/js/navigation.js', () => ({
+  navigateTo: jest.fn(url => { mockLocationHref = url; }),
+}));
+
+Object.defineProperty(window, 'location', {
+  configurable: true,
+  value: {
+    get href() { return mockLocationHref; },
+    set href(url) { mockLocationHref = url; },
+    assign: jest.fn(url => { mockLocationHref = url; }),
+    replace: jest.fn(url => { mockLocationHref = url; }),
+    reload: jest.fn(),
+  },
+});
+
+global.flatpickr = jest.fn(() => {
+  return {
+    destroy: jest.fn(),
+    // Add other methods that might be called on a flatpickr instance if needed
+  };
+});
+global.flatpickr.mockClear = jest.fn();
+
+describe('history-attachments-refactored.js', () => {
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorageMock.clear();
+    global.fetch.mockClear();
+    mockLocationHref = ''; // Reset href
+    window.location.assign.mockClear();
+    window.location.replace.mockClear();
+    window.location.reload.mockClear();
+    global.flatpickr.mockClear();
+
+    // Reset mock elements
+    Object.keys(mockElements).forEach(key => delete mockElements[key]);
+
+    // Set up common mocks for elements
+    getMockElement('appVersion').textContent = '';
+    getMockElement('user-info').innerText = '';
+    getMockElement('user-role').innerText = '';
+    getMockElement('userAvatar').src = '';
+    getMockElement('admin-menu').style.display = 'none';
+    getMockElement('logout').addEventListener.mockClear();
+    getMockElement('logout-menu').addEventListener.mockClear();
+    getMockElement('userTableBody').innerHTML = '';
+    getMockElement('pagination-container').innerHTML = '';
+    getMockElement('filterDateTime').value = '';
+
+    // Import the module under test
+    require('../assets/js/history-attachments-refactored.js');
+  });
+
+  test('should redirect to login if no authToken', () => {
+    localStorageMock.getItem.mockReturnValueOnce(null); // No token
+    require('../assets/js/history-attachments-refactored.js'); // Re-import to trigger initial checks
+    expect(window.location.href).toBe('../index.html');
+  });
+
+  test('should load user profile and set UI elements', async () => {
+    localStorageMock.setItem('authToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMyIsInVzZXJuYW1lIjoidGVzdHVzZXIiLCJmaXJzdF9uYW1lIjoiSm9obiIsImxhc3RfaW5mbyI6IkRvZSIsInJvbGUiOiJBZG1pbiIsIm15UGljdHVyZSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vYXZhdGFyLnBuZyIsImV4cCI6OTk5OTk5OTk5OX0.signature');
+    
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({}), // Mock profile fetch
+    });
+
+    // Manually trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    expect(getMockElement('user-info').innerText).toBe('John Doe');
+    expect(getMockElement('user-role').innerText).toBe('Admin');
+    expect(getMockElement('userAvatar').src).toBe('https://example.com/avatar.png');
+    expect(global.fetch).toHaveBeenCalledWith('https://be-claims-service.onrender.com/api/auth/profile', expect.any(Object));
+  });
+
+  test('should fetch history data and render table', async () => {
+    localStorageMock.setItem('authToken', 'mockToken');
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([
+        { id: 'HIST001', appointment_date: '2023-01-01', location: 'Loc A', creator: 'User A', order_status: 'Completed' },
+        { id: 'HIST002', appointment_date: '2023-01-02', location: 'Loc B', creator: 'User B', order_status: 'Pending' },
+      ]),
+    });
+
+    // Manually trigger fetchData (it's called directly in the script)
+    // We need to re-import to ensure fetchData is called after mocks are set up
+    require('../assets/js/history-attachments-refactored.js');
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://be-claims-service.onrender.com/api/history-agent/inquiry',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'mockToken' },
+        body: JSON.stringify({}),
+      })
+    );
+    expect(getMockElement('userTableBody').innerHTML).toContain('HIST001');
+    expect(getMockElement('userTableBody').innerHTML).toContain('HIST002');
+  });
+
+  test('should initialize flatpickr', async () => {
+    // Manually trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    expect(global.flatpickr).toHaveBeenCalledWith('#filterDateTime', expect.any(Object));
+  });
+
+  test('should handle logout', async () => {
+    const logoutBtn = getMockElement('logout');
+    logoutBtn.addEventListener.mock.calls[0][1]({ preventDefault: jest.fn() }); // Simulate click
+
+    expect(localStorageMock.removeItem).toHaveBeenCalledWith('authToken');
+    expect(window.location.href).toBe('../index.html');
+  });
+});

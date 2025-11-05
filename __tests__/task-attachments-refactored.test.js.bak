@@ -1,0 +1,247 @@
+// Mock window.API_BASE_URL
+window.API_BASE_URL = 'https://be-claims-service.onrender.com';
+
+// Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: jest.fn(key => store[key] || null),
+    setItem: jest.fn((key, value) => { store[key] = value.toString(); }),
+    removeItem: jest.fn(key => { delete store[key]; }),
+    clear: jest.fn(() => { store = {}; })
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// Mock navigateTo
+jest.mock('../assets/js/navigation.js', () => ({
+  getQueryParam: jest.fn(() => 'mockOrderId'), // Mock for getQueryParam
+  navigateTo: jest.fn(),
+}));
+const { navigateTo } = require('../assets/js/navigation.js');
+
+let mockLocationHref = '';
+
+describe('task-attachments-refactored.js', () => {
+  let mockTaskForm;
+
+  beforeAll(() => {
+    const mockLocation = {
+      href: mockLocationHref,
+      assign: jest.fn(url => { mockLocationHref = url; }),
+      pathname: '',
+      search: '',
+      hash: '',
+    };
+
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: mockLocation,
+    });
+  });
+
+  beforeEach(() => {
+    // Reset mockLocationHref before each test
+    mockLocationHref = '';
+    window.location.assign(mockLocationHref);
+  });
+
+  afterAll(() => {
+    // Restore original window.location if necessary, though Jest usually handles this
+  });
+
+  test('should redirect to login if no authToken', () => {
+    localStorageMock.getItem.mockReturnValueOnce(null); // No token
+    require('../assets/js/task-attachments-refactored.js'); // Re-import to trigger initial checks
+    expect(navigateTo).toHaveBeenCalledWith('../index.html');
+  });
+
+  test('should load user profile and set UI elements', async () => {
+    localStorageMock.setItem('authToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMyIsInVzZXJuYW1lIjoidGVzdHVzZXIiLCJmaXJzdF9uYW1lIjoiSm9obiIsImxhc3RfaW5mbyI6IkRvZSIsInJvbGUiOiJBZG1pbiIsIm15UGljdHVyZSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vYXZhdGFyLnBuZyIsImV4cCI6OTk5OTk5OTk5OX0.signature');
+    
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({}), // Mock profile fetch
+    });
+
+    // Manually trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    expect(getMockElement('user-info').innerText).toBe('John Doe');
+    expect(getMockElement('ownerName').value).toBe('John Doe');
+    expect(getMockElement('user-role').innerText).toBe('Admin');
+    expect(getMockElement('userAvatar').src).toBe('https://example.com/avatar.png');
+    expect(global.fetch).toHaveBeenCalledWith('https://be-claims-service.onrender.com/api/auth/profile', expect.any(Object));
+  });
+
+  test('should fetch order data and render table', async () => {
+    localStorageMock.setItem('authToken', 'mockToken');
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({
+        order: { id: 'ORDER001', order_date: '2023-01-01T10:00:00Z', location: 'Test Loc', creator: 'Admin', order_status: 'เปิดงาน' },
+        order_details: {},
+        order_assign: [],
+        order_hist: [],
+        order_pic: [],
+      }),
+    });
+
+    // Manually trigger DOMContentLoaded
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+
+    // Simulate loadOrderData being called (it's called on DOMContentLoaded if orderId exists)
+    // For this test, we need to ensure getQueryParam returns an ID
+    require('../assets/js/navigation.js').getQueryParam.mockReturnValue('ORDER001');
+    await require('../assets/js/task-attachments-refactored.js'); // Re-import to trigger loadOrderData
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://be-claims-service.onrender.com/api/order-detail/inquiry',
+      expect.any(Object)
+    );
+    expect(getMockElement('taskId').value).toBe('ORDER001');
+  });
+
+  test('should handle image upload via API_BASE_URL', async () => {
+    localStorageMock.setItem('authToken', 'mockToken');
+    getMockElement('taskId').value = 'ORDER001';
+
+    const mockFileInput = getMockElement('dynamic-upload-inspection-123');
+    mockFileInput.files = [new File(['dummy content'], 'test.jpg', { type: 'image/jpeg' })];
+    mockFileInput.dataset.category = 'inspection';
+    
+    const mockLabel = getMockElement('mock-label');
+    mockLabel.querySelector.mockImplementation((selector) => {
+      if (selector === 'img') return getMockElement('mock-img');
+      if (selector === '.title') return getMockElement('mock-title');
+      return null;
+    });
+    mockFileInput.closest.mockReturnValue(mockLabel);
+    getMockElement('mock-img').src = 'data:image/gif;base64,R00'; // Initial loader
+    getMockElement('mock-title').textContent = 'Custom Title';
+
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ uploaded: [{ url: 'https://cloudinary.com/uploaded.jpg' }] }),
+    });
+
+    // Manually trigger change event
+    document.dispatchEvent(new Event('change', { target: mockFileInput, bubbles: true }));
+
+    // Wait for async operations
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://be-claims-service.onrender.com/api/upload/image/transactions',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Authorization': 'mockToken' },
+        body: expect.any(FormData),
+      })
+    );
+    expect(getMockElement('mock-img').src).toContain('https://cloudinary.com/uploaded.jpg');
+  });
+
+  test('should download all images via API_BASE_URL', async () => {
+    localStorageMock.setItem('authToken', 'mockToken');
+    getMockElement('taskId').value = 'ORDER001';
+
+    // Mock image elements
+    const mockImg1 = { src: 'https://example.com/img1.jpg', closest: jest.fn(() => ({
+      querySelector: jest.fn(() => ({
+        innerText: 'Image One'
+      }))
+    })), complete: true };
+    const mockImg2 = { src: 'https://example.com/img2.jpg', closest: jest.fn(() => ({
+      querySelector: jest.fn(() => ({
+        innerText: 'Image Two'
+      }))
+    })), complete: true };
+    document.querySelectorAll.mockImplementation((selector) => {
+      if (selector === '.image-gallery img') {
+        return [mockImg1, mockImg2];
+      }
+      return [];
+    });
+    Object.defineProperty(window, 'getComputedStyle', { value: () => ({
+        display: 'block'
+      })
+    });
+
+    global.fetch.mockResolvedValue({
+      ok: true,
+      blob: () => Promise.resolve(new Blob(['image data'])),
+    });
+
+    const downloadAllBtn = getMockElement('downloadAllBtn');
+    downloadAllBtn.click(); // Simulate click
+
+    // Wait for async operations
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://be-claims-service.onrender.com/api/upload/proxy-download',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ imageUrl: 'https://example.com/img1.jpg' }),
+      })
+    );
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://be-claims-service.onrender.com/api/upload/proxy-download',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ imageUrl: 'https://example.com/img2.jpg' }),
+      })
+    );
+    expect(mockJSZip).toHaveBeenCalled();
+    expect(mockZipFile).toHaveBeenCalledWith('Image_One.jpg', expect.any(Blob));
+    expect(mockZipFile).toHaveBeenCalledWith('Image_Two.jpg', expect.any(Blob));
+    expect(mockZipGenerateAsync).toHaveBeenCalledWith({ type: 'blob' });
+    expect(global.saveAs).toHaveBeenCalledWith(expect.any(Blob), 'ORDER001.zip');
+  });
+
+  test('should update image title via API_BASE_URL', async () => {
+    localStorageMock.setItem('authToken', 'mockToken');
+    getMockElement('taskId').value = 'ORDER001';
+
+    const mockEditBtn = getMockElement('edit-title-btn');
+    const mockLabel = getMockElement('mock-label-edit');
+    const mockImg = getMockElement('mock-img-edit');
+    const mockTitleDiv = getMockElement('mock-title-edit');
+
+    mockImg.src = 'https://example.com/editable.jpg';
+    mockTitleDiv.textContent = 'Old Title';
+    mockLabel.querySelector.mockImplementation((selector) => {
+      if (selector === 'img') return mockImg;
+      if (selector === '.title') return mockTitleDiv;
+      return null;
+    });
+    mockEditBtn.closest.mockReturnValue(mockLabel);
+
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ message: 'Title updated' }),
+    });
+    global.prompt = jest.fn(() => 'New Title');
+    global.alert = jest.fn();
+
+    // Simulate click on edit button
+    document.dispatchEvent(new Event('click', { target: mockEditBtn, bubbles: true }));
+
+    // Wait for async operations
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(global.prompt).toHaveBeenCalledWith('กรุณาใส่ชื่อรูปภาพใหม่:', 'Old Title');
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://be-claims-service.onrender.com/api/order-pic/update-title',
+      expect.objectContaining({
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'mockToken' },
+        body: JSON.stringify({ orderId: 'ORDER001', picUrl: 'https://example.com/editable.jpg', newTitle: 'New Title' }),
+      })
+    );
+    expect(mockTitleDiv.textContent).toBe('New Title');
+    expect(global.alert).toHaveBeenCalledWith('✅ Title updated');
+  });
+});

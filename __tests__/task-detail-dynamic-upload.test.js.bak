@@ -1,0 +1,86 @@
+global.TextEncoder = require('util').TextEncoder;
+global.Buffer = require('buffer').Buffer;
+
+import { JSDOM } from 'jsdom';
+import imageCompression from 'browser-image-compression';
+
+// Mock API_BASE_URL
+jest.mock('../assets/js/api-config.js', () => 'http://localhost:8181');
+
+// Mock navigation functions
+jest.mock('../assets/js/navigation.js', () => ({
+  getQueryParam: jest.fn(() => 'test-order-id'),
+  navigateTo: jest.fn(),
+}));
+
+// Mock imageCompression library
+jest.mock('browser-image-compression', () => jest.fn(file => Promise.resolve(file)));
+
+describe('Task Detail - Dynamic Image Upload', () => {
+  let dom;
+  let document;
+  let window;
+
+  beforeEach(() => {
+    dom = new JSDOM(`
+      <div id="taskForm">
+        <input id="taskId" value="ST-TEST-001" />
+        <div id="around-images-section">
+          <div class="row">
+            <div class="col-4 mb-3 text-center">
+                <button type="button" class="btn btn-outline-primary add-image-btn" data-category="around">
+                    <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
+                </button>
+            </div>
+          </div>
+        </div>
+        <div id="accessories-images-section">
+          <div class="row">
+            <div class="col-4 mb-3 text-center">
+                <button type="button" class="btn btn-outline-primary add-image-btn" data-category="accessories">
+                    <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
+                </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `, { url: "http://localhost" });
+
+    document = dom.window.document;
+    window = dom.window;
+
+    global.document = document;
+    global.window = window;
+
+    global.localStorage = {
+      getItem: jest.fn(key => {
+        if (key === 'authToken') {
+          const mockPayload = { role: 'Admin', first_name: 'Test', last_name: 'User' };
+          return `header.${btoa(JSON.stringify(mockPayload))}.signature`;
+        }
+        return null;
+      }),
+      removeItem: jest.fn(),
+    };
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ uploaded: [{ url: 'http://fake.url/uploaded-image.jpg' }] }),
+    }));
+    global.alert = jest.fn();
+    global.prompt = jest.fn(); // Mock prompt for edit title functionality
+
+    // Mock imageCompression to return the file directly
+    imageCompression.mockImplementation(file => Promise.resolve(file));
+
+    // Load the script after DOM is set up
+    jest.isolateModules(() => {
+      require('../assets/js/task-detail-refactored.js');
+    });
+
+    // Manually dispatch DOMContentLoaded event
+    document.dispatchEvent(new window.Event('DOMContentLoaded'));
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });

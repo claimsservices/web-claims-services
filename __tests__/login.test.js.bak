@@ -1,0 +1,193 @@
+// Mock window.API_BASE_URL
+window.API_BASE_URL = 'https://be-claims-service.onrender.com';
+
+// Mock localStorage
+const localStorageMock = (() => {
+  let store = {};
+  return {
+    getItem: jest.fn(key => store[key] || null),
+    setItem: jest.fn((key, value) => { store[key] = value.toString(); }),
+    removeItem: jest.fn(key => { delete store[key]; }),
+    clear: jest.fn(() => { store = {}; })
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+// Mock navigateTo
+jest.mock('../assets/js/navigation.js', () => ({
+  navigateTo: jest.fn(),
+}));
+const { navigateTo } = require('../assets/js/navigation.js');
+
+// Mock fetch
+global.fetch = jest.fn();
+
+// Mock document.getElementById and querySelector
+const mockElements = {};
+const getMockElement = (id) => {
+  if (!mockElements[id]) {
+    mockElements[id] = {
+      value: '',
+      style: { display: 'none' },
+      innerText: '',
+      addEventListener: jest.fn(),
+      appendChild: jest.fn(),
+      closest: jest.fn(() => null),
+    };
+  }
+  return mockElements[id];
+};
+
+document.getElementById = jest.fn(getMockElement);
+document.querySelector = jest.fn((selector) => {
+  if (selector === '.form-password-toggle') {
+    return getMockElement('form-password-toggle');
+  }
+  return null;
+});
+
+describe('login.js', () => {
+  let formAuthentication;
+  let usernameInput, passwordInput, usernameError, passwordError;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    localStorageMock.clear();
+    navigateTo.mockClear();
+    global.fetch.mockClear();
+
+    // Reset mock elements
+    Object.keys(mockElements).forEach(key => delete mockElements[key]);
+
+    formAuthentication = {
+      addEventListener: jest.fn((event, callback) => {
+        if (event === 'submit') {
+          formAuthentication.submitCallback = callback;
+        }
+      }),
+      submitCallback: null, // Initialize submitCallback
+    };
+    usernameInput = getMockElement('username');
+    passwordInput = getMockElement('password');
+    usernameError = getMockElement('username-error');
+    passwordError = getMockElement('password-error'); // Ensure it's created if not exists
+
+    // Set up initial state for elements
+    formAuthentication = {
+      addEventListener: jest.fn((event, callback) => {
+        if (event === 'submit') {
+          formAuthentication.submitCallback = callback;
+        }
+      }),
+      submitCallback: null, // Initialize submitCallback
+    };
+
+    // Import login.js to attach event listeners
+    require('../js/login.js');
+  });
+
+  test('should prevent default form submission', async () => {
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+    expect(preventDefault).toHaveBeenCalled();
+  });
+
+  test('should show error for empty username', async () => {
+    usernameInput.value = '';
+    passwordInput.value = 'password123';
+
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+
+    expect(usernameError.style.display).toBe('block');
+    expect(usernameError.innerText).toBe('Please enter your username.');
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test('should show error for empty password', async () => {
+    usernameInput.value = 'testuser';
+    passwordInput.value = '';
+
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+
+    expect(passwordError.style.display).toBe('block');
+    expect(passwordError.innerText).toBe('Please enter your password.');
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  test('should call API with correct URL and data on successful login', async () => {
+    usernameInput.value = 'testuser';
+    passwordInput.value = 'password123';
+
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ token: 'mockToken', role: 'Admin' }),
+    });
+
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://be-claims-service.onrender.com/api/auth/login',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: 'testuser', password: 'password123' }),
+      }
+    );
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'mockToken');
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('role', 'Admin');
+    expect(navigateToMock).toHaveBeenCalledWith('html/dashboard.html');
+  });
+
+  test('should redirect Bike role to agent-dashboard.html', async () => {
+    usernameInput.value = 'bikeuser';
+    passwordInput.value = 'password123';
+
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ token: 'mockBikeToken', role: 'Bike' }),
+    });
+
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'mockBikeToken');
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('role', 'Bike');
+    expect(navigateToMock).toHaveBeenCalledWith('html/agent-dashboard.html');
+  });
+
+  test('should show error message on API failure', async () => {
+    usernameInput.value = 'testuser';
+    passwordInput.value = 'password123';
+
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      text: () => Promise.resolve('Invalid credentials'),
+    });
+
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+
+    expect(usernameError.style.display).toBe('block');
+    expect(usernameError.innerText).toBe('Invalid username or password.');
+    expect(localStorageMock.setItem).not.toHaveBeenCalled();
+    expect(navigateToMock).not.toHaveBeenCalled();
+  });
+
+  test('should show error message on network error', async () => {
+    usernameInput.value = 'testuser';
+    passwordInput.value = 'password123';
+
+    global.fetch.mockRejectedValueOnce(new Error('Network down'));
+
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+
+    expect(usernameError.style.display).toBe('block');
+    expect(usernameError.innerText).toBe('An error occurred. Please try again.');
+    expect(localStorageMock.setItem).not.toHaveBeenCalled();
+    expect(navigateToMock).not.toHaveBeenCalled();
+  });
+});
