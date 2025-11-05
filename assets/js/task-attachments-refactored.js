@@ -224,6 +224,7 @@ function renderTableData(page) {
         ${item.location}
       </a>
     </td>
+        <td>${item.creator}</td>
         <td>${item.order_status}</td>
         <td>${item.amount || ''}</td>
       `;

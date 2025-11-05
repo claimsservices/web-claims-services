@@ -2,6 +2,20 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
+jest.mock('../assets/js/task-detail-refactored.js', () => ({
+    staticImageConfig: {
+        around: [{ name: 'exterior_front', defaultTitle: 'Front View' }],
+        accessories: [{ name: 'interior_wheels_1', defaultTitle: 'Wheel 1' }],
+        inspection: [],
+        fiber: [],
+        documents: [],
+        signature: [],
+    },
+    populateImageSections: jest.fn(),
+    renderUploadedImages: jest.fn(),
+    updateDamageDetailField: jest.fn(),
+}));
+
 import { staticImageConfig, populateImageSections, renderUploadedImages, updateDamageDetailField } from '../assets/js/task-detail-refactored.js';
 
 jest.mock('../assets/js/navigation.js', () => ({
