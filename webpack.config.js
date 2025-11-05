@@ -65,6 +65,13 @@ module.exports = (API_BASE_URL) => {
           }]
         },
         {
+          test: path.resolve(__dirname, 'assets/vendor/js/helpers.js'),
+          use: [{
+            loader: 'expose-loader',
+            options: 'Helpers'
+          }]
+        },
+        {
           // Transpile sources
           test: /\.es6$|\.js$/,
           exclude: [path.resolve(__dirname, 'node_modules')],
