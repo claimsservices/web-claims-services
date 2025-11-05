@@ -95,11 +95,7 @@ module.exports = (API_BASE_URL) => {
         }
       ]
     },
-    plugins: [
-      new webpack.DefinePlugin({
-        'process.env.API_BASE_URL': JSON.stringify(API_BASE_URL)
-      })
-    ],
+    plugins: [],
     resolve: {
       extensions: ['.js'],
       alias: {

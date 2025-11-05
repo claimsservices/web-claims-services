@@ -7,7 +7,7 @@ document.getElementById("formAuthentication").addEventListener("submit", async f
   const username = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  const apiUrl = `${process.env.API_BASE_URL}/api/auth/login`;
+  const apiUrl = 'https://be-claims-service.onrender.com/api/auth/login';
 
   let isValid = true;
 

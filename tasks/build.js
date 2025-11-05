@@ -70,6 +70,7 @@ module.exports = (conf, srcGlob, API_BASE_URL) => {
   // -------------------------------------------------------------------------------
   const buildJsTask = function (cb) {
     setTimeout(function () {
+      console.log('API_BASE_URL before webpack:', API_BASE_URL);
       webpack(require('../webpack.config')(API_BASE_URL), (err, stats) => {
         if (err) {
           log(colors.gray('Webpack error:'), colors.red(err.stack || err));
