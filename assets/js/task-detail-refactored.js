@@ -660,11 +660,6 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
       };
 
-      // Clear existing static image blocks if any
-      Object.values(sectionsMap).forEach(section => {
-          if (section) section.innerHTML = '';
-      });
-
       // Render "Add Image" buttons for each category
       for (const category in sectionsMap) {
           const targetSection = sectionsMap[category];

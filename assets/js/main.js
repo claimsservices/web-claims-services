@@ -56,13 +56,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let layoutMenuEl = document.querySelectorAll('#layout-menu');
   layoutMenuEl.forEach(function (element) {
-    menu = new Menu(element, {
-      orientation: 'vertical',
-      closeChildren: false
-    });
-    // Change parameter to true if you want scroll animation
-    window.Helpers.scrollToActive(false);
-    window.Helpers.mainMenu = menu;
+    if (typeof window.Menu === 'function') {
+      menu = new window.Menu(element, {
+        orientation: 'vertical',
+        closeChildren: false
+      });
+      // Change parameter to true if you want scroll animation
+      window.Helpers.scrollToActive(false);
+      window.Helpers.mainMenu = menu;
+    } else {
+      log.error('window.Menu is not a constructor function. Menu initialization skipped.');
+    }
   });
 
   // Dynamically adjust menu for Bike role
@@ -104,18 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (window.location.pathname.endsWith('bike-pre-approved.html')) {
                     preApprovedLi.classList.add('active');
                 }
-
-                parentUl.appendChild(historyAttachmentsLi);
-
-                // Hide User Management menu item
-                const userManagementLink = document.querySelector('a[data-i18n="Layouts"]');
-                if (userManagementLink) {
-                    const userManagementLi = userManagementLink.closest('.menu-item');
-                    if (userManagementLi) {
-                        userManagementLi.style.display = 'none';
-                    }
-                }
-          }
+              }
       }
   }
 
