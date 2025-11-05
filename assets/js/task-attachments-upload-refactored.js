@@ -80,6 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('vin').value = details.c_number;
             document.getElementById('customer-name').value = details.c_name;
         }
+        // Populate creator field
+        document.getElementById('creator').value = order.creator || '';
     }
 
     function renderExistingImages(images) {
@@ -288,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const uploadActions = document.querySelector('.upload-actions');
         if (uploadActions) {
-            uploadActions.style.display = isVisible ? 'block' : 'none';
+            uploadActions.style.display = 'block' : 'none';
         }
     }
 
@@ -301,6 +303,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Page Init --- //
     loadUserProfile();
+
+    // Hide creator field if user is 'Bike'
+    const decodedToken = parseJwt(token);
+    if (decodedToken && decodedToken.role === 'Bike') {
+        const creatorField = document.getElementById('creator-field');
+        if (creatorField) {
+            creatorField.style.display = 'none';
+        }
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('id');
     if (orderId) {
