@@ -108,8 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (window.location.pathname.endsWith('bike-pre-approved.html')) {
                     preApprovedLi.classList.add('active');
                 }
-              }
-      }
+                parentUl.appendChild(preApprovedLi);
   }
 
   // Initialize menu togglers and bind click on each
