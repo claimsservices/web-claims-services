@@ -258,13 +258,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`https://be-claims-service.onrender.com/api/order-detail/update-status`, {
-                method: 'POST',
+            const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': token
                 },
-                body: JSON.stringify({ order_id: orderId, status: status })
+                body: JSON.stringify({ order_id: orderId, order_status: status })
             });
 
             if (!response.ok) {
