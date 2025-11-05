@@ -12,7 +12,7 @@ const log = require('fancy-log');
 const colors = require('ansi-colors');
 const rename = require('gulp-rename');
 
-module.exports = (conf, srcGlob) => {
+module.exports = (conf, srcGlob, API_BASE_URL) => {
   // Build CSS
   // -------------------------------------------------------------------------------
   const buildCssTask = function (cb) {
@@ -70,7 +70,7 @@ module.exports = (conf, srcGlob) => {
   // -------------------------------------------------------------------------------
   const buildJsTask = function (cb) {
     setTimeout(function () {
-      webpack(require('../webpack.config'), (err, stats) => {
+      webpack(require('../webpack.config')(API_BASE_URL), (err, stats) => {
         if (err) {
           log(colors.gray('Webpack error:'), colors.red(err.stack || err));
           if (err.details) log(colors.gray('Webpack error details:'), err.details);

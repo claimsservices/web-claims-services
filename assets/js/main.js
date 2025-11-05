@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(appVersionEl) appVersionEl.textContent = feVersion;
 
         // Fetch backend version
-        fetch(`${window.API_BASE_URL}/api/version`)
+        fetch(`${process.env.API_BASE_URL}/api/version`)
             .then(res => res.json())
             .then(backendVersionData => {
                 const beVersion = `BE: ${backendVersionData.version}`;

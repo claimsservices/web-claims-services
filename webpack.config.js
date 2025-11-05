@@ -46,99 +46,106 @@ const babelLoader = () => ({
   }
 });
 
-const webpackConfig = {
-  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  entry: collectEntries(),
+module.exports = (API_BASE_URL) => {
+  const webpackConfig = {
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
+    entry: collectEntries(),
 
-  output: {
-    path: conf.distPath,
-    filename: '[name].js'
-  },
-  module: {
-    rules: [
-      {
-        test: path.resolve(__dirname, 'assets/vendor/js/menu.js'),
-        use: [{
-          loader: 'expose-loader',
-          options: 'Menu'
-        }]
-      },
-      {
-        test: /\.es6$|\.js$/,
-        exclude: [path.resolve(__dirname, 'node_modules')],
-        use: [babelLoader()]
-      },
-      {
-        // Transpile required packages
-        test: new RegExp(`(?:${TRANSPILE_PACKAGES.map(packageRegex).join(')|(?:')})`),
-        include: [path.resolve(__dirname, 'node_modules')],
-        use: [babelLoader()]
-      },
-      {
-        test: /\.css$/,
-        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
-      },
-      {
-        test: /\.scss$/,
-        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }, { loader: 'sass-loader' }]
-      },
-      {
-        test: /\.html$/,
-        use: [
-          {
-            loader: 'html-loader',
-            options: { minimize: true }
-          }
-        ]
+    output: {
+      path: conf.distPath,
+      filename: '[name].js'
+    },
+    module: {
+      rules: [
+        {
+          test: path.resolve(__dirname, 'assets/vendor/js/menu.js'),
+          use: [{
+            loader: 'expose-loader',
+            options: 'Menu'
+          }]
+        },
+        {
+          // Transpile sources
+          test: /\.es6$|\.js$/,
+          exclude: [path.resolve(__dirname, 'node_modules')],
+          use: [babelLoader()]
+        },
+        {
+          // Transpile required packages
+          test: new RegExp(`(?:${TRANSPILE_PACKAGES.map(packageRegex).join(')|(?:')})`),
+          include: [path.resolve(__dirname, 'node_modules')],
+          use: [babelLoader()]
+        },
+        {
+          test: /\.css$/,
+          use: [{ loader: 'style-loader' }, { loader: 'css-loader' }]
+        },
+        {
+          test: /\.scss$/,
+          use: [{ loader: 'style-loader' }, { loader: 'css-loader' }, { loader: 'sass-loader' }]
+        },
+        {
+          test: /\.html$/,
+          use: [
+            {
+              loader: 'html-loader',
+              options: { minimize: true }
+            }
+          ]
+        }
+      ]
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        'process.env.API_BASE_URL': JSON.stringify(API_BASE_URL)
+      })
+    ],
+    resolve: {
+      extensions: ['.js'],
+      alias: {
+        formvalidation: path.resolve(__dirname, 'libs/formvalidation/dist/es6')
       }
-    ]
-  },
-  plugins: [],
-  resolve: {
-    extensions: ['.js'],
-    alias: {
-      formvalidation: path.resolve(__dirname, 'libs/formvalidation/dist/es6')
+    },
+
+    externals: {
+      jquery: 'jQuery',
+      moment: 'moment',
+      'datatables.net': '$.fn.dataTable',
+      jsdom: 'jsdom',
+      velocity: 'Velocity',
+      hammer: 'Hammer',
+      pace: '"pace-progress"',
+      chartist: 'Chartist',
+      'popper.js': 'Popper',
+
+      // blueimp-gallery plugin
+      './blueimp-helper': 'jQuery',
+      './blueimp-gallery': 'blueimpGallery',
+      './blueimp-gallery-video': 'blueimpGallery'
     }
-  },
+  };
 
-  externals: {
-    jquery: 'jQuery',
-    moment: 'moment',
-    'datatables.net': '$.fn.dataTable',
-    jsdom: 'jsdom',
-    velocity: 'Velocity',
-    hammer: 'Hammer',
-    pace: '"pace-progress"',
-    chartist: 'Chartist',
-    'popper.js': 'Popper',
-
-    // blueimp-gallery plugin
-    './blueimp-helper': 'jQuery',
-    './blueimp-gallery': 'blueimpGallery',
-    './blueimp-gallery-video': 'blueimpGallery'
+  // -------------------------------------------------------------------------------
+  // Sourcemaps
+  if (conf.sourcemaps) {
+    webpackConfig.devtool = conf.devtool;
   }
+
+  // -------------------------------------------------------------------------------
+  // Minify
+
+  // Minifies sources by default in production mode
+  if (process.env.NODE_ENV !== 'production' && conf.minify) {
+    webpackConfig.plugins.push(
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          warnings: false
+        },
+        sourceMap: conf.sourcemaps,
+        parallel: true
+      })
+    );
+  }
+
+  return webpackConfig;
 };
-
-// -------------------------------------------------------------------------------
-// Sourcemaps
-if (conf.sourcemaps) {
-  webpackConfig.devtool = conf.devtool;
-}
-
-// -------------------------------------------------------------------------------
-// Minify
-
-// Minifies sources by default in production mode
-if (process.env.NODE_ENV !== 'production' && conf.minify) {
-  webpackConfig.plugins.push(
-    new UglifyJsPlugin({
-      uglifyOptions: {
-        warnings: false
-      },
-      sourceMap: conf.sourcemaps,
-      parallel: true
-    })
-  );
-}
-
-module.exports = webpackConfig;
