@@ -1,5 +1,78 @@
 import { getQueryParam, navigateTo } from './navigation.js';
 
+const staticImageConfig = {
+    around: [
+        { name: "exterior_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
+        { name: "exterior_left_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
+        { name: "exterior_left_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายตรง" },
+        { name: "exterior_left_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง" },
+        { name: "exterior_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านท้ายรถ" },
+        { name: "exterior_right_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง" },
+        { name: "exterior_right_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาตรง" },
+        { name: "exterior_right_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
+        { name: "exterior_roof", defaultTitle: "ภาพถ่ายรอบคัน - หลังคา" }
+    ],
+    accessories: [
+        { name: "interior_wheels_1", defaultTitle: "ล้อรถ 4 ล้อ 1" },
+        { name: "interior_wheels_2", defaultTitle: "ล้อรถ 4 ล้อ 2" },
+        { name: "interior_wheels_3", defaultTitle: "ล้อรถ 4 ล้อ 3" },
+        { name: "interior_wheels_4", defaultTitle: "ล้อรถ 4 ล้อ 4" },
+        { name: "interior_dashboard", defaultTitle: "ปีผลิต/ขนาดล้อ/ยางอะไหล่" },
+        { name: "interior_6", defaultTitle: "ห้องเครื่อง" },
+        { name: "interior_7", defaultTitle: "จอไมล์" },
+        { name: "interior_8", defaultTitle: "คอนโซล" },
+        { name: "interior_9", defaultTitle: "วิทยุ" },
+        { name: "interior_10", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_11", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_12", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_13", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_14", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_15", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_16", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_17", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_18", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_19", defaultTitle: "กล้องติดหน้ารถ" },
+        { name: "interior_20", defaultTitle: "กล้องติดหน้ารถ" }
+    ],
+    inspection: [
+        { name: "damage_images_1", defaultTitle: "รายละเอียดความเสียหาย 1." },
+        { name: "damage_images_2", defaultTitle: "รายละเอียดความเสียหาย 2." },
+        { name: "damage_images_3", defaultTitle: "รายละเอียดความเสียหาย 3." },
+        { name: "damage_images_4", defaultTitle: "รายละเอียดความเสียหาย 4." },
+        { name: "damage_images_5", defaultTitle: "รายละเอียดความเสียหาย 5." },
+        { name: "damage_images_6", defaultTitle: "รายละเอียดความเสียหาย 6." },
+        { name: "damage_images_7", defaultTitle: "รายละเอียดความเสียหาย 7." },
+        { name: "damage_images_8", defaultTitle: "รายละเอียดความเสียหาย 8." },
+        { name: "damage_images_9", defaultTitle: "รายละเอียดความเสียหาย 9." },
+        { name: "damage_images_10", defaultTitle: "รายละเอียดความเสียหาย 10." }
+    ],
+    fiber: [
+        { name: "doc_identity", defaultTitle: "เอกสารยืนยันตัวบุคคล" },
+        { name: "doc_other_1", defaultTitle: "เอกสารยืนยันตัวรถ" },
+        { name: "doc_other_2", defaultTitle: "เลขตัวถังและทะเบียนรถ" },
+        { name: "doc_other_3", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "doc_other_4", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "doc_other_5", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "doc_other_6", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "doc_other_7", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "doc_other_8", defaultTitle: "เอกสารอื่น ๆ" }
+    ],
+    documents: [
+        { name: "license", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "id_card", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "car_doc", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "car_number", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "other_1", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "other_2", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "doc_other_9", defaultTitle: "เอกสารอื่น ๆ" },
+        { name: "other_3", defaultTitle: "เอกสารอื่น ๆ" }
+    ],
+    signature: [
+        { name: "doc_other_9", defaultTitle: "ลายเซ็น" }
+    ]
+};
+
+
 
 
 
@@ -151,9 +224,45 @@ import { getQueryParam, navigateTo } from './navigation.js';
             return;
         }
 
-        const targetSection = sectionsMap[pic.pic_type]; // Use pic_type to determine section
-        console.log('renderUploadedImages: targetSection for pic_type', pic.pic_type, ':', targetSection);
-        if (targetSection) {
+        const targetSection = sectionsMap[pic.pic_type];
+        if (!targetSection) {
+            console.warn('renderUploadedImages: targetSection is null for pic_type:', pic.pic_type);
+            return;
+        }
+
+        // Try to find an existing, unfilled placeholder slot
+        let filledExistingSlot = false;
+        const placeholderInput = targetSection.querySelector(`input[name="${pic.pic_type}"][data-category="${pic.pic_type}"]`);
+
+        if (placeholderInput) {
+            const label = placeholderInput.closest('label.image-gallery');
+            if (label && label.dataset.filled === 'false') {
+                const img = label.querySelector('img');
+                const titleDiv = label.querySelector('.title');
+                const deleteBtn = label.querySelector('.delete-btn');
+                const editTitleBtn = label.querySelector('.edit-title-btn');
+
+                if (img) {
+                    img.src = pic.pic;
+                    img.alt = pic.pic_title || 'Uploaded Image';
+                    img.style.display = 'block';
+                    if (pic.created_date) {
+                        img.dataset.createdDate = pic.created_date;
+                    }
+                }
+                if (titleDiv) {
+                    titleDiv.textContent = pic.pic_title || 'กรุณาใส่ชื่อ';
+                }
+                if (deleteBtn) deleteBtn.style.display = 'block';
+                if (editTitleBtn) editTitleBtn.style.display = 'flex';
+                label.dataset.filled = 'true';
+                filledExistingSlot = true;
+                console.log('renderUploadedImages: Filled existing placeholder for pic_type:', pic.pic_type);
+            }
+        }
+
+        // If no existing placeholder was filled, create a new dynamic slot
+        if (!filledExistingSlot) {
             const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
             const newSlotHtml = `
                 <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${pic.pic_type}">
@@ -169,21 +278,15 @@ import { getQueryParam, navigateTo } from './navigation.js';
                 </div>
             `;
             console.log('renderUploadedImages: Generated newSlotHtml:', newSlotHtml);
-            // Find the "Add Image" button for this category and insert before it
             const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${pic.pic_type}"]`);
             if (addImageBtn) {
-                console.log('renderUploadedImages: Found addImageBtn, inserting before it.');
                 addImageBtn.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
             } else {
-                console.log('renderUploadedImages: addImageBtn not found, inserting at end of targetSection.');
                 targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
             }
-        } else {
-            console.warn('renderUploadedImages: targetSection is null for pic_type:', pic.pic_type);
         }
     });
 
-    // Call updateDamageDetailField after the loop to populate the textarea.
     setTimeout(() => updateDamageDetailField(), 0);
   }
 
@@ -674,10 +777,35 @@ function initCarModelDropdown(brandSelect, modelSelect) {
           'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
       };
 
-      // Render "Add Image" buttons for each category
       for (const category in sectionsMap) {
           const targetSection = sectionsMap[category];
           if (targetSection) {
+              // Clear existing content to prevent duplicates if called multiple times
+              targetSection.innerHTML = '';
+
+              // Render static placeholder slots based on staticImageConfig
+              const config = staticImageConfig[category];
+              if (config) {
+                  config.forEach(item => {
+                      const uniqueId = `uploaded-image-${item.name}-${Date.now()}`; // Use item.name for unique ID
+                      const newSlotHtml = `
+                          <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${category}">
+                              <label class="image-gallery w-100" data-filled="false" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+                                  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:none;" alt="${item.defaultTitle}">
+                                  <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
+                                      ${item.defaultTitle}
+                                  </div>
+                                  <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" capture="camera">
+                                  <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-x-circle-fill"></i></button>
+                                  <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">A</button>
+                              </label>
+                          </div>
+                      `;
+                      targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
+                  });
+              }
+
+              // Add the "Add Image" button after static slots
               const addImageButtonHtml = `
                   <div class="col-4 mb-3 text-center">
                       <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
