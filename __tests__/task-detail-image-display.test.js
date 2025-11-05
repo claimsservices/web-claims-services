@@ -1,3 +1,7 @@
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 import { staticImageConfig, populateImageSections, renderUploadedImages, updateDamageDetailField } from '../assets/js/task-detail-refactored.js';
 
 jest.mock('../assets/js/navigation.js', () => ({
