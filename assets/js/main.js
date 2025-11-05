@@ -4,7 +4,7 @@
 
 'use strict';
 
-import { Helpers } from '../assets/vendor/js/helpers.js';
+import { Helpers } from '../vendor/js/helpers.js';
 
 // Simple logging utility to avoid build issues
 const log = {
