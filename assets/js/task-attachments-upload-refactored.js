@@ -250,6 +250,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    async function setStatusFromClick(status) {
+        const orderId = urlParams.get('id');
+        if (!orderId) {
+            alert('ไม่พบรหัสงาน');
+            return;
+        }
+
+        try {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/order-detail/update-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify({ order_id: orderId, status: status })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'ไม่สามารถอัปเดตสถานะได้');
+            }
+
+            alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ`);
+            handleOrderStatus(status); // Update UI after successful API call
+            window.location.reload(); // Reload to reflect changes and button states
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${error.message}`);
+        }
+    }
+
     function toggleUploadSection(status) {
         const isVisible = status === "ถึงที่เกิดเหตุ/ปฏิบัติงาน";
         document.querySelectorAll('.upload-section').forEach(section => {
@@ -355,6 +386,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Add event listeners for status update buttons
+    document.getElementById('btn-accept')?.addEventListener('click', () => setStatusFromClick('รับงาน'));
+    document.getElementById('btn-reject')?.addEventListener('click', () => setStatusFromClick('ปฏิเสธงาน'));
+    document.getElementById('btn-start')?.addEventListener('click', () => setStatusFromClick('เริ่มงาน/กำลังเดินทาง'));
+    document.getElementById('btn-arrived')?.addEventListener('click', () => setStatusFromClick('ถึงที่เกิดเหตุ/ปฏิบัติงาน'));
 
     document.body.classList.remove('loading');
 });
