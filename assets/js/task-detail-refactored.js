@@ -127,8 +127,10 @@ import { getQueryParam, navigateTo } from './navigation.js';
   const uploadedPicCache = new Set();
 
   function renderUploadedImages(orderPics) {
+    console.log('renderUploadedImages: Starting function with orderPics:', orderPics);
     // If there are no pictures, ensure the damage field is cleared.
     if (!orderPics || orderPics.length === 0) {
+        console.log('renderUploadedImages: No pictures to render or orderPics is empty.');
         setTimeout(() => updateDamageDetailField(), 0);
         return;
     }
@@ -143,9 +145,14 @@ import { getQueryParam, navigateTo } from './navigation.js';
     };
 
     orderPics.forEach(pic => {
-        if (!pic.pic_type || !pic.pic) return;
+        console.log('renderUploadedImages: Processing pic:', pic);
+        if (!pic.pic_type || !pic.pic) {
+            console.warn('renderUploadedImages: Skipping pic due to missing pic_type or pic URL:', pic);
+            return;
+        }
 
         const targetSection = sectionsMap[pic.pic_type]; // Use pic_type to determine section
+        console.log('renderUploadedImages: targetSection for pic_type', pic.pic_type, ':', targetSection);
         if (targetSection) {
             const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
             const newSlotHtml = `
@@ -161,13 +168,18 @@ import { getQueryParam, navigateTo } from './navigation.js';
                     </label>
                 </div>
             `;
+            console.log('renderUploadedImages: Generated newSlotHtml:', newSlotHtml);
             // Find the "Add Image" button for this category and insert before it
             const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${pic.pic_type}"]`);
             if (addImageBtn) {
+                console.log('renderUploadedImages: Found addImageBtn, inserting before it.');
                 addImageBtn.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
             } else {
+                console.log('renderUploadedImages: addImageBtn not found, inserting at end of targetSection.');
                 targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
             }
+        } else {
+            console.warn('renderUploadedImages: targetSection is null for pic_type:', pic.pic_type);
         }
     });
 
@@ -189,6 +201,8 @@ import { getQueryParam, navigateTo } from './navigation.js';
       }
 
       const { order, order_details, order_assign, order_hist, order_pic } = result;
+      console.log('loadOrderData: API response result:', result);
+      console.log('loadOrderData: Extracted order_pic:', order_pic);
       const userRole = getUserRole();
       if (userRole !== 'Bike' && userRole !== 'Insurance') {
         await loadAssignees(order, token);

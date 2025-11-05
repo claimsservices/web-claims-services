@@ -41,7 +41,7 @@ global.flatpickr = jest.fn(() => {
     // Add other methods that might be called on a flatpickr instance if needed
   };
 });
-global.flatpickr.mockClear = jest.fn();
+
 
 describe('history-attachments-refactored.js', () => {
 
