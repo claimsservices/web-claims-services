@@ -57,7 +57,7 @@ document.getElementById("formAuthentication").addEventListener("submit", async f
       localStorage.setItem('role', data.role);
 
       if (data.role === 'Bike') {
-        navigateTo('html/agent-dashboard.html');
+        navigateTo('html/task-attachments.html');
       } else {
         navigateTo('html/dashboard.html');
       }

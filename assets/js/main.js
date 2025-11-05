@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   let layoutMenuEl = document.querySelectorAll('#layout-menu');
   layoutMenuEl.forEach(function (element) {
-    menu = new window.Menu(element, {
+    menu = new Menu(element, {
       orientation: 'vertical',
       closeChildren: false
     });
@@ -77,7 +77,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
               if (parentLi && parentUl) {
                 // 1. Update existing link to be the main bike dashboard
-                taskManagementLink.href = 'bike-dashboard.html';
+                taskManagementLink.href = 'task-attachments.html';
+                taskManagementLink.querySelector('div').textContent = 'Task Attachments';
+
+                // Add History Attachments link
+                const historyAttachmentsLi = document.createElement('li');
+                historyAttachmentsLi.className = 'menu-item';
+                historyAttachmentsLi.innerHTML = `
+                  <a href="history-attachments.html" class="menu-link">
+                    <i class='menu-icon icon-base bx bx-history'></i>
+                    <div data-i18n="History">History Attachments</div>
+                  </a>
+                `;
+                parentUl.appendChild(historyAttachmentsLi);
 
                 // 2. Create the new link for pre-approved tasks
                 const preApprovedLi = parentLi.cloneNode(true);
@@ -93,8 +105,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     preApprovedLi.classList.add('active');
                 }
 
-                parentUl.appendChild(preApprovedLi);
-              }
+                parentUl.appendChild(historyAttachmentsLi);
+
+                // Hide User Management menu item
+                const userManagementLink = document.querySelector('a[data-i18n="Layouts"]');
+                if (userManagementLink) {
+                    const userManagementLi = userManagementLink.closest('.menu-item');
+                    if (userManagementLi) {
+                        userManagementLi.style.display = 'none';
+                    }
+                }
           }
       }
   }

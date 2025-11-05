@@ -137,7 +137,7 @@ if (token) {
   const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
 
   // Check if the user has the 'admin' role
-  if (user.role === 'Officer') {
+  if (user.role === 'Officer' || user.role === 'Bike') {
     //do some think
   } else {
     localStorage.removeItem('authToken');
