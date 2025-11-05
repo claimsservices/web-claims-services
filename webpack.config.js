@@ -57,7 +57,13 @@ const webpackConfig = {
   module: {
     rules: [
       {
-        // Transpile sources
+        test: path.resolve(__dirname, 'assets/vendor/js/menu.js'),
+        use: [{
+          loader: 'expose-loader',
+          options: 'Menu'
+        }]
+      },
+      {
         test: /\.es6$|\.js$/,
         exclude: [path.resolve(__dirname, 'node_modules')],
         use: [babelLoader()]

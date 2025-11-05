@@ -63,6 +63,7 @@
     "bootstrap": "~5.1.3",
     "boxicons": "~2.0.9",
     "browser-image-compression": "^2.0.2",
+    "expose-loader": "^1.0.3",
     "highlight.js": "~9.17.1",
     "jquery": "~3.5.1",
     "loglevel": "^1.9.2",
