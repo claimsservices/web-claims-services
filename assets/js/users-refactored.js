@@ -134,6 +134,34 @@ async function fetchUsers() {
         return;
     }
 
+    const decoded = decodeJWT(token);
+    if (!decoded || !decoded.role) {
+        console.error('Failed to decode token or role not found.');
+        alert('ไม่สามารถตรวจสอบสิทธิ์ผู้ใช้ได้ กรุณาเข้าสู่ระบบใหม่อีกครั้ง');
+        localStorage.removeItem('authToken');
+        window.location.href = '../index.html';
+        return;
+    }
+
+    const requiredRoles = ['Admin Officer', 'Director', 'Developer'];
+    if (!requiredRoles.includes(decoded.role)) {
+        const tableBody = document.getElementById('userTableBody');
+        if (tableBody) {
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">คุณไม่มีสิทธิ์เข้าถึงหน้านี้</td></tr>';
+        }
+        const newUserBtn = document.getElementById('new-user-btn');
+        if (newUserBtn) {
+            newUserBtn.style.display = 'none'; // Hide Add New User button
+        }
+        const searchInput = document.getElementById('dt-search-0');
+        const searchBtn = document.getElementById('search-btn');
+        if (searchInput) searchInput.style.display = 'none';
+        if (searchBtn) searchBtn.style.display = 'none';
+
+        alert('คุณไม่มีสิทธิ์เข้าถึงเมนู User Management');
+        return;
+    }
+
     try {
         const response = await fetch(API_URL_USERS, {
             method: 'GET',
@@ -377,6 +405,13 @@ addNewUserForm.onsubmit = async function (e) {
 
 
     const token = localStorage.getItem('authToken');
+    const decoded = decodeJWT(token);
+    const requiredRoles = ['Admin Officer', 'Director', 'Developer'];
+
+    if (!decoded || !decoded.role || !requiredRoles.includes(decoded.role)) {
+        alert('คุณไม่มีสิทธิ์ในการเพิ่มหรือแก้ไขผู้ใช้');
+        return;
+    }
 
     const username = document.getElementById("add-user-username").value;
 
@@ -508,7 +543,14 @@ document.addEventListener('click', async (event) => {
 
     const deleteButton = event.target.closest('.delete-record');
 
+    const token = localStorage.getItem('authToken');
+    const decoded = decodeJWT(token);
+    const requiredRoles = ['Admin Officer', 'Director', 'Developer'];
 
+    if (!decoded || !decoded.role || !requiredRoles.includes(decoded.role)) {
+        alert('คุณไม่มีสิทธิ์ในการแก้ไขหรือลบผู้ใช้');
+        return;
+    }
 
     if (editButton) {
 
@@ -535,8 +577,6 @@ document.addEventListener('click', async (event) => {
         if (!confirmDelete) return;
 
 
-
-        const token = localStorage.getItem('authToken');
 
         if (!token) {
 
