@@ -457,12 +457,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Process and append all staged files and their metadata
             console.log(`[DEBUG] Processing ${filesToUpload.size} files for upload.`);
-            for (const [inputId, file] of filesToUpload.entries()) {
-                const fileInput = document.getElementById(inputId);
-                if (!fileInput) continue;
+            const compressionPromises = [];
 
-                let picType = 'unknown'; // Default to unknown
-                let picTitle = 'unknown'; // Default to unknown
+            filesToUpload.forEach((file, inputId) => {
+                const fileInput = document.getElementById(inputId);
+                if (!fileInput) return;
+
+                let picType = 'unknown';
+                let picTitle = 'unknown';
 
                 const slotContainer = fileInput.closest('.image-upload-slot');
                 const label = fileInput.closest('label.image-gallery');
@@ -485,33 +487,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         picTitle = label.querySelector('.title').textContent.trim();
                     }
                 }
-                
-                // Log for debugging
+
                 console.log(`[DEBUG] Staging File -> Name: ${file.name}, Type: ${picType}, Title: ${picTitle}`);
 
-                // Compress and append
-                try {
-                    const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
-                    const compressedFile = await imageCompression(file, options);
-                    formData.append('images', compressedFile, file.name);
-                    formData.append('pic_type', picType);
-                    formData.append('pic_title', picTitle);
-                } catch (err) {
-                    console.error('Compression error:', err);
-                    alert(`เกิดข้อผิดพลาดในการบีบอัดไฟล์: ${file.name}`);
-                    // Re-enable button and return
-                    uploadBtn.disabled = false;
-                    uploadBtn.textContent = 'บันทึกข้อมูล';
-                    return;
-                }
+                const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
+                    .then(compressedFile => {
+                        formData.append('images', compressedFile, file.name);
+                        formData.append('pic_type', picType);
+                        formData.append('pic_title', picTitle);
+                    })
+                    .catch(err => {
+                        console.error('Compression error:', err);
+                        alert(`เกิดข้อผิดพลาดในการบีบอัดไฟล์: ${file.name}`);
+                        throw err; // Propagate error to stop the upload process
+                    });
+                compressionPromises.push(promise);
+            });
+
+            try {
+                await Promise.all(compressionPromises);
+            } catch (error) {
+                // Re-enable button and return if compression fails
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'บันทึกข้อมูล';
+                return;
             }
 
-            // Final check before sending
             console.log('[DEBUG] FormData prepared. Sending to backend...');
-            // You can inspect the formData object in more detail if needed, but standard console.log won't show its content directly.
-            // for (var pair of formData.entries()) {
-            //     console.log(pair[0]+ ', ' + pair[1]); 
-            // }
 
             // Send the single request
             try {
