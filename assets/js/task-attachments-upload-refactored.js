@@ -474,8 +474,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     picTitle = slotContainer.querySelector('.image-title-input').value || 'เอกสารอื่นๆ';
                 } else { // Fixed slot
                     const section = fileInput.closest('.upload-section');
-                    if (section) {
-                        picType = section.dataset.category || 'unknown';
+                    if (section && section.dataset.category) {
+                        picType = section.dataset.category;
                     }
                     if (label) {
                         picTitle = label.querySelector('.title').textContent.trim();
