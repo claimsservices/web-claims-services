@@ -405,12 +405,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = fileInput.files[0];
         if (!file) {
             // Clear the staged file if user cancels selection
-            filesToUpload.delete(fileInput.id);
+            filesToUpload.delete(fileInput.name);
             return;
         }
         
-        // Stage the file for upload
-        filesToUpload.set(fileInput.id, file);
+        // Stage the file for upload using its unique name
+        filesToUpload.set(fileInput.name, file);
 
         // Update UI to show preview
         const label = fileInput.closest('label.image-gallery');
@@ -459,8 +459,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`[DEBUG] Processing ${filesToUpload.size} files for upload.`);
             const compressionPromises = [];
 
-            filesToUpload.forEach((file, inputId) => {
-                const fileInput = document.getElementById(inputId);
+            filesToUpload.forEach((file, inputName) => {
+                const fileInput = document.querySelector(`[name="${inputName}"]`);
                 if (!fileInput) return;
 
                 let picType = 'unknown';
