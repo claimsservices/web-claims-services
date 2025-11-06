@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('open-map').href = mapUrl;
 
         if (details) {
-            document.getElementById('phone').value = details.full_phone;
+            document.getElementById('phone').value = details.tell_1;
             document.getElementById('province-category').value = details.c_car_province;
 
             const carBrandSelect = document.getElementById('car-brand');
