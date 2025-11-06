@@ -393,14 +393,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgPreview = label.querySelector('img');
         const icon = label.querySelector('i');
         const orderId = urlParams.get('id');
-        const picType = fileInput.name;
+        
+        let picType = ''; // This will be the main category (e.g., 'around', 'accessories')
         let picTitle = '';
 
         const slotContainer = fileInput.closest('.image-upload-slot'); // This class only exists on dynamic "other" slots
 
         if (slotContainer) { // This is a dynamic "other" slot
-            picTitle = slotContainer.querySelector('.image-title-input').value || 'อื่นๆ'; // Use 'อื่นๆ' as fallback
+            picType = 'documents'; // Dynamic slots are typically for 'other documents'
+            picTitle = slotContainer.querySelector('.image-title-input').value || 'เอกสารอื่นๆ';
         } else { // This is a fixed, predefined slot
+            // Determine picType (main category) from the parent section's ID
+            const section = fileInput.closest('.upload-section');
+            if (section) {
+                if (section.id.includes('around')) picType = 'around';
+                else if (section.id.includes('accessories')) picType = 'accessories';
+                else if (section.id.includes('inspection')) picType = 'inspection';
+                else if (section.id.includes('fiber')) picType = 'fiber';
+                else if (section.id.includes('documents')) picType = 'documents';
+                else if (section.id.includes('signature')) picType = 'signature';
+            }
             picTitle = label.querySelector('.title').textContent.trim();
         }
 
@@ -424,8 +436,8 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('order_id', orderId);
             formData.append('folder', `transactions/${orderId}`);
             formData.append('images', compressedFile, file.name);
-            formData.append('pic_types', picType);
-            formData.append('pic_titles', picTitle);
+            formData.append('pic_type', picType); // Corrected to singular 'pic_type'
+            formData.append('pic_title', picTitle);
 
             const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
                 method: 'POST',
