@@ -313,8 +313,6 @@ export function renderUploadedImages(orderPics) {
             }
         }
     });
-
-    setTimeout(() => updateDamageDetailField(), 0);
 }
 
   async function loadOrderData(orderId) {
