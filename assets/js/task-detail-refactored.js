@@ -203,7 +203,6 @@ export function renderUploadedImages(orderPics) {
     // If there are no pictures, ensure the damage field is cleared.
     if (!orderPics || orderPics.length === 0) {
         console.log('renderUploadedImages: No pictures to render or orderPics is empty.');
-        setTimeout(() => updateDamageDetailField(), 0);
         return;
     }
 
@@ -513,25 +512,23 @@ export function renderUploadedImages(orderPics) {
   // =========================================================
   // PHOTO RENDERING LOGIC
   // =========================================================
-
-export function updateDamageDetailField() {
-    const allImageTitles = [];
-    // Query the whole document for image galleries that have been filled
-    const filledLabels = document.querySelectorAll('label.image-gallery[data-filled="true"]');
-
-    filledLabels.forEach(label => {
-        const titleDiv = label.querySelector('.title');
-        if (titleDiv) {
-            allImageTitles.push(titleDiv.textContent.trim());
-        }
-    });
-
-    const sDetailInput = document.getElementById('s_detail');
-    if (sDetailInput) {
-        sDetailInput.value = allImageTitles.join(', ');
-    }
+  
+  export function populateDamageDetailFromImages() {
+      const allImageTitles = [];
+      const filledLabels = document.querySelectorAll('label.image-gallery[data-filled="true"]');
+  
+      filledLabels.forEach(label => {
+          const titleDiv = label.querySelector('.title');
+          if (titleDiv) {
+              allImageTitles.push(titleDiv.textContent.trim());
+          }
+      });
+  
+      const sDetailInput = document.getElementById('s_detail');
+      if (sDetailInput) {
+          sDetailInput.value = allImageTitles.join(', ');
+      }
   }
-
 
 
   // =========================================================
@@ -573,7 +570,9 @@ class UIPermissionManager {
         if (!this.form) return;
         // Make text inputs readonly
         this.form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], textarea').forEach(el => {
-            el.readOnly = true;
+            if (el.id !== 's_detail') { // Exclude s_detail from being readOnly
+                el.readOnly = true;
+            }
         });
         // Disable interactive elements
         this.form.querySelectorAll('select, button, input[type="checkbox"], input[type="file"]').forEach(el => {
@@ -981,7 +980,6 @@ export function populateImageSections() {
                     if (result.uploaded && result.uploaded.length > 0) {
                         img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
                         label.setAttribute('data-filled', 'true');
-                        updateDamageDetailField(); // Update damage field on successful upload
                     } else {
                         throw new Error('Upload response did not contain uploaded file information.');
                     }
@@ -1005,7 +1003,6 @@ export function populateImageSections() {
             const imageSlot = deleteBtn.closest('.dynamic-image-slot');
             if (imageSlot) {
                 imageSlot.remove();
-                updateDamageDetailField(); // Update the summary field after removal
             }
         }
     });
@@ -1472,11 +1469,15 @@ navigateTo('dashboard.html');
                 const success = await updateImageTitle(orderId, picUrl, newTitle.trim());
                 if (success) {
                     titleDiv.textContent = newTitle.trim();
-                    updateDamageDetailField(); // Update the summary field
                 }
             }
         }
     });
+
+    const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
+    if (autoFillDamageBtn) {
+        autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
+    }
 
 
   
