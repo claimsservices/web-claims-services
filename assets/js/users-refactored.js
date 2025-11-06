@@ -178,6 +178,7 @@ async function fetchUsers() {
         }
 
         const data = await response.json();
+        console.log('API response data.results:', data.results); // Added log
         populateTable(data.results);
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -200,6 +201,7 @@ const offcanvasTitle = document.getElementById('offcanvasAddUserLabel');
 
 
 function populateTable(users) {
+    console.log('populateTable called with users:', users); // Added log
 
     allUsers = users; // Cache the user data
 
