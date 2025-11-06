@@ -252,13 +252,6 @@ export function renderUploadedImages(orderPics) {
         // and also matches the specific pic.pic_type (item.name)
         const placeholderLabel = targetSection.querySelector(`label.image-gallery[data-filled="false"] input[name="${pic.pic_type}"]`)?.closest('label.image-gallery');
 
-
-        // Try to find an existing, unfilled placeholder slot within this category
-        let filledExistingSlot = false;
-        // Find the first label.image-gallery within targetSection that has data-filled="false"
-        // and also matches the specific pic.pic_type (item.name)
-        const placeholderLabel = targetSection.querySelector(`label.image-gallery[data-filled="false"] input[name="${pic.pic_type}"]`)?.closest('label.image-gallery');
-
         if (placeholderLabel) {
             // Fill this placeholder
             const img = placeholderLabel.querySelector('img');
