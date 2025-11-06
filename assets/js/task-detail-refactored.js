@@ -216,13 +216,7 @@ export function renderUploadedImages(orderPics) {
         'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
     };
 
-    // Create a reverse map from pic_name to category
-    const picNameToCategoryMap = {};
-    for (const category in staticImageConfig) {
-        staticImageConfig[category].forEach(item => {
-            picNameToCategoryMap[item.name] = category;
-        });
-    }
+    // No need for picNameToCategoryMap as pic.pic_type is now assumed to be the category
 
     orderPics.forEach(pic => {
         console.log('renderUploadedImages: Processing pic:', pic);
@@ -231,11 +225,8 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        const category = picNameToCategoryMap[pic.pic_type]; // Get the category for this specific pic_type
-        if (!category) {
-            console.warn(`renderUploadedImages: No category found for pic_type: ${pic.pic_type}`);
-            return;
-        }
+        // Assume pic.pic_type is the category (e.g., 'around')
+        const category = pic.pic_type;
 
         const targetSection = sectionsMap[category];
         if (!targetSection) {
@@ -243,46 +234,44 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        // Try to find an existing, unfilled placeholder slot using the specific pic.pic_type (e.g., "exterior_front")
+        // Try to find an existing, unfilled placeholder slot within this category
         let filledExistingSlot = false;
-        // The query should now look for the input with the specific name (pic.pic_type) within its category section
-        const placeholderInput = targetSection.querySelector(`input[name="${pic.pic_type}"]`);
+        // Find the first label.image-gallery within targetSection that has data-filled="false"
+        const placeholderLabel = targetSection.querySelector('label.image-gallery[data-filled="false"]');
 
-        if (placeholderInput) {
-            const label = placeholderInput.closest('label.image-gallery');
-            if (label && label.dataset.filled === 'false') {
-                const img = label.querySelector('img');
-                const titleDiv = label.querySelector('.title');
-                const deleteBtn = label.querySelector('.delete-btn');
-                const editTitleBtn = label.querySelector('.edit-title-btn');
+        if (placeholderLabel) {
+            // Fill this placeholder
+            const img = placeholderLabel.querySelector('img');
+            const titleDiv = placeholderLabel.querySelector('.title');
+            const deleteBtn = placeholderLabel.querySelector('.delete-btn');
+            const editTitleBtn = placeholderLabel.querySelector('.edit-title-btn');
 
-                if (img) {
-                    img.src = pic.pic;
-                    img.alt = pic.pic_title || 'Uploaded Image';
-                    img.style.display = 'block'; // Ensure image is visible
-                    if (pic.created_date) {
-                        img.dataset.createdDate = pic.created_date;
-                    }
+            if (img) {
+                img.src = pic.pic;
+                img.alt = pic.pic_title || 'Uploaded Image';
+                img.style.display = 'block'; // Ensure image is visible
+                if (pic.created_date) {
+                    img.dataset.createdDate = pic.created_date;
                 }
-                if (titleDiv) {
-                    titleDiv.textContent = pic.pic_title || 'กรุณาใส่ชื่อ';
-                }
-                if (deleteBtn) deleteBtn.style.display = 'block'; // Ensure delete button is visible
-                if (editTitleBtn) editTitleBtn.style.display = 'flex'; // Ensure edit button is visible
-                label.dataset.filled = 'true';
-                // Also ensure the parent col-4 is visible if it was hidden
-                const parentCol = label.closest('.col-4.mb-3.text-center');
-                if (parentCol) {
-                    parentCol.style.display = 'block';
-                }
-                filledExistingSlot = true;
-                console.log('renderUploadedImages: Filled existing placeholder for pic_type:', pic.pic_type);
             }
+            if (titleDiv) {
+                titleDiv.textContent = pic.pic_title || 'กรุณาใส่ชื่อ';
+            }
+            if (deleteBtn) deleteBtn.style.display = 'block'; // Ensure delete button is visible
+            if (editTitleBtn) editTitleBtn.style.display = 'flex'; // Ensure edit button is visible
+            placeholderLabel.dataset.filled = 'true';
+            const parentCol = placeholderLabel.closest('.col-4.mb-3.text-center');
+            if (parentCol) {
+                parentCol.style.display = 'block';
+            }
+            filledExistingSlot = true;
+            console.log('renderUploadedImages: Filled existing placeholder for category:', category);
         }
 
-        // If no existing placeholder was filled, create a new dynamic slot
+        // If no existing placeholder was filled (meaning all static slots are taken or there are no static slots),
+        // create a new dynamic slot.
         if (!filledExistingSlot) {
-            const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
+            const uniqueId = `uploaded-image-${category}-${Date.now()}`;
             const newSlotHtml = `
                 <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${category}">
                     <label class="image-gallery w-100" data-filled="true" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
@@ -1303,7 +1292,7 @@ navigateTo('dashboard.html');
     // --- Start of Image Preview and Replace Logic ---
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     if (imagePreviewModalEl) {
-        const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
+        const imagePreviewModal = new window.bootstrap.Modal(imagePreviewModalEl);
         const previewImage = document.getElementById('previewImage');
         let context = {}; // To store context for the replace button
 
