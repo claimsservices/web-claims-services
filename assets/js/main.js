@@ -63,19 +63,21 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize menu
   //-----------------
   let layoutMenuEl = document.querySelectorAll('#layout-menu');
-  layoutMenuEl.forEach(function(element) {
-    if (typeof window.Menu === 'function') {
+  if (layoutMenuEl.length > 0 && typeof window.Menu === 'function') {
+    layoutMenuEl.forEach(function(element) {
       menu = new window.Menu(element, {
         orientation: 'vertical',
         closeChildren: false
       });
       // Change parameter to true if you want scroll animation
-      window.Helpers.scrollToActive(false);
-      window.Helpers.mainMenu = menu;
-    } else {
-      log.error('window.Menu is not a constructor function. Menu initialization skipped.');
-    }
-  });
+      if (window.Helpers) {
+        window.Helpers.scrollToActive(false);
+        window.Helpers.mainMenu = menu;
+      }
+    });
+  } else {
+    log.warn('Menu initialization skipped: #layout-menu element not found or window.Menu is not a function.');
+  }
 
   // Dynamically adjust menu for Bike role
   const token = localStorage.getItem('authToken');
@@ -193,7 +195,9 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Auto update layout based on screen size
-  window.Helpers.setAutoUpdate(true);
+  if (window.Helpers) {
+    window.Helpers.setAutoUpdate(true);
+  }
 
   // Toggle Password Visibility
   window.Helpers.initPasswordToggle();
