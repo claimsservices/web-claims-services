@@ -254,7 +254,7 @@ export function renderUploadedImages(orderPics) {
 
 
         // Try to find an existing, unfilled placeholder slot within this category
-        let filledExistingSlot = false;
+        filledExistingSlot = false;
         // Find the first label.image-gallery within targetSection that has data-filled="false"
         const placeholderLabel = targetSection.querySelector('label.image-gallery[data-filled="false"]');
 
