@@ -1269,6 +1269,9 @@ navigateTo('dashboard.html');
     
         const endpoint = `https://be-claims-service.onrender.com/api/order-pic/update/${currentOrderId}`;
     
+        // Log the payload for debugging
+        console.log('Submitting payload for Bike:', JSON.stringify(carDetailsPayload, null, 2));
+
         try {
           const response = await fetch(endpoint, {
             method: 'PUT',
