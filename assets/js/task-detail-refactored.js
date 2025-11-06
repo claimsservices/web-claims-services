@@ -512,22 +512,29 @@ export function renderUploadedImages(orderPics) {
   // =========================================================
   
   export function populateDamageDetailFromImages() {
+      console.log('populateDamageDetailFromImages function called.');
       const allImageTitles = [];
       const filledLabels = document.querySelectorAll('label.image-gallery[data-filled="true"]');
+      console.log(`Found ${filledLabels.length} filled image labels.`);
   
       filledLabels.forEach(label => {
           const titleDiv = label.querySelector('.title');
           if (titleDiv) {
-              allImageTitles.push(titleDiv.textContent.trim());
+              const titleText = titleDiv.textContent.trim();
+              allImageTitles.push(titleText);
+              console.log(`Collected title: "${titleText}"`);
           }
       });
   
       const sDetailInput = document.getElementById('s_detail');
       if (sDetailInput) {
-          sDetailInput.value = allImageTitles.join(', ');
+          const finalText = allImageTitles.join(', ');
+          console.log(`Setting s_detail value to: "${finalText}"`);
+          sDetailInput.value = finalText;
+      } else {
+          console.error('s_detail input field not found.');
       }
   }
-
 
   // =========================================================
   // ROLE-BASED UI RESTRICTIONS
@@ -1474,7 +1481,13 @@ navigateTo('dashboard.html');
 
     const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
     if (autoFillDamageBtn) {
-        autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
+        console.log('Attaching event listener to autoFillDamageBtn.');
+        autoFillDamageBtn.addEventListener('click', () => {
+            console.log('autoFillDamageBtn clicked.');
+            populateDamageDetailFromImages();
+        });
+    } else {
+        console.error('autoFillDamageBtn not found.');
     }
 
 
