@@ -134,27 +134,29 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Display menu toggle (layout-menu-toggle) on hover with delay
-  let delay = function(elem, callback) {
-    let timeout = null;
-    elem.onmouseenter = function() {
-      if (!window.Helpers.isSmallScreen()) {
-        timeout = setTimeout(callback, 0);
-      }
+  if (window.Helpers) {
+    let delay = function(elem, callback) {
+      let timeout = null;
+      elem.onmouseenter = function() {
+        if (!window.Helpers.isSmallScreen()) {
+          timeout = setTimeout(callback, 0);
+        }
+      };
+
+      elem.onmouseleave = function() {
+        // Clear any timers set to timeout
+        document.querySelector('.layout-menu-toggle').classList.remove('d-block');
+        clearTimeout(timeout);
+      };
     };
 
-    elem.onmouseleave = function() {
-      // Clear any timers set to timeout
-      document.querySelector('.layout-menu-toggle').classList.remove('d-block');
-      clearTimeout(timeout);
-    };
-  };
-
-  if (document.getElementById('layout-menu')) {
-    delay(document.getElementById('layout-menu'), function() {
-      if (!window.Helpers.isSmallScreen()) {
-        document.querySelector('.layout-menu-toggle').classList.add('d-block');
-      }
-    });
+    if (document.getElementById('layout-menu')) {
+      delay(document.getElementById('layout-menu'), function() {
+        if (!window.Helpers.isSmallScreen()) {
+          document.querySelector('.layout-menu-toggle').classList.add('d-block');
+        }
+      });
+    }
   }
 
   // Display in main menu when menu scrolls
@@ -205,14 +207,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Manage menu expanded/collapsed with templateCustomizer & local storage
   //------------------------------------------------------------------
+  if (window.Helpers) {
+    // If current layout is horizontal OR current window screen is small (overlay menu) then return from here
+    if (window.Helpers.isSmallScreen()) {
+      return;
+    }
 
-  // If current layout is horizontal OR current window screen is small (overlay menu) then return from here
-  if (window.Helpers.isSmallScreen()) {
-    return;
+    // If current layout is vertical and current window screen is > small
+    window.Helpers.setCollapsed(true, false);
   }
-
-  // If current layout is vertical and current window screen is > small
-  window.Helpers.setCollapsed(true, false);
 
   // Fetch and display app version
   fetch('/version.json')
