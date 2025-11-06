@@ -347,132 +347,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const addOtherImageSlotBtn = document.getElementById('add-other-image-slot-btn');
     if (addOtherImageSlotBtn) {
         addOtherImageSlotBtn.addEventListener('click', () => {
-            createOtherImageUploadSlot();
+            createOtherImageSlot();
         });
     }
 
     // Create initial empty dynamic slot
-    createOtherImageUploadSlot();
+    createOtherImageSlot();
 
-    async function saveCarDetails(orderId, token) {
-        const carBrand = document.getElementById('car-brand').value;
-        const carModel = document.getElementById('car-model').value;
+    // Map to hold files staged for upload
+    const filesToUpload = new Map();
 
-        const payload = {
-            c_brand: carBrand,
-            c_version: carModel,
-        };
-
-        try {
-            const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/update/${orderId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'ไม่สามารถอัปเดตข้อมูลรถได้');
-            }
-            return { success: true, message: '✅ อัปเดตข้อมูลรถเรียบร้อยแล้ว' };
-        } catch (error) {
-            console.error('Error saving car details:', error);
-            return { success: false, message: `❌ เกิดข้อผิดพลาดในการอัปเดตข้อมูลรถ: ${error.message}` };
-        }
-    }
-
-    // NEW: Unified image upload handler
-    async function handleImageUpload(fileInput) {
+    // NEW: Unified image selection handler (stages files instead of uploading)
+    function handleImageSelection(fileInput) {
         const file = fileInput.files[0];
-        if (!file) return;
+        if (!file) {
+            // Clear the staged file if user cancels selection
+            filesToUpload.delete(fileInput.id);
+            return;
+        }
+        
+        // Stage the file for upload
+        filesToUpload.set(fileInput.id, file);
 
+        // Update UI to show preview
         const label = fileInput.closest('label.image-gallery');
         const imgPreview = label.querySelector('img');
         const icon = label.querySelector('i');
-        const orderId = urlParams.get('id');
         
-        let picType = ''; // This will be the main category (e.g., 'around', 'accessories')
-        let picTitle = '';
-
-        const slotContainer = fileInput.closest('.image-upload-slot'); // This class only exists on dynamic "other" slots
-
-        if (slotContainer) { // This is a dynamic "other" slot
-            picType = 'documents'; // Dynamic slots are typically for 'other documents'
-            picTitle = slotContainer.querySelector('.image-title-input').value || 'เอกสารอื่นๆ';
-        } else { // This is a fixed, predefined slot
-            // Determine picType (main category) from the parent section's ID
-            const section = fileInput.closest('.upload-section');
-            if (section) {
-                if (section.id.includes('around')) picType = 'around';
-                else if (section.id.includes('accessories')) picType = 'accessories';
-                else if (section.id.includes('inspection')) picType = 'inspection';
-                else if (section.id.includes('fiber')) picType = 'fiber';
-                else if (section.id.includes('documents')) picType = 'documents';
-                else if (section.id.includes('signature')) picType = 'signature';
-            }
-            picTitle = label.querySelector('.title').textContent.trim();
-        }
-
-        if (!orderId) {
-            alert('ไม่พบรหัสงาน ไม่สามารถอัปโหลดรูปได้');
-            return;
-        }
-
-        // Show loading indicator
-        imgPreview.src = 'https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif';
-        imgPreview.style.display = 'block';
-        if (icon) icon.style.display = 'none';
-
-        try {
-            // Compress image
-            const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
-            const compressedFile = await imageCompression(file, options);
-
-            // Upload
-            const formData = new FormData();
-            formData.append('order_id', orderId);
-            formData.append('folder', `transactions/${orderId}`);
-            formData.append('images', compressedFile, file.name);
-            formData.append('pic_type', picType); // Corrected to singular 'pic_type'
-            formData.append('pic_title', picTitle);
-
-            const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-                method: 'POST',
-                headers: { 'Authorization': token },
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.uploaded && result.uploaded.length > 0) {
-                const uploadedUrl = result.uploaded[0].url;
-                imgPreview.src = uploadedUrl + '?t=' + new Date().getTime(); // Add cache buster
-                label.setAttribute('data-filled', 'true');
-                alert('✅ อัปโหลดรูปภาพสำเร็จ!');
-            } else {
-                throw new Error(result.message || 'Upload failed');
-            }
-        } catch (err) {
-            console.error('Upload error:', err);
-            alert(`🚫 ไม่สามารถอัปโหลดรูปภาพได้: ${err.message}`);
-            // Reset preview on error
-            imgPreview.src = '';
-            imgPreview.style.display = 'none';
-            if (icon) icon.style.display = 'block';
-            label.removeAttribute('data-filled');
-        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            imgPreview.src = event.target.result;
+            imgPreview.style.display = 'block';
+            if (icon) icon.style.display = 'none';
+            label.setAttribute('data-filled', 'true');
+        };
+        reader.readAsDataURL(file);
     }
 
     // NEW: Delegated event listener for all file inputs
     document.addEventListener('change', (e) => {
         if (e.target.matches('input[type="file"]')) {
-            handleImageUpload(e.target);
+            handleImageSelection(e.target);
         }
     });
-
 
     const uploadBtn = document.getElementById('uploadBtn');
     if (uploadBtn) {
@@ -482,14 +399,85 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('ไม่พบรหัสงานใน URL');
                 return;
             }
-            
-            // The button now only saves car details. Image uploads are handled instantly.
-            const carDetailsResult = await saveCarDetails(orderId, token);
-            alert(carDetailsResult.message);
 
-            if (carDetailsResult.success) {
-                 // Optionally, you can still reload or perform another action
-                 alert("ข้อมูลรถยนต์ถูกบันทึกแล้ว รูปภาพทั้งหมดถูกอัปโหลดเรียบร้อยแล้ว");
+            if (filesToUpload.size === 0) {
+                alert('กรุณาเลือกรูปภาพอย่างน้อย 1 รูปเพื่ออัปโหลด');
+                return;
+            }
+
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังอัปโหลด...';
+
+            const formData = new FormData();
+            formData.append('order_id', orderId);
+            formData.append('folder', `transactions/${orderId}`);
+
+            // Process and append all staged files and their metadata
+            for (const [inputId, file] of filesToUpload.entries()) {
+                const fileInput = document.getElementById(inputId);
+                if (!fileInput) continue;
+
+                let picType = '';
+                let picTitle = '';
+
+                const slotContainer = fileInput.closest('.image-upload-slot');
+                const label = fileInput.closest('label.image-gallery');
+
+                if (slotContainer) { // Dynamic "other" slot
+                    picType = 'documents';
+                    picTitle = slotContainer.querySelector('.image-title-input').value || 'เอกสารอื่นๆ';
+                } else { // Fixed slot
+                    const section = fileInput.closest('.upload-section');
+                    if (section) {
+                        if (section.id.includes('around')) picType = 'around';
+                        else if (section.id.includes('accessories')) picType = 'accessories';
+                        else if (section.id.includes('inspection')) picType = 'inspection';
+                        else if (section.id.includes('fiber')) picType = 'fiber';
+                        else if (section.id.includes('documents')) picType = 'documents';
+                        else if (section.id.includes('signature')) picType = 'signature';
+                    }
+                    picTitle = label.querySelector('.title').textContent.trim();
+                }
+                
+                // Compress and append
+                try {
+                    const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
+                    const compressedFile = await imageCompression(file, options);
+                    formData.append('images', compressedFile, file.name);
+                    formData.append('pic_type', picType);
+                    formData.append('pic_title', picTitle);
+                } catch (err) {
+                    console.error('Compression error:', err);
+                    alert(`เกิดข้อผิดพลาดในการบีบอัดไฟล์: ${file.name}`);
+                    // Re-enable button and return
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = 'บันทึกข้อมูล';
+                    return;
+                }
+            }
+
+            // Send the single request
+            try {
+                const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+                    method: 'POST',
+                    headers: { 'Authorization': token },
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert('✅ อัปโหลดรูปภาพทั้งหมดสำเร็จ!');
+                    filesToUpload.clear(); // Clear the map after successful upload
+                } else {
+                    throw new Error(result.message || 'Upload failed');
+                }
+            } catch (err) {
+                console.error('Upload error:', err);
+                alert(`🚫 ไม่สามารถอัปโหลดรูปภาพได้: ${err.message}`);
+            } finally {
+                // Re-enable button
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'บันทึกข้อมูล';
             }
         });
     }
