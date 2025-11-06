@@ -1231,47 +1231,20 @@ navigateTo('dashboard.html');
           return;
         }
     
-        let allSuccess = true;
-        let successMessages = [];
-        let errorMessages = [];
-    
-        // --- 1. Update Order Status ---
-            let newStatus = getSafeValue('orderStatus');
-            if (newStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
-                newStatus = 'รออนุมัติ';
-            }
-            const statusPayload = {
-              order_status: newStatus,
-              updated_by: updated_by,
-              order_hist: [{ icon: "🚲", task: "อัปเดตสถานะ", detail: `อัปเดตสถานะโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
-            };        const statusEndpoint = `https://be-claims-service.onrender.com/api/order-status/update/${currentOrderId}`;    
-        try {
-          const statusResponse = await fetch(statusEndpoint, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
-            body: JSON.stringify(statusPayload)
-          });
-          const statusResult = await statusResponse.json();
-          if (statusResponse.ok) {
-            successMessages.push('✅ อัปเดตสถานะเรียบร้อยแล้ว');
-          } else {
-            allSuccess = false;
-            errorMessages.push(`❌ ข้อผิดพลาดสถานะ: ${statusResult.message}`);
-          }
-        } catch (error) {
-          allSuccess = false;
-          errorMessages.push(`❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่ออัปเดตสถานะ: ${error.message}`);
-          console.error('Fetch error for status update:', error);
+        // --- Consolidate data into a single payload ---
+        let newStatus = getSafeValue('orderStatus');
+        if (newStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
+            newStatus = 'รออนุมัติ';
         }
-    
-        // --- 2. Update Car Details and Pictures ---
+
         const carDetailsPayload = {
+          order_status: newStatus, // Add status to this payload
           c_brand: getSafeValue('carBrand'),
           c_version: getSafeValue('carModel'),
           c_mile: getSafeValue('c_mile'),
           c_type: getSafeValue('carType'),
           updated_by: updated_by,
-          order_hist: [{ icon: "🚗", task: "อัปเดตข้อมูลรถ", detail: `อัปเดตข้อมูลรถโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
+          order_hist: [{ icon: "🚲", task: "ส่งงานและอัปเดตข้อมูล", detail: `อัปเดตสถานะและข้อมูลโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
         };
     
         // Collect picture data
@@ -1282,40 +1255,31 @@ navigateTo('dashboard.html');
             const fileInput = label.querySelector('input[type="file"]');
 
             if (img && img.src && img.src.startsWith('http') && titleDiv && fileInput) {
-                const picType = fileInput.dataset.category || 'unknown'; // Get category from data-category
+                const picType = fileInput.dataset.category || 'unknown';
                 const title = titleDiv.textContent.trim();
                 orderPic.push({ pic: img.src.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
             }
         });
         carDetailsPayload.order_pic = orderPic;
     
-        const carDetailsEndpoint = `https://be-claims-service.onrender.com/api/order-pic/update/${currentOrderId}`;
+        const endpoint = `https://be-claims-service.onrender.com/api/order-pic/update/${currentOrderId}`;
     
         try {
-          const carDetailsResponse = await fetch(carDetailsEndpoint, {
+          const response = await fetch(endpoint, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
             body: JSON.stringify(carDetailsPayload)
           });
-          const carDetailsResult = await carDetailsResponse.json();
-          if (carDetailsResponse.ok) {
-            successMessages.push('✅ อัปเดตข้อมูลรถและรูปภาพเรียบร้อยแล้ว');
+          const result = await response.json();
+          if (response.ok) {
+            alert('✅ อัปเดตข้อมูลและสถานะเรียบร้อยแล้ว');
+            navigateTo('dashboard.html');
           } else {
-            allSuccess = false;
-            errorMessages.push(`❌ ข้อผิดพลาดข้อมูลรถ/รูปภาพ: ${carDetailsResult.message}`);
+            throw new Error(result.message || 'การอัปเดตล้มเหลว');
           }
         } catch (error) {
-          allSuccess = false;
-          errorMessages.push(`❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่ออัปเดตข้อมูลรถ/รูปภาพ: ${error.message}`);
-          console.error('Fetch error for car details/pic update:', error);
-        }
-    
-        // --- Final Alert and Redirect ---
-        if (allSuccess) {
-          alert(successMessages.join('\n'));
-          navigateTo('dashboard.html');
-        } else {
-          alert(errorMessages.join('\n'));
+          alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+          console.error('Fetch error for bike submission:', error);
         }
       });
     }
