@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Delegated event listener for all file inputs
     document.addEventListener('change', (e) => {
         if (e.target.matches('input[type="file"]')) {
-            handleImageUpload(e.target);
+            handleImageSelection(e.target);
         }
     });
 
