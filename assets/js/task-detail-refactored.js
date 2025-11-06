@@ -794,6 +794,11 @@ function initCarModelDropdown(brandSelect, modelSelect) {
   if (brandSelect && modelSelect) {
     brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
   }
+
+  const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
+  if (autoFillDamageBtn) {
+    autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
+  }
 }
 
 
@@ -1478,20 +1483,6 @@ navigateTo('dashboard.html');
             }
         }
     });
-
-    const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
-    if (autoFillDamageBtn) {
-        console.log('Attaching event listener to autoFillDamageBtn.');
-        autoFillDamageBtn.addEventListener('click', () => {
-            console.log('autoFillDamageBtn clicked.');
-            populateDamageDetailFromImages();
-        });
-    } else {
-        console.error('autoFillDamageBtn not found.');
-    }
-
-
-  
 
       }
   // เพิ่มบรรทัดนี้เพื่อปิด DOMContentLoaded listener ที่ขาดไป
