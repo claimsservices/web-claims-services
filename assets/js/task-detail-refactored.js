@@ -216,6 +216,14 @@ export function renderUploadedImages(orderPics) {
         'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
     };
 
+    // Create a reverse map from pic_name to category
+    const picNameToCategoryMap = {};
+    for (const category in staticImageConfig) {
+        staticImageConfig[category].forEach(item => {
+            picNameToCategoryMap[item.name] = category;
+        });
+    }
+
     orderPics.forEach(pic => {
         console.log('renderUploadedImages: Processing pic:', pic);
         if (!pic.pic_type || !pic.pic) {
@@ -223,15 +231,22 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        const targetSection = sectionsMap[pic.pic_type];
-        if (!targetSection) {
-            console.warn('renderUploadedImages: targetSection is null for pic_type:', pic.pic_type);
+        const category = picNameToCategoryMap[pic.pic_type]; // Get the category for this specific pic_type
+        if (!category) {
+            console.warn(`renderUploadedImages: No category found for pic_type: ${pic.pic_type}`);
             return;
         }
 
-        // Try to find an existing, unfilled placeholder slot
+        const targetSection = sectionsMap[category];
+        if (!targetSection) {
+            console.warn('renderUploadedImages: targetSection is null for category:', category);
+            return;
+        }
+
+        // Try to find an existing, unfilled placeholder slot using the specific pic.pic_type (e.g., "exterior_front")
         let filledExistingSlot = false;
-        const placeholderInput = targetSection.querySelector(`input[name="${pic.pic_type}"][data-category="${pic.pic_type}"]`);
+        // The query should now look for the input with the specific name (pic.pic_type) within its category section
+        const placeholderInput = targetSection.querySelector(`input[name="${pic.pic_type}"]`);
 
         if (placeholderInput) {
             const label = placeholderInput.closest('label.image-gallery');
@@ -269,20 +284,20 @@ export function renderUploadedImages(orderPics) {
         if (!filledExistingSlot) {
             const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
             const newSlotHtml = `
-                <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${pic.pic_type}">
+                <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${category}">
                     <label class="image-gallery w-100" data-filled="true" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
                         <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || 'Uploaded Image'}" data-created-date="${pic.created_date || new Date().toISOString()}">
                         <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
                             ${pic.pic_title || 'กรุณาใส่ชื่อ'}
                         </div>
-                        <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${pic.pic_type}" hidden accept="image/*" capture="camera">
+                        <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${category}" hidden accept="image/*" capture="camera">
                         <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
                         <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">A</button>
                     </label>
                 </div>
             `;
             console.log('renderUploadedImages: Generated newSlotHtml:', newSlotHtml);
-            const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${pic.pic_type}"]`);
+            const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${category}"]`);
             if (addImageBtn) {
                 addImageBtn.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
             } else {
@@ -292,7 +307,7 @@ export function renderUploadedImages(orderPics) {
     });
 
     setTimeout(() => updateDamageDetailField(), 0);
-  }
+}
 
   async function loadOrderData(orderId) {
     const token = localStorage.getItem('authToken') || '';
@@ -1451,47 +1466,7 @@ navigateTo('dashboard.html');
 
 
   
-          function renderUploadedImages(orderPics) {
-            // If there are no pictures, ensure the damage field is cleared.
-            if (!orderPics || orderPics.length === 0) {
-                setTimeout(() => updateDamageDetailField(), 0);
-                return;
-            }
-    
-            orderPics.forEach(pic => {
-                // Use pic_type for a reliable match against the input's name attribute.
-                if (!pic.pic_type || !pic.pic) return;
-    
-                const fileInput = document.querySelector(`input[type="file"][name="${pic.pic_type}"]`);
-                if (fileInput) {
-                    const label = fileInput.closest('label.image-gallery');
-                    
-                    // Ensure we don't re-process a slot that's already filled.
-                    if (label && !label.hasAttribute('data-filled')) {
-                        label.setAttribute('data-filled', 'true');
-    
-                        const imgTag = label.querySelector('img');
-                        if (imgTag) {
-                            imgTag.src = pic.pic;
-                            imgTag.style.display = 'block';
-                            // Store the timestamp on the image element itself
-                            if (pic.created_date) {
-                                imgTag.dataset.createdDate = pic.created_date;
-                            }
-                        }
-    
-                        // Update the title div with the title from the database, if available.
-                        const titleDiv = label.querySelector('.title');
-                        if (titleDiv && pic.pic_title) {
-                            titleDiv.textContent = pic.pic_title;
-                        }
-                    }
-                }
-            });
-    
-            // Call updateDamageDetailField after the loop to populate the textarea.
-            setTimeout(() => updateDamageDetailField(), 0);
-          }
+
       }
   // เพิ่มบรรทัดนี้เพื่อปิด DOMContentLoaded listener ที่ขาดไป
   });

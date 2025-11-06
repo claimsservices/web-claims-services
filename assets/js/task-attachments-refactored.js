@@ -214,6 +214,8 @@ function renderTableData(page) {
 
     paginatedData.forEach(item => {
       const row = document.createElement("tr");
+      const showAmount = ['Pre-Approved', 'คีย์งานแล้ว', 'ผ่าน'].includes(item.order_status);
+      const amountToDisplay = showAmount ? (item.amount || '') : '';
       row.innerHTML = `
         <td>
           <a href="task-attachments-upload.html?id=${item.id}" class="text-primary">${item.id}</a>
@@ -226,7 +228,7 @@ function renderTableData(page) {
     </td>
         <td>${item.creator}</td>
         <td>${item.order_status}</td>
-        <td>${item.amount || ''}</td>
+        <td>${amountToDisplay}</td>
       `;
       tableBody.appendChild(row);
     });
