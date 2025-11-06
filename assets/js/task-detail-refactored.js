@@ -1011,15 +1011,20 @@ export function populateImageSections() {
     });
 
     loadUserProfile();
-    hideUserManagementMenu(); // Call the new function here
     populateImageSections();
 
     const userRole = getUserRole();
     if (userRole) {
+      const adminMenuEl = document.getElementById('admin-menu');
+      const userManagementMenuEl = document.getElementById('user-management-menu');
+
       if (['Operation Manager', 'Director', 'Developer'].includes(userRole)) {
-        const adminMenuEl = document.getElementById('admin-menu');
         if(adminMenuEl) adminMenuEl.style.display = 'block';
-      } else if (userRole === 'Admin Officer') {
+      } else if (['Insurance', 'Bike'].includes(userRole)) {
+        if(userManagementMenuEl) userManagementMenuEl.style.display = 'none';
+      }
+      
+      if (userRole === 'Admin Officer') {
         const orderStatusSelect = document.getElementById('orderStatus');
         if (orderStatusSelect) orderStatusSelect.setAttribute('disabled', 'disabled');
       }
