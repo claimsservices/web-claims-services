@@ -728,9 +728,6 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         this.setReadOnlyAll();
         let allowedStatuses = [];
 
-        // Hide specific tabs for Insurance role
-        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
-
         if (orderStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
             allowedStatuses = ['รออนุมัติ', orderStatus];
         } else if (orderStatus === 'Pre-Approved') {
