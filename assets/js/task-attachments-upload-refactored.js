@@ -403,14 +403,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: Unified image selection handler (stages files instead of uploading)
     function handleImageSelection(fileInput) {
         const file = fileInput.files[0];
+        const inputName = fileInput.name;
+
         if (!file) {
             // Clear the staged file if user cancels selection
-            filesToUpload.delete(fileInput.name);
+            filesToUpload.delete(inputName);
             return;
         }
+
+        // Determine the picType right away and store it with the file
+        let picType = 'unknown';
+        const section = fileInput.closest('.upload-section');
+        if (section && section.dataset.category) {
+            picType = section.dataset.category;
+        } else {
+            // Fallback for dynamic slots which are not inside a data-category section
+            const slotContainer = fileInput.closest('.image-upload-slot');
+            if (slotContainer) {
+                picType = 'documents';
+            }
+        }
         
-        // Stage the file for upload using its unique name
-        filesToUpload.set(fileInput.name, file);
+        // Stage the file and its type for upload
+        filesToUpload.set(inputName, { file: file, type: picType });
 
         // Update UI to show preview
         const label = fileInput.closest('label.image-gallery');
@@ -459,24 +474,19 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`[DEBUG] Processing ${filesToUpload.size} files for upload.`);
             const compressionPromises = [];
 
-            filesToUpload.forEach((file, inputName) => {
+            filesToUpload.forEach(({ file, type }, inputName) => {
                 const fileInput = document.querySelector(`[name="${inputName}"]`);
                 if (!fileInput) return;
 
-                let picType = 'unknown';
+                const picType = type; // Use the pre-determined type
                 let picTitle = 'unknown';
 
                 const slotContainer = fileInput.closest('.image-upload-slot');
                 const label = fileInput.closest('label.image-gallery');
 
                 if (slotContainer) { // Dynamic "other" slot
-                    picType = 'documents';
                     picTitle = slotContainer.querySelector('.image-title-input').value || 'เอกสารอื่นๆ';
                 } else { // Fixed slot
-                    const section = fileInput.closest('.upload-section');
-                    if (section && section.dataset.category) {
-                        picType = section.dataset.category;
-                    }
                     if (label) {
                         picTitle = label.querySelector('.title').textContent.trim();
                     }
