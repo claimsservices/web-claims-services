@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <label class="image-gallery w-100" style="cursor:pointer;">
                 <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
                 <i class="bi bi-camera fs-1"></i>
-                <div class="title">${initialTitle}</div>
+                <input type="text" class="form-control mt-2 image-title-input" placeholder="ระบุคำอธิบาย" value="${initialTitle}" style="font-weight: 600; text-align: center;">
                 <input type="file" name="other_images_${otherUploadSlotCounter}" accept="image/*" capture="environment" hidden>
             </label>
             <button class="btn btn-outline-danger btn-sm remove-other-image-slot-btn" type="button" style="position:absolute; top:5px; right:5px; display:none;">
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     allFiles.push({
                         file: input.files[0],
                         pic_type: input.name,
-                        pic_title: input.closest('label').querySelector('.title').textContent
+                        pic_title: input.closest('label').querySelector('.image-title-input').value
                     });
                 }
             });
