@@ -328,11 +328,60 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create initial empty dynamic slot
     createOtherImageUploadSlot();
 
+    async function saveCarDetails(orderId, token) {
+        const carBrand = document.getElementById('car-brand').value;
+        const carModel = document.getElementById('car-model').value;
+
+        const payload = {
+            c_brand: carBrand,
+            c_version: carModel,
+            // Add other car details if needed, similar to task-detail.js
+        };
+
+        try {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/update/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'ไม่สามารถอัปเดตข้อมูลรถได้');
+            }
+            return { success: true, message: '✅ อัปเดตข้อมูลรถเรียบร้อยแล้ว' };
+        } catch (error) {
+            console.error('Error saving car details:', error);
+            return { success: false, message: `❌ เกิดข้อผิดพลาดในการอัปเดตข้อมูลรถ: ${error.message}` };
+        }
+    }
+
     const uploadBtn = document.getElementById('uploadBtn');
     if (uploadBtn) {
         uploadBtn.addEventListener('click', async () => {
-            const allFiles = [];
             const orderId = urlParams.get('id');
+            if (!orderId) {
+                alert('ไม่พบรหัสงานใน URL');
+                return;
+            }
+
+            let allSuccess = true;
+            const messages = [];
+
+            // 1. Save Car Details
+            const carDetailsResult = await saveCarDetails(orderId, token);
+            if (carDetailsResult.success) {
+                messages.push(carDetailsResult.message);
+            } else {
+                allSuccess = false;
+                messages.push(carDetailsResult.message);
+            }
+
+            // 2. Upload Images (existing logic)
+            const allFiles = [];
 
             // Collect files from fixed slots
             document.querySelectorAll('input[type="file"]:not([name^="other_images_"])').forEach(input => {
@@ -356,41 +405,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            if (allFiles.length === 0) {
-                alert('กรุณาเลือกรูปภาพก่อนอัปโหลด');
-                return;
-            }
+            if (allFiles.length > 0) { // Only attempt image upload if there are files
+                const formData = new FormData();
+                formData.append('order_id', orderId);
+                formData.append('folder', `transactions/${orderId}`);
 
-            const formData = new FormData();
-            formData.append('order_id', orderId); // Assuming orderId is available
-            formData.append('folder', `transactions/${orderId}`); // Dynamic folder name
-
-            allFiles.forEach(fileData => {
-                formData.append('images', fileData.file);
-                formData.append('pic_types', fileData.pic_type);
-                formData.append('pic_titles', fileData.pic_title);
-            });
-
-            try {
-                const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': token
-                    },
-                    body: formData
+                allFiles.forEach(fileData => {
+                    formData.append('images', fileData.file);
+                    formData.append('pic_types', fileData.pic_type);
+                    formData.append('pic_titles', fileData.pic_title);
                 });
 
-                if (response.ok) {
-                    alert('อัปโหลดรูปภาพสำเร็จ!');
-                    // Optionally refresh the page or update UI
-                    window.location.reload();
-                } else {
-                    const errorData = await response.json();
-                    alert(`เกิดข้อผิดพลาดในการอัปโหลด: ${errorData.message || response.statusText}`);
+                try {
+                    const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': token
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        messages.push('✅ อัปโหลดรูปภาพสำเร็จ!');
+                    } else {
+                        allSuccess = false;
+                        const errorData = await response.json();
+                        messages.push(`❌ เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ${errorData.message || response.statusText}`);
+                    }
+                } catch (error) {
+                    allSuccess = false;
+                    messages.push(`❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์เพื่ออัปโหลดรูปภาพ: ${error.message}`);
+                    console.error('Upload error:', error);
                 }
-            } catch (error) {
-                console.error('Upload error:', error);
-                alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
+            } else if (allSuccess) { // If no files to upload, but car details saved successfully
+                messages.push('ไม่มีรูปภาพให้อัปโหลด');
+            }
+
+            alert(messages.join('\n'));
+            if (allSuccess) {
+                window.location.reload(); // Reload to reflect changes
             }
         });
     }
