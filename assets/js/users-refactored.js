@@ -135,6 +135,7 @@ async function fetchUsers() {
     }
 
     const decoded = decodeJWT(token);
+    console.log('Decoded user role in fetchUsers:', decoded ? decoded.role : 'N/A'); // Added log
     if (!decoded || !decoded.role) {
         console.error('Failed to decode token or role not found.');
         alert('ไม่สามารถตรวจสอบสิทธิ์ผู้ใช้ได้ กรุณาเข้าสู่ระบบใหม่อีกครั้ง');
