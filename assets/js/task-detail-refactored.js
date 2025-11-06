@@ -615,6 +615,11 @@ class UIPermissionManager {
 class UIAdminPermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
         this.enableAll();
+        // Ensure the image tab is visible for admin-level roles
+        const imageTabLink = document.querySelector('button[data-bs-target="#tab-contact"]');
+        if (imageTabLink) {
+            imageTabLink.parentElement.style.display = 'block';
+        }
     }
 }
 
