@@ -492,362 +492,86 @@
                   </div>
                 </div>
 
-                <!-- SECTION: ภายนอกรถ -->
-                <section class="upload-section mb-4" style="display: none;" data-category="around">
-                  <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
-                  <div class="row">
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านหน้ารถ</div>
-                        <input type="file" name="exterior_front" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า</div>
-                        <input type="file" name="exterior_left_front" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายตรง</div>
-                        <input type="file" name="exterior_left_center" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง</div>
-                        <input type="file" name="exterior_left_rear" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านท้ายรถ</div>
-                        <input type="file" name="exterior_rear" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง</div>
-                        <input type="file" name="exterior_right_rear" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านขวาตรง</div>
-                        <input type="file" name="exterior_right_center" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า</div>
-                        <input type="file" name="exterior_right_front" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-car-front fs-1"></i>
-                        <div class="title">ภาพถ่ายรอบคัน - หลังคา</div>
-                        <input type="file" name="exterior_roof" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                  </div>
-                </section>
+                    <!-- SECTION: ภาพถ่ายรอบคัน -->
+                    <section class="upload-section mb-4" id="around-images-section" data-category="around">
+                        <h5><i class="bi bi-car-front text-success me-2"></i>ภาพถ่ายรอบคัน</h5>
+                        <div class="row" id="around-container">
+                            <!-- Dynamic slots will be added here -->
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-secondary add-image-btn" data-category="around" data-default-title="ภาพถ่ายรอบคัน">
+                                <i class="bx bx-plus"></i> เพิ่มช่องอัปโหลด
+                            </button>
+                        </div>
+                    </section>
 
-                <!-- SECTION: ภายในรถ -->
-                <section class="upload-section mb-4" style="display: none;">
-                  <h5><i class="bi bi-speedometer2 text-primary me-2"></i>ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง</h5>
-                  <div class="row">
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ล้อหน้าด้านซ้าย</div>
-                        <input type="file" name="interior_wheels_1" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ล้อหน้าด้านขวา</div>
-                        <input type="file" name="interior_wheels_2" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ล้อหลังด้านซ้าย</div>
-                        <input type="file" name="interior_wheels_3" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ล้อหลังด้านขวา</div>
-                        <input type="file" name="interior_wheels_4" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ปียางขนาดยาง</div>
-                        <input type="file" name="interior_dashboard" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ห้องเครื่อง</div>
-                        <input type="file" name="interior_6" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">คอลโซล</div>
-                        <input type="file" name="interior_7" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">วิทยุ</div>
-                        <input type="file" name="interior_8" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">จอไมล์</div>
-                        <input type="file" name="interior_9" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">กระจกบังลม</div>
-                        <input type="file" name="interior_10" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
+                    <!-- SECTION: ภายในรถ -->
+                    <section class="upload-section mb-4" id="accessories-images-section" data-category="accessories">
+                        <h5><i class="bi bi-speedometer2 text-primary me-2"></i>ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง</h5>
+                        <div class="row" id="accessories-container">
+                            <!-- Dynamic slots will be added here -->
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-secondary add-image-btn" data-category="accessories" data-default-title="อุปกรณ์ตกแต่ง">
+                                <i class="bx bx-plus"></i> เพิ่มช่องอัปโหลด
+                            </button>
+                        </div>
+                    </section>
+                
+                    <!-- SECTION: ความเสียหาย -->
+                    <section class="upload-section mb-4" id="inspection-images-section" data-category="inspection">
+                        <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
+                        <div class="row" id="inspection-container">
+                            <!-- Dynamic slots will be added here -->
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-secondary add-image-btn" data-category="inspection" data-default-title="ภาพความเสียหาย">
+                                <i class="bx bx-plus"></i> เพิ่มช่องอัปโหลด
+                            </button>
+                        </div>
+                    </section>
 
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">ฟิล์ม</div>
-                        <input type="file" name="interior_11" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
+                    <!-- SECTION: เอกสารใบตรวจสภาพรถ -->
+                    <section class="upload-section mb-4" id="fiber-documents-section" data-category="fiber">
+                        <h5>
+                            <i class="bi bi-file-earmark-check-fill text-success me-2"></i>
+                            เอกสารใบตรวจสภาพรถ
+                        </h5>
+                        <div class="row" id="fiber-container">
+                            <!-- Dynamic slots will be added here -->
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-secondary add-image-btn" data-category="fiber" data-default-title="เอกสารใบตรวจสภาพรถ">
+                                <i class="bx bx-plus"></i> เพิ่มช่องอัปโหลด
+                            </button>
+                        </div>
+                    </section>
 
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">กล้องหน้ารถ</div>
-                        <input type="file" name="interior_12" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
+                    <!-- SECTION: เอกสาร -->
+                    <section class="upload-section mb-4" id="other-documents-section" data-category="documents">
+                        <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารอื่นๆ</h5>
+                        <div class="row" id="documents-container">
+                            <!-- Dynamic slots will be added here -->
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-secondary add-image-btn" data-category="documents" data-default-title="เอกสารอื่นๆ">
+                                <i class="bx bx-plus"></i> เพิ่มช่องอัปโหลด
+                            </button>
+                        </div>
+                    </section>
 
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-camera fs-1"></i>
-                        <div class="title">แผงหน้าปัด</div>
-                        <input type="file" name="interior_13" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-
-                    <div class="row" id="other-image-row">
-                      <div class="col-md-4 col-lg-3 mb-3 text-center custom-other-upload">
-                        <label class="image-gallery w-100" style="cursor:pointer;">
-                          <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
-                          <i class="bi bi-camera fs-1"></i>
-                          <div class="title">อื่นๆ</div>
-                          <input type="file" name="interior_14" accept="image/*" capture="environment" hidden>
-                        </label>
-                      </div>
-                    </div>
-
-                  </div>
-                </section>
-
-                <!-- SECTION: ความเสียหาย (multiple images) -->
-                <section class="upload-section mb-4" style="display: none;">
-                  <h5><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>ภาพถ่ายความเสียหาย</h5>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 1</div>
-                    <input type="file" name="damage_images_1" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 2</div>
-                    <input type="file" name="damage_images_2" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 3</div>
-                    <input type="file" name="damage_images_3" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 4</div>
-                    <input type="file" name="damage_images_4" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 5</div>
-                    <input type="file" name="damage_images_5" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 6</div>
-                    <input type="file" name="damage_images_6" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 7</div>
-                    <input type="file" name="damage_images_7" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 8</div>
-                    <input type="file" name="damage_images_8" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 9</div>
-                    <input type="file" name="damage_images_9" accept="image/*" capture="environment" hidden>
-                  </label>
-                  <label class="image-gallery w-100" style="cursor:pointer;">
-                    <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                    <i class="bi bi-camera fs-1"></i>
-                    <div class="title">ภาพถ่ายความเสียหาย - 10</div>
-                    <input type="file" name="damage_images_10" accept="image/*" capture="environment" hidden>
-                  </label>
-                </section>
-
-                <!-- SECTION: เอกสาร -->
-                <section class="upload-section mb-4" style="display: none;">
-                  <h5><i class="bi bi-file-earmark-text-fill text-warning me-2"></i>เอกสารยืนยันตัวบุคคล, ใบตรวจสภาพรถ, อื่นๆ</h5>
-                  <div class="row">
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-person fs-1"></i>
-                        <div class="title">เอกสารยืนยันตัวบุคคล</div>
-                        <input type="file" name="doc_identity" accept="image/*" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">ใบตรวจสภาพรถ</div>
-                        <input type="file" name="doc_other_1" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">ใบตรวจความเสียหาย</div>
-                        <input type="file" name="doc_other_2" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">ใบตรวจอุปกรณ์ตกแต่ง</div>
-                        <input type="file" name="doc_other_3" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">ใบตรวจกล้องหน้ารถ</div>
-                        <input type="file" name="doc_other_4" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">อื่นๆ</div>
-                        <input type="file" name="doc_other_5" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">อื่นๆ</div>
-                        <input type="file" name="doc_other_6" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">อื่นๆ</div>
-                        <input type="file" name="doc_other_7" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">อื่นๆ</div>
-                        <input type="file" name="doc_other_8" accept="image/*" capture="environment" hidden>
-                      </label>
-                    </div>
-                    <div class="col-md-4 col-lg-3 mb-3 text-center">
-                      <label class="image-gallery w-100" style="cursor:pointer;">
-                        <img alt="Preview" style="display:none; width:100%; height: 150px; object-fit: cover;" />
-                        <i class="bi bi-file-earmark-check fs-1"></i>
-                        <div class="title">ลายเซ็น</div>
-                        <input type="file" name="doc_other_9" accept="image/*" hidden>
-                      </label>
-                    </div>
-                  </div>
-                </section>
+                    <!-- SECTION: ลายเซ็น -->
+                    <section class="upload-section mb-4" id="signature-images-section" data-category="signature">
+                        <h5><i class="bi bi-pen-fill text-info me-2"></i>ลายเซ็น</h5>
+                        <div class="row" id="signature-container">
+                            <!-- Dynamic slots will be added here -->
+                        </div>
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-secondary add-image-btn" data-category="signature" data-default-title="ลายเซ็น">
+                                <i class="bx bx-plus"></i> เพิ่มช่องอัปโหลด
+                            </button>
+                        </div>
+                    </section>
                 <!-- SECTION: ภาพถ่ายอื่นๆ (Dynamic Upload) -->
                 <section class="upload-section mb-4">
                   <h5><i class="bi bi-images text-info me-2"></i>ภาพถ่ายอื่นๆ (เพิ่มได้ไม่จำกัด)</h5>
