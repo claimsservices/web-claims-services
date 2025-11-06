@@ -1,5 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // Define populateModels and initCarModelDropdown here or ensure they are globally accessible
+    // Assuming carModels is loaded from car-models.js
+    function populateModels(brandSelect, modelSelect) {
+        if (!brandSelect || !modelSelect) return;
+        const selectedBrand = brandSelect.value;
+        const models = carModels[selectedBrand] || [];
+        modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = model;
+            modelSelect.appendChild(option);
+        });
+        modelSelect.disabled = models.length === 0;
+    }
+
+    function initCarModelDropdown(brandSelect, modelSelect) {
+        if (brandSelect && modelSelect) {
+            brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
+        }
+    }
+
+    initCarModelDropdown(document.getElementById('car-brand'), document.getElementById('car-model'));
+
     const LOGIN_PAGE = '../index.html';
     const token = localStorage.getItem('authToken');
 
@@ -82,8 +106,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (details) {
             document.getElementById('phone').value = details.full_phone;
             document.getElementById('province-category').value = details.c_car_province;
-            document.getElementById('car-brand').value = details.c_brand;
-            document.getElementById('car-model').value = details.c_version;
+
+            const carBrandSelect = document.getElementById('car-brand');
+            if (carBrandSelect) {
+                carBrandSelect.value = details.c_brand;
+                carBrandSelect.dispatchEvent(new Event('change')); // Trigger change to populate models
+            }
+            const carModelSelect = document.getElementById('car-model');
+            if (carModelSelect) {
+                carModelSelect.value = details.c_version;
+            }
             document.getElementById('vin').value = details.c_number;
             document.getElementById('customer-name').value = details.c_name;
         }
