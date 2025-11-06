@@ -475,13 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else { // Fixed slot
                     const section = fileInput.closest('.upload-section');
                     if (section) {
-                        const sectionId = section.id.toLowerCase();
-                        if (sectionId.includes('around')) picType = 'around';
-                        else if (sectionId.includes('accessories')) picType = 'accessories';
-                        else if (sectionId.includes('inspection')) picType = 'inspection';
-                        else if (sectionId.includes('fiber')) picType = 'fiber';
-                        else if (sectionId.includes('documents')) picType = 'documents';
-                        else if (sectionId.includes('signature')) picType = 'signature';
+                        picType = section.dataset.category || 'unknown';
                     }
                     if (label) {
                         picTitle = label.querySelector('.title').textContent.trim();
