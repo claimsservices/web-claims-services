@@ -89,11 +89,10 @@ async function loadUserProfile() {
     userRoleEl.innerText = role;
   }
 
-  const imageUrl = myPicture;  // Extract the image URL from the response
-  const imgElement = document.getElementById('userAvatar');
-  if (imgElement) {
-    imgElement.src = imageUrl;  // Update the image src dynamically
-  }
+            const imgElement = document.getElementById('userAvatar');
+            if (imgElement && decoded.myPicture) {
+                imgElement.src = decoded.myPicture;
+            }
 
   if (decoded && isTokenExpired(decoded)) {
     // Token is expired

@@ -197,13 +197,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Auto update layout based on screen size
   if (window.Helpers) {
     window.Helpers.setAutoUpdate(true);
+    // Toggle Password Visibility
+    window.Helpers.initPasswordToggle();
+    // Speech To Text
+    window.Helpers.initSpeechToText();
   }
-
-  // Toggle Password Visibility
-  window.Helpers.initPasswordToggle();
-
-  // Speech To Text
-  window.Helpers.initSpeechToText();
 
   // Manage menu expanded/collapsed with templateCustomizer & local storage
   //------------------------------------------------------------------
