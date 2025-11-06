@@ -225,14 +225,33 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        // Assume pic.pic_type is the category (e.g., 'around')
-        const category = pic.pic_type;
+        // Determine the main category from pic.pic_type using staticImageConfig
+        let mainCategory = null;
+        for (const key in staticImageConfig) {
+            if (staticImageConfig[key].some(item => item.name === pic.pic_type)) {
+                mainCategory = key;
+                break;
+            }
+        }
 
-        const targetSection = sectionsMap[category];
-        if (!targetSection) {
-            console.warn('renderUploadedImages: targetSection is null for category:', category);
+        if (!mainCategory) {
+            console.warn('renderUploadedImages: Could not find main category for pic_type:', pic.pic_type);
             return;
         }
+
+        const targetSection = sectionsMap[mainCategory];
+        if (!targetSection) {
+            console.warn('renderUploadedImages: targetSection is null for mainCategory:', mainCategory);
+            return;
+        }
+
+        // Now, find the specific placeholder within the targetSection using pic.pic_type (the sub-category name)
+        // Try to find an existing, unfilled placeholder slot within this category
+        let filledExistingSlot = false;
+        // Find the first label.image-gallery within targetSection that has data-filled="false"
+        // and also matches the specific pic.pic_type (item.name)
+        const placeholderLabel = targetSection.querySelector(`label.image-gallery[data-filled="false"] input[name="${pic.pic_type}"]`)?.closest('label.image-gallery');
+
 
         // Try to find an existing, unfilled placeholder slot within this category
         let filledExistingSlot = false;
