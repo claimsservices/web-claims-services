@@ -225,12 +225,19 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        // Determine the main category from pic.pic_type using staticImageConfig
+        // Determine the main category from pic.pic_type
         let mainCategory = null;
-        for (const key in staticImageConfig) {
-            if (staticImageConfig[key].some(item => item.name === pic.pic_type)) {
-                mainCategory = key;
-                break;
+
+        // First, check if pic_type itself is a main category key
+        if (staticImageConfig.hasOwnProperty(pic.pic_type)) {
+            mainCategory = pic.pic_type;
+        } else {
+            // If not, search within the config to find the parent category
+            for (const key in staticImageConfig) {
+                if (staticImageConfig[key].some(item => item.name === pic.pic_type)) {
+                    mainCategory = key;
+                    break;
+                }
             }
         }
 
