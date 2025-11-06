@@ -185,12 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
         newSlot.className = 'col-md-4 col-lg-3 mb-3 text-center image-upload-slot'; // Added image-upload-slot class
         newSlot.id = newSlotId;
         newSlot.innerHTML = `
-            <label class="image-gallery w-100" style="cursor:pointer;">
+            <label class="image-gallery w-100" style="cursor:pointer; padding-bottom: 10px; margin-bottom: 0;">
                 <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
                 <i class="bi bi-camera fs-1"></i>
-                <input type="text" class="form-control mt-2 image-title-input" placeholder="ระบุคำอธิบาย" value="${initialTitle}" style="font-weight: 600; text-align: center;">
                 <input type="file" name="other_images_${otherUploadSlotCounter}" accept="image/*" capture="environment" hidden>
             </label>
+            <input type="text" class="form-control mt-2 image-title-input" placeholder="ระบุคำอธิบาย (ถ้ามี)" style="font-weight: 600; text-align: center;">
             <button class="btn btn-outline-danger btn-sm remove-other-image-slot-btn" type="button" style="position:absolute; top:5px; right:5px; display:none;">
                 <i class="bx bx-trash"></i>
             </button>
@@ -396,11 +396,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const picType = fileInput.name;
         let picTitle = '';
 
-        // For dynamic slots, get title from the input field
-        const titleInput = label.querySelector('.image-title-input');
-        if (titleInput) {
-            picTitle = titleInput.value;
-        } else { // For fixed slots, get title from the div.title
+        const slotContainer = fileInput.closest('.image-upload-slot'); // This class only exists on dynamic "other" slots
+
+        if (slotContainer) { // This is a dynamic "other" slot
+            picTitle = slotContainer.querySelector('.image-title-input').value || 'อื่นๆ'; // Use 'อื่นๆ' as fallback
+        } else { // This is a fixed, predefined slot
             picTitle = label.querySelector('.title').textContent.trim();
         }
 
