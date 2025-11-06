@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleActionButtons(status) {
-        const buttons = ['btn-accept', 'btn-reject', 'btn-start', 'btn-arrived'];
+        const buttons = ['btn-accept', 'btn-reject', 'btn-start', 'btn-arrived', 'btn-submit-task'];
         buttons.forEach(id => { 
             const btn = document.getElementById(id);
             if(btn) btn.style.display = 'none';
@@ -282,6 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case "เปิดงาน": case "รับเรื่องแล้ว": buttonsToShow = ['btn-accept', 'btn-reject']; break;
             case "รับงาน": buttonsToShow = ['btn-start']; break;
             case "เริ่มงาน/กำลังเดินทาง": buttonsToShow = ['btn-arrived']; break;
+            case "ถึงที่เกิดเหตุ/ปฏิบัติงาน": buttonsToShow = ['btn-submit-task']; break;
         }
         buttonsToShow.forEach(id => { 
             const btn = document.getElementById(id);
@@ -480,11 +481,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Add event listeners for status update buttons
     document.getElementById('btn-accept')?.addEventListener('click', () => setStatusFromClick('รับงาน'));
     document.getElementById('btn-reject')?.addEventListener('click', () => setStatusFromClick('ปฏิเสธงาน'));
     document.getElementById('btn-start')?.addEventListener('click', () => setStatusFromClick('เริ่มงาน/กำลังเดินทาง'));
     document.getElementById('btn-arrived')?.addEventListener('click', () => setStatusFromClick('ถึงที่เกิดเหตุ/ปฏิบัติงาน'));
+    document.getElementById('btn-submit-task')?.addEventListener('click', () => setStatusFromClick('รออนุมัติ'));
 
     document.body.classList.remove('loading');
 });
