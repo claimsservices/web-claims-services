@@ -144,7 +144,7 @@ async function fetchUsers() {
         return;
     }
 
-    const requiredRoles = ['Admin Officer', 'Director', 'Developer'];
+    const requiredRoles = ['Director', 'Operation Manager']; // Updated based on user's clarification
     if (!requiredRoles.includes(decoded.role)) {
         const tableBody = document.getElementById('userTableBody');
         if (tableBody) {
@@ -409,7 +409,7 @@ addNewUserForm.onsubmit = async function (e) {
 
     const token = localStorage.getItem('authToken');
     const decoded = decodeJWT(token);
-    const requiredRoles = ['Admin Officer', 'Director', 'Developer'];
+    const requiredRoles = ['Director', 'Operation Manager']; // Updated based on user's clarification
 
     if (!decoded || !decoded.role || !requiredRoles.includes(decoded.role)) {
         alert('คุณไม่มีสิทธิ์ในการเพิ่มหรือแก้ไขผู้ใช้');
@@ -548,7 +548,7 @@ document.addEventListener('click', async (event) => {
 
     const token = localStorage.getItem('authToken');
     const decoded = decodeJWT(token);
-    const requiredRoles = ['Admin Officer', 'Director', 'Developer'];
+    const requiredRoles = ['Director', 'Operation Manager']; // Updated based on user's clarification
 
     if (!decoded || !decoded.role || !requiredRoles.includes(decoded.role)) {
         alert('คุณไม่มีสิทธิ์ในการแก้ไขหรือลบผู้ใช้');
