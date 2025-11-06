@@ -385,7 +385,6 @@ export function renderUploadedImages(orderPics) {
         setValue('s_remark', order_details.s_remark);
         setValue('s_ins_remark', order_details.s_ins_remark);
         setValue('s_detail', order_details.s_detail);
-        document.getElementById('s_detail').readOnly = true; // Make the field readonly
         setChecked('fleetCar', order_details.s_fleet);
         setValue('creatorName', order_details.c_name);
       }
@@ -794,11 +793,6 @@ function initCarModelDropdown(brandSelect, modelSelect) {
   if (brandSelect && modelSelect) {
     brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
   }
-
-  const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
-  if (autoFillDamageBtn) {
-    autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
-  }
 }
 
 
@@ -861,6 +855,11 @@ export function populateImageSections() {
 
   document.addEventListener('DOMContentLoaded', function () {
     initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
+
+    const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
+    if (autoFillDamageBtn) {
+      autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
+    }
 
     const openMapBtn = document.getElementById('openMap');
     if (openMapBtn) {
