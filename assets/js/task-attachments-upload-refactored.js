@@ -351,6 +351,49 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Function to create a new dynamic "other" image slot
+    function createOtherImageSlot(initialFile = null, initialTitle = 'อื่นๆ') {
+        const container = document.getElementById('dynamic-other-upload-container');
+        const otherUploadSlotCounter = container.children.length + 1;
+        const newSlotId = `other-image-slot-${otherUploadSlotCounter}`;
+        const fileInputId = `other_images_${otherUploadSlotCounter}`;
+
+        const newSlot = document.createElement('div');
+        newSlot.className = 'col-md-4 col-lg-3 mb-3 text-center image-upload-slot';
+        newSlot.id = newSlotId;
+        newSlot.innerHTML = `
+            <label class="image-gallery w-100" style="cursor:pointer; padding-bottom: 10px; margin-bottom: 0;">
+                <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
+                <i class="bi bi-camera fs-1"></i>
+                <input type="file" id="${fileInputId}" name="${fileInputId}" accept="image/*" capture="environment" hidden>
+            </label>
+            <input type="text" class="form-control mt-2 image-title-input" placeholder="ระบุคำอธิบาย (ถ้ามี)" value="${initialTitle}" style="font-weight: 600; text-align: center;">
+            <button class="btn btn-outline-danger btn-sm remove-other-image-slot-btn" type="button" style="position:absolute; top:5px; right:5px;">
+                <i class="bx bx-trash"></i>
+            </button>
+        `;
+        container.appendChild(newSlot);
+
+        const removeBtn = newSlot.querySelector('.remove-other-image-slot-btn');
+        removeBtn.addEventListener('click', () => {
+            const fileInput = newSlot.querySelector('input[type="file"]');
+            if (fileInput) {
+                filesToUpload.delete(fileInput.id); // Remove from staged files
+            }
+            newSlot.remove();
+        });
+
+        if (initialFile) {
+            const label = newSlot.querySelector('label.image-gallery');
+            const imgPreview = label.querySelector('img');
+            const icon = label.querySelector('i');
+            imgPreview.src = initialFile;
+            imgPreview.style.display = 'block';
+            if (icon) icon.style.display = 'none';
+            label.setAttribute('data-filled', 'true');
+        }
+    }
+
     // Create initial empty dynamic slot
     createOtherImageSlot();
 
