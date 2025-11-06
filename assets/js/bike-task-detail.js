@@ -271,11 +271,32 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function submitWork() {
-        const picArray = Object.keys(uploadedImages).map(title => ({
-            pic: uploadedImages[title],
-            pic_type: 'image',
-            pic_title: title
-        }));
+        // Create a reverse map to find the category from the image title
+        const titleToCategoryMap = {};
+        for (const categoryKey in photoCategories) {
+            photoCategories[categoryKey].items.forEach(itemText => {
+                titleToCategoryMap[itemText] = categoryKey;
+            });
+        }
+
+        // Map bike categories to the categories used in the main admin view
+        const bikeToAdminCategoryMap = {
+            'around': 'around',
+            'interior': 'accessories',
+            'damage': 'inspection',
+            'documents': 'documents'
+        };
+
+        const picArray = Object.keys(uploadedImages).map(title => {
+            const bikeCategory = titleToCategoryMap[title] || 'damage'; // Default to 'damage' if not found
+            const adminCategory = bikeToAdminCategoryMap[bikeCategory] || 'inspection'; // Map to admin category, default to 'inspection'
+
+            return {
+                pic: uploadedImages[title],
+                pic_type: adminCategory, // Use the correct, mapped category
+                pic_title: title
+            };
+        });
 
         const body = {
             order_status: 'ส่งงาน/ตรวจสอบเบื้องต้น',
