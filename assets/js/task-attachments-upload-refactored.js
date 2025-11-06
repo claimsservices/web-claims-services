@@ -456,12 +456,13 @@ document.addEventListener('DOMContentLoaded', () => {
             formData.append('folder', `transactions/${orderId}`);
 
             // Process and append all staged files and their metadata
+            console.log(`[DEBUG] Processing ${filesToUpload.size} files for upload.`);
             for (const [inputId, file] of filesToUpload.entries()) {
                 const fileInput = document.getElementById(inputId);
                 if (!fileInput) continue;
 
-                let picType = '';
-                let picTitle = '';
+                let picType = 'unknown'; // Default to unknown
+                let picTitle = 'unknown'; // Default to unknown
 
                 const slotContainer = fileInput.closest('.image-upload-slot');
                 const label = fileInput.closest('label.image-gallery');
@@ -472,16 +473,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else { // Fixed slot
                     const section = fileInput.closest('.upload-section');
                     if (section) {
-                        if (section.id.includes('around')) picType = 'around';
-                        else if (section.id.includes('accessories')) picType = 'accessories';
-                        else if (section.id.includes('inspection')) picType = 'inspection';
-                        else if (section.id.includes('fiber')) picType = 'fiber';
-                        else if (section.id.includes('documents')) picType = 'documents';
-                        else if (section.id.includes('signature')) picType = 'signature';
+                        const sectionId = section.id.toLowerCase();
+                        if (sectionId.includes('around')) picType = 'around';
+                        else if (sectionId.includes('accessories')) picType = 'accessories';
+                        else if (sectionId.includes('inspection')) picType = 'inspection';
+                        else if (sectionId.includes('fiber')) picType = 'fiber';
+                        else if (sectionId.includes('documents')) picType = 'documents';
+                        else if (sectionId.includes('signature')) picType = 'signature';
                     }
-                    picTitle = label.querySelector('.title').textContent.trim();
+                    if (label) {
+                        picTitle = label.querySelector('.title').textContent.trim();
+                    }
                 }
                 
+                // Log for debugging
+                console.log(`[DEBUG] Staging File -> Name: ${file.name}, Type: ${picType}, Title: ${picTitle}`);
+
                 // Compress and append
                 try {
                     const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
@@ -498,6 +505,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             }
+
+            // Final check before sending
+            console.log('[DEBUG] FormData prepared. Sending to backend...');
+            // You can inspect the formData object in more detail if needed, but standard console.log won't show its content directly.
+            // for (var pair of formData.entries()) {
+            //     console.log(pair[0]+ ', ' + pair[1]); 
+            // }
 
             // Send the single request
             try {
