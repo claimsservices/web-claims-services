@@ -920,7 +920,7 @@ export function populateImageSections() {
 
     // Delegated event listener for dynamically created file inputs
     document.addEventListener('change', async function(e) {
-        if (e.target && e.target.name === 'dynamic_image') {
+        if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'file') {
             const fileInput = e.target;
             const file = fileInput.files[0];
             if (!file) return;
