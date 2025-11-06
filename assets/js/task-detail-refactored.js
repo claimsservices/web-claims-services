@@ -278,28 +278,28 @@ export function renderUploadedImages(orderPics) {
                 parentCol.style.display = 'block';
             }
             filledExistingSlot = true;
-            console.log('renderUploadedImages: Filled existing placeholder for category:', category);
+            console.log('renderUploadedImages: Filled existing placeholder for category:', mainCategory);
         }
 
         // If no existing placeholder was filled (meaning all static slots are taken or there are no static slots),
         // create a new dynamic slot.
         if (!filledExistingSlot) {
-            const uniqueId = `uploaded-image-${category}-${Date.now()}`;
+            const uniqueId = `uploaded-image-${mainCategory}-${Date.now()}`;
             const newSlotHtml = `
-                <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${category}">
+                <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${mainCategory}">
                     <label class="image-gallery w-100" data-filled="true" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
                         <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || 'Uploaded Image'}" data-created-date="${pic.created_date || new Date().toISOString()}">
                         <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
                             ${pic.pic_title || 'กรุณาใส่ชื่อ'}
                         </div>
-                        <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${category}" hidden accept="image/*" capture="camera">
+                        <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
                         <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
                         <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">A</button>
                     </label>
                 </div>
             `;
             console.log('renderUploadedImages: Generated newSlotHtml:', newSlotHtml);
-            const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${category}"]`);
+            const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${mainCategory}"]`);
             if (addImageBtn) {
                 addImageBtn.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
             } else {
@@ -1305,7 +1305,7 @@ navigateTo('dashboard.html');
     // --- Start of Image Preview and Replace Logic ---
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     if (imagePreviewModalEl) {
-        const imagePreviewModal = new window.bootstrap.Modal(imagePreviewModalEl);
+        const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
         const previewImage = document.getElementById('previewImage');
         let context = {}; // To store context for the replace button
 
