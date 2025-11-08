@@ -163,20 +163,27 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchData({ order_status_not: 'Pre-Approved' });
 });
 
-// Check user role (example assumes role is stored in localStorage)
-const token = localStorage.getItem('authToken');
-if (token) {
-  const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+  // Check user role (example assumes role is stored in localStorage)
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
 
-  // Check if the user has the 'admin' role
-  if (user.role === 'Officer' || user.role === 'Bike') {
-    //do some think
-  } else {
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
+    // Check if the user has the 'admin' role
+    if (user.role === 'Officer' || user.role === 'Bike') {
+      //do some think
+    } else {
+      localStorage.removeItem('authToken');
+      window.location.href = '../index.html';
+    }
+
+    // Hide History Attachments menu for Bike role
+    if (user.role === 'Bike') {
+      const historyMenu = document.getElementById('history-attachments-menu');
+      if (historyMenu) {
+        historyMenu.style.display = 'none';
+      }
+    }
   }
-}
-
 const itemsPerPage = 20;
 let currentPage = 1;
 let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
