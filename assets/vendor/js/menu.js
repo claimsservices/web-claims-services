@@ -587,4 +587,4 @@ ${selector}\\\` element not found.`)
   }
 }
 
-export { Menu }
+window.Menu = Menu
