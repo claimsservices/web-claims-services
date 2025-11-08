@@ -129,39 +129,67 @@ async function loadUserProfile() {
 document.addEventListener('DOMContentLoaded', () => {
   loadUserProfile();
 
-  let currentFilterType = 'work'; // Default filter for Bike role
-
   const workBtn = document.getElementById('filter-work-btn');
   const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
+  const searchBtn = document.getElementById('searchBtn');
+  const statusDropdown = document.getElementById('FilterTransaction3');
 
-  // Event listeners for the new filter buttons
+  // Event listeners for the filter buttons
   if (workBtn) {
     workBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      currentFilterType = 'work';
       workBtn.classList.add('btn-primary');
       workBtn.classList.remove('btn-outline-primary');
       preApprovedBtn.classList.add('btn-outline-primary');
       preApprovedBtn.classList.remove('btn-primary');
-      fetchData({ order_status_not: 'Pre-Approved' });
+      
+      if(statusDropdown) statusDropdown.value = ''; // Clear dropdown
+      
+      const filters = getFilters();
+      delete filters.order_status;
+      filters.order_status_not = 'Pre-Approved';
+      fetchData(filters);
     });
   }
 
   if (preApprovedBtn) {
     preApprovedBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      currentFilterType = 'pre-approved';
       preApprovedBtn.classList.add('btn-primary');
       preApprovedBtn.classList.remove('btn-outline-primary');
       workBtn.classList.add('btn-outline-primary');
       workBtn.classList.remove('btn-primary');
-      fetchData({ order_status: 'Pre-Approved' });
+
+      if(statusDropdown) statusDropdown.value = 'Pre-Approved';
+      
+      const filters = getFilters();
+      delete filters.order_status_not;
+      fetchData(filters);
+    });
+  }
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // When search is clicked, it might imply the dropdown is the source of truth
+      const filters = getFilters();
+      delete filters.order_status_not;
+      fetchData(filters);
     });
   }
 
   // Initial fetch for Bike role (default to Work tasks)
-  fetchData({ order_status_not: 'Pre-Approved' });
+  const initialFilters = getFilters();
+  initialFilters.order_status_not = 'Pre-Approved';
+  fetchData(initialFilters);
 });
+
+function getFilters() {
+  const filter = {
+    order_status: document.getElementById('FilterTransaction3')?.value || '',
+  };
+  return filter;
+}
 
   // Check user role (example assumes role is stored in localStorage)
   const token = localStorage.getItem('authToken');
@@ -190,7 +218,7 @@ let allData = []; // จะเก็บข้อมูลที่ได้จ�
 
 async function fetchData(filter = {}) {
   try {
-    const res = await fetch(`https://be-claims-service.onrender.com/api/order-agent/inquiry`, {
+    const res = await fetch(`https://be-claims-service.onrender.com/api/orders/inquiry`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
