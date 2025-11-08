@@ -13,10 +13,16 @@ document.addEventListener('DOMContentLoaded', function () {
   fetch('/version.json')
     .then(res => res.json())
     .then(data => {
-      document.getElementById("appVersion").textContent = `App Version ${data.version}`;
+      const appVersionEl = document.getElementById("appVersion");
+      if (appVersionEl) {
+        appVersionEl.textContent = `App Version ${data.version}`;
+      }
     })
     .catch(() => {
-      document.getElementById("appVersion").textContent = "App Version -";
+      const appVersionEl = document.getElementById("appVersion");
+      if (appVersionEl) {
+        appVersionEl.textContent = "App Version -";
+      }
     });
 
   // Constants for URLs and other fixed strings
@@ -80,7 +86,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const imageUrl = myPicture;  // Extract the image URL from the response
     const imgElement = document.getElementById('userAvatar');
-    imgElement.src = imageUrl;  // Update the image src dynamically
+    if (imgElement && imageUrl) {
+        imgElement.src = imageUrl;  // Update the image src dynamically only if imageUrl is not null
+    }
+    
+    // Role-based UI changes
+    if (role === 'Operation Manager' || role === 'Director' || role === 'Developer') {
+        const adminMenu = document.getElementById('admin-menu');
+        if (adminMenu) adminMenu.style.display = 'block';
+    } else if (role === 'Bike') {
+        const historyMenu = document.getElementById('history-attachments-menu');
+        if (historyMenu) historyMenu.style.display = 'none';
+    } else if (role === 'Officer') {
+        localStorage.removeItem('authToken');
+        window.location.href = '../index.html';
+    }
+
 
     if (decoded && isTokenExpired(decoded)) {
       // Token is expired
@@ -115,28 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Call the function to load the user profile
   loadUserProfile();
 
-  // Check user role (example assumes role is stored in localStorage)
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
-
-    // Check if the user has the 'admin' role
-    if (user.role === 'Operation Manager' || user.role === 'Director' || user.role === 'Developer') {
-      // Show the admin menu
-      document.getElementById('admin-menu').style.display = 'block';
-    } else if (user.role === 'Bike') {
-      // Hide History Attachments menu for Bike role
-      const historyMenu = document.getElementById('history-attachments-menu');
-      if (historyMenu) {
-        historyMenu.style.display = 'none';
-      }
-    }
-    if (user.role === 'Officer') {
-      localStorage.removeItem('authToken');
-      window.location.href = '../index.html';
-    }
-  }
-
   const itemsPerPage = 20;
   let currentPage = 1;
   let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
@@ -147,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${token}`
+          'Authorization': `${accessToken}`
         },
         body: JSON.stringify({}) // สามารถใส่ filter ได้ เช่น { insur_comp: 'AIA' }
       });
@@ -257,9 +256,4 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = '../index.html';
   });
 
-  document.getElementById('logout-menu').addEventListener('click', function (event) {
-    event.preventDefault();
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
-  });
 });
