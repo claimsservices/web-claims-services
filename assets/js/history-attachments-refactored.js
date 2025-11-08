@@ -1,14 +1,41 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // Check if the user has a valid token and the required role
-  const accessToken = localStorage.getItem('authToken'); // Check if token is available
+  const accessToken = localStorage.getItem('authToken');
   const RETURN_LOGIN_PAGE = '../index.html';
-  console.log("aaa" + accessToken);
 
-  // If there's no token, redirect to login
   if (!accessToken) {
     window.location.href = RETURN_LOGIN_PAGE;
     return; // Stop execution if not authenticated
   }
+
+  // Helper function specifically for the initial, synchronous role check
+  function getRoleFromToken(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload).role;
+    } catch (e) {
+      console.error('Failed to decode JWT for immediate role check:', e);
+      return null;
+    }
+  }
+
+  // --- IMMEDIATE ROLE CHECK AND UI HIDE ---
+  // This runs synchronously before any async operations
+  const userRole = getRoleFromToken(accessToken);
+  if (userRole === 'Bike') {
+    const historyMenu = document.getElementById('history-attachments-menu');
+    if (historyMenu) {
+      historyMenu.style.display = 'none';
+    }
+  }
+  // --- END OF IMMEDIATE HIDE ---
+
 
   fetch('/version.json')
     .then(res => res.json())
@@ -90,13 +117,10 @@ document.addEventListener('DOMContentLoaded', function () {
         imgElement.src = imageUrl;  // Update the image src dynamically only if imageUrl is not null
     }
     
-    // Role-based UI changes
+    // Role-based UI changes for other roles can remain here
     if (role === 'Operation Manager' || role === 'Director' || role === 'Developer') {
         const adminMenu = document.getElementById('admin-menu');
         if (adminMenu) adminMenu.style.display = 'block';
-    } else if (role === 'Bike') {
-        const historyMenu = document.getElementById('history-attachments-menu');
-        if (historyMenu) historyMenu.style.display = 'none';
     } else if (role === 'Officer') {
         localStorage.removeItem('authToken');
         window.location.href = '../index.html';
