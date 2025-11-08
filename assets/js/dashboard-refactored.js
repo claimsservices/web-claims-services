@@ -125,7 +125,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     }
-  
+
+    // Robustly handle admin menu visibility using polling
+    const adminRoles = ['Operation Manager', 'Director'];
+    if (adminRoles.includes(userRole)) {
+      const interval = setInterval(() => {
+        const adminMenu = document.getElementById('admin-menu');
+        if (adminMenu) {
+          adminMenu.style.display = 'block';
+          clearInterval(interval); // Stop polling once the element is found and updated
+        }
+      }, 100); // Check every 100ms
+    }
+
   
   loadUserProfile();
   setupFilterListeners();
