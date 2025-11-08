@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filters = getFilters();
         delete filters.order_status;
         filters.order_status_not = 'Pre-Approved';
+        console.log('Fetching data with filters for "Work":', JSON.stringify(filters, null, 2));
         fetchData(filters);
       });
     }
@@ -66,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filters = getFilters();
         delete filters.order_status_not;
         filters.order_status = 'Pre-Approved';
+        console.log('Fetching data with filters for "Pre Approved":', JSON.stringify(filters, null, 2));
         fetchData(filters);
       });
     }
@@ -101,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Initial fetch for Bike role
       const initialFilters = getFilters();
       initialFilters.order_status_not = 'Pre-Approved';
+      console.log('Initial fetch for Bike role with filters:', JSON.stringify(initialFilters, null, 2));
       fetchData(initialFilters); // Default to Work tasks
     } else {
       // Hide the new filter buttons for non-Bike roles

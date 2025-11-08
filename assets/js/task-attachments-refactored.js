@@ -287,9 +287,9 @@ function setActivePage(pageNumber) {
 }
 
 // เริ่มโหลดข้อมูลเมื่อหน้าโหลด
-if (document.querySelector("#userTable tbody")) {
-  fetchData();
-}
+// if (document.querySelector("#userTable tbody")) {
+//   fetchData();
+// }
 
 document.addEventListener('DOMContentLoaded', function () {
   // สร้างวันที่ใน timezone Asia/Bangkok และตั้งเวลาเป็น 06:00
