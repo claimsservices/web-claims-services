@@ -741,14 +741,20 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         // Hide unnecessary tabs for Insurance role
         hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
 
-        // Hide empty image slots for Insurance role
+        // Hide empty image slots for Insurance role and 'Add Image' buttons
         document.querySelectorAll('.image-gallery').forEach(label => {
-            if (!label.hasAttribute('data-filled')) {
-                const parentColDiv = label.closest('.col-4.mb-3.text-center');
-                if (parentColDiv) {
-                    parentColDiv.style.display = 'none';
-                }
+            const img = label.querySelector('img');
+            const parentColDiv = label.closest('.col-4.mb-3.text-center');
+            
+            // Check if it's an empty placeholder or if the image source is still the default GIF
+            if (parentColDiv && (!label.hasAttribute('data-filled') || label.dataset.filled === 'false' || (img && img.src.includes('data:image/gif')))) {
+                parentColDiv.style.display = 'none';
             }
+        });
+
+        // Hide all 'Add Image' buttons for the Insurance role
+        document.querySelectorAll('.add-image-btn').forEach(button => {
+            button.style.display = 'none';
         });
     }
 }
