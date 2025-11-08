@@ -199,7 +199,13 @@ async function loadUserProfile() {
   if(decoded){
     document.getElementById('user-info').innerText = decoded.first_name + ' ' + decoded.last_name;
     document.getElementById('user-role').innerText = decoded.role;
-    document.getElementById('userAvatar').src = decoded.myPicture;
+    
+    const userAvatar = document.getElementById('userAvatar');
+    if (decoded.myPicture) {
+      userAvatar.src = decoded.myPicture;
+    } else {
+      userAvatar.src = '../assets/img/avatars/A1.png'; // Default avatar
+    }
   }
 
   try {
