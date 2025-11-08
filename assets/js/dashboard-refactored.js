@@ -126,24 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   
-    const adminRoles = ['Operation Manager', 'Director'];
-    console.log('Checking for admin menu. Role:', userRole, 'Allowed roles:', adminRoles);
-    const canShowAdminMenu = adminRoles.includes(userRole);
-    console.log('Can show admin menu:', canShowAdminMenu);
-    if (canShowAdminMenu) {
-      const adminMenu = document.getElementById('admin-menu');
-      console.log('Found admin-menu element:', adminMenu);
-      if(adminMenu) {
-        adminMenu.style.display = 'block';
-        console.log('Set admin-menu display to block.');
-
-        setTimeout(() => {
-          const element = document.getElementById('admin-menu');
-          const style = window.getComputedStyle(element);
-          console.log('After 1 second, the computed display style is:', style.display);
-        }, 1000);
-      }
-    }
+  
   loadUserProfile();
   setupFilterListeners();
   const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });

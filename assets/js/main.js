@@ -217,6 +217,26 @@ document.addEventListener('DOMContentLoaded', function() {
     window.Helpers.setCollapsed(true, false);
   }
 
+  // --- Admin Menu Visibility ---
+  // This logic is centralized here to avoid race conditions with other scripts.
+  try {
+    const authToken = localStorage.getItem('authToken');
+    if (authToken) {
+      const decodedUser = parseJwt(authToken);
+      const userRole = decodedUser ? decodedUser.role : null;
+      const adminRoles = ['Operation Manager', 'Director'];
+      
+      if (adminRoles.includes(userRole)) {
+        const adminMenu = document.getElementById('admin-menu');
+        if (adminMenu) {
+          adminMenu.style.display = 'block';
+        }
+      }
+    }
+  } catch (e) {
+    console.error("Error handling admin menu visibility:", e);
+  }
+
   // Fetch and display app version
   fetch('/version.json')
     .then(res => res.json())
