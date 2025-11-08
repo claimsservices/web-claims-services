@@ -136,6 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if(adminMenu) {
         adminMenu.style.display = 'block';
         console.log('Set admin-menu display to block.');
+
+        setTimeout(() => {
+          const element = document.getElementById('admin-menu');
+          const style = window.getComputedStyle(element);
+          console.log('After 1 second, the computed display style is:', style.display);
+        }, 1000);
       }
     }
   loadUserProfile();
