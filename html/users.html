@@ -273,26 +273,34 @@
 
       // --- Page Initialization ---
       function initializePage() {
+        console.log('initializePage started.');
         // 1. Authentication and Authorization Check
+        console.log('Checking accessToken:', accessToken);
         if (!accessToken) {
+          console.log('No accessToken found. Redirecting to login.');
           window.location.href = LOGIN_PAGE;
           return; // Stop execution if not logged in
         }
 
         const decodedToken = parseJwt(accessToken);
+        console.log('Decoded token:', decodedToken);
         if (!decodedToken) {
+          console.log('Failed to decode token. Logging out.');
           logout();
           return;
         }
 
         const userRole = decodedToken.role;
         const allowedRoles = ['Director', 'Operation Manager'];
+        console.log('User role:', userRole, 'Allowed roles:', allowedRoles);
         if (!allowedRoles.includes(userRole)) {
+          console.log('User role not allowed. Redirecting to dashboard.');
           alert('You do not have permission to access this page.');
           window.location.href = DASHBOARD_PAGE;
           return; // Stop execution if not authorized
         }
 
+        console.log('Authentication and authorization passed.');
         // 2. Setup UI and Event Listeners
         setupUI(decodedToken);
         setupEventListeners();
