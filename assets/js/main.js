@@ -62,8 +62,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize menu
   //-----------------
+  console.log('Attempting to initialize menu...');
   let layoutMenuEl = document.querySelectorAll('#layout-menu');
+  console.log('Found #layout-menu elements:', layoutMenuEl.length);
+  console.log('Is window.Menu a function?', typeof window.Menu === 'function');
+
   if (layoutMenuEl.length > 0 && typeof window.Menu === 'function') {
+    console.log('Proceeding with menu initialization.');
     layoutMenuEl.forEach(function(element) {
       menu = new window.Menu(element, {
         orientation: 'vertical',
