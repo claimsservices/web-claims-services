@@ -127,9 +127,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     const adminRoles = ['Operation Manager', 'Director'];
-    if (adminRoles.includes(userRole)) {
+    console.log('Checking for admin menu. Role:', userRole, 'Allowed roles:', adminRoles);
+    const canShowAdminMenu = adminRoles.includes(userRole);
+    console.log('Can show admin menu:', canShowAdminMenu);
+    if (canShowAdminMenu) {
       const adminMenu = document.getElementById('admin-menu');
-      if(adminMenu) adminMenu.style.display = 'block';
+      console.log('Found admin-menu element:', adminMenu);
+      if(adminMenu) {
+        adminMenu.style.display = 'block';
+        console.log('Set admin-menu display to block.');
+      }
     }
   loadUserProfile();
   setupFilterListeners();
