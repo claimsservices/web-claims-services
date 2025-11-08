@@ -124,6 +124,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (user.role === 'Operation Manager' || user.role === 'Director' || user.role === 'Developer') {
       // Show the admin menu
       document.getElementById('admin-menu').style.display = 'block';
+    } else if (user.role === 'Bike') {
+      // Hide History Attachments menu for Bike role
+      const historyMenu = document.getElementById('history-attachments-menu');
+      if (historyMenu) {
+        historyMenu.style.display = 'none';
+      }
     }
     if (user.role === 'Officer') {
       localStorage.removeItem('authToken');

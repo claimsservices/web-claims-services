@@ -738,6 +738,9 @@ class UIInsurancePermissionManager extends UIPermissionManager {
             this.applyStatusPermissions(allowedStatuses);
         }
 
+        // Hide unnecessary tabs for Insurance role
+        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li']);
+
         // Hide empty image slots for Insurance role
         document.querySelectorAll('.image-gallery').forEach(label => {
             if (!label.hasAttribute('data-filled')) {
