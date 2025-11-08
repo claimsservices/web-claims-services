@@ -46,7 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
         workBtn.classList.remove('btn-outline-primary');
         preApprovedBtn.classList.add('btn-outline-primary');
         preApprovedBtn.classList.remove('btn-primary');
-        fetchData({ order_status_not: 'Pre-Approved' });
+        
+        const filters = getFilters();
+        delete filters.order_status;
+        filters.order_status_not = 'Pre-Approved';
+        fetchData(filters);
       });
     }
   
@@ -58,7 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
         preApprovedBtn.classList.remove('btn-outline-primary');
         workBtn.classList.add('btn-outline-primary');
         workBtn.classList.remove('btn-primary');
-        fetchData({ order_status: 'Pre-Approved' });
+
+        const filters = getFilters();
+        delete filters.order_status_not;
+        filters.order_status = 'Pre-Approved';
+        fetchData(filters);
       });
     }
   
@@ -91,7 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (preApprovedBtn) preApprovedBtn.style.display = 'inline-block';
       
       // Initial fetch for Bike role
-      fetchData({ order_status_not: 'Pre-Approved' }); // Default to Work tasks
+      const initialFilters = getFilters();
+      initialFilters.order_status_not = 'Pre-Approved';
+      fetchData(initialFilters); // Default to Work tasks
     } else {
       // Hide the new filter buttons for non-Bike roles
       if (workBtn) workBtn.style.display = 'none';
