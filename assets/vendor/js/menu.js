@@ -8,10 +8,10 @@ class Menu {
     this._accordion = config.accordion !== false
     this._closeChildren = Boolean(config.closeChildren)
 
-    this._onOpen = config.onOpen || (() => {}) 
-    this._onOpened = config.onOpened || (() => {}) 
-    this._onClose = config.onClose || (() => {}) 
-    this._onClosed = config.onClosed || (() => {}) 
+    this._onOpen = config.onOpen || (() => {})
+    this._onOpened = config.onOpened || (() => {})
+    this._onClose = config.onClose || (() => {})
+    this._onClosed = config.onClosed || (() => {})
 
     this._psScroll = null
     this._topParent = null
@@ -148,7 +148,7 @@ class Menu {
 
     el = el.tagName.toUpperCase() !== 'BODY' ? el : null
 
-    if (!el && throwError) throw new Error(`Cannot find ecue.${cls}ecue` parent element`)
+    if (!el && throwError) throw new Error(`Cannot find \".${cls}\" parent element`)
 
     return el
   }
@@ -224,7 +224,7 @@ class Menu {
           this._onOpened && this._onOpened(this, item, toggleLink, Menu._findMenu(item))
         }
       })
-      .catch(() => {}) 
+      .catch(() => {})
   }
 
   close(el, closeChildren = this._closeChildren, _autoClose = false) {
@@ -254,7 +254,7 @@ class Menu {
           this._onClosed && this._onClosed(this, item, toggleLink, Menu._findMenu(item))
         }
       })
-      .catch(() => {}) 
+      .catch(() => {})
   }
 
   _closeOther(item, closeChildren) {
@@ -284,7 +284,7 @@ class Menu {
     }
 
     if (!item) {
-      throw new Error(`${toggle ? 'Toggable ' : ''}ecue.menu-item\bbecue` element not found.`)
+      throw new Error(`${toggle ? 'Toggable ' : ''}\`.menu-item\` element not found.`) 
     }
 
     return item
@@ -297,7 +297,8 @@ class Menu {
     if (el.classList.contains(selector)) found = [el]
     else if (el.classList.contains('menu-item')) found = Menu._findChild(el, [selector])
 
-    if (!found.length) throw new Error(`\becue${selector}\bbecue` element not found.`)
+    if (!found.length) throw new Error(`\
+${selector}\\\` element not found.`) 
 
     return found[0]
   }
