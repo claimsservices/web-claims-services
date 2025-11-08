@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   
-    const adminRoles = ['Operation Manager', 'Director', 'Developer', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager'];
+    const adminRoles = ['Operation Manager', 'Director'];
     if (adminRoles.includes(userRole)) {
       const adminMenu = document.getElementById('admin-menu');
       if(adminMenu) adminMenu.style.display = 'block';
