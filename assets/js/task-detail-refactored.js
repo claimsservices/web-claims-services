@@ -574,9 +574,7 @@ class UIPermissionManager {
         if (!this.form) return;
         // Make text inputs readonly
         this.form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], textarea').forEach(el => {
-            if (el.id !== 's_detail') { // Exclude s_detail from being readOnly
-                el.readOnly = true;
-            }
+            el.readOnly = true;
         });
         // Disable interactive elements
         this.form.querySelectorAll('select, button, input[type="checkbox"], input[type="file"]').forEach(el => {
@@ -756,6 +754,13 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         document.querySelectorAll('.add-image-btn').forEach(button => {
             button.style.display = 'none';
         });
+
+        // Disable and hide the AutoFillDamageBtn for Insurance role
+        const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
+        if (autoFillDamageBtn) {
+            autoFillDamageBtn.disabled = true;
+            autoFillDamageBtn.style.display = 'none';
+        }
     }
 }
 
