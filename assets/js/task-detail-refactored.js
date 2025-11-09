@@ -668,7 +668,7 @@ class UIPermissionManager {
         // Disable interactive elements
         this.form.querySelectorAll('select, button, input[type="checkbox"], input[type="file"]').forEach(el => {
             // Don't disable tab buttons or the downloadAllBtn
-            if (!el.classList.contains('nav-link') && el.id !== 'downloadAllBtn' && el.id !== 'view-full-image-btn') {
+            if (!el.classList.contains('nav-link') && el.id !== 'downloadAllBtn' && !el.classList.contains('individual-download-btn') && el.id !== 'view-full-image-btn') {
                 el.disabled = true;
             }
         });
@@ -997,7 +997,7 @@ export function populateImageSections() {
         console.log('Download All button clicked.');
         const zip = new JSZip();
         const orderId = document.getElementById('taskId').value.trim();
-        const imageElements = Array.from(document.querySelectorAll('.image-gallery img')).filter(img => {
+        const imageElements = Array.from(document.querySelectorAll('.image-gallery img, #download-images-container .card-img-top')).filter(img => {
           const style = getComputedStyle(img);
           return (img.src && img.src.startsWith('https') && style.display !== 'none' && img.complete);
         });
