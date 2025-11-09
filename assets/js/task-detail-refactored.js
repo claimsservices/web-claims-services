@@ -1492,7 +1492,13 @@ navigateTo('dashboard.html');
                 const orderId = getSafeValue('taskId');
                 const picUrl = img.src.split('?')[0]; // Remove cache-busting query params
 
-        }    });
+                const success = await updateImageTitle(orderId, picUrl, newTitle.trim());
+                if (success) {
+                    titleDiv.textContent = newTitle.trim();
+                }
+            }
+        }
+    });
 
     document.addEventListener('click', async function(e) {
         if (e.target && e.target.closest('.view-full-btn')) {
