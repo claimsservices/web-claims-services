@@ -279,6 +279,8 @@ export function renderUploadedImages(orderPics) {
             }
             if (deleteBtn) deleteBtn.style.display = 'block'; // Ensure delete button is visible
             if (editTitleBtn) editTitleBtn.style.display = 'flex'; // Ensure edit button is visible
+            const viewFullBtn = placeholderLabel.querySelector('.view-full-btn');
+            if (viewFullBtn) viewFullBtn.style.display = 'flex'; // Ensure view full button is visible
             placeholderLabel.dataset.filled = 'true';
             const parentCol = placeholderLabel.closest('.col-4.mb-3.text-center');
             if (parentCol) {
@@ -302,6 +304,7 @@ export function renderUploadedImages(orderPics) {
                         <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
                         <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
                         <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">A</button>
+                        <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 70px; right: 8px; width: 26px; height: 26px; background-color: #0d6efd; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">D</button>
                     </label>
                 </div>
             `;
@@ -853,6 +856,7 @@ export function populateImageSections() {
                                   <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" capture="camera">
                                   <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-x-circle-fill"></i></button>
                                   <button type="button" class="edit-title-btn" title="แก้ไขชื่อภาพ" style="position: absolute; top: 38px; right: 8px; width: 26px; height: 26px; background-color: #198754; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">A</button>
+                                  <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 70px; right: 8px; width: 26px; height: 26px; background-color: #0d6efd; color: #fff; border-radius: 50%; border: 2px solid white; font-weight: bold; font-size: 14px; line-height: 1; display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 10; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);">D</button>
                               </label>
                           </div>
                       `;
@@ -1488,10 +1492,19 @@ navigateTo('dashboard.html');
                 const orderId = getSafeValue('taskId');
                 const picUrl = img.src.split('?')[0]; // Remove cache-busting query params
 
-                const success = await updateImageTitle(orderId, picUrl, newTitle.trim());
-                if (success) {
-                    titleDiv.textContent = newTitle.trim();
-                }
+        }    });
+
+    document.addEventListener('click', async function(e) {
+        if (e.target && e.target.closest('.view-full-btn')) {
+            e.preventDefault();
+            const viewBtn = e.target.closest('.view-full-btn');
+            const label = viewBtn.closest('label.image-gallery');
+            const img = label.querySelector('img');
+
+            if (img && img.src && !img.src.includes('data:image/gif')) {
+                window.open(img.src, '_blank');
+            } else {
+                alert('ไม่มีรูปภาพให้แสดง');
             }
         }
     });
