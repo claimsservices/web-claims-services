@@ -384,6 +384,7 @@ export function renderUploadedImages(orderPics) {
         setValue('insuranceType', order_details.s_type);
         setValue('s_remark', order_details.s_remark);
         setValue('s_ins_remark', order_details.s_ins_remark);
+        console.log('DEBUG: s_detail from DB (before setValue):', order_details.s_detail);
         setValue('s_detail', order_details.s_detail);
         setChecked('fleetCar', order_details.s_fleet);
         setValue('creatorName', order_details.c_name);
@@ -789,6 +790,7 @@ function applyRoleBasedRestrictions(data) {
     const orderStatus = data.order.order_status;
     const permissionManager = getUIPermissionManager(userRole);
     permissionManager.configure(orderStatus, data);
+    console.log('DEBUG: s_detail after applyRoleBasedRestrictions:', document.getElementById('s_detail')?.value);
 }
 
 function populateModels(brandSelect, modelSelect) {
