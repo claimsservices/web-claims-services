@@ -970,6 +970,83 @@ export function populateImageSections() {
 
     initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
 
+    // --- CSV Import/Export Logic ---
+
+    const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
+    if (downloadCsvTemplateBtn) {
+        downloadCsvTemplateBtn.addEventListener('click', () => {
+            const headers = [
+                'c_insure', 'c_tell', 'carRegistration', 'carProvince', 'carBrand', 'carModel',
+                'carYear', 'carChassis', 'carEngine', 'c_mile', 'carType', 'carColor',
+                'insuranceCompany', 'insuranceBranch', 'reference1', 'reference2', 'policyNumber',
+                'coverageStartDate', 'coverageEndDate', 'insuranceType', 's_remark', 's_ins_remark', 'fleetCar'
+            ];
+            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "template_task_detail.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
+
+    const uploadCsvInput = document.getElementById('uploadCsvInput');
+    if (uploadCsvInput) {
+        uploadCsvInput.addEventListener('click', function() {
+            // Reset the value to allow re-uploading the same file
+            this.value = null;
+        });
+        uploadCsvInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/\r\n|\n/);
+
+                if (lines.length < 2) {
+                    alert('ไฟล์ CSV ไม่ถูกต้องหรือไม่มีข้อมูล');
+                    return;
+                }
+
+                // Simple CSV parser for a single line of data
+                const headers = lines[0].split(',').map(h => h.trim());
+                const data = lines[1].split(',').map(d => d.trim());
+
+                const dataMap = headers.reduce((obj, nextKey, index) => {
+                    obj[nextKey] = data[index];
+                    return obj;
+                }, {});
+
+                // Populate form fields
+                for (const id in dataMap) {
+                    if (Object.hasOwnProperty.call(dataMap, id)) {
+                        const value = dataMap[id];
+                        const element = document.getElementById(id);
+                        if (element) {
+                            if (element.type === 'checkbox') {
+                                element.checked = ['true', '1', 'yes'].includes(value.toLowerCase());
+                            } else {
+                                element.value = value;
+                                // If the element is a select, we might need to trigger a change event
+                                if (element.tagName === 'SELECT') {
+                                    element.dispatchEvent(new Event('change'));
+                                }
+                            }
+                        }
+                    }
+                }
+                alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
+            };
+            reader.readAsText(file);
+        });
+    }
+
     const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
     if (autoFillDamageBtn) {
       autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
