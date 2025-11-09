@@ -121,12 +121,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getCategoryFromPicType(picType) {
+        const mapping = {
+            'exterior_front': 'around',
+            'exterior_left_front': 'around',
+            'exterior_left_center': 'around',
+            'exterior_left_rear': 'around',
+            'exterior_rear': 'around',
+            'exterior_right_rear': 'around',
+            'exterior_right_center': 'around',
+            'exterior_right_front': 'around',
+            'exterior_roof': 'around',
+            'interior_wheels_1': 'accessories',
+            'interior_wheels_2': 'accessories',
+            'interior_wheels_3': 'accessories',
+            'interior_wheels_4': 'accessories',
+            'interior_dashboard': 'accessories',
+            'interior_6': 'accessories',
+            'interior_7': 'accessories',
+            'interior_8': 'accessories',
+            'interior_9': 'accessories',
+            'interior_10': 'accessories',
+            'interior_11': 'accessories',
+            'interior_12': 'accessories',
+            'interior_13': 'accessories',
+            'interior_14': 'accessories',
+            'interior_15': 'accessories',
+            'interior_16': 'accessories',
+            'interior_17': 'accessories',
+            'interior_18': 'accessories',
+            'interior_19': 'accessories',
+            'interior_20': 'accessories',
+            'damage_images_1': 'inspection',
+            'damage_images_2': 'inspection',
+            'damage_images_3': 'inspection',
+            'damage_images_4': 'inspection',
+            'damage_images_5': 'inspection',
+            'damage_images_6': 'inspection',
+            'damage_images_7': 'inspection',
+            'damage_images_8': 'inspection',
+            'damage_images_9': 'inspection',
+            'damage_images_10': 'inspection',
+            'doc_identity': 'fiber',
+            'doc_other_1': 'fiber',
+            'doc_other_2': 'fiber',
+            'doc_other_3': 'fiber',
+            'doc_other_4': 'fiber',
+            'doc_other_5': 'fiber',
+            'doc_other_6': 'fiber',
+            'doc_other_7': 'fiber',
+            'doc_other_8': 'fiber',
+            'license': 'documents',
+            'id_card': 'documents',
+            'car_doc': 'documents',
+            'car_number': 'documents',
+            'other_1': 'documents',
+            'other_2': 'documents',
+            'doc_other_9': 'documents', // Ambiguous, could be signature or documents
+            'other_3': 'documents',
+        };
+        return mapping[picType] || picType;
+    }
+
     function renderExistingImages(images) {
         images.forEach(image => {
             if (!image.pic_title || !image.pic || !image.pic_type) return;
-
-            const containerId = `${image.pic_type}-container`;
-            createImageSlot(containerId, image.pic_type, image.pic_title, image.pic, image.pic_title);
+    
+            let category = getCategoryFromPicType(image.pic_type);
+            let containerId = `${category}-container`;
+    
+            // Special handling for signature, which is ambiguous in the old data structure
+            if (image.pic_type === 'doc_other_9' && image.pic_title === 'ลายเซ็น') {
+                category = 'signature';
+                containerId = 'signature-container';
+            }
+    
+            createImageSlot(containerId, category, image.pic_title, image.pic, image.pic_title);
         });
     }
 
