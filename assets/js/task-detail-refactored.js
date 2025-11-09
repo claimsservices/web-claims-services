@@ -881,7 +881,7 @@ export function populateImageSections() {
   // DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
   // =========================================================
 
-  document.addEventListener('DOMContentLoaded', function () {
+  window.addEventListener('load', function () {
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     console.log('imagePreviewModalEl found (at top of DOMContentLoaded):', imagePreviewModalEl);
 
