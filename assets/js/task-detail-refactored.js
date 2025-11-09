@@ -526,19 +526,45 @@ export function renderUploadedImages(orderPics) {
       return;
     }
   
-    // Group images by pic_type
+    // Create a reverse map from sub-category (e.g., "exterior_front") to main category (e.g., "around")
+    const subCategoryToMainCategoryMap = {};
+    for (const mainCategory in staticImageConfig) {
+      staticImageConfig[mainCategory].forEach(item => {
+        subCategoryToMainCategoryMap[item.name] = mainCategory;
+      });
+    }
+  
+    // Define Thai names for main categories
+    const mainCategoryNames = {
+      around: 'ภาพถ่ายรอบคัน',
+      accessories: 'ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง',
+      inspection: 'ภาพถ่ายความเสียหาย',
+      fiber: 'เอกสารใบตรวจสภาพรถ',
+      documents: 'เอกสารอื่นๆ',
+      signature: 'ลายเซ็น'
+    };
+  
+    // Group images by the main category
     const groupedImages = orderPics.reduce((acc, pic) => {
-      const category = pic.pic_type || 'Uncategorized';
-      if (!acc[category]) {
-        acc[category] = [];
+      // Find the main category for the pic.pic_type. It could be a main category itself or a sub-category.
+      let mainCategory = staticImageConfig.hasOwnProperty(pic.pic_type) 
+        ? pic.pic_type 
+        : subCategoryToMainCategoryMap[pic.pic_type];
+  
+      if (!mainCategory) {
+        mainCategory = 'uncategorized'; // Fallback for unknown types
       }
-      acc[category].push(pic);
+  
+      if (!acc[mainCategory]) {
+        acc[mainCategory] = [];
+      }
+      acc[mainCategory].push(pic);
       return acc;
     }, {});
   
     // Render images for each category
-    for (const category in groupedImages) {
-      const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+    for (const mainCategory in groupedImages) {
+      const categoryTitle = mainCategoryNames[mainCategory] || mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
       const categoryHtml = `
         <div class="col-12 mt-4">
           <h5 class="text-primary border-bottom pb-2 mb-3">${categoryTitle}</h5>
@@ -546,7 +572,7 @@ export function renderUploadedImages(orderPics) {
       `;
       container.insertAdjacentHTML('beforeend', categoryHtml);
   
-      groupedImages[category].forEach(pic => {
+      groupedImages[mainCategory].forEach(pic => {
         const cardHtml = `
           <div class="col-md-3 col-sm-6 mb-4">
             <div class="card h-100">
@@ -555,9 +581,11 @@ export function renderUploadedImages(orderPics) {
               </a>
               <div class="card-body text-center">
                 <p class="card-text">${pic.pic_title || 'No Title'}</p>
-                <a href="${pic.pic}" download="${pic.pic_title || 'image'}.jpg" class="btn btn-sm btn-primary">
+                <button type="button" class="btn btn-sm btn-primary individual-download-btn" 
+                        data-url="${pic.pic}" 
+                        data-title="${pic.pic_title || 'image'}">
                   <i class="bx bx-download"></i> Download
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -1566,6 +1594,45 @@ navigateTo('dashboard.html');
             }
         }
     });
+
+    // Delegated event listener for individual image download buttons
+    document.addEventListener('click', async function(e) {
+      if (e.target && e.target.classList.contains('individual-download-btn')) {
+        e.preventDefault();
+        const button = e.target;
+        const imageUrl = button.dataset.url;
+        const imageTitle = button.dataset.title;
+
+        if (!imageUrl) return;
+
+        try {
+          button.disabled = true;
+          button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Downloading...';
+
+          const token = localStorage.getItem('authToken') || '';
+          const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+            body: JSON.stringify({ imageUrl: imageUrl })
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to download image from proxy: ${response.statusText}`);
+          }
+
+          const blob = await response.blob();
+          saveAs(blob, `${imageTitle}.jpg`);
+
+        } catch (err) {
+          console.error(`Error downloading individual image: ${imageUrl}`, err);
+          alert(`🚫 ไม่สามารถดาวน์โหลดรูปภาพได้: ${err.message}`);
+        } finally {
+          button.disabled = false;
+          button.innerHTML = '<i class="bx bx-download"></i> Download';
+        }
+      }
+    });
+
 
       }
   // เพิ่มบรรทัดนี้เพื่อปิด DOMContentLoaded listener ที่ขาดไป
