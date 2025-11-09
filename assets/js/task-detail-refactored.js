@@ -971,16 +971,36 @@ export function populateImageSections() {
     initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
 
     // --- CSV Import/Export Logic ---
+    const headerMap = {
+        'ชื่อผู้เอาประกัน': 'c_insure',
+        'เบอร์โทรศัพท์ผู้เอาประกัน': 'c_tell',
+        'ทะเบียนรถ': 'carRegistration',
+        'จังหวัดทะเบียนรถ': 'carProvince',
+        'ยี่ห้อรถ': 'carBrand',
+        'รุ่นรถ': 'carModel',
+        'ปีจดทะเบียน': 'carYear',
+        'เลขตัวถัง': 'carChassis',
+        'เลขเครื่อง': 'carEngine',
+        'เลขไมล์': 'c_mile',
+        'ประเภทรถ': 'carType',
+        'สีรถ': 'carColor',
+        'บริษัทประกันภัย': 'insuranceCompany',
+        'สาขาประกันภัย': 'insuranceBranch',
+        'ข้อมูลอ้างอิง1': 'reference1',
+        'ข้อมูลอ้างอิง2': 'reference2',
+        'เลขที่กรมธรรม์': 'policyNumber',
+        'วันที่เริ่มต้นคุ้มครอง': 'coverageStartDate',
+        'วันที่สิ้นสุดคุ้มครอง': 'coverageEndDate',
+        'ประเภทประกัน': 'insuranceType',
+        'หมายเหตุทั่วไป': 's_remark',
+        'หมายเหตุบริษัทประกัน': 's_ins_remark',
+        'รถFleet': 'fleetCar'
+    };
 
     const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
     if (downloadCsvTemplateBtn) {
         downloadCsvTemplateBtn.addEventListener('click', () => {
-            const headers = [
-                'c_insure', 'c_tell', 'carRegistration', 'carProvince', 'carBrand', 'carModel',
-                'carYear', 'carChassis', 'carEngine', 'c_mile', 'carType', 'carColor',
-                'insuranceCompany', 'insuranceBranch', 'reference1', 'reference2', 'policyNumber',
-                'coverageStartDate', 'coverageEndDate', 'insuranceType', 's_remark', 's_ins_remark', 'fleetCar'
-            ];
+            const headers = Object.keys(headerMap);
             const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
@@ -995,14 +1015,11 @@ export function populateImageSections() {
     const uploadCsvInput = document.getElementById('uploadCsvInput');
     if (uploadCsvInput) {
         uploadCsvInput.addEventListener('click', function() {
-            // Reset the value to allow re-uploading the same file
             this.value = null;
         });
         uploadCsvInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -1014,26 +1031,26 @@ export function populateImageSections() {
                     return;
                 }
 
-                // Simple CSV parser for a single line of data
-                const headers = lines[0].split(',').map(h => h.trim());
+                const fileHeaders = lines[0].split(',').map(h => h.trim());
                 const data = lines[1].split(',').map(d => d.trim());
 
-                const dataMap = headers.reduce((obj, nextKey, index) => {
-                    obj[nextKey] = data[index];
+                const dataMap = fileHeaders.reduce((obj, fileHeader, index) => {
+                    const fieldId = headerMap[fileHeader];
+                    if (fieldId) {
+                        obj[fieldId] = data[index];
+                    }
                     return obj;
                 }, {});
 
-                // Populate form fields
                 for (const id in dataMap) {
                     if (Object.hasOwnProperty.call(dataMap, id)) {
                         const value = dataMap[id];
                         const element = document.getElementById(id);
                         if (element) {
                             if (element.type === 'checkbox') {
-                                element.checked = ['true', '1', 'yes'].includes(value.toLowerCase());
+                                element.checked = ['true', '1', 'yes', 'TRUE', 'YES'].includes(value);
                             } else {
                                 element.value = value;
-                                // If the element is a select, we might need to trigger a change event
                                 if (element.tagName === 'SELECT') {
                                     element.dispatchEvent(new Event('change'));
                                 }
@@ -1043,7 +1060,7 @@ export function populateImageSections() {
                 }
                 alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
             };
-            reader.readAsText(file);
+            reader.readAsText(file, 'UTF-8');
         });
     }
 

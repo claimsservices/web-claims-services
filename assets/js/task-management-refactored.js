@@ -333,6 +333,100 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // --- CSV Import/Export Logic ---
+    const headerMap = {
+        'ชื่อผู้เอาประกัน': 'c_insure',
+        'เบอร์โทรศัพท์ผู้เอาประกัน': 'c_tell',
+        'ทะเบียนรถ': 'carRegistration',
+        'จังหวัดทะเบียนรถ': 'carProvince',
+        'ยี่ห้อรถ': 'carBrand',
+        'รุ่นรถ': 'carModel',
+        'ปีจดทะเบียน': 'carYear',
+        'เลขตัวถัง': 'carChassis',
+        'เลขเครื่อง': 'carEngine',
+        'เลขไมล์': 'c_mile',
+        'ประเภทรถ': 'carType',
+        'สีรถ': 'carColor',
+        'บริษัทประกันภัย': 'insuranceCompany',
+        'สาขาประกันภัย': 'insuranceBranch',
+        'ข้อมูลอ้างอิง1': 'reference1',
+        'ข้อมูลอ้างอิง2': 'reference2',
+        'เลขที่กรมธรรม์': 'policyNumber',
+        'วันที่เริ่มต้นคุ้มครอง': 'coverageStartDate',
+        'วันที่สิ้นสุดคุ้มครอง': 'coverageEndDate',
+        'ประเภทประกัน': 'insuranceType',
+        'หมายเหตุทั่วไป': 's_remark',
+        'หมายเหตุบริษัทประกัน': 's_ins_remark',
+        'รถFleet': 'fleetCar'
+    };
+
+    const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
+    if (downloadCsvTemplateBtn) {
+        downloadCsvTemplateBtn.addEventListener('click', () => {
+            const headers = Object.keys(headerMap);
+            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "template_task_detail.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
+
+    const uploadCsvInput = document.getElementById('uploadCsvInput');
+    if (uploadCsvInput) {
+        uploadCsvInput.addEventListener('click', function() {
+            this.value = null;
+        });
+        uploadCsvInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/\r\n|\n/);
+
+                if (lines.length < 2) {
+                    alert('ไฟล์ CSV ไม่ถูกต้องหรือไม่มีข้อมูล');
+                    return;
+                }
+
+                const fileHeaders = lines[0].split(',').map(h => h.trim());
+                const data = lines[1].split(',').map(d => d.trim());
+
+                const dataMap = fileHeaders.reduce((obj, fileHeader, index) => {
+                    const fieldId = headerMap[fileHeader];
+                    if (fieldId) {
+                        obj[fieldId] = data[index];
+                    }
+                    return obj;
+                }, {});
+
+                for (const id in dataMap) {
+                    if (Object.hasOwnProperty.call(dataMap, id)) {
+                        const value = dataMap[id];
+                        const element = document.getElementById(id);
+                        if (element) {
+                            if (element.type === 'checkbox') {
+                                element.checked = ['true', '1', 'yes', 'TRUE', 'YES'].includes(value);
+                            } else {
+                                element.value = value;
+                                if (element.tagName === 'SELECT') {
+                                    element.dispatchEvent(new Event('change'));
+                                }
+                            }
+                        }
+                    }
+                }
+                alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
+            };
+            reader.readAsText(file, 'UTF-8');
+        });
+    }
+
 
   async function loadOrderData(orderId) {
     const token = localStorage.getItem('authToken') || '';
