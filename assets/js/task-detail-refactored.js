@@ -1325,7 +1325,7 @@ navigateTo('dashboard.html');
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     console.log('imagePreviewModalEl found:', imagePreviewModalEl);
     if (imagePreviewModalEl) {
-        const imagePreviewModal = new window.bootstrap.Modal(imagePreviewModalEl);
+        const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
         const previewImage = document.getElementById('previewImage');
         let context = {}; // To store context for the replace button
 
