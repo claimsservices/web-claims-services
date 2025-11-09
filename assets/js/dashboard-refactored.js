@@ -104,13 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const initialFilters = getFilters();
       initialFilters.order_status_not = 'Pre-Approved';
       console.log('Initial fetch for Bike role with filters:', JSON.stringify(initialFilters, null, 2));
-      fetchData(initialFilters); // Default to Work tasks
+      // fetchData(initialFilters); // Default to Work tasks
     } else {
       // Hide the new filter buttons for non-Bike roles
       if (workBtn) workBtn.style.display = 'none';
       if (preApprovedBtn) preApprovedBtn.style.display = 'none';
       // For non-Bike roles, fetch data with existing filters
-      fetchData(getFilters());
+      // fetchData(getFilters());
     }
   
     if (userRole === 'Insurance') {
