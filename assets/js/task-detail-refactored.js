@@ -1312,6 +1312,7 @@ navigateTo('dashboard.html');
 
     // --- Start of Image Preview and Replace Logic ---
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
+    console.log('imagePreviewModalEl found:', imagePreviewModalEl);
     if (imagePreviewModalEl) {
         const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
         const previewImage = document.getElementById('previewImage');
@@ -1371,7 +1372,9 @@ navigateTo('dashboard.html');
 
         // Listener for the new "View Full Image" button in the modal
         const viewFullImageBtn = document.getElementById('view-full-image-btn');
+        console.log('viewFullImageBtn found:', viewFullImageBtn);
         if (viewFullImageBtn) {
+            console.log('Attaching event listener to viewFullImageBtn.');
             viewFullImageBtn.addEventListener('click', () => {
                 const imageUrl = previewImage.src;
                 if (imageUrl && !imageUrl.includes('data:image/gif')) {
