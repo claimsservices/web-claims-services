@@ -546,7 +546,6 @@ export function renderUploadedImages(orderPics) {
   
     // Group images by the main category
     const groupedImages = orderPics.reduce((acc, pic) => {
-      // Find the main category for the pic.pic_type. It could be a main category itself or a sub-category.
       let mainCategory = staticImageConfig.hasOwnProperty(pic.pic_type) 
         ? pic.pic_type 
         : subCategoryToMainCategoryMap[pic.pic_type];
@@ -562,37 +561,42 @@ export function renderUploadedImages(orderPics) {
       return acc;
     }, {});
   
-    // Render images for each category
-    for (const mainCategory in groupedImages) {
-      const categoryTitle = mainCategoryNames[mainCategory] || mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
-      const categoryHtml = `
-        <div class="col-12 mt-4">
-          <h5 class="text-primary border-bottom pb-2 mb-3">${categoryTitle}</h5>
-        </div>
-      `;
-      container.insertAdjacentHTML('beforeend', categoryHtml);
+    // Define the desired order of categories
+    const categoryOrder = ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature'];
   
-      groupedImages[mainCategory].forEach(pic => {
-        const cardHtml = `
-          <div class="col-md-3 col-sm-6 mb-4">
-            <div class="card h-100">
-              <a href="${pic.pic}" target="_blank">
-                <img src="${pic.pic}" class="card-img-top" alt="${pic.pic_title || 'Image'}" style="height: 200px; object-fit: cover;">
-              </a>
-              <div class="card-body text-center">
-                <p class="card-text">${pic.pic_title || 'No Title'}</p>
-                <button type="button" class="btn btn-sm btn-primary individual-download-btn" 
-                        data-url="${pic.pic}" 
-                        data-title="${pic.pic_title || 'image'}">
-                  <i class="bx bx-download"></i> Download
-                </button>
-              </div>
-            </div>
+    // Render images for each category in the specified order
+    categoryOrder.forEach(mainCategory => {
+      if (groupedImages[mainCategory]) {
+        const categoryTitle = mainCategoryNames[mainCategory] || mainCategory.charAt(0).toUpperCase() + mainCategory.slice(1);
+        const categoryHtml = `
+          <div class="col-12 mt-4">
+            <h5 class="text-primary border-bottom pb-2 mb-3">${categoryTitle}</h5>
           </div>
         `;
-        container.insertAdjacentHTML('beforeend', cardHtml);
-      });
-    }
+        container.insertAdjacentHTML('beforeend', categoryHtml);
+  
+        groupedImages[mainCategory].forEach(pic => {
+          const cardHtml = `
+            <div class="col-md-3 col-sm-6 mb-4">
+              <div class="card h-100">
+                <a href="${pic.pic}" target="_blank">
+                  <img src="${pic.pic}" class="card-img-top" alt="${pic.pic_title || 'Image'}" style="height: 200px; object-fit: cover;">
+                </a>
+                <div class="card-body text-center">
+                  <p class="card-text">${pic.pic_title || 'No Title'}</p>
+                  <button type="button" class="btn btn-sm btn-primary individual-download-btn" 
+                          data-url="${pic.pic}" 
+                          data-title="${pic.pic_title || 'image'}">
+                    <i class="bx bx-download"></i> Download
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', cardHtml);
+        });
+      }
+    });
   }
   
   export function populateDamageDetailFromImages() {
@@ -1400,155 +1404,6 @@ navigateTo('dashboard.html');
         }
       });
     }
-
-    // --- Start of Image Preview and Replace Logic ---
-    const imagePreviewModalEl = document.getElementById('imagePreviewModal');
-    console.log('imagePreviewModalEl found:', imagePreviewModalEl);
-    if (imagePreviewModalEl) {
-        const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
-        const previewImage = document.getElementById('previewImage');
-        let context = {}; // To store context for the replace button
-
-        // Listener for the "Replace Image" button in the modal
-        const replaceBtn = document.getElementById('replace-image-btn');
-        const downloadModalBtn = document.getElementById('download-modal-btn');
-        const userRole = getUserRole(); // Get user role
-
-        if (replaceBtn) {
-            console.log('Current user role for replaceBtn visibility:', userRole); // Add this log
-            // Hide replace button for Insurance role
-            if (userRole === 'Insurance') {
-                replaceBtn.style.display = 'none';
-                console.log('replaceBtn hidden for Insurance role.'); // Add this log
-            } else {
-                replaceBtn.style.display = 'inline-block'; // Ensure visible for other roles
-                console.log('replaceBtn visible for role:', userRole); // Add this log
-            }
-            // ...
-        }
-
-        // Listener for the "Download" button in the modal
-        if (downloadModalBtn) {
-            downloadModalBtn.addEventListener('click', async () => {
-                const imageUrlToDownload = previewImage.src; // Get image URL from the preview
-                if (!imageUrlToDownload || imageUrlToDownload.includes('data:image/gif')) {
-                    alert('ไม่มีรูปภาพให้ดาวน์โหลด');
-                    return;
-                }
-
-                try {
-                    const token = localStorage.getItem('authToken') || '';
-                  const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                        body: JSON.stringify({ imageUrl: imageUrlToDownload })
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Failed to download image from proxy: ${response.status} ${response.statusText} - ${errorText}`);
-                    }
-
-                    const blob = await response.blob();
-                    const filenameWithQuery = imageUrlToDownload.split('/').pop();
-                    const filename = filenameWithQuery.split('?')[0]; // Strip query parameters
-                    saveAs(blob, filename);
-                    console.log(`Successfully downloaded image from modal: ${filename}`);
-                } catch (err) {
-                    console.error(`Error downloading image from modal: ${imageUrlToDownload}`, err);
-                    alert(`🚫 ไม่สามารถดาวน์โหลดรูปภาพได้: ${err.message}`);
-                }
-            });
-        }
-
-        // Listener for the new "View Full Image" button in the modal
-        const viewFullImageBtn = document.getElementById('view-full-image-btn');
-        console.log('viewFullImageBtn found:', viewFullImageBtn);
-        if (viewFullImageBtn) {
-            console.log('Attaching event listener to viewFullImageBtn.');
-            viewFullImageBtn.addEventListener('click', () => {
-                const imageUrl = previewImage.src;
-                if (imageUrl && !imageUrl.includes('data:image/gif')) {
-                    window.open(imageUrl, '_blank');
-                } else {
-                    alert('ไม่มีรูปภาพให้แสดง');
-                }
-            });
-        }
-
-        // Delegated listener for all image-related actions
-                                document.addEventListener('click', function(e) {
-                                    const label = e.target.closest('label.image-gallery');
-                                    const isDownloadButton = e.target.closest('.btn.bi-download'); // Check if the clicked element or its ancestor is the download button
-                    
-                                    // Exit if not a relevant click, or if the click originated from the download button
-                                    if (!label || e.target.closest('.delete-btn') || e.target.closest('.edit-title-btn') || isDownloadButton) {
-                                        return;
-                                    }
-                    
-                                    const img = label.querySelector('img');
-                                    const isPlaceholder = !img || !img.src || img.src.includes('data:image/gif');
-                    
-                                    if (isPlaceholder) {
-                                        // This is an empty slot. Let the default browser action proceed.
-                                        // The click will fall through to the hidden file input, which has a 'change' listener
-                                        // that will handle the new upload. We do nothing here.
-                                        return;
-                                    } else {
-                                        // This is an existing image. Prevent the default action (which would open the file dialog)
-                                        // and instead open our modal for the replacement workflow.
-                                        e.preventDefault();
-                                        
-                                        const fileInput = label.querySelector('input[type="file"]');
-                                        if (!fileInput) return;
-                    
-                                        const fieldName = fileInput.name;
-                                        const field = imageFields.find(f => f.name === fieldName);
-                                        if (field) {
-                                            // The global `context` variable is used by the modal's replace button
-                                            context = { field: field, imgElement: img, labelElement: label };
-                                            
-                                            // --- Timestamp Overlay Logic ---
-                                            // Remove any existing timestamp overlay first
-                                            const existingOverlay = imagePreviewModalEl.querySelector('.timestamp-overlay');
-                                            if (existingOverlay) {
-                                                existingOverlay.remove();
-                                            }
-
-                                            // Add new timestamp overlay if the date exists on the image's data attribute
-                                            console.log('img.dataset.createdDate:', img.dataset.createdDate); // Debugging line
-                                            if (img.dataset.createdDate) {
-                                                const container = imagePreviewModalEl.querySelector('.image-preview-container');
-                                                const timestamp = new Date(img.dataset.createdDate);
-                                                // Format to DD-MM-YYYY HH:mm
-                                                const formattedTimestamp = timestamp.toLocaleString('en-GB', {
-                                                    year: 'numeric',
-                                                    month: '2-digit',
-                                                    day: '2-digit',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    timeZone: 'Asia/Bangkok'
-                                                }).replace(/\//g, '-').replace(',', '');
-
-                                                const timestampOverlay = document.createElement('div');
-                                                timestampOverlay.className = 'timestamp-overlay';
-                                                timestampOverlay.textContent = formattedTimestamp;
-                                                // Force visibility and position for debugging
-                                                timestampOverlay.style.cssText = 'position: absolute; bottom: 10px; right: 10px; background-color: transparent; color: blue; padding: 5px; border-radius: 3px; z-index: 1000;';
-                                                
-                                                if (container) {
-                                                    container.appendChild(timestampOverlay);
-                                                }
-                                            }
-                                            // --- End of Timestamp Overlay Logic ---
-
-                                            previewImage.src = img.src;
-                                            imagePreviewModal.show();
-                                        }
-                                    }
-                                });
-    }
-    // --- End of Image Preview and Replace Logic ---
 
     
 
