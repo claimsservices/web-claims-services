@@ -1,5 +1,5 @@
 import { getQueryParam, navigateTo } from './navigation.js';
-import * as bootstrap from '../assets/vendor/js/bootstrap.js';
+import * as bootstrap from '../vendor/js/bootstrap.js';
 
 export const staticImageConfig = {
     around: [
