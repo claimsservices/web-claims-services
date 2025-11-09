@@ -580,7 +580,7 @@ class UIPermissionManager {
         // Disable interactive elements
         this.form.querySelectorAll('select, button, input[type="checkbox"], input[type="file"]').forEach(el => {
             // Don't disable tab buttons or the downloadAllBtn
-            if (!el.classList.contains('nav-link') && el.id !== 'downloadAllBtn') {
+            if (!el.classList.contains('nav-link') && el.id !== 'downloadAllBtn' && el.id !== 'view-full-image-btn') {
                 el.disabled = true;
             }
         });
@@ -708,6 +708,11 @@ class UIBikePermissionManager extends UIPermissionManager {
         if (replaceImageBtn) {
             replaceImageBtn.style.display = 'inline-block';
             replaceImageBtn.disabled = false;
+        }
+        const viewFullImageBtn = document.getElementById('view-full-image-btn');
+        if (viewFullImageBtn) {
+            viewFullImageBtn.style.display = 'inline-block';
+            viewFullImageBtn.disabled = false;
         }
         document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => {
             btn.style.display = 'block';
@@ -1360,6 +1365,19 @@ navigateTo('dashboard.html');
                 } catch (err) {
                     console.error(`Error downloading image from modal: ${imageUrlToDownload}`, err);
                     alert(`🚫 ไม่สามารถดาวน์โหลดรูปภาพได้: ${err.message}`);
+                }
+            });
+        }
+
+        // Listener for the new "View Full Image" button in the modal
+        const viewFullImageBtn = document.getElementById('view-full-image-btn');
+        if (viewFullImageBtn) {
+            viewFullImageBtn.addEventListener('click', () => {
+                const imageUrl = previewImage.src;
+                if (imageUrl && !imageUrl.includes('data:image/gif')) {
+                    window.open(imageUrl, '_blank');
+                } else {
+                    alert('ไม่มีรูปภาพให้แสดง');
                 }
             });
         }
