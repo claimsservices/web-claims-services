@@ -1,4 +1,5 @@
 import { getQueryParam, navigateTo } from './navigation.js';
+import * as bootstrap from '../assets/vendor/js/bootstrap.js';
 
 export const staticImageConfig = {
     around: [
@@ -1320,7 +1321,7 @@ navigateTo('dashboard.html');
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     console.log('imagePreviewModalEl found:', imagePreviewModalEl);
     if (imagePreviewModalEl) {
-        const imagePreviewModal = new window.bootstrap.Modal(imagePreviewModalEl);
+        const imagePreviewModal = new bootstrap.Modal(imagePreviewModalEl);
         const previewImage = document.getElementById('previewImage');
         let context = {}; // To store context for the replace button
 
