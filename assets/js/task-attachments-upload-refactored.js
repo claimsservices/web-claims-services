@@ -439,6 +439,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    // Function to add a watermark to an image file
+    function addWatermark(imageFile) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+
+                    // Draw the original image
+                    ctx.drawImage(img, 0, 0);
+
+                    // Prepare the watermark text
+                    const now = new Date();
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                    const year = now.getFullYear();
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const watermarkText = `STSERVICE-${day}-${month}-${year} ${hours}:${minutes}`;
+
+                    // Style the watermark
+                    const fontSize = Math.max(18, Math.min(img.width / 30, img.height / 20)); // Dynamic font size
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+
+                    // Add a slight shadow for better visibility
+                    ctx.shadowColor = 'black';
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+
+                    // Draw the watermark text at the bottom-right corner
+                    ctx.fillText(watermarkText, canvas.width - 10, canvas.height - 10);
+
+                    // Convert canvas to blob and resolve the promise
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error('Canvas to Blob conversion failed'));
+                        }
+                    }, 'image/jpeg', 0.9); // Use JPEG for good compression
+                };
+                img.onerror = (err) => {
+                    reject(new Error('Failed to load image for watermarking.'));
+                };
+                img.src = event.target.result;
+            };
+            reader.onerror = (err) => {
+                reject(new Error('Failed to read file for watermarking.'));
+            };
+            reader.readAsDataURL(imageFile);
+        });
+    }
+
     const uploadBtn = document.getElementById('uploadBtn');
     if (uploadBtn) {
         uploadBtn.addEventListener('click', async () => {
@@ -474,14 +536,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(`[DEBUG] Staging File -> Name: ${file.name}, Type: ${picType}, Title: ${picTitle}`);
 
                 const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
-                    .then(compressedFile => {
-                        formData.append('images', compressedFile, file.name);
+                    .then(compressedFile => addWatermark(compressedFile)) // Add watermark after compression
+                    .then(watermarkedBlob => {
+                        // Use the original file name for the watermarked blob
+                        formData.append('images', watermarkedBlob, file.name);
                         formData.append('pic_type', picType);
                         formData.append('pic_title', picTitle);
                     })
                     .catch(err => {
-                        console.error('Compression error:', err);
-                        alert(`เกิดข้อผิดพลาดในการบีบอัดไฟล์: ${file.name}`);
+                        console.error('Compression or Watermarking error:', err);
+                        alert(`เกิดข้อผิดพลาดในการประมวลผลไฟล์: ${file.name}`);
                         throw err; // Propagate error to stop the upload process
                     });
                 compressionPromises.push(promise);
