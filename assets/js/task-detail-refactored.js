@@ -1144,8 +1144,6 @@ export function populateImageSections() {
 
       if (['Operation Manager', 'Director', 'Developer'].includes(userRole)) {
         if(adminMenuEl) adminMenuEl.style.display = 'block';
-      } else if (['Insurance', 'Bike'].includes(userRole)) {
-        if(userManagementMenuEl) userManagementMenuEl.style.display = 'none';
       }
       
       if (userRole === 'Admin Officer') {
