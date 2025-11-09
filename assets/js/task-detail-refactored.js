@@ -419,6 +419,7 @@ export function renderUploadedImages(orderPics) {
       // Render existing images if they exist
       if (order_pic && order_pic.length > 0) {
         renderUploadedImages(order_pic);
+        renderDownloadableImages(order_pic);
       }
 
       // Pass the full result to apply restrictions
@@ -514,6 +515,36 @@ export function renderUploadedImages(orderPics) {
   // =========================================================
   // PHOTO RENDERING LOGIC
   // =========================================================
+  function renderDownloadableImages(orderPics) {
+    const container = document.getElementById('download-images-container');
+    if (!container) return;
+  
+    container.innerHTML = ''; // Clear previous images
+  
+    if (!orderPics || orderPics.length === 0) {
+      container.innerHTML = '<p class="text-muted">ไม่มีรูปภาพในรายการนี้</p>';
+      return;
+    }
+  
+    orderPics.forEach(pic => {
+      const cardHtml = `
+        <div class="col-md-3 col-sm-6 mb-4">
+          <div class="card h-100">
+            <a href="${pic.pic}" target="_blank">
+              <img src="${pic.pic}" class="card-img-top" alt="${pic.pic_title || 'Image'}" style="height: 200px; object-fit: cover;">
+            </a>
+            <div class="card-body text-center">
+              <p class="card-text">${pic.pic_title || 'No Title'}</p>
+              <a href="${pic.pic}" download="${pic.pic_title || 'image'}.jpg" class="btn btn-sm btn-primary">
+                <i class="bx bx-download"></i> Download
+              </a>
+            </div>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', cardHtml);
+    });
+  }
   
   export function populateDamageDetailFromImages() {
       console.log('populateDamageDetailFromImages function called.');
