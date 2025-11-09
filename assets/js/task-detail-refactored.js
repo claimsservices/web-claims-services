@@ -877,6 +877,12 @@ export function populateImageSections() {
   // =========================================================
 
   document.addEventListener('DOMContentLoaded', function () {
+    const imagePreviewModalEl = document.getElementById('imagePreviewModal');
+    console.log('imagePreviewModalEl found (at top of DOMContentLoaded):', imagePreviewModalEl);
+
+    const viewFullImageBtn = document.getElementById('view-full-image-btn');
+    console.log('viewFullImageBtn found (at top of DOMContentLoaded):', viewFullImageBtn);
+
     initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
 
     const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
