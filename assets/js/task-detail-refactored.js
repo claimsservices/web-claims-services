@@ -526,24 +526,45 @@ export function renderUploadedImages(orderPics) {
       return;
     }
   
-    orderPics.forEach(pic => {
-      const cardHtml = `
-        <div class="col-md-3 col-sm-6 mb-4">
-          <div class="card h-100">
-            <a href="${pic.pic}" target="_blank">
-              <img src="${pic.pic}" class="card-img-top" alt="${pic.pic_title || 'Image'}" style="height: 200px; object-fit: cover;">
-            </a>
-            <div class="card-body text-center">
-              <p class="card-text">${pic.pic_title || 'No Title'}</p>
-              <a href="${pic.pic}" download="${pic.pic_title || 'image'}.jpg" class="btn btn-sm btn-primary">
-                <i class="bx bx-download"></i> Download
-              </a>
-            </div>
-          </div>
+    // Group images by pic_type
+    const groupedImages = orderPics.reduce((acc, pic) => {
+      const category = pic.pic_type || 'Uncategorized';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(pic);
+      return acc;
+    }, {});
+  
+    // Render images for each category
+    for (const category in groupedImages) {
+      const categoryTitle = category.charAt(0).toUpperCase() + category.slice(1);
+      const categoryHtml = `
+        <div class="col-12 mt-4">
+          <h5 class="text-primary border-bottom pb-2 mb-3">${categoryTitle}</h5>
         </div>
       `;
-      container.insertAdjacentHTML('beforeend', cardHtml);
-    });
+      container.insertAdjacentHTML('beforeend', categoryHtml);
+  
+      groupedImages[category].forEach(pic => {
+        const cardHtml = `
+          <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card h-100">
+              <a href="${pic.pic}" target="_blank">
+                <img src="${pic.pic}" class="card-img-top" alt="${pic.pic_title || 'Image'}" style="height: 200px; object-fit: cover;">
+              </a>
+              <div class="card-body text-center">
+                <p class="card-text">${pic.pic_title || 'No Title'}</p>
+                <a href="${pic.pic}" download="${pic.pic_title || 'image'}.jpg" class="btn btn-sm btn-primary">
+                  <i class="bx bx-download"></i> Download
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', cardHtml);
+      });
+    }
   }
   
   export function populateDamageDetailFromImages() {
