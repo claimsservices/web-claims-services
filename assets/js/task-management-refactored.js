@@ -59,6 +59,16 @@ fetch('/version.json')
         document.getElementById('ownerName').value = fname + ' ' + lname;
         document.getElementById('user-role').innerText = role;
 
+        // If user is Insurance, set and disable the insurance company dropdown
+        if (role === 'Insurance') {
+          const insuranceCompanySelect = document.getElementById('insuranceCompany');
+          const userInsurComp = decoded.insur_comp;
+          if (insuranceCompanySelect && userInsurComp) {
+            insuranceCompanySelect.value = userInsurComp;
+            insuranceCompanySelect.disabled = true;
+          }
+        }
+
         const imageUrl = myPicture;
         const imgElement = document.getElementById('userAvatar');
         if (imageUrl) {

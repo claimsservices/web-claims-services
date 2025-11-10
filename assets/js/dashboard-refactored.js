@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterControls = document.getElementById('filter-controls');
   
     // Role-based UI adjustments
-    if (userRole === 'Insurance' || userRole === 'Bike') {
+    if (userRole === 'Bike') {
       if(summaryCards) summaryCards.classList.add('hidden-by-role');
       if(accountSettingsMenu) accountSettingsMenu.classList.add('hidden-by-role');
       if(exportExcelBtn) exportExcelBtn.classList.add('hidden-by-role');
@@ -114,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     if (userRole === 'Insurance') {
-      if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
       if (headerOrderDate) headerOrderDate.style.display = 'none';
       if (headerOrderType) headerOrderType.style.display = 'none';
       if (headerAmount) headerAmount.style.display = 'none';
