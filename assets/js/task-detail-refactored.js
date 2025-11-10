@@ -1133,6 +1133,18 @@ export function populateImageSections() {
         }
     });
 
+    // Delegated event listener to trigger file input when image is clicked
+    document.addEventListener('click', function(e) {
+        const imageContainer = e.target.closest('.image-container');
+        if (imageContainer) {
+            const imageSlot = imageContainer.closest('.dynamic-image-slot');
+            const fileInput = imageSlot.querySelector('input[type="file"]');
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+    });
+
     // Delegated event listener for dynamically created file inputs
     document.addEventListener('change', async function(e) {
         if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'file') {
