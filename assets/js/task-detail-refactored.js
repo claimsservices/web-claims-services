@@ -868,6 +868,19 @@ class UIAdminPermissionManager extends UIPermissionManager {
         if (imageTabLink) {
             imageTabLink.parentElement.style.display = 'block';
         }
+
+        // Show the toggle button and hide empty slots by default
+        const toggleBtn = document.getElementById('toggleEmptySlotsBtn');
+        if (toggleBtn) {
+            toggleBtn.style.display = 'inline-block';
+            // Hide empty slots by default on page load
+            const emptySlots = document.querySelectorAll('.dynamic-image-slot:not([data-uploaded="true"])');
+            emptySlots.forEach(slot => {
+                slot.style.display = 'none';
+            });
+            toggleBtn.textContent = 'แสดงช่องว่าง';
+            toggleBtn.dataset.state = 'hidden';
+        }
     }
 }
 
@@ -1474,6 +1487,29 @@ export function populateImageSections() {
             mainSaveBtn.click();
         }
       });
+    }
+
+    // Event listener for the "Show/Hide Empty Slots" button
+    const toggleEmptySlotsBtn = document.getElementById('toggleEmptySlotsBtn');
+    if (toggleEmptySlotsBtn) {
+        toggleEmptySlotsBtn.addEventListener('click', () => {
+            const emptySlots = document.querySelectorAll('.dynamic-image-slot:not([data-uploaded="true"])');
+            const currentState = toggleEmptySlotsBtn.dataset.state || 'hidden';
+
+            if (currentState === 'hidden') {
+                emptySlots.forEach(slot => {
+                    slot.style.display = 'block';
+                });
+                toggleEmptySlotsBtn.textContent = 'ซ่อนช่องว่าง';
+                toggleEmptySlotsBtn.dataset.state = 'visible';
+            } else {
+                emptySlots.forEach(slot => {
+                    slot.style.display = 'none';
+                });
+                toggleEmptySlotsBtn.textContent = 'แสดงช่องว่าง';
+                toggleEmptySlotsBtn.dataset.state = 'hidden';
+            }
+        });
     }
 
     // Fix for Tab Switching based on legacy code
