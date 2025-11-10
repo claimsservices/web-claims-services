@@ -182,6 +182,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const initialFilters = getFilters();
   initialFilters.order_status_not = 'Pre-Approved';
   fetchData(initialFilters);
+
+  const logoutBtn = document.getElementById('logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      localStorage.removeItem('authToken');
+      window.location.href = '../index.html';
+    });
+  }
+
+  const logoutMenuBtn = document.getElementById('logout-menu');
+  if (logoutMenuBtn) {
+    logoutMenuBtn.addEventListener('click', function (event) {
+      event.preventDefault();
+      localStorage.removeItem('authToken');
+      window.location.href = '../index.html';
+    });
+  }
 });
 
 function getFilters() {
@@ -325,41 +343,4 @@ function setActivePage(pageNumber) {
 // if (document.querySelector("#userTable tbody")) {
 //   fetchData();
 // }
-
-document.addEventListener('DOMContentLoaded', function () {
-  // สร้างวันที่ใน timezone Asia/Bangkok และตั้งเวลาเป็น 06:00
-  const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
-  const todayBangkok = new Date(nowInBangkok);
-  todayBangkok.setHours(6, 0, 0, 0); // ตั้งเวลาเป็น 06:00:00
-
-  // เปิด Flatpickr
-  if (document.querySelector("#filterDateTime")) {
-    flatpickr("#filterDateTime", {
-      enableTime: true,
-      dateFormat: "d/m/Y H:i",  // dd/MM/yyyy HH:mm
-      defaultDate: todayBangkok,
-      time_24hr: true,
-      locale: "th"
-    });
-  }
-});
-
-const logoutBtn = document.getElementById('logout');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', function (event) {
-    event.preventDefault();
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
-  });
-}
-
-const logoutMenuBtn = document.getElementById('logout-menu');
-if (logoutMenuBtn) {
-  logoutMenuBtn.addEventListener('click', function (event) {
-    event.preventDefault();
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
-  });
-}
-
 
