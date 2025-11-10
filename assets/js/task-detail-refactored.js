@@ -201,9 +201,7 @@ export const staticImageConfig = {
   const uploadedPicCache = new Set();
 
 export function renderUploadedImages(orderPics) {
-    // If there are no pictures, ensure the damage field is cleared.
     if (!orderPics || orderPics.length === 0) {
-        console.log('renderUploadedImages: No pictures to render or orderPics is empty.');
         return;
     }
 
@@ -216,98 +214,56 @@ export function renderUploadedImages(orderPics) {
         'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
     };
 
-    // No need for picNameToCategoryMap as pic.pic_type is now assumed to be the category
+    // Create a reverse map from pic_type (e.g., "exterior_front") to main category (e.g., "around")
+    const picTypeToMainCategoryMap = {};
+    for (const mainCategory in staticImageConfig) {
+        staticImageConfig[mainCategory].forEach(item => {
+            picTypeToMainCategoryMap[item.name] = mainCategory;
+        });
+    }
 
     orderPics.forEach(pic => {
-        console.log('renderUploadedImages: Processing pic:', pic);
         if (!pic.pic_type || !pic.pic) {
-            console.warn('renderUploadedImages: Skipping pic due to missing pic_type or pic URL:', pic);
+            console.warn('Skipping pic due to missing pic_type or pic URL:', pic);
             return;
         }
 
-        // Determine the main category from pic.pic_type
-        let mainCategory = null;
-
-        // First, check if pic_type itself is a main category key
-        if (staticImageConfig.hasOwnProperty(pic.pic_type)) {
-            mainCategory = pic.pic_type;
-        } else {
-            // If not, search within the config to find the parent category
-            for (const key in staticImageConfig) {
-                if (staticImageConfig[key].some(item => item.name === pic.pic_type)) {
-                    mainCategory = key;
-                    break;
-                }
-            }
-        }
-
+        const mainCategory = picTypeToMainCategoryMap[pic.pic_type];
         if (!mainCategory) {
-            console.warn('renderUploadedImages: Could not find main category for pic_type:', pic.pic_type);
+            console.warn('Could not find main category for pic_type:', pic.pic_type);
             return;
         }
 
         const targetSection = sectionsMap[mainCategory];
         if (!targetSection) {
-            console.warn('renderUploadedImages: targetSection is null for mainCategory:', mainCategory);
+            console.warn('Target section not found for main category:', mainCategory);
             return;
         }
 
-        // Now, find the specific placeholder within the targetSection using pic.pic_type (the sub-category name)
-        // Try to find an existing, unfilled placeholder slot within this category
-        let filledExistingSlot = false;
-        // Find the first .dynamic-image-slot within targetSection that has an img with default GIF src
-        // and also matches the specific pic.pic_type (item.name) via its hidden input's name attribute
-        const placeholderSlot = targetSection.querySelector(`.dynamic-image-slot input[name="${pic.pic_type}"]`)?.closest('.dynamic-image-slot');
-
-        if (placeholderSlot) {
-            const img = placeholderSlot.querySelector('img');
-            const titleInput = placeholderSlot.querySelector('.image-title-input');
-            const deleteBtn = placeholderSlot.querySelector('.delete-btn');
-            const editTitleBtn = placeholderSlot.querySelector('.edit-title-btn');
-            const viewFullBtn = placeholderSlot.querySelector('.view-full-btn');
-
-            if (img) {
-                img.src = pic.pic;
-                img.alt = pic.pic_title || 'Uploaded Image';
-                if (pic.created_date) {
-                    img.dataset.createdDate = pic.created_date;
-                }
-            }
-            if (titleInput) {
-                titleInput.value = pic.pic_title || 'กรุณาใส่ชื่อ';
-            }
-            if (deleteBtn) deleteBtn.style.display = 'block';
-            if (editTitleBtn) editTitleBtn.style.display = 'inline-block'; // Show edit button
-            if (viewFullBtn) viewFullBtn.style.display = 'flex'; // Show view full button
-            filledExistingSlot = true;
-            console.log('renderUploadedImages: Filled existing placeholder for category:', mainCategory);
-        }
-
-        // If no existing placeholder was filled (meaning all static slots are taken or there are no static slots),
-        // create a new dynamic slot.
-        if (!filledExistingSlot) {
-            const uniqueId = `uploaded-image-${mainCategory}-${Date.now()}`;
-            const newSlotHtml = `
-                <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${mainCategory}">
-                    <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
-                        <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || 'Uploaded Image'}" data-created-date="${pic.created_date || new Date().toISOString()}">
-                        <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
-                        <button type="button" class="upload-btn" title="เปลี่ยนรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <input type="text" class="form-control image-title-input" value="${pic.pic_title || 'กรุณาใส่ชื่อ'}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
-                        <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
-                    </div>
-                    <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
+        // Dynamically create and insert the image slot
+        const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
+        const defaultTitle = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle || 'กรุณาใส่ชื่อ';
+        const newSlotHtml = `
+            <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}">
+                <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
+                    <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || defaultTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
+                    <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
+                    <button type="button" class="upload-btn" title="เปลี่ยนรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
+                    <button type="button" class="view-full-btn" title="ดูภาพเต็ม" style="position: absolute; bottom: 6px; right: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-arrows-fullscreen"></i></button>
                 </div>
-            `;
-            console.log('renderUploadedImages: Generated newSlotHtml:', newSlotHtml);
-            const addImageBtn = targetSection.querySelector(`.add-image-btn[data-category="${mainCategory}"]`);
-            if (addImageBtn) {
-                addImageBtn.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
-            } else {
-                targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
-            }
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control image-title-input" value="${pic.pic_title || defaultTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
+                </div>
+                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
+            </div>
+        `;
+
+        const addImageBtnContainer = targetSection.querySelector('.add-image-btn')?.parentElement;
+        if (addImageBtnContainer) {
+            addImageBtnContainer.insertAdjacentHTML('beforebegin', newSlotHtml);
+        } else {
+            targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
         }
     });
 }
@@ -938,33 +894,33 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 
 
 export function populateImageSections() {
-      const sectionsMap = {
-          'around': document.getElementById('around-images-section')?.querySelector('.row'),
-          'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
-          'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
-          'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
-          'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
-          'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
-      };
+    const sectionsMap = {
+        'around': document.getElementById('around-images-section')?.querySelector('.row'),
+        'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+        'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+        'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+        'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+        'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+    };
 
-      for (const category in sectionsMap) {
-          const targetSection = sectionsMap[category];
-          if (targetSection) {
-              // Clear existing content to prevent duplicates if called multiple times
-              targetSection.innerHTML = '';
+    for (const category in sectionsMap) {
+        const targetSection = sectionsMap[category];
+        if (targetSection) {
+            // Clear existing content to prevent duplicates if called multiple times
+            targetSection.innerHTML = '';
 
-              // Add the "Add Image" button after static slots
-              const addImageButtonHtml = `
-                  <div class="col-4 mb-3 text-center">
-                      <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
-                          <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
-                      </button>
-                  </div>
-              `;
-              targetSection.insertAdjacentHTML('beforeend', addImageButtonHtml);
-          }
-      }
-  }
+            // Add only the "Add Image" button. Image slots will be created dynamically.
+            const addImageButtonHtml = `
+                <div class="col-4 mb-3 text-center">
+                    <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
+                        <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
+                    </button>
+                </div>
+            `;
+            targetSection.insertAdjacentHTML('beforeend', addImageButtonHtml);
+        }
+    }
+}
 
   // =========================================================
   // DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
