@@ -839,14 +839,17 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         if (saveImagesBtn) saveImagesBtn.style.display = 'none';
 
         // Configure status dropdown
-        let allowedStatuses = [];
-        if (orderStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
-            allowedStatuses = ['รออนุมัติ', orderStatus];
-        } else if (orderStatus === 'Pre-Approved') {
-            allowedStatuses = ['ผ่าน', 'ไม่ผ่าน'];
-        }
-        if (allowedStatuses.length > 0) {
+        if (orderStatus === 'Pre-Approved') {
+            const allowedStatuses = ['ผ่าน', 'ไม่ผ่าน', 'Pre-Approved'];
             this.applyStatusPermissions(allowedStatuses);
+            // Make sure the current value is selected
+            if (this.statusDropdown) {
+                this.statusDropdown.value = orderStatus;
+            }
+        } else {
+            if (this.statusDropdown) {
+                this.statusDropdown.disabled = true;
+            }
         }
 
         // Hide unnecessary tabs for Insurance role
