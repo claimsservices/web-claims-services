@@ -126,11 +126,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     if (userRole === 'Insurance') {
+      const pendingOrdersCard = document.getElementById('pendingOrdersCard');
+      const inProgressOrdersCard = document.getElementById('inProgressOrdersCard');
+      const completedOrdersCard = document.getElementById('completedOrdersCard');
+  
+      if (pendingOrdersCard) pendingOrdersCard.style.display = 'none';
+      if (inProgressOrdersCard) inProgressOrdersCard.style.display = 'none';
+      if (completedOrdersCard) completedOrdersCard.style.display = 'none';
+
+      const userRoleSelect = document.getElementById('UserRole');
       const token = localStorage.getItem('authToken');
       if (token) {
         const decodedToken = parseJwt(token);
         const userInsurComp = decodedToken ? decodedToken.insur_comp : '';
-        const userRoleSelect = document.getElementById('UserRole');
         if (userRoleSelect && userInsurComp) {
           userRoleSelect.value = userInsurComp;
           userRoleSelect.disabled = true;

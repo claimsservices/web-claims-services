@@ -813,21 +813,44 @@ class UIBikePermissionManager extends UIPermissionManager {
 
 class UIInsurancePermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
-        this.setReadOnlyAll();
-        let allowedStatuses = [];
+        // Fields that should always be read-only/disabled for Insurance role
+        const alwaysReadOnly = [
+            'taskId', 'transactionDate', 'ownerName', 'jobType', 'channel', 'processType',
+            'insuranceCompany', // As per requirement, this should be disabled
+            'appointmentDate', 'appointmentTime', 'address', 'responsiblePerson', 'travelExpense', 'contactedCustomer' // Appointment fields, tab is hidden anyway
+        ];
 
+        alwaysReadOnly.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio') {
+                    el.disabled = true;
+                } else {
+                    el.readOnly = true;
+                }
+            }
+        });
+
+        // Hide image manipulation buttons
+        const replaceImageBtn = document.getElementById('replace-image-btn');
+        if (replaceImageBtn) replaceImageBtn.style.display = 'none';
+        document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => btn.style.display = 'none');
+        const saveImagesBtn = document.getElementById('save-images-btn');
+        if (saveImagesBtn) saveImagesBtn.style.display = 'none';
+
+        // Configure status dropdown
+        let allowedStatuses = [];
         if (orderStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
             allowedStatuses = ['รออนุมัติ', orderStatus];
         } else if (orderStatus === 'Pre-Approved') {
             allowedStatuses = ['ผ่าน', 'ไม่ผ่าน'];
         }
-
         if (allowedStatuses.length > 0) {
             this.applyStatusPermissions(allowedStatuses);
         }
 
         // Hide unnecessary tabs for Insurance role
-        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li', 'tab-contact-li']);
+        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li', 'tab-contact-li', 'tab-download-images-li']);
 
         // Hide empty image slots for Insurance role and 'Add Image' buttons
         document.querySelectorAll('.image-gallery').forEach(label => {
@@ -850,6 +873,12 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         if (autoFillDamageBtn) {
             autoFillDamageBtn.disabled = true;
             autoFillDamageBtn.style.display = 'none';
+        }
+        
+        // Ensure the main save button is visible and enabled
+        if (this.saveBtn) {
+            this.saveBtn.style.display = 'inline-block';
+            this.saveBtn.disabled = false;
         }
     }
 }
@@ -1345,14 +1374,10 @@ export function populateImageSections() {
             endpoint = `https://be-claims-service.onrender.com/api/orders/create`;
             method = 'POST';
             data = { ...commonData, created_by: created_by }; // Ensure created_by is passed for new orders
-        } else if (currentUserRole === 'Insurance') { // Updating status for Insurance role
-            endpoint = `https://be-claims-service.onrender.com/api/order-status/update/${currentOrderId}`;
+        } else if (currentUserRole === 'Insurance') { // Updating existing order for Insurance role
+            endpoint = `https://be-claims-service.onrender.com/api/orders/update/${currentOrderId}`;
             method = 'PUT';
-            data = {
-                order_status: getSafeValue('orderStatus'),
-                updated_by: created_by,
-                order_hist: [{ icon: "📝", task: "อัปเดตสถานะ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
-            };
+            data = commonData;
         } else { // Updating existing order for other roles
             endpoint = `https://be-claims-service.onrender.com/api/orders/update/${currentOrderId}`;
             method = 'PUT';

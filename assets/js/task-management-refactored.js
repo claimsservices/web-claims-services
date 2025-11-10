@@ -59,7 +59,7 @@ fetch('/version.json')
         document.getElementById('ownerName').value = fname + ' ' + lname;
         document.getElementById('user-role').innerText = role;
 
-        // If user is Insurance, set and disable the insurance company dropdown
+        // If user is Insurance, set and disable the insurance company dropdown and hide tabs
         if (role === 'Insurance') {
           const insuranceCompanySelect = document.getElementById('insuranceCompany');
           const userInsurComp = decoded.insur_comp;
@@ -67,6 +67,15 @@ fetch('/version.json')
             insuranceCompanySelect.value = userInsurComp;
             insuranceCompanySelect.disabled = true;
           }
+
+          // Hide unnecessary tabs for Insurance role
+          const tabsToHide = ['tab-li-profile', 'tab-li-contact', 'tab-li-note', 'tab-li-history', 'tab-li-upload'];
+          tabsToHide.forEach(tabId => {
+            const tab = document.getElementById(tabId);
+            if (tab) {
+              tab.style.display = 'none';
+            }
+          });
         }
 
         const imageUrl = myPicture;
