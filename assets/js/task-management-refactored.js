@@ -76,6 +76,17 @@ fetch('/version.json')
               tab.style.display = 'none';
             }
           });
+
+          // For new tasks, set orderStatus to 'เปิดงาน' and disable it
+          const urlParams = new URLSearchParams(window.location.search);
+          const orderId = urlParams.get('order_id');
+          if (!orderId) { // Only for new tasks
+            const orderStatusSelect = document.getElementById('orderStatus');
+            if (orderStatusSelect) {
+              orderStatusSelect.value = 'เปิดงาน';
+              orderStatusSelect.disabled = true;
+            }
+          }
         }
 
         const imageUrl = myPicture;
