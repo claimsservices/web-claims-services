@@ -255,37 +255,30 @@ export function renderUploadedImages(orderPics) {
         // Now, find the specific placeholder within the targetSection using pic.pic_type (the sub-category name)
         // Try to find an existing, unfilled placeholder slot within this category
         let filledExistingSlot = false;
-        // Find the first label.image-gallery within targetSection that has data-filled="false"
-        // and also matches the specific pic.pic_type (item.name)
-        const placeholderLabel = targetSection.querySelector(`label.image-gallery[data-filled="false"] input[name="${pic.pic_type}"]`)?.closest('label.image-gallery');
+        // Find the first .dynamic-image-slot within targetSection that has an img with default GIF src
+        // and also matches the specific pic.pic_type (item.name) via its hidden input's name attribute
+        const placeholderSlot = targetSection.querySelector(`.dynamic-image-slot input[name="${pic.pic_type}"]`)?.closest('.dynamic-image-slot');
 
-        if (placeholderLabel) {
-            // Fill this placeholder
-            const img = placeholderLabel.querySelector('img');
-            const titleDiv = placeholderLabel.querySelector('.title');
-            const deleteBtn = placeholderLabel.querySelector('.delete-btn');
-            const editTitleBtn = placeholderLabel.querySelector('.edit-title-btn');
+        if (placeholderSlot) {
+            const img = placeholderSlot.querySelector('img');
+            const titleInput = placeholderSlot.querySelector('.image-title-input');
+            const deleteBtn = placeholderSlot.querySelector('.delete-btn');
+            const editTitleBtn = placeholderSlot.querySelector('.edit-title-btn');
+            const viewFullBtn = placeholderSlot.querySelector('.view-full-btn');
 
             if (img) {
                 img.src = pic.pic;
                 img.alt = pic.pic_title || 'Uploaded Image';
-                img.style.display = 'block'; // Ensure image is visible
                 if (pic.created_date) {
                     img.dataset.createdDate = pic.created_date;
                 }
             }
-            if (titleDiv) {
-                titleDiv.textContent = pic.pic_title || 'กรุณาใส่ชื่อ';
+            if (titleInput) {
+                titleInput.value = pic.pic_title || 'กรุณาใส่ชื่อ';
             }
-            if (deleteBtn) deleteBtn.style.display = 'block'; // Ensure delete button is visible
-            if (editTitleBtn) editTitleBtn.style.display = 'flex'; // Ensure edit button is visible
-            const viewFullBtn = placeholderLabel.querySelector('.view-full-btn');
-            if (viewFullBtn) viewFullBtn.style.display = 'flex'; // Ensure view full button is visible
-            placeholderLabel.dataset.filled = 'true';
-            const parentCol = placeholderLabel.closest('.col-4.mb-3.text-center');
-            if (parentCol) {
-                parentCol.style.display = 'block';
-            }
+            if (deleteBtn) deleteBtn.style.display = 'block';
+            if (editTitleBtn) editTitleBtn.style.display = 'inline-block'; // Show edit button
+            if (viewFullBtn) viewFullBtn.style.display = 'flex'; // Show view full button
             filledExistingSlot = true;
             console.log('renderUploadedImages: Filled existing placeholder for category:', mainCategory);
         }
@@ -295,15 +288,17 @@ export function renderUploadedImages(orderPics) {
         if (!filledExistingSlot) {
             const uniqueId = `uploaded-image-${mainCategory}-${Date.now()}`;
             const newSlotHtml = `
-                <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${mainCategory}">
-                    <label class="image-gallery w-100" data-filled="true" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+                <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${mainCategory}">
+                    <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px;">
                         <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || 'Uploaded Image'}" data-created-date="${pic.created_date || new Date().toISOString()}">
-                        <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
-                            ${pic.pic_title || 'กรุณาใส่ชื่อ'}
-                        </div>
-                        <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
                         <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
-                    </label>
+                        <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;"><i class="bi bi-fullscreen"></i></button>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <input type="text" class="form-control image-title-input" value="${pic.pic_title || 'กรุณาใส่ชื่อ'}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                        <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
+                    </div>
+                    <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
                 </div>
             `;
             console.log('renderUploadedImages: Generated newSlotHtml:', newSlotHtml);
@@ -600,15 +595,18 @@ export function renderUploadedImages(orderPics) {
   export function populateDamageDetailFromImages() {
       console.log('populateDamageDetailFromImages function called.');
       const allImageTitles = [];
-      const filledLabels = document.querySelectorAll('label.image-gallery[data-filled="true"]');
-      console.log(`Found ${filledLabels.length} filled image labels.`);
+      const filledImageSlots = document.querySelectorAll('.dynamic-image-slot');
+      console.log(`Found ${filledImageSlots.length} filled image slots.`);
   
-      filledLabels.forEach(label => {
-          const titleDiv = label.querySelector('.title');
-          if (titleDiv) {
-              const titleText = titleDiv.textContent.trim();
-              allImageTitles.push(titleText);
-              console.log(`Collected title: "${titleText}"`);
+      filledImageSlots.forEach(slot => {
+          const img = slot.querySelector('img');
+          const titleInput = slot.querySelector('.image-title-input');
+          if (img && img.src && !img.src.includes('data:image/gif') && titleInput) {
+              const titleText = titleInput.value.trim();
+              if (titleText) {
+                  allImageTitles.push(titleText);
+                  console.log(`Collected title: "${titleText}"`);
+              }
           }
       });
   
@@ -1112,14 +1110,16 @@ export function populateImageSections() {
         const uniqueId = `dynamic-upload-${category}-${Date.now()}`;
         const newSlotHtml = `
             <div class="col-4 mb-3 text-center dynamic-image-slot">
-                <label class="image-gallery w-100" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
+                <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px;">
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="New Image">
-                    <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
-                        กรุณาใส่ชื่อ
-                    </div>
-                    <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${category}" hidden accept="image/*" capture="camera">
                     <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
-                </label>
+                    <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-fullscreen"></i></button>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ" style="display: none;"><i class="bi bi-pencil"></i></button>
+                </div>
+                <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${category}" hidden accept="image/*" capture="camera">
             </div>
         `;
         return newSlotHtml;
@@ -1140,10 +1140,10 @@ export function populateImageSections() {
             const file = fileInput.files[0];
             if (!file) return;
 
-            const label = fileInput.closest('label');
+            const label = fileInput.closest('.dynamic-image-slot');
             const img = label.querySelector('img');
-            const titleDiv = label.querySelector('.title');
-            const customName = titleDiv.textContent.trim();
+            const titleInput = label.querySelector('.image-title-input');
+            const customName = titleInput.value.trim();
             const folderName = document.getElementById('taskId')?.value.trim() || 'default';
             const category = fileInput.dataset.category;
 
@@ -1175,7 +1175,11 @@ export function populateImageSections() {
                     const result = await response.json();
                     if (result.uploaded && result.uploaded.length > 0) {
                         img.src = result.uploaded[0].url + '?t=' + new Date().getTime();
-                        label.setAttribute('data-filled', 'true');
+                        // Show edit button after successful upload
+                        const editBtn = label.querySelector('.edit-title-btn');
+                        if (editBtn) editBtn.style.display = 'inline-block';
+                        const viewFullBtn = label.querySelector('.view-full-btn');
+                        if (viewFullBtn) viewFullBtn.style.display = 'flex';
                     } else {
                         throw new Error('Upload response did not contain uploaded file information.');
                     }
@@ -1199,6 +1203,8 @@ export function populateImageSections() {
             const imageSlot = deleteBtn.closest('.dynamic-image-slot');
             if (imageSlot) {
                 imageSlot.remove();
+                // After deleting, re-populate the damage detail to update the s_detail field
+                populateDamageDetailFromImages();
             }
         }
     });
@@ -1478,25 +1484,26 @@ navigateTo('dashboard.html');
         if (e.target && e.target.closest('.edit-title-btn')) {
             e.preventDefault();
             const editBtn = e.target.closest('.edit-title-btn');
-            const label = editBtn.closest('label.image-gallery');
-            const img = label.querySelector('img');
-            const titleDiv = label.querySelector('.title');
+            const imageSlot = editBtn.closest('.dynamic-image-slot');
+            const img = imageSlot.querySelector('img');
+            const titleInput = imageSlot.querySelector('.image-title-input');
 
             if (!img || !img.src.startsWith('http')) {
                 alert('ไม่สามารถแก้ไขชื่อรูปภาพที่ยังไม่ได้อัปโหลด');
                 return;
             }
 
-            const currentTitle = titleDiv.textContent;
+            const currentTitle = titleInput.value;
             const newTitle = prompt('กรุณาใส่ชื่อรูปภาพใหม่:', currentTitle);
 
-            if (newTitle && newTitle.trim() !== '' && newTitle !== currentTitle) {
+            if (newTitle !== null && newTitle.trim() !== '' && newTitle !== currentTitle) {
                 const orderId = getSafeValue('taskId');
                 const picUrl = img.src.split('?')[0]; // Remove cache-busting query params
 
                 const success = await updateImageTitle(orderId, picUrl, newTitle.trim());
                 if (success) {
-                    titleDiv.textContent = newTitle.trim();
+                    titleInput.value = newTitle.trim();
+                    populateDamageDetailFromImages(); // Update damage detail after title change
                 }
             }
         }
@@ -1506,8 +1513,8 @@ navigateTo('dashboard.html');
         if (e.target && e.target.closest('.view-full-btn')) {
             e.preventDefault();
             const viewBtn = e.target.closest('.view-full-btn');
-            const label = viewBtn.closest('label.image-gallery');
-            const img = label.querySelector('img');
+            const imageSlot = viewBtn.closest('.dynamic-image-slot');
+            const img = imageSlot.querySelector('img');
 
             if (img && img.src && !img.src.includes('data:image/gif')) {
                 window.open(img.src, '_blank');
