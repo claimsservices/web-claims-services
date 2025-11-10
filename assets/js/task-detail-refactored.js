@@ -1318,11 +1318,16 @@ export function populateImageSections() {
 
     // Delegated event listener to trigger file input when the new upload button is clicked
     document.addEventListener('click', function(e) {
+        console.log('Click event detected on document.');
         const uploadBtn = e.target.closest('.upload-btn');
         if (uploadBtn) {
+            console.log('Upload button clicked.');
             const imageSlot = uploadBtn.closest('.dynamic-image-slot');
+            console.log('Found parent image slot:', imageSlot);
             const fileInput = imageSlot.querySelector('input[type="file"]');
+            console.log('Found file input:', fileInput);
             if (fileInput) {
+                console.log('Triggering click on file input.');
                 fileInput.click();
             }
         }
@@ -1363,8 +1368,17 @@ export function populateImageSections() {
 
                 const file = fileInput.files[0];
                 if (file) {
-                    console.log('File selected:', file.name, 'Starting upload process...');
-                    uploadImageAndRender(file, orderId, imageSlot);
+                    console.log('File selected:', file.name, 'Preparing to start upload process...');
+                    try {
+                        if (typeof imageCompression === 'undefined') {
+                            throw new Error('imageCompression library is not loaded.');
+                        }
+                        console.log('imageCompression library is loaded. Starting upload process...');
+                        uploadImageAndRender(file, orderId, imageSlot);
+                    } catch (error) {
+                        console.error('Error initiating uploadImageAndRender:', error);
+                        alert(`เกิดข้อผิดพลาดในการเริ่มต้นอัปโหลด: ${error.message}`);
+                    }
                 }
             }
         });
