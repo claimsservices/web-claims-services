@@ -292,7 +292,7 @@ export function renderUploadedImages(orderPics) {
                     <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px;">
                         <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || 'Uploaded Image'}" data-created-date="${pic.created_date || new Date().toISOString()}">
                         <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
-                        <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;"><i class="bi bi-fullscreen"></i></button>
+                        <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-fullscreen"></i></button>
                     </div>
                     <div class="d-flex align-items-center">
                         <input type="text" class="form-control image-title-input" value="${pic.pic_title || 'กรุณาใส่ชื่อ'}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
@@ -1521,29 +1521,7 @@ navigateTo('dashboard.html');
         }
     });
 
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.closest('.view-full-btn')) {
-            e.preventDefault();
-            const viewBtn = e.target.closest('.view-full-btn');
-            const imageSlot = viewBtn.closest('.dynamic-image-slot');
-            const img = imageSlot.querySelector('img');
-            const titleInput = imageSlot.querySelector('.image-title-input');
 
-            if (img && img.src && !img.src.includes('data:image/gif')) {
-                const modalElement = document.getElementById('imagePreviewModal');
-                const modalImage = document.getElementById('previewImage');
-                const modalTitle = document.getElementById('imagePreviewTitle');
-
-                modalImage.src = img.src;
-                modalTitle.textContent = titleInput ? titleInput.value : 'ดูภาพ';
-
-                const bsModal = new bootstrap.Modal(modalElement);
-                bsModal.show();
-            } else {
-                alert('ไม่มีรูปภาพให้แสดง');
-            }
-        }
-    });
 
     // Delegated event listener for individual image download buttons
     document.addEventListener('click', async function(e) {
@@ -1581,6 +1559,27 @@ navigateTo('dashboard.html');
           button.innerHTML = '<i class="bx bx-download"></i> Download';
         }
       }
+    });
+
+    // New delegated event listener for opening images in modal from Download Images tab
+    document.addEventListener('click', function(e) {
+        const cardImgTop = e.target.closest('.card-img-top');
+        if (cardImgTop) {
+            e.preventDefault();
+            const imageUrl = cardImgTop.src;
+            const cardBody = cardImgTop.closest('.card').querySelector('.card-body');
+            const imageTitle = cardBody ? cardBody.querySelector('p.card-text').textContent : 'ดูภาพ';
+
+            const modalElement = document.getElementById('imagePreviewModal');
+            const modalImage = document.getElementById('previewImage');
+            const modalTitle = document.getElementById('imagePreviewTitle');
+
+            modalImage.src = imageUrl;
+            modalTitle.textContent = imageTitle;
+
+            const bsModal = new window.bootstrap.Modal(modalElement);
+            bsModal.show();
+        }
     });
 
 
