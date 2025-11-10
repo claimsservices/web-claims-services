@@ -158,6 +158,71 @@ export const staticImageConfig = {
     return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
   }
 
+  // Map to hold files staged for upload
+  const filesToUpload = new Map();
+
+  // Function to add a watermark to an image file
+  function addWatermark(imageFile) {
+      return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  const ctx = canvas.getContext('2d');
+
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+
+                  // Draw the original image
+                  ctx.drawImage(img, 0, 0);
+
+                  // Prepare the watermark text
+                  const now = new Date();
+                  const day = String(now.getDate()).padStart(2, '0');
+                  const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                  const year = now.getFullYear();
+                  const hours = String(now.getHours()).padStart(2, '0');
+                  const minutes = String(now.getMinutes()).padStart(2, '0');
+                  const watermarkText = `STSERVICE-${day}-${month}-${year} ${hours}:${minutes}`;
+
+                  // Style the watermark
+                  const fontSize = Math.max(18, Math.min(img.width / 30, img.height / 20)); // Dynamic font size
+                  ctx.font = `bold ${fontSize}px Arial`;
+                  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                  ctx.textAlign = 'right';
+                  ctx.textBaseline = 'bottom';
+
+                  // Add a slight shadow for better visibility
+                  ctx.shadowColor = 'black';
+                  ctx.shadowBlur = 4;
+                  ctx.shadowOffsetX = 2;
+                  ctx.shadowOffsetY = 2;
+
+                  // Draw the watermark text at the bottom-right corner
+                  ctx.fillText(watermarkText, canvas.width - 10, canvas.height - 10);
+
+                  // Convert canvas to blob and resolve the promise
+                  canvas.toBlob((blob) => {
+                      if (blob) {
+                          resolve(blob);
+                      } else {
+                          reject(new Error('Canvas to Blob conversion failed'));
+                      }
+                  }, 'image/jpeg', 0.9); // Use JPEG for good compression
+              };
+              img.onerror = (err) => {
+                  reject(new Error('Failed to load image for watermarking.'));
+              };
+              img.src = event.target.result;
+          };
+          reader.onerror = (err) => {
+              reject(new Error('Failed to read file for watermarking.'));
+          };
+          reader.readAsDataURL(imageFile);
+      });
+  }
+
   // =========================================================
   // API & DATA LOADING FUNCTIONS
   // =========================================================
@@ -256,7 +321,7 @@ export function renderUploadedImages(orderPics) {
         const defaultTitleConfig = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle;
         const displayTitle = pic.pic_title || defaultTitleConfig || 'กรุณาใส่ชื่อ';
         const newSlotHtml = `
-            <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}">
+            <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}" data-pic-url="${pic.pic}" data-uploaded="true">
                 <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
                     <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${displayTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
                     <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
@@ -478,6 +543,91 @@ export function renderUploadedImages(orderPics) {
     }
   }
 
+  // Function to handle image upload, compression, watermarking, and rendering
+  async function uploadImageAndRender(file, orderId, imageSlot) {
+    const token = localStorage.getItem('authToken') || '';
+    const imgPreview = imageSlot.querySelector('img');
+    const fileInput = imageSlot.querySelector('input[type="file"]');
+    const uploadBtn = imageSlot.querySelector('.upload-btn');
+    const deleteBtn = imageSlot.querySelector('.delete-btn');
+    const titleInput = imageSlot.querySelector('.image-title-input');
+
+    // Show loading state
+    if (uploadBtn) {
+        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        uploadBtn.disabled = true;
+    }
+    if (deleteBtn) deleteBtn.disabled = true;
+    if (titleInput) titleInput.disabled = true;
+
+    try {
+        // 1. Compress image
+        const compressedFile = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true });
+
+        // 2. Add watermark
+        const watermarkedBlob = await addWatermark(compressedFile);
+
+        // 3. Prepare FormData
+        const formData = new FormData();
+        formData.append('order_id', orderId);
+        formData.append('folder', `transactions/${orderId}`);
+        formData.append('images', watermarkedBlob, file.name); // Use original file name
+
+        const picType = fileInput.dataset.category || 'unknown';
+        const picTitle = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
+
+        formData.append('pic_type', picType);
+        formData.append('pic_title', picTitle);
+
+        // 4. Upload to backend
+        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+            method: 'POST',
+            headers: { 'Authorization': token },
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.message || 'Upload failed');
+        }
+
+        // Assuming the backend returns the URL of the uploaded image
+        const uploadedImageUrl = result.uploaded[0].url; // Adjust based on actual backend response structure
+
+        // 5. Update UI with uploaded image
+        if (imgPreview) {
+            imgPreview.src = uploadedImageUrl;
+            imgPreview.style.display = 'block';
+            const cameraIcon = imageSlot.querySelector('.bi-camera');
+            if (cameraIcon) cameraIcon.style.display = 'none';
+        }
+        imageSlot.setAttribute('data-uploaded', 'true');
+        imageSlot.setAttribute('data-pic-type', picType);
+        imageSlot.setAttribute('data-pic-url', uploadedImageUrl);
+
+        alert('✅ อัปโหลดรูปภาพสำเร็จ!');
+        populateDamageDetailFromImages(); // Update damage detail after new image upload
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert(`❌ เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ${error.message}`);
+        // Revert UI on error
+        if (imgPreview) imgPreview.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+        if (imageSlot.querySelector('.bi-camera')) imageSlot.querySelector('.bi-camera').style.display = 'block';
+        imageSlot.removeAttribute('data-uploaded');
+        fileInput.value = ''; // Clear file input
+    } finally {
+        // Restore UI state
+        if (uploadBtn) {
+            uploadBtn.innerHTML = '<i class="bi bi-camera"></i>';
+            uploadBtn.disabled = false;
+        }
+        if (deleteBtn) deleteBtn.disabled = false;
+        if (titleInput) titleInput.disabled = false;
+    }
+  }
+
   // =========================================================
   // PHOTO RENDERING LOGIC
   // =========================================================
@@ -568,13 +718,12 @@ export function renderUploadedImages(orderPics) {
   export function populateDamageDetailFromImages() {
       console.log('populateDamageDetailFromImages function called.');
       const allImageTitles = [];
-      const filledImageSlots = document.querySelectorAll('.dynamic-image-slot');
+      const filledImageSlots = document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]');
       console.log(`Found ${filledImageSlots.length} filled image slots.`);
   
       filledImageSlots.forEach(slot => {
-          const img = slot.querySelector('img');
           const titleInput = slot.querySelector('.image-title-input');
-          if (img && img.src && !img.src.includes('data:image/gif') && titleInput) {
+          if (titleInput) {
               const titleText = titleInput.value.trim();
               if (titleText) {
                   allImageTitles.push(titleText);
@@ -642,9 +791,7 @@ class UIPermissionManager {
             }
         });
         // Hide image manipulation buttons
-        const replaceImageBtn = document.getElementById('replace-image-btn');
-        if (replaceImageBtn) replaceImageBtn.style.display = 'none';
-        document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => btn.style.display = 'none');
+        document.querySelectorAll('.delete-btn, .edit-title-btn, .upload-btn').forEach(btn => btn.style.display = 'none');
 
         if (this.saveBtn) this.saveBtn.style.display = 'none';
         const saveImagesBtn = document.getElementById('save-images-btn');
@@ -761,17 +908,7 @@ class UIBikePermissionManager extends UIPermissionManager {
         }
         const downloadAllBtn = document.getElementById('downloadAllBtn');
         if(downloadAllBtn) downloadAllBtn.disabled = false;
-        const replaceImageBtn = document.getElementById('replace-image-btn');
-        if (replaceImageBtn) {
-            replaceImageBtn.style.display = 'inline-block';
-            replaceImageBtn.disabled = false;
-        }
-        const viewFullImageBtn = document.getElementById('view-full-image-btn');
-        if (viewFullImageBtn) {
-            viewFullImageBtn.style.display = 'inline-block';
-            viewFullImageBtn.disabled = false;
-        }
-        document.querySelectorAll('.delete-btn, .edit-title-btn').forEach(btn => {
+        document.querySelectorAll('.delete-btn, .edit-title-btn, .upload-btn').forEach(btn => {
             btn.style.display = 'block';
             btn.disabled = false;
         });
@@ -829,13 +966,10 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li', 'tab-contact-li']);
 
         // Hide empty image slots for Insurance role and 'Add Image' buttons
-        document.querySelectorAll('.image-gallery').forEach(label => {
-            const img = label.querySelector('img');
-            const parentColDiv = label.closest('.col-4.mb-3.text-center');
-            
-            // Check if it's an empty placeholder or if the image source is still the default GIF
-            if (parentColDiv && (!label.hasAttribute('data-filled') || label.dataset.filled === 'false' || (img && img.src.includes('data:image/gif')))) {
-                parentColDiv.style.display = 'none';
+        document.querySelectorAll('.dynamic-image-slot').forEach(slot => {
+            // Check if it's an empty placeholder (not yet uploaded)
+            if (!slot.hasAttribute('data-uploaded') || slot.getAttribute('data-uploaded') === 'false') {
+                slot.style.display = 'none';
             }
         });
 
@@ -1114,15 +1248,16 @@ export function populateImageSections() {
     function renderNewImageUploadSlot(category) {
         const uniqueId = `dynamic-upload-${category}-${Date.now()}`;
         const newSlotHtml = `
-            <div class="col-4 mb-3 text-center dynamic-image-slot">
+            <div class="col-4 mb-3 dynamic-image-slot" data-category="${category}">
                 <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="New Image">
                     <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
                     <button type="button" class="upload-btn" title="อัปโหลดรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
+                    <button type="button" class="view-full-btn" title="ดูภาพเต็ม" style="position: absolute; bottom: 6px; right: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-arrows-fullscreen"></i></button>
                 </div>
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
-                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ" style="display: none;"><i class="bi bi-pencil"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
                 </div>
                 <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${category}" hidden accept="image/*" capture="camera">
             </div>
@@ -1263,15 +1398,14 @@ export function populateImageSections() {
         let endpoint, data, method;
 
         const orderPic = [];
-        document.querySelectorAll('label.image-gallery[data-filled="true"]').forEach(label => {
-            const img = label.querySelector('img');
-            const titleDiv = label.querySelector('.title');
-            const fileInput = label.querySelector('input[type="file"]');
+        document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
+            const imgUrl = slot.getAttribute('data-pic-url');
+            const picType = slot.getAttribute('data-pic-type');
+            const titleInput = slot.querySelector('.image-title-input');
+            const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
 
-            if (img && img.src && img.src.startsWith('http') && titleDiv && fileInput) {
-                const picType = fileInput.dataset.category || 'unknown'; // Get category from data-category
-                const title = titleDiv.textContent.trim();
-                orderPic.push({ pic: img.src.split('?')[0], pic_type: picType, pic_title: title, created_by: created_by });
+            if (imgUrl && picType) {
+                orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: created_by });
             }
         });
 
@@ -1409,15 +1543,14 @@ navigateTo('dashboard.html');
     
         // Collect picture data
         const orderPic = [];
-        document.querySelectorAll('label.image-gallery[data-filled="true"]').forEach(label => {
-            const img = label.querySelector('img');
-            const titleDiv = label.querySelector('.title');
-            const fileInput = label.querySelector('input[type="file"]');
+        document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
+            const imgUrl = slot.getAttribute('data-pic-url');
+            const picType = slot.getAttribute('data-pic-type');
+            const titleInput = slot.querySelector('.image-title-input');
+            const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
 
-            if (img && img.src && img.src.startsWith('http') && titleDiv && fileInput) {
-                const picType = fileInput.dataset.category || 'unknown';
-                const title = titleDiv.textContent.trim();
-                orderPic.push({ pic: img.src.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
+            if (imgUrl && picType) {
+                orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
             }
         });
         carDetailsPayload.order_pic = orderPic;
@@ -1457,7 +1590,7 @@ navigateTo('dashboard.html');
             const img = imageSlot.querySelector('img');
             const titleInput = imageSlot.querySelector('.image-title-input');
 
-            if (!img || !img.src.startsWith('http')) {
+            if (!imageSlot.hasAttribute('data-uploaded') || imageSlot.getAttribute('data-uploaded') === 'false') {
                 alert('ไม่สามารถแก้ไขชื่อรูปภาพที่ยังไม่ได้อัปโหลด');
                 return;
             }
@@ -1533,9 +1666,9 @@ navigateTo('dashboard.html');
             // Check if the click is on an image that should open the modal
             const clickedImage = e.target.closest('img');
             if (clickedImage) {
-                // Case 1: Image in "Image Info" tab
+                // Case 1: Image in "Image Info" tab (dynamic slot)
                 const imageSlot = clickedImage.closest('.dynamic-image-slot');
-                if (imageSlot && !clickedImage.src.includes('data:image/gif')) {
+                if (imageSlot && imageSlot.hasAttribute('data-uploaded') && imageSlot.getAttribute('data-uploaded') === 'true') {
                     imageUrl = clickedImage.src;
                     const titleInput = imageSlot.querySelector('.image-title-input');
                     imageTitle = titleInput ? titleInput.value : '';
