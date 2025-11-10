@@ -1342,6 +1342,34 @@ export function populateImageSections() {
         }
     });
 
+    // Delegated event listener for file inputs to trigger upload
+    const form = document.getElementById('taskForm');
+    if (form) {
+        form.addEventListener('change', function(e) {
+            console.log('Form change event detected.');
+            const fileInput = e.target;
+            if (fileInput.type === 'file' && fileInput.closest('.dynamic-image-slot')) {
+                console.log('File input changed within a dynamic-image-slot.');
+                const imageSlot = fileInput.closest('.dynamic-image-slot');
+                const orderId = document.getElementById('taskId').value;
+                console.log('Order ID:', orderId);
+
+                if (!orderId) {
+                    alert('กรุณาบันทึกข้อมูลงานก่อนทำการอัปโหลดรูปภาพ');
+                    console.log('Upload stopped: No Order ID.');
+                    fileInput.value = ''; // Reset file input
+                    return;
+                }
+
+                const file = fileInput.files[0];
+                if (file) {
+                    console.log('File selected:', file.name, 'Starting upload process...');
+                    uploadImageAndRender(file, orderId, imageSlot);
+                }
+            }
+        });
+    }
+
     loadUserProfile();
     populateImageSections();
 
