@@ -1521,15 +1521,24 @@ navigateTo('dashboard.html');
         }
     });
 
-    document.addEventListener('click', async function(e) {
+    document.addEventListener('click', function(e) {
         if (e.target && e.target.closest('.view-full-btn')) {
             e.preventDefault();
             const viewBtn = e.target.closest('.view-full-btn');
             const imageSlot = viewBtn.closest('.dynamic-image-slot');
             const img = imageSlot.querySelector('img');
+            const titleInput = imageSlot.querySelector('.image-title-input');
 
             if (img && img.src && !img.src.includes('data:image/gif')) {
-                window.open(img.src, '_blank');
+                const modalElement = document.getElementById('imagePreviewModal');
+                const modalImage = document.getElementById('previewImage');
+                const modalTitle = document.getElementById('imagePreviewTitle');
+
+                modalImage.src = img.src;
+                modalTitle.textContent = titleInput ? titleInput.value : 'ดูภาพ';
+
+                const bsModal = new bootstrap.Modal(modalElement);
+                bsModal.show();
             } else {
                 alert('ไม่มีรูปภาพให้แสดง');
             }
