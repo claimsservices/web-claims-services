@@ -938,55 +938,33 @@ function initCarModelDropdown(brandSelect, modelSelect) {
 
 
 export function populateImageSections() {
-    const sectionsMap = {
-        'around': document.getElementById('around-images-section')?.querySelector('.row'),
-        'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
-        'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
-        'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
-        'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
-        'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
-    };
+      const sectionsMap = {
+          'around': document.getElementById('around-images-section')?.querySelector('.row'),
+          'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+          'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+          'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+          'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+          'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+      };
 
-    for (const category in sectionsMap) {
-        const targetSection = sectionsMap[category];
-        if (targetSection) {
-            // Clear existing content to prevent duplicates
-            targetSection.innerHTML = '';
+      for (const category in sectionsMap) {
+          const targetSection = sectionsMap[category];
+          if (targetSection) {
+              // Clear existing content to prevent duplicates if called multiple times
+              targetSection.innerHTML = '';
 
-            const imageConfigs = staticImageConfig[category] || [];
-
-            imageConfigs.forEach(config => {
-                const uniqueId = `static-upload-${category}-${config.name}`;
-                const slotHtml = `
-                    <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${config.name}">
-                        <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
-                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${config.defaultTitle}">
-                            <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-x-circle-fill"></i></button>
-                            <button type="button" class="upload-btn" title="เปลี่ยนรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
-                             <button type="button" class="btn btn-sm btn-primary view-full-btn" style="position: absolute; bottom: 6px; right: 6px; display: none; z-index: 10;">ดูเต็มจอ</button>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <input type="text" class="form-control image-title-input" value="${config.defaultTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
-                            <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ" style="display: none;"><i class="bi bi-pencil"></i></button>
-                        </div>
-                        <input type="file" id="${uniqueId}" name="${config.name}" data-category="${category}" hidden accept="image/*" capture="camera">
-                    </div>
-                `;
-                targetSection.insertAdjacentHTML('beforeend', slotHtml);
-            });
-
-            // Add the "Add Image" button after static slots
-            const addImageButtonHtml = `
-                <div class="col-4 mb-3 text-center">
-                    <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
-                        <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
-                    </button>
-                </div>
-            `;
-            targetSection.insertAdjacentHTML('beforeend', addImageButtonHtml);
-        }
-    }
-}
+              // Add the "Add Image" button after static slots
+              const addImageButtonHtml = `
+                  <div class="col-4 mb-3 text-center">
+                      <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
+                          <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
+                      </button>
+                  </div>
+              `;
+              targetSection.insertAdjacentHTML('beforeend', addImageButtonHtml);
+          }
+      }
+  }
 
   // =========================================================
   // DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
