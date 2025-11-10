@@ -1561,26 +1561,38 @@ navigateTo('dashboard.html');
       }
     });
 
-    // New delegated event listener for opening images in modal from Download Images tab
-    document.addEventListener('click', function(e) {
-        const cardImgTop = e.target.closest('.card-img-top');
-        if (cardImgTop) {
-            e.preventDefault();
-            const imageUrl = cardImgTop.src;
-            const cardBody = cardImgTop.closest('.card').querySelector('.card-body');
-            const imageTitle = cardBody ? cardBody.querySelector('p.card-text').textContent : 'ดูภาพ';
+    // --- Custom Plain JavaScript Modal Logic ---
+    const modal = document.getElementById("customImageModal");
+    if (modal) {
+        const modalImg = document.getElementById("customModalImage");
+        const captionText = document.getElementById("customModalCaption");
+        const span = document.getElementsByClassName("custom-modal-close")[0];
 
-            const modalElement = document.getElementById('imagePreviewModal');
-            const modalImage = document.getElementById('previewImage');
-            const modalTitle = document.getElementById('imagePreviewTitle');
+        document.addEventListener('click', function(e) {
+            const cardImgTop = e.target.closest('.card-img-top');
+            // Ensure the click is within the download images container
+            if (cardImgTop && cardImgTop.closest('#download-images-container')) {
+                e.preventDefault();
+                modal.style.display = "block";
+                modalImg.src = cardImgTop.src;
+                const cardBody = cardImgTop.closest('.card').querySelector('.card-body');
+                captionText.innerHTML = cardBody ? cardBody.querySelector('p.card-text').textContent : '';
+            }
+        });
 
-            modalImage.src = imageUrl;
-            modalTitle.textContent = imageTitle;
-
-            $('#imagePreviewModal').modal('show');
+        if (span) {
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
         }
-    });
 
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    }
+    // --- End of Custom Modal Logic ---
 
       }
   // เพิ่มบรรทัดนี้เพื่อปิด DOMContentLoaded listener ที่ขาดไป
