@@ -1277,6 +1277,21 @@ export function populateImageSections() {
         const s_start = getSafeValue('coverageStartDate')?.trim();
         const s_end = getSafeValue('coverageEndDate')?.trim();
 
+        // Construct order_assign data
+        const order_assign = [];
+        const responsiblePerson = getSafeValue('responsiblePerson');
+        // Only add to array if there is an owner for the assignment
+        if (responsiblePerson) {
+            order_assign.push({
+                date: appointment_date,
+                destination: getSafeValue('address'),
+                owner: responsiblePerson,
+                is_contact: document.getElementById('contactedCustomer')?.checked || false,
+                travel_expense: getSafeValue('travelExpense') ? parseFloat(getSafeValue('travelExpense')) : null,
+                created_by: created_by
+            });
+        }
+
         const commonData = {
             creator: getSafeValue('ownerName'),
             owner: getSafeValue('responsiblePerson'),
@@ -1322,7 +1337,8 @@ export function populateImageSections() {
             updated_by: created_by,
             c_name: getSafeValue('creatorName'),
             order_pic: orderPic,
-            order_hist: [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }]
+            order_hist: [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }],
+            order_assign: order_assign
         };
 
         if (!currentOrderId) { // Creating a new order
