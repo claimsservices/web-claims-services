@@ -850,7 +850,7 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         }
 
         // Hide unnecessary tabs for Insurance role
-        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li', 'tab-contact-li', 'tab-download-images-li']);
+        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li', 'tab-contact-li']);
 
         // Hide empty image slots for Insurance role and 'Add Image' buttons
         document.querySelectorAll('.image-gallery').forEach(label => {
