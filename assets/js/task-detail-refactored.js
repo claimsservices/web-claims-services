@@ -228,7 +228,11 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        const mainCategory = picTypeToMainCategoryMap[pic.pic_type];
+        // Determine the main category
+        let mainCategory = staticImageConfig.hasOwnProperty(pic.pic_type)
+            ? pic.pic_type
+            : picTypeToMainCategoryMap[pic.pic_type];
+
         if (!mainCategory) {
             console.warn('Could not find main category for pic_type:', pic.pic_type);
             return;
@@ -241,6 +245,7 @@ export function renderUploadedImages(orderPics) {
         }
 
         // Dynamically create and insert the image slot
+        const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
         const defaultTitleConfig = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle;
         const displayTitle = pic.pic_title || defaultTitleConfig || 'กรุณาใส่ชื่อ';
         const newSlotHtml = `
