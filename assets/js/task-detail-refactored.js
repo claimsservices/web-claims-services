@@ -1577,8 +1577,7 @@ navigateTo('dashboard.html');
             modalImage.src = imageUrl;
             modalTitle.textContent = imageTitle;
 
-            const bsModal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
-            bsModal.show();
+            $('#imagePreviewModal').modal('show');
         }
     });
 
