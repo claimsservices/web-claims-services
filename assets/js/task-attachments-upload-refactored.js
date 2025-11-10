@@ -594,5 +594,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-arrived')?.addEventListener('click', () => setStatusFromClick('ถึงที่เกิดเหตุ/ปฏิบัติงาน'));
     document.getElementById('btn-submit-task')?.addEventListener('click', () => setStatusFromClick('รออนุมัติ'));
 
+    document.getElementById('callBtn')?.addEventListener('click', () => {
+        const phone = document.getElementById('phone').value;
+        if (phone) {
+            window.location.href = `tel:${phone}`;
+        } else {
+            alert('ไม่พบเบอร์โทรศัพท์');
+        }
+    });
+
     document.body.classList.remove('loading');
 });
