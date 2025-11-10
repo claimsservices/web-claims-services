@@ -923,27 +923,6 @@ export function populateImageSections() {
               // Clear existing content to prevent duplicates if called multiple times
               targetSection.innerHTML = '';
 
-              // Render static placeholder slots based on staticImageConfig
-              const config = staticImageConfig[category];
-              if (config) {
-                  config.forEach(item => {
-                      const uniqueId = `uploaded-image-${item.name}-${Date.now()}`; // Use item.name for unique ID
-                      const newSlotHtml = `
-                          <div class="col-4 mb-3 text-center dynamic-image-slot" data-pic-type="${category}">
-                              <label class="image-gallery w-100" data-filled="false" style="cursor:pointer; position:relative; display: block; border-radius:8px; overflow: hidden; height: 200px;">
-                                  <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:none;" alt="${item.defaultTitle}">
-                                  <div class="title" contenteditable="true" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 6px 10px; background: rgba(0,0,0,0.8); color: white; font-weight: 600; font-size: 14px; text-align: center; box-sizing: border-box;">
-                                      ${item.defaultTitle}
-                                  </div>
-                                  <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" capture="camera">
-                                  <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-x-circle-fill"></i></button>
-                              </label>
-                          </div>
-                      `;
-                      targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
-                  });
-              }
-
               // Add the "Add Image" button after static slots
               const addImageButtonHtml = `
                   <div class="col-4 mb-3 text-center">
