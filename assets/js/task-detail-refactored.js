@@ -241,18 +241,18 @@ export function renderUploadedImages(orderPics) {
         }
 
         // Dynamically create and insert the image slot
-        const uniqueId = `uploaded-image-${pic.pic_type}-${Date.now()}`;
-        const defaultTitle = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle || 'กรุณาใส่ชื่อ';
+        const defaultTitleConfig = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle;
+        const displayTitle = pic.pic_title || defaultTitleConfig || 'กรุณาใส่ชื่อ';
         const newSlotHtml = `
             <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}">
                 <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
-                    <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || defaultTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
+                    <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${displayTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
                     <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
                     <button type="button" class="upload-btn" title="เปลี่ยนรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
                     <button type="button" class="view-full-btn" title="ดูภาพเต็ม" style="position: absolute; bottom: 6px; right: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-arrows-fullscreen"></i></button>
                 </div>
                 <div class="d-flex align-items-center">
-                    <input type="text" class="form-control image-title-input" value="${pic.pic_title || defaultTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                    <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                     <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
                 </div>
                 <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
