@@ -1577,7 +1577,7 @@ navigateTo('dashboard.html');
             modalImage.src = imageUrl;
             modalTitle.textContent = imageTitle;
 
-            const bsModal = new window.bootstrap.Modal(modalElement);
+            const bsModal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
             bsModal.show();
         }
     });
