@@ -201,7 +201,9 @@ export const staticImageConfig = {
   const uploadedPicCache = new Set();
 
 export function renderUploadedImages(orderPics) {
+    console.log('renderUploadedImages called with orderPics:', orderPics);
     if (!orderPics || orderPics.length === 0) {
+        console.log('renderUploadedImages: No pictures to render or orderPics is empty.');
         return;
     }
 
@@ -223,6 +225,7 @@ export function renderUploadedImages(orderPics) {
     }
 
     orderPics.forEach(pic => {
+        console.log('Processing pic:', pic);
         if (!pic.pic_type || !pic.pic) {
             console.warn('Skipping pic due to missing pic_type or pic URL:', pic);
             return;
@@ -233,12 +236,16 @@ export function renderUploadedImages(orderPics) {
             ? pic.pic_type
             : picTypeToMainCategoryMap[pic.pic_type];
 
+        console.log('Determined mainCategory:', mainCategory, 'for pic_type:', pic.pic_type);
+
         if (!mainCategory) {
             console.warn('Could not find main category for pic_type:', pic.pic_type);
             return;
         }
 
         const targetSection = sectionsMap[mainCategory];
+        console.log('Target section for', mainCategory, ':', targetSection);
+
         if (!targetSection) {
             console.warn('Target section not found for main category:', mainCategory);
             return;
@@ -263,12 +270,17 @@ export function renderUploadedImages(orderPics) {
                 <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
             </div>
         `;
+        console.log('Generated newSlotHtml for pic:', pic.pic_type, newSlotHtml);
 
         const addImageBtnContainer = targetSection.querySelector('.add-image-btn')?.parentElement;
+        console.log('addImageBtnContainer found:', addImageBtnContainer);
+
         if (addImageBtnContainer) {
             addImageBtnContainer.insertAdjacentHTML('beforebegin', newSlotHtml);
+            console.log('Inserted newSlotHtml before addImageBtnContainer.');
         } else {
             targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
+            console.log('Inserted newSlotHtml at the end of targetSection.');
         }
     });
 }
