@@ -319,7 +319,6 @@ export function renderUploadedImages(orderPics) {
             const titleInput = placeholderSlot.querySelector('.image-title-input');
             const deleteBtn = placeholderSlot.querySelector('.delete-btn');
             const editTitleBtn = placeholderSlot.querySelector('.edit-title-btn');
-            const viewFullBtn = placeholderSlot.querySelector('.view-full-btn');
 
             if (img) {
                 img.src = pic.pic;
@@ -329,7 +328,6 @@ export function renderUploadedImages(orderPics) {
             if (titleInput) titleInput.value = pic.pic_title || 'กรุณาใส่ชื่อ';
             if (deleteBtn) deleteBtn.style.display = 'block';
             if (editTitleBtn) editTitleBtn.style.display = 'inline-block';
-            if (viewFullBtn) viewFullBtn.style.display = 'flex';
             
             placeholderSlot.setAttribute('data-uploaded', 'true');
             placeholderSlot.setAttribute('data-pic-url', pic.pic);
@@ -348,7 +346,6 @@ export function renderUploadedImages(orderPics) {
                         <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${displayTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
                         <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
                         <button type="button" class="upload-btn" title="เปลี่ยนรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
-                        <button type="button" class="view-full-btn" title="ดูภาพเต็ม" style="position: absolute; bottom: 6px; right: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-arrows-fullscreen"></i></button>
                     </div>
                     <div class="d-flex align-items-center">
                         <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
@@ -558,6 +555,27 @@ export function renderUploadedImages(orderPics) {
         return true;
     } catch (error) {
         console.error('Image title update error:', error);
+        alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+        return false;
+    }
+  }
+
+  async function deleteImage(orderId, picUrl) {
+    const token = localStorage.getItem('authToken') || '';
+    try {
+        const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/delete`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+            body: JSON.stringify({ orderId, picUrl })
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'ไม่สามารถลบรูปภาพได้');
+        }
+        alert('✅ ' + result.message);
+        return true;
+    } catch (error) {
+        console.error('Image delete error:', error);
         alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
         return false;
     }
@@ -1096,7 +1114,6 @@ export function populateImageSections() {
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${item.defaultTitle}">
                             <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-x-circle-fill"></i></button>
                             <button type="button" class="upload-btn" title="อัปโหลดรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
-                            <button type="button" class="view-full-btn" title="ดูภาพเต็ม" style="position: absolute; bottom: 6px; right: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-arrows-fullscreen"></i></button>
                         </div>
                         <div class="d-flex align-items-center">
                             <input type="text" class="form-control image-title-input" value="${item.defaultTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
@@ -1301,7 +1318,6 @@ export function populateImageSections() {
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="New Image">
                     <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
                     <button type="button" class="upload-btn" title="อัปโหลดรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
-                    <button type="button" class="view-full-btn" title="ดูภาพเต็ม" style="position: absolute; bottom: 6px; right: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-arrows-fullscreen"></i></button>
                 </div>
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
@@ -1341,15 +1357,29 @@ export function populateImageSections() {
     });
 
     // Delegated event listener for delete buttons on dynamic image slots
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.closest('.delete-btn')) {
+    document.addEventListener('click', async function(e) {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
             e.preventDefault();
-            const deleteBtn = e.target.closest('.delete-btn');
-            const imageSlot = deleteBtn.closest('.dynamic-image-slot');
-            if (imageSlot) {
-                imageSlot.remove();
-                // After deleting, re-populate the damage detail to update the s_detail field
-                populateDamageDetailFromImages();
+            
+            if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?')) {
+                const imageSlot = deleteBtn.closest('.dynamic-image-slot');
+                const orderId = getSafeValue('taskId');
+                const picUrl = imageSlot.getAttribute('data-pic-url');
+
+                // If there's no picUrl, it's a newly added slot that hasn't been uploaded. Just remove it.
+                if (!picUrl) {
+                    imageSlot.remove();
+                    populateDamageDetailFromImages();
+                    return;
+                }
+
+                // If there is a picUrl, it needs to be deleted from the backend.
+                const success = await deleteImage(orderId, picUrl);
+                if (success) {
+                    // Reload all data to ensure UI is consistent with the database
+                    loadOrderData(orderId);
+                }
             }
         }
     });
@@ -1673,31 +1703,47 @@ navigateTo('dashboard.html');
     
 
     document.addEventListener('click', async function(e) {
-        if (e.target && e.target.closest('.edit-title-btn')) {
+        const editBtn = e.target.closest('.edit-title-btn');
+        if (editBtn) {
             e.preventDefault();
-            const editBtn = e.target.closest('.edit-title-btn');
-            const imageSlot = editBtn.closest('.dynamic-image-slot');
-            const img = imageSlot.querySelector('img');
-            const titleInput = imageSlot.querySelector('.image-title-input');
+            console.log('Save title button clicked.');
 
+            const imageSlot = editBtn.closest('.dynamic-image-slot');
+            const titleInput = imageSlot.querySelector('.image-title-input');
+            
             if (!imageSlot.hasAttribute('data-uploaded') || imageSlot.getAttribute('data-uploaded') === 'false') {
                 alert('ไม่สามารถแก้ไขชื่อรูปภาพที่ยังไม่ได้อัปโหลด');
+                console.log('Save title aborted: Image not uploaded yet.');
                 return;
             }
 
-            const currentTitle = titleInput.value;
-            const newTitle = prompt('กรุณาใส่ชื่อรูปภาพใหม่:', currentTitle);
+            const newTitle = titleInput.value.trim();
+            const orderId = getSafeValue('taskId');
+            const picUrl = imageSlot.getAttribute('data-pic-url');
 
-            if (newTitle !== null && newTitle.trim() !== '' && newTitle !== currentTitle) {
-                const orderId = getSafeValue('taskId');
-                const picUrl = img.src.split('?')[0]; // Remove cache-busting query params
-
-                const success = await updateImageTitle(orderId, picUrl, newTitle.trim());
-                if (success) {
-                    titleInput.value = newTitle.trim();
-                    populateDamageDetailFromImages(); // Update damage detail after title change
-                }
+            if (!picUrl) {
+                alert('ไม่พบ URL ของรูปภาพ ไม่สามารถบันทึกได้');
+                console.error('Save title error: picUrl is missing from data attribute.');
+                return;
             }
+
+            console.log(`Attempting to save title. OrderID: ${orderId}, PicURL: ${picUrl}, NewTitle: ${newTitle}`);
+            
+            editBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            editBtn.disabled = true;
+
+            const success = await updateImageTitle(orderId, picUrl, newTitle);
+            if (success) {
+                // The title is already set in the input, so we just need to confirm
+                console.log('Title updated successfully.');
+                populateDamageDetailFromImages(); // Update the main damage detail field
+            } else {
+                console.error('Failed to update title via API.');
+                // Optionally, revert the title if the API call fails
+            }
+
+            editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
+            editBtn.disabled = false;
         }
     });
 
