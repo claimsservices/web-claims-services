@@ -292,7 +292,7 @@ export function renderUploadedImages(orderPics) {
                     <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px;">
                         <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${pic.pic_title || 'Uploaded Image'}" data-created-date="${pic.created_date || new Date().toISOString()}">
                         <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
-                        <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-fullscreen"></i></button>
+                        <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: flex;"><i class="bi bi-fullscreen"></i></button>
                     </div>
                     <div class="d-flex align-items-center">
                         <input type="text" class="form-control image-title-input" value="${pic.pic_title || 'กรุณาใส่ชื่อ'}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
@@ -1113,7 +1113,7 @@ export function populateImageSections() {
                 <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px;">
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="New Image">
                     <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
-                    <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: none;"><i class="bi bi-fullscreen"></i></button>
+                    <button type="button" class="view-full-btn" title="ดูภาพขนาดเต็ม" style="position: absolute; top: 6px; left: 6px; background: transparent; border: none; color: white; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: flex;"><i class="bi bi-fullscreen"></i></button>
                 </div>
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
@@ -1133,10 +1133,11 @@ export function populateImageSections() {
         }
     });
 
-    // Delegated event listener to trigger file input when image is clicked
+    // Delegated event listener to trigger file input when image container is clicked
     document.addEventListener('click', function(e) {
         const imageContainer = e.target.closest('.image-container');
-        if (imageContainer) {
+        // Ensure the click is not on the view-full-btn or delete-btn
+        if (imageContainer && !e.target.closest('.view-full-btn') && !e.target.closest('.delete-btn')) {
             const imageSlot = imageContainer.closest('.dynamic-image-slot');
             const fileInput = imageSlot.querySelector('input[type="file"]');
             if (fileInput) {
@@ -1569,14 +1570,20 @@ navigateTo('dashboard.html');
         const span = document.getElementsByClassName("custom-modal-close")[0];
 
         document.addEventListener('click', function(e) {
-            const cardImgTop = e.target.closest('.card-img-top');
-            // Ensure the click is within the download images container
-            if (cardImgTop && cardImgTop.closest('#download-images-container')) {
+            const viewFullBtn = e.target.closest('.view-full-btn');
+            if (viewFullBtn) {
                 e.preventDefault();
-                modal.style.display = "block";
-                modalImg.src = cardImgTop.src;
-                const cardBody = cardImgTop.closest('.card').querySelector('.card-body');
-                captionText.innerHTML = cardBody ? cardBody.querySelector('p.card-text').textContent : '';
+                const imageSlot = viewFullBtn.closest('.dynamic-image-slot');
+                const img = imageSlot.querySelector('img');
+                const titleInput = imageSlot.querySelector('.image-title-input');
+
+                if (img && img.src && !img.src.includes('data:image/gif')) {
+                    modal.style.display = "block";
+                    modalImg.src = img.src;
+                    captionText.innerHTML = titleInput ? titleInput.value : '';
+                } else {
+                    alert('ไม่มีรูปภาพให้แสดง');
+                }
             }
         });
 
