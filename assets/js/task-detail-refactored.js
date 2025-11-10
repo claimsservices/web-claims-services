@@ -614,17 +614,23 @@ export function renderUploadedImages(orderPics) {
 
         // Assuming the backend returns the URL of the uploaded image
         const uploadedImageUrl = result.uploaded[0].url; // Adjust based on actual backend response structure
+        console.log('[uploadImageAndRender] Upload successful. Image URL:', uploadedImageUrl);
 
         // 5. Update UI with uploaded image
+        console.log('[uploadImageAndRender] Updating UI with new image...');
+        console.log('[uploadImageAndRender] Target imgPreview element:', imgPreview);
         if (imgPreview) {
+            console.log('[uploadImageAndRender] Setting imgPreview.src to:', uploadedImageUrl);
             imgPreview.src = uploadedImageUrl;
             imgPreview.style.display = 'block';
+            console.log('[uploadImageAndRender] imgPreview.src is now:', imgPreview.src);
             const cameraIcon = imageSlot.querySelector('.bi-camera');
             if (cameraIcon) cameraIcon.style.display = 'none';
         }
         imageSlot.setAttribute('data-uploaded', 'true');
         imageSlot.setAttribute('data-pic-type', picType);
         imageSlot.setAttribute('data-pic-url', uploadedImageUrl);
+        console.log('[uploadImageAndRender] data attributes updated on imageSlot:', imageSlot);
 
         alert('✅ อัปโหลดรูปภาพสำเร็จ!');
         populateDamageDetailFromImages(); // Update damage detail after new image upload
