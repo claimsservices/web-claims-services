@@ -634,6 +634,7 @@ export function renderUploadedImages(orderPics) {
 
         alert('✅ อัปโหลดรูปภาพสำเร็จ!');
         populateDamageDetailFromImages(); // Update damage detail after new image upload
+        loadOrderData(orderId); // Reload all order data to refresh image sections
 
     } catch (error) {
         console.error('Upload error:', error);
