@@ -584,7 +584,6 @@ export function renderUploadedImages(orderPics) {
     }
   }
 
-  // Function to handle image upload, compression, watermarking, and rendering
   async function uploadImageAndRender(file, orderId, imageSlot) {
     const token = localStorage.getItem('authToken') || '';
     const imgPreview = imageSlot.querySelector('img');
@@ -592,6 +591,7 @@ export function renderUploadedImages(orderPics) {
     const uploadBtn = imageSlot.querySelector('.upload-btn');
     const deleteBtn = imageSlot.querySelector('.delete-btn');
     const titleInput = imageSlot.querySelector('.image-title-input');
+    let oldPicUrl = null; // Declare here for broader scope
 
     // Show loading state
     if (uploadBtn) {
@@ -616,7 +616,7 @@ export function renderUploadedImages(orderPics) {
         const picTitle = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
         formData.append('pic_title', picTitle);
 
-        const oldPicUrl = imageSlot.getAttribute('data-pic-url');
+        oldPicUrl = imageSlot.getAttribute('data-pic-url'); // Assign value here
         let response;
 
         if (oldPicUrl) {
