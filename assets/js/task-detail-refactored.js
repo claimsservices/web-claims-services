@@ -611,60 +611,70 @@ export function renderUploadedImages(orderPics) {
         // 3. Prepare FormData
         const formData = new FormData();
         formData.append('order_id', orderId);
-        formData.append('folder', `transactions/${orderId}`);
-        formData.append('images', watermarkedBlob, file.name); // Use original file name
+        formData.append('image', watermarkedBlob, file.name); // Use 'image' for single upload
 
-        const picType = fileInput.dataset.category || 'unknown';
         const picTitle = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
-
-        formData.append('pic_type', picType);
         formData.append('pic_title', picTitle);
 
-        // 4. Upload to backend
-        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-            method: 'POST',
-            headers: { 'Authorization': token },
-            body: formData
-        });
+        const oldPicUrl = imageSlot.getAttribute('data-pic-url');
+        let response;
 
-        const result = await response.json();
+        if (oldPicUrl) {
+            // --- REPLACE Operation ---
+            console.log('[uploadImageAndRender] Starting REPLACE operation.');
+            formData.append('old_pic_url', oldPicUrl);
+            
+            response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/replace`, {
+                method: 'PUT',
+                headers: { 'Authorization': token },
+                body: formData
+            });
 
-        if (!response.ok) {
-            throw new Error(result.message || 'Upload failed');
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Replace failed');
+
+            // Directly update UI without full reload
+            console.log('[uploadImageAndRender] Replace successful. New URL:', result.new_url);
+            if (imgPreview) imgPreview.src = result.new_url;
+            imageSlot.setAttribute('data-pic-url', result.new_url);
+            alert('✅ แทนที่รูปภาพสำเร็จ!');
+
+        } else {
+            // --- ADD Operation ---
+            console.log('[uploadImageAndRender] Starting ADD operation.');
+            // The backend endpoint for transactions expects 'images' (plural)
+            formData.delete('image');
+            formData.append('images', watermarkedBlob, file.name);
+            
+            const picType = fileInput.dataset.category || 'unknown';
+            formData.append('pic_type', picType);
+
+            response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+                method: 'POST',
+                headers: { 'Authorization': token },
+                body: formData
+            });
+
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message || 'Upload failed');
+            
+            alert('✅ อัปโหลดรูปภาพใหม่สำเร็จ!');
+            // Reload all data to refresh sections, as this is an ADD operation
+            loadOrderData(orderId); 
         }
 
-        // Assuming the backend returns the URL of the uploaded image
-        const uploadedImageUrl = result.uploaded[0].url; // Adjust based on actual backend response structure
-        console.log('[uploadImageAndRender] Upload successful. Image URL:', uploadedImageUrl);
-
-        // 5. Update UI with uploaded image
-        console.log('[uploadImageAndRender] Updating UI with new image...');
-        console.log('[uploadImageAndRender] Target imgPreview element:', imgPreview);
-        if (imgPreview) {
-            console.log('[uploadImageAndRender] Setting imgPreview.src to:', uploadedImageUrl);
-            imgPreview.src = uploadedImageUrl;
-            imgPreview.style.display = 'block';
-            console.log('[uploadImageAndRender] imgPreview.src is now:', imgPreview.src);
-            const cameraIcon = imageSlot.querySelector('.bi-camera');
-            if (cameraIcon) cameraIcon.style.display = 'none';
-        }
-        imageSlot.setAttribute('data-uploaded', 'true');
-        imageSlot.setAttribute('data-pic-type', picType);
-        imageSlot.setAttribute('data-pic-url', uploadedImageUrl);
-        console.log('[uploadImageAndRender] data attributes updated on imageSlot:', imageSlot);
-
-        alert('✅ อัปโหลดรูปภาพสำเร็จ!');
-        populateDamageDetailFromImages(); // Update damage detail after new image upload
-        loadOrderData(orderId); // Reload all order data to refresh image sections
+        populateDamageDetailFromImages(); // Update damage detail after any successful upload
 
     } catch (error) {
         console.error('Upload error:', error);
         alert(`❌ เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ${error.message}`);
-        // Revert UI on error
-        if (imgPreview) imgPreview.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-        if (imageSlot.querySelector('.bi-camera')) imageSlot.querySelector('.bi-camera').style.display = 'block';
-        imageSlot.removeAttribute('data-uploaded');
-        fileInput.value = ''; // Clear file input
+        // Revert UI on error - only for ADD operations as replace doesn't change the src initially
+        if (!oldPicUrl) {
+            if (imgPreview) imgPreview.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            if (imageSlot.querySelector('.bi-camera')) imageSlot.querySelector('.bi-camera').style.display = 'block';
+            imageSlot.removeAttribute('data-uploaded');
+            fileInput.value = ''; // Clear file input
+        }
     } finally {
         // Restore UI state
         if (uploadBtn) {
