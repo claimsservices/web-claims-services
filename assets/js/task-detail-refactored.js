@@ -401,6 +401,9 @@ export function renderUploadedImages(orderPics) {
       setValue('carRegistration', order.car_registration);
       setValue('address', order.location);
 
+      // Set travel expense, prioritizing service_fee from order, then fallback to travel_expense from assignment
+      setValue('travelExpense', order.service_fee || (order_assign.length > 0 ? order_assign[0].travel_expense : null) || '');
+
       if (order.appointment_date) {
         const dt = new Date(order.appointment_date);
         setValue('appointmentDate', dt.toISOString().slice(0, 10));
