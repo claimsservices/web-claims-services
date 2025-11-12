@@ -272,6 +272,10 @@ export function renderUploadedImages(orderPics) {
         return;
     }
 
+    // Clear existing dynamic images to prevent duplication on reload
+    document.querySelectorAll('.dynamic-image-slot[data-server-rendered="true"]').forEach(slot => slot.remove());
+
+
     const sectionsMap = {
         'around': document.getElementById('around-images-section')?.querySelector('.row'),
         'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
@@ -311,57 +315,30 @@ export function renderUploadedImages(orderPics) {
             return;
         }
 
-        let filledExistingSlot = false;
-        const placeholderSlot = targetSection.querySelector(`input[name="${pic.pic_type}"]`)?.closest('.dynamic-image-slot');
-
-        if (placeholderSlot) {
-            const img = placeholderSlot.querySelector('img');
-            const titleInput = placeholderSlot.querySelector('.image-title-input');
-            const deleteBtn = placeholderSlot.querySelector('.delete-btn');
-            const editTitleBtn = placeholderSlot.querySelector('.edit-title-btn');
-
-            if (img) {
-                img.src = pic.pic;
-                img.alt = pic.pic_title || 'Uploaded Image';
-                if (pic.created_date) img.dataset.createdDate = pic.created_date;
-            }
-            if (titleInput) titleInput.value = pic.pic_title || 'กรุณาใส่ชื่อ';
-            if (deleteBtn) deleteBtn.style.display = 'block';
-            if (editTitleBtn) editTitleBtn.style.display = 'inline-block';
-            
-            placeholderSlot.setAttribute('data-uploaded', 'true');
-            placeholderSlot.setAttribute('data-pic-url', pic.pic);
-            placeholderSlot.setAttribute('data-pic-type', pic.pic_type);
-            filledExistingSlot = true;
-            console.log(`[renderUploadedImages] Pic #${index}: Filled existing placeholder for pic_type '${pic.pic_type}'.`);
-        }
-
-        if (!filledExistingSlot) {
-            const uniqueId = `uploaded-image-${mainCategory}-${Date.now()}`;
-            const defaultTitleConfig = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle;
-            const displayTitle = pic.pic_title || defaultTitleConfig || 'กรุณาใส่ชื่อ';
-            const newSlotHtml = `
-                <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}" data-pic-url="${pic.pic}" data-uploaded="true">
-                    <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
-                        <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${displayTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
-                        <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
-                        <button type="button" class="upload-btn" title="เปลี่ยนรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
-                        <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
-                    </div>
-                    <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
+        const uniqueId = `uploaded-image-${mainCategory}-${Date.now()}`;
+        const defaultTitleConfig = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle;
+        const displayTitle = pic.pic_title || defaultTitleConfig || 'กรุณาใส่ชื่อ';
+        const newSlotHtml = `
+            <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}" data-pic-url="${pic.pic}" data-uploaded="true" data-server-rendered="true">
+                <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
+                    <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${displayTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
+                    <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
+                    <button type="button" class="upload-btn" title="เปลี่ยนรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
                 </div>
-            `;
-            const addImageBtnContainer = targetSection.querySelector('.add-image-btn')?.parentElement;
-            if (addImageBtnContainer) {
-                addImageBtnContainer.insertAdjacentHTML('beforebegin', newSlotHtml);
-                console.log(`[renderUploadedImages] Pic #${index}: Inserted new dynamic slot before addImageBtnContainer.`);
-            } else {
-                targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
-                console.log(`[renderUploadedImages] Pic #${index}: Inserted new dynamic slot at the end of targetSection.`);
-            }
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
+                </div>
+                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
+            </div>
+        `;
+        const addImageBtnContainer = targetSection.querySelector('.add-image-btn')?.parentElement;
+        if (addImageBtnContainer) {
+            addImageBtnContainer.insertAdjacentHTML('beforebegin', newSlotHtml);
+            console.log(`[renderUploadedImages] Pic #${index}: Inserted new dynamic slot before addImageBtnContainer.`);
+        } else {
+            targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
+            console.log(`[renderUploadedImages] Pic #${index}: Inserted new dynamic slot at the end of targetSection.`);
         }
     });
     console.log('[renderUploadedImages] Finished processing all pictures.');
@@ -1149,9 +1126,9 @@ export function populateImageSections() {
             return;
         }
     
-        // The pic_type is the file input's name attribute in the static slots
-        // For dynamic slots, it will be 'dynamic_image', but we have the category in the dataset.
-        const picType = fileInput.name;
+        // For new uploads, the picType should be the general category.
+        // For existing slots (replace), it's the specific name like 'exterior_front'.
+        const picType = fileInput.dataset.category || fileInput.name;
         const category = fileInput.dataset.category;
     
         filesToUpload.set(inputName, { file: file, picType: picType, category: category });
@@ -1348,7 +1325,7 @@ export function populateImageSections() {
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                     <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
                 </div>
-                <input type="file" id="${uniqueId}" name="dynamic_image" data-category="${category}" hidden accept="image/*" capture="camera">
+                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="camera">
             </div>
         `;
         return newSlotHtml;
@@ -1412,7 +1389,6 @@ export function populateImageSections() {
 
 
     loadUserProfile();
-    populateImageSections();
 
     const userRole = getUserRole();
     if (userRole) {
