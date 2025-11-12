@@ -584,10 +584,9 @@ export function renderUploadedImages(orderPics) {
     }
   }
 
-  async function uploadImageAndRender(file, orderId, imageSlot) {
+  async function uploadImageAndRender(file, orderId, imageSlot, fileInput) {
     const token = localStorage.getItem('authToken') || '';
     const imgPreview = imageSlot.querySelector('img');
-    const fileInput = imageSlot.querySelector('input[type="file"]');
     const uploadBtn = imageSlot.querySelector('.upload-btn');
     const deleteBtn = imageSlot.querySelector('.delete-btn');
     const titleInput = imageSlot.querySelector('.image-title-input');
@@ -1437,7 +1436,7 @@ export function populateImageSections() {
                             throw new Error('imageCompression library is not loaded.');
                         }
                         console.log('imageCompression library is loaded. Starting upload process...');
-                        uploadImageAndRender(file, orderId, imageSlot);
+                        uploadImageAndRender(file, orderId, imageSlot, fileInput);
                     } catch (error) {
                         console.error('Error initiating uploadImageAndRender:', error);
                         alert(`เกิดข้อผิดพลาดในการเริ่มต้นอัปโหลด: ${error.message}`);
