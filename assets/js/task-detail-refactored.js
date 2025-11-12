@@ -584,106 +584,7 @@ export function renderUploadedImages(orderPics) {
     }
   }
 
-  async function uploadImageAndRender(file, orderId, imageSlot, fileInput) {
-    const token = localStorage.getItem('authToken') || '';
-    const imgPreview = imageSlot.querySelector('img');
-    const uploadBtn = imageSlot.querySelector('.upload-btn');
-    const deleteBtn = imageSlot.querySelector('.delete-btn');
-    const titleInput = imageSlot.querySelector('.image-title-input');
-    let oldPicUrl = null; // Declare here for broader scope
 
-    // Show loading state
-    if (uploadBtn) {
-        uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        uploadBtn.disabled = true;
-    }
-    if (deleteBtn) deleteBtn.disabled = true;
-    if (titleInput) titleInput.disabled = true;
-
-    try {
-        // 1. Compress image
-        const compressedFile = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true });
-
-        // 2. Add watermark
-        const watermarkedBlob = await addWatermark(compressedFile);
-
-        // 3. Prepare FormData
-        const formData = new FormData();
-        formData.append('order_id', orderId);
-        formData.append('image', watermarkedBlob, file.name); // Use 'image' for single upload
-
-        const picTitle = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
-        formData.append('pic_title', picTitle);
-
-        oldPicUrl = imageSlot.getAttribute('data-pic-url'); // Assign value here
-        let response;
-
-        if (oldPicUrl) {
-            // --- REPLACE Operation ---
-            console.log('[uploadImageAndRender] Starting REPLACE operation.');
-            formData.append('old_pic_url', oldPicUrl);
-            
-            response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/replace`, {
-                method: 'PUT',
-                headers: { 'Authorization': token },
-                body: formData
-            });
-
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Replace failed');
-
-            // Directly update UI without full reload
-            console.log('[uploadImageAndRender] Replace successful. New URL:', result.new_url);
-            if (imgPreview) imgPreview.src = result.new_url;
-            imageSlot.setAttribute('data-pic-url', result.new_url);
-            alert('✅ แทนที่รูปภาพสำเร็จ!');
-
-        } else {
-            // --- ADD Operation ---
-            console.log('[uploadImageAndRender] Starting ADD operation.');
-            // The backend endpoint for transactions expects 'images' (plural)
-            formData.delete('image');
-            formData.append('images', watermarkedBlob, file.name);
-            
-            const picType = fileInput.dataset.category || 'unknown';
-            formData.append('pic_type', picType);
-
-            response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-                method: 'POST',
-                headers: { 'Authorization': token },
-                body: formData
-            });
-
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Upload failed');
-            
-            alert('✅ อัปโหลดรูปภาพใหม่สำเร็จ!');
-            // Reload all data to refresh sections, as this is an ADD operation
-            loadOrderData(orderId); 
-        }
-
-        populateDamageDetailFromImages(); // Update damage detail after any successful upload
-
-    } catch (error) {
-        console.error('Upload error:', error);
-        alert(`❌ เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: ${error.message}`);
-        // Revert UI on error - only for ADD operations as replace doesn't change the src initially
-        if (!oldPicUrl) {
-            if (imgPreview) imgPreview.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-            if (imageSlot.querySelector('.bi-camera')) imageSlot.querySelector('.bi-camera').style.display = 'block';
-            imageSlot.removeAttribute('data-uploaded');
-            fileInput.value = ''; // Clear file input
-        }
-    } finally {
-        // Restore UI state
-        if (uploadBtn) {
-            uploadBtn.innerHTML = '<i class="bi bi-camera"></i>';
-            uploadBtn.disabled = false;
-        }
-        if (deleteBtn) deleteBtn.disabled = false;
-        if (titleInput) titleInput.disabled = false;
-    }
-  }
 
   // =========================================================
   // PHOTO RENDERING LOGIC
@@ -1167,6 +1068,69 @@ export function populateImageSections() {
   // DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
   // =========================================================
 
+  async function uploadStagedImages(orderId, token) {
+    if (filesToUpload.size === 0) {
+        return { success: true }; // Nothing to upload
+    }
+
+    const formData = new FormData();
+    formData.append('order_id', orderId);
+    formData.append('folder', `transactions/${orderId}`);
+
+    const processingPromises = [];
+
+    filesToUpload.forEach(({ file, picType, category }, inputName) => {
+        const fileInput = document.querySelector(`input[name="${inputName}"]`);
+        if (!fileInput) return;
+
+        const imageSlot = fileInput.closest('.dynamic-image-slot');
+        const titleInput = imageSlot.querySelector('.image-title-input');
+        const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
+
+        const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
+            .then(compressedFile => addWatermark(compressedFile))
+            .then(watermarkedBlob => {
+                formData.append('images', watermarkedBlob, file.name);
+                // The backend needs pic_type and pic_title for each image
+                formData.append('pic_type', picType);
+                formData.append('pic_title', picTitle);
+            })
+            .catch(err => {
+                console.error('Error processing file:', err);
+                throw err; // Propagate to stop Promise.all
+            });
+        processingPromises.push(promise);
+    });
+
+    try {
+        await Promise.all(processingPromises);
+    } catch (error) {
+        alert('เกิดข้อผิดพลาดในการเตรียมไฟล์สำหรับอัปโหลด');
+        return { success: false };
+    }
+
+    try {
+        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+            method: 'POST',
+            headers: { 'Authorization': token },
+            body: formData
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'Upload failed');
+        }
+        
+        filesToUpload.clear(); // Clear staged files on success
+        return { success: true, result: result };
+
+    } catch (err) {
+        console.error('Upload error:', err);
+        alert(`ไม่สามารถอัปโหลดรูปภาพได้: ${err.message}`);
+        return { success: false };
+    }
+}
+
   window.addEventListener('load', function () {
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     console.log('imagePreviewModalEl found (at top of DOMContentLoaded):', imagePreviewModalEl);
@@ -1175,6 +1139,42 @@ export function populateImageSections() {
     console.log('viewFullImageBtn found (at top of DOMContentLoaded):', viewFullImageBtn);
 
     initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
+
+    function handleImageSelection(fileInput) {
+        const file = fileInput.files[0];
+        const inputName = fileInput.name; // The name is unique enough to be a key
+    
+        if (!file) {
+            filesToUpload.delete(inputName);
+            return;
+        }
+    
+        // The pic_type is the file input's name attribute in the static slots
+        // For dynamic slots, it will be 'dynamic_image', but we have the category in the dataset.
+        const picType = fileInput.name;
+        const category = fileInput.dataset.category;
+    
+        filesToUpload.set(inputName, { file: file, picType: picType, category: category });
+    
+        // Update UI to show preview
+        const imageSlot = fileInput.closest('.dynamic-image-slot');
+        const imgPreview = imageSlot.querySelector('img');
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            imgPreview.src = event.target.result;
+            // Mark this slot as having a pending upload, but not yet "data-uploaded"
+            imageSlot.setAttribute('data-pending-upload', 'true');
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    document.addEventListener('change', (e) => {
+        const fileInput = e.target;
+        if (fileInput.matches('input[type="file"]') && fileInput.closest('.dynamic-image-slot')) {
+            handleImageSelection(fileInput);
+        }
+    });
 
     // --- CSV Import/Export Logic ---
     const headerMap = {
@@ -1409,42 +1409,7 @@ export function populateImageSections() {
         }
     });
 
-    // Delegated event listener for file inputs to trigger upload
-    const form = document.getElementById('taskForm');
-    if (form) {
-        form.addEventListener('change', function(e) {
-            console.log('Form change event detected.');
-            const fileInput = e.target;
-            if (fileInput.type === 'file' && fileInput.closest('.dynamic-image-slot')) {
-                console.log('File input changed within a dynamic-image-slot.');
-                const imageSlot = fileInput.closest('.dynamic-image-slot');
-                const orderId = document.getElementById('taskId').value;
-                console.log('Order ID:', orderId);
 
-                if (!orderId) {
-                    alert('กรุณาบันทึกข้อมูลงานก่อนทำการอัปโหลดรูปภาพ');
-                    console.log('Upload stopped: No Order ID.');
-                    fileInput.value = ''; // Reset file input
-                    return;
-                }
-
-                const file = fileInput.files[0];
-                if (file) {
-                    console.log('File selected:', file.name, 'Preparing to start upload process...');
-                    try {
-                        if (typeof imageCompression === 'undefined') {
-                            throw new Error('imageCompression library is not loaded.');
-                        }
-                        console.log('imageCompression library is loaded. Starting upload process...');
-                        uploadImageAndRender(file, orderId, imageSlot, fileInput);
-                    } catch (error) {
-                        console.error('Error initiating uploadImageAndRender:', error);
-                        alert(`เกิดข้อผิดพลาดในการเริ่มต้นอัปโหลด: ${error.message}`);
-                    }
-                }
-            }
-        });
-    }
 
     loadUserProfile();
     populateImageSections();
@@ -1557,6 +1522,40 @@ export function populateImageSections() {
     if (getUserRole() !== 'Bike') {
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
+
+        const manualSubmitBtn = document.getElementById('submittaskBtn');
+    
+        // --- START: NEW UPLOAD LOGIC ---
+        if (filesToUpload.size > 0) {
+            const currentOrderId = getSafeValue('taskId');
+            const token = localStorage.getItem('authToken') || '';
+    
+            if (!currentOrderId) {
+                alert('กรุณาสร้างงานก่อนทำการอัปโหลดรูปภาพ');
+                return;
+            }
+    
+            if(manualSubmitBtn) {
+                manualSubmitBtn.disabled = true;
+                manualSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังอัปโหลดรูปภาพ...';
+            }
+    
+            const uploadResult = await uploadStagedImages(currentOrderId, token);
+    
+            if (!uploadResult.success) {
+                if(manualSubmitBtn) {
+                    manualSubmitBtn.disabled = false;
+                    manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+                }
+                // Error is already alerted in uploadStagedImages
+                return; // Stop submission
+            }
+    
+            // After successful upload, reload all the data to get the new image URLs in the DOM
+            // This is crucial for the rest of the submit handler to work correctly.
+            await loadOrderData(currentOrderId);
+        }
+        // --- END: NEW UPLOAD LOGIC ---
 
         const currentUserRole = getUserRole();
 
@@ -1682,6 +1681,39 @@ navigateTo('dashboard.html');
     if (getUserRole() === 'Bike') {
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
+
+        const manualSubmitBtn = document.getElementById('submittaskBtn');
+
+        // --- START: NEW UPLOAD LOGIC ---
+        if (filesToUpload.size > 0) {
+            const currentOrderId = getSafeValue('taskId');
+            const token = localStorage.getItem('authToken') || '';
+    
+            if (!currentOrderId) {
+                alert('❌ ไม่พบรหัสงาน ไม่สามารถบันทึกได้');
+                return;
+            }
+    
+            if(manualSubmitBtn) {
+                manualSubmitBtn.disabled = true;
+                manualSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังอัปโหลดรูปภาพ...';
+            }
+    
+            const uploadResult = await uploadStagedImages(currentOrderId, token);
+    
+            if (!uploadResult.success) {
+                if(manualSubmitBtn) {
+                    manualSubmitBtn.disabled = false;
+                    manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+                }
+                // Error is already alerted in uploadStagedImages
+                return; // Stop submission
+            }
+    
+            // After successful upload, reload all the data to get the new image URLs in the DOM
+            await loadOrderData(currentOrderId);
+        }
+        // --- END: NEW UPLOAD LOGIC ---
     
         const token = localStorage.getItem('authToken') || '';
         const currentOrderId = getSafeValue('taskId');
