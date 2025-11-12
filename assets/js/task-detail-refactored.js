@@ -1647,7 +1647,6 @@ function createAddImageButtons() {
             data = commonData;
         }
 
-        const manualSubmitBtn = document.getElementById('submittaskBtn');
         try {
           const response = await fetch(endpoint, { method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
     JSON.stringify(data) });
@@ -1752,7 +1751,6 @@ function createAddImageButtons() {
         // Log the payload for debugging
         console.log('Submitting payload for Bike:', JSON.stringify(carDetailsPayload, null, 2));
 
-        const manualSubmitBtn = document.getElementById('submittaskBtn');
         try {
           const response = await fetch(endpoint, {
             method: 'PUT',
