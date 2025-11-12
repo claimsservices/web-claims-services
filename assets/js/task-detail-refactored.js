@@ -1108,6 +1108,38 @@ export function populateImageSections() {
     }
 }
 
+function createAddImageButtons() {
+    const sectionsMap = {
+        'around': document.getElementById('around-images-section'),
+        'accessories': document.getElementById('accessories-images-section'),
+        'inspection': document.getElementById('inspection-images-section'),
+        'fiber': document.getElementById('fiber-documents-section'),
+        'documents': document.getElementById('other-documents-section'),
+        'signature': document.getElementById('signature-documents-section')
+    };
+
+    for (const category in sectionsMap) {
+        const targetSection = sectionsMap[category];
+        if (targetSection) {
+            // Prevent adding duplicate buttons on data reload
+            if (targetSection.querySelector('.add-image-btn-container')) {
+                continue;
+            }
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'text-center mt-3 add-image-btn-container';
+            
+            const addImageButtonHtml = `
+                <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
+                    <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
+                </button>
+            `;
+            buttonContainer.innerHTML = addImageButtonHtml;
+            
+            targetSection.appendChild(buttonContainer);
+        }
+    }
+}
+
   window.addEventListener('load', function () {
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     console.log('imagePreviewModalEl found (at top of DOMContentLoaded):', imagePreviewModalEl);
@@ -1116,6 +1148,7 @@ export function populateImageSections() {
     console.log('viewFullImageBtn found (at top of DOMContentLoaded):', viewFullImageBtn);
 
     initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
+    createAddImageButtons();
 
     function handleImageSelection(fileInput) {
         const file = fileInput.files[0];
