@@ -327,7 +327,6 @@ export function renderUploadedImages(orderPics) {
                 </div>
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
-                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
                 </div>
                 <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
             </div>
@@ -1356,7 +1355,6 @@ function createAddImageButtons() {
                 </div>
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
-                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
                 </div>
                 <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="camera">
             </div>
@@ -1475,28 +1473,7 @@ function createAddImageButtons() {
       });
     }
 
-    // Event listener for the "Show/Hide Empty Slots" button
-    const toggleEmptySlotsBtn = document.getElementById('toggleEmptySlotsBtn');
-    if (toggleEmptySlotsBtn) {
-        toggleEmptySlotsBtn.addEventListener('click', () => {
-            const emptySlots = document.querySelectorAll('.dynamic-image-slot:not([data-uploaded="true"])');
-            const currentState = toggleEmptySlotsBtn.dataset.state || 'hidden';
 
-            if (currentState === 'hidden') {
-                emptySlots.forEach(slot => {
-                    slot.style.display = 'block';
-                });
-                toggleEmptySlotsBtn.textContent = 'ซ่อนช่องว่าง';
-                toggleEmptySlotsBtn.dataset.state = 'visible';
-            } else {
-                emptySlots.forEach(slot => {
-                    slot.style.display = 'none';
-                });
-                toggleEmptySlotsBtn.textContent = 'แสดงช่องว่าง';
-                toggleEmptySlotsBtn.dataset.state = 'hidden';
-            }
-        });
-    }
 
     // Fix for Tab Switching based on legacy code
     document.querySelectorAll('.nav-tabs .nav-link[data-bs-toggle="tab"]').forEach(button => {
@@ -1670,19 +1647,25 @@ function createAddImageButtons() {
             data = commonData;
         }
 
+        const manualSubmitBtn = document.getElementById('submittaskBtn');
         try {
           const response = await fetch(endpoint, { method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
     JSON.stringify(data) });
           const result = await response.json();
           if (response.ok) {
             alert('✅ ดำเนินการเรียบร้อยแล้ว'); // Changed message to be more generic
-navigateTo('dashboard.html');
+            loadOrderData(currentOrderId);
           } else {
             alert('❌ เกิดข้อผิดพลาด: ' + result.message);
           }
         } catch (error) {
           alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
           console.error('Fetch error:', error);
+        } finally {
+            if(manualSubmitBtn) {
+                manualSubmitBtn.disabled = false;
+                manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+            }
         }
       });
     }
@@ -1769,6 +1752,7 @@ navigateTo('dashboard.html');
         // Log the payload for debugging
         console.log('Submitting payload for Bike:', JSON.stringify(carDetailsPayload, null, 2));
 
+        const manualSubmitBtn = document.getElementById('submittaskBtn');
         try {
           const response = await fetch(endpoint, {
             method: 'PUT',
@@ -1778,63 +1762,25 @@ navigateTo('dashboard.html');
           const result = await response.json();
           if (response.ok) {
             alert('✅ อัปเดตข้อมูลและสถานะเรียบร้อยแล้ว');
-            navigateTo('dashboard.html');
+            loadOrderData(currentOrderId);
           } else {
             throw new Error(result.message || 'การอัปเดตล้มเหลว');
           }
         } catch (error) {
           alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
           console.error('Fetch error for bike submission:', error);
+        } finally {
+            if(manualSubmitBtn) {
+                manualSubmitBtn.disabled = false;
+                manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+            }
         }
       });
     }
 
     
 
-    document.addEventListener('click', async function(e) {
-        const editBtn = e.target.closest('.edit-title-btn');
-        if (editBtn) {
-            e.preventDefault();
-            console.log('Save title button clicked.');
 
-            const imageSlot = editBtn.closest('.dynamic-image-slot');
-            const titleInput = imageSlot.querySelector('.image-title-input');
-            
-            if (!imageSlot.hasAttribute('data-uploaded') || imageSlot.getAttribute('data-uploaded') === 'false') {
-                alert('ไม่สามารถแก้ไขชื่อรูปภาพที่ยังไม่ได้อัปโหลด');
-                console.log('Save title aborted: Image not uploaded yet.');
-                return;
-            }
-
-            const newTitle = titleInput.value.trim();
-            const orderId = getSafeValue('taskId');
-            const picUrl = imageSlot.getAttribute('data-pic-url');
-
-            if (!picUrl) {
-                alert('ไม่พบ URL ของรูปภาพ ไม่สามารถบันทึกได้');
-                console.error('Save title error: picUrl is missing from data attribute.');
-                return;
-            }
-
-            console.log(`Attempting to save title. OrderID: ${orderId}, PicURL: ${picUrl}, NewTitle: ${newTitle}`);
-            
-            editBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-            editBtn.disabled = true;
-
-            const success = await updateImageTitle(orderId, picUrl, newTitle);
-            if (success) {
-                // The title is already set in the input, so we just need to confirm
-                console.log('Title updated successfully.');
-                populateDamageDetailFromImages(); // Update the main damage detail field
-            } else {
-                console.error('Failed to update title via API.');
-                // Optionally, revert the title if the API call fails
-            }
-
-            editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
-            editBtn.disabled = false;
-        }
-    });
 
 
 
