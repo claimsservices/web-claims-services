@@ -1531,7 +1531,7 @@ function createAddImageButtons() {
             if (!uploadResult.success) {
                 if(manualSubmitBtn) {
                     manualSubmitBtn.disabled = false;
-                    manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+                    manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
                 }
                 // Error is already alerted in uploadStagedImages
                 return; // Stop submission
@@ -1663,7 +1663,7 @@ function createAddImageButtons() {
         } finally {
             if(manualSubmitBtn) {
                 manualSubmitBtn.disabled = false;
-                manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+                manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
             }
         }
       });
@@ -1695,7 +1695,7 @@ function createAddImageButtons() {
             if (!uploadResult.success) {
                 if(manualSubmitBtn) {
                     manualSubmitBtn.disabled = false;
-                    manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+                    manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
                 }
                 // Error is already alerted in uploadStagedImages
                 return; // Stop submission
@@ -1770,7 +1770,7 @@ function createAddImageButtons() {
         } finally {
             if(manualSubmitBtn) {
                 manualSubmitBtn.disabled = false;
-                manualSubmitBtn.innerHTML = 'บันทึกข้อมูล';
+                manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
             }
         }
       });
