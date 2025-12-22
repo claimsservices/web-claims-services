@@ -1105,7 +1105,7 @@
                   <!-- Submit -->
                   <div class="row mt-3">
                     <div class="col-md-12 text-end">
-                      <button type="button" id="submittaskBtn" class="btn btn-primary">&#3610;&#3633;&#3609;&#3607;&#3638;&#3601;&#3602;&#3657;&#3629;&#3617;&#3641;&#3621;</button>
+                      <button type="button" id="submittaskBtn" class="btn btn-primary">Save Data</button>
                     </div>
                   </div>
                 </form>
@@ -1172,5 +1172,17 @@
 
   <script src="../assets/js/car-models.js"></script>
 <script src="../assets/js/task-management-refactored.js" type="module"></script>
+<script>
+  // Force correct Button text via JS to avoid charset issues
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      const btn = document.getElementById('submittaskBtn');
+      if (btn) {
+        // "บันทึกข้อมูล" in Unicode Escapes
+        btn.innerText = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
+      }
+    }, 500);
+  });
+</script>
 </body>
 </html>
