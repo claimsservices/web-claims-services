@@ -1,461 +1,461 @@
 fetch('/version.json')
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("appVersion").textContent = `App Version ${data.version}`;
-        })
-        .catch(() => {
-          document.getElementById("appVersion").textContent = "App Version -";
-        });
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("appVersion").textContent = `App Version ${data.version}`;
+  })
+  .catch(() => {
+    document.getElementById("appVersion").textContent = "App Version -";
+  });
 
 
-      // Constants for URLs and other fixed strings
-      const LOGIN_PAGE = '../index.html';
-      const API_URL = `https://be-claims-service.onrender.com/api/auth/profile`;
+// Constants for URLs and other fixed strings
+const LOGIN_PAGE = '../index.html';
+const API_URL = `https://be-claims-service.onrender.com/api/auth/profile`;
 
-      // Function to decode JWT token and check for expiration
-      function decodeJWT(token) {
-        try {
-          const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          return JSON.parse(atob(base64));  // Decode the token
-        } catch (e) {
-          console.error('Failed to decode JWT:', e);
-          return null;
-        }
+// Function to decode JWT token and check for expiration
+function decodeJWT(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));  // Decode the token
+  } catch (e) {
+    console.error('Failed to decode JWT:', e);
+    return null;
+  }
+}
+
+// Function to check if the token is expired
+function isTokenExpired(decodedToken) {
+  const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+  return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
+}
+
+// Main logic
+async function loadUserProfile() {
+  const token = localStorage.getItem('authToken'); // Check if token is available
+
+  // If there's no token, redirect to login
+  if (!token) {
+    window.location.href = LOGIN_PAGE;
+    return;
+  }
+
+  const decoded = decodeJWT(token);
+  if (!decoded) {
+    localStorage.removeItem('authToken');
+    window.location.href = LOGIN_PAGE;
+    return;
+  }
+
+  const id = decoded.id;
+  const userName = decoded.username;
+  const fname = decoded.first_name;
+  const lname = decoded.last_name;
+  const email = decoded.email;
+  const role = decoded.role;
+  const myPicture = decoded.myPicture;
+
+  document.getElementById('user-info').innerText = fname + ' ' + lname;
+  document.getElementById('ownerName').value = fname + ' ' + lname;
+  document.getElementById('user-role').innerText = role;
+
+  // If user is Insurance, set and disable the insurance company dropdown and hide tabs
+  if (role === 'Insurance') {
+    const insuranceCompanySelect = document.getElementById('insuranceCompany');
+    const userInsurComp = decoded.insur_comp;
+    if (insuranceCompanySelect && userInsurComp) {
+      insuranceCompanySelect.value = userInsurComp;
+      insuranceCompanySelect.disabled = true;
+    }
+
+    // Hide unnecessary tabs for Insurance role
+    const tabsToHide = ['tab-li-profile', 'tab-li-contact', 'tab-li-note', 'tab-li-history', 'tab-li-upload'];
+    tabsToHide.forEach(tabId => {
+      const tab = document.getElementById(tabId);
+      if (tab) {
+        tab.style.display = 'none';
       }
+    });
 
-      // Function to check if the token is expired
-      function isTokenExpired(decodedToken) {
-        const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
-        return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
+    // For new tasks, set orderStatus to 'เปิดงาน' and disable it
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('order_id');
+    if (!orderId) { // Only for new tasks
+      const orderStatusSelect = document.getElementById('orderStatus');
+      if (orderStatusSelect) {
+        orderStatusSelect.value = 'เปิดงาน';
+        orderStatusSelect.disabled = true;
       }
+    }
+  }
 
-      // Main logic
-      async function loadUserProfile() {
-        const token = localStorage.getItem('authToken'); // Check if token is available
+  const imageUrl = myPicture;
+  const imgElement = document.getElementById('userAvatar');
+  if (imageUrl) {
+    imgElement.src = imageUrl;
+  }
 
-        // If there's no token, redirect to login
-        if (!token) {
-          window.location.href = LOGIN_PAGE;
-          return;
-        }
+  if (decoded && isTokenExpired(decoded)) {
+    // Token is expired
+    localStorage.removeItem('authToken'); // Clear token
+    window.location.href = LOGIN_PAGE; // Redirect to login page
+    return;
+  }
 
-        const decoded = decodeJWT(token);
-        if (!decoded) {
-          localStorage.removeItem('authToken');
-          window.location.href = LOGIN_PAGE;
-          return;
-        }
+  // Check user role
+  if (decoded.role === 'Operation Manager' || decoded.role === 'Director' || decoded.role === 'Developer') {
+    // Show the admin menu
+    const adminMenu = document.getElementById('admin-menu');
+    if (adminMenu) {
+      adminMenu.style.display = 'block';
+    }
+  } else if (decoded.role === 'Sales Manager') {
+    // Redirect Sales Manager
+    window.location.href = 'dashboard.html';
+    return; // Stop further execution
+  } else if (decoded.role === 'Officer') {
+    // Redirect Officer
+    localStorage.removeItem('authToken');
+    window.location.href = LOGIN_PAGE; // Use LOGIN_PAGE constant
+    return; // Stop further execution
+  }
 
-        const id = decoded.id;
-        const userName = decoded.username;
-        const fname = decoded.first_name;
-        const lname = decoded.last_name;
-        const email = decoded.email;
-        const role = decoded.role;
-        const myPicture = decoded.myPicture;
-
-        document.getElementById('user-info').innerText = fname + ' ' + lname;
-        document.getElementById('ownerName').value = fname + ' ' + lname;
-        document.getElementById('user-role').innerText = role;
-
-        // If user is Insurance, set and disable the insurance company dropdown and hide tabs
-        if (role === 'Insurance') {
-          const insuranceCompanySelect = document.getElementById('insuranceCompany');
-          const userInsurComp = decoded.insur_comp;
-          if (insuranceCompanySelect && userInsurComp) {
-            insuranceCompanySelect.value = userInsurComp;
-            insuranceCompanySelect.disabled = true;
-          }
-
-          // Hide unnecessary tabs for Insurance role
-          const tabsToHide = ['tab-li-profile', 'tab-li-contact', 'tab-li-note', 'tab-li-history', 'tab-li-upload'];
-          tabsToHide.forEach(tabId => {
-            const tab = document.getElementById(tabId);
-            if (tab) {
-              tab.style.display = 'none';
-            }
-          });
-
-          // For new tasks, set orderStatus to 'เปิดงาน' and disable it
-          const urlParams = new URLSearchParams(window.location.search);
-          const orderId = urlParams.get('order_id');
-          if (!orderId) { // Only for new tasks
-            const orderStatusSelect = document.getElementById('orderStatus');
-            if (orderStatusSelect) {
-              orderStatusSelect.value = 'เปิดงาน';
-              orderStatusSelect.disabled = true;
-            }
-          }
-        }
-
-        const imageUrl = myPicture;
-        const imgElement = document.getElementById('userAvatar');
-        if (imageUrl) {
-          imgElement.src = imageUrl;
-        }
-
-        if (decoded && isTokenExpired(decoded)) {
-          // Token is expired
-          localStorage.removeItem('authToken'); // Clear token
-          window.location.href = LOGIN_PAGE; // Redirect to login page
-          return;
-        }
-
-        // Check user role
-        if (decoded.role === 'Operation Manager' || decoded.role === 'Director' || decoded.role === 'Developer') {
-          // Show the admin menu
-          const adminMenu = document.getElementById('admin-menu');
-          if (adminMenu) {
-            adminMenu.style.display = 'block';
-          }
-        } else if (decoded.role === 'Sales Manager') {
-          // Redirect Sales Manager
-          window.location.href = 'dashboard.html';
-          return; // Stop further execution
-        } else if (decoded.role === 'Officer') {
-          // Redirect Officer
-          localStorage.removeItem('authToken');
-          window.location.href = LOGIN_PAGE; // Use LOGIN_PAGE constant
-          return; // Stop further execution
-        }
-
-        // If the token is valid, fetch user profile
-        try {
-          const response = await fetch(API_URL, {
-            method: 'GET',
-            headers: {
-              'Authorization': `${token}`,
-            },
-          });
-          console.log(response);
-          if (!response.ok) {
-            //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
-            localStorage.removeItem('authToken');
-            window.location.href = LOGIN_PAGE;
-            return;
-          }
-        } catch (error) {
-          //Handle fetch errors(network issues, etc.)
-          console.error('Error fetching user profile:', error);
-          localStorage.removeItem('authToken');
-          window.location.href = LOGIN_PAGE; // Redirect to login page on error
-        }
-      }
+  // If the token is valid, fetch user profile
+  try {
+    const response = await fetch(API_URL, {
+      method: 'GET',
+      headers: {
+        'Authorization': `${token}`,
+      },
+    });
+    console.log(response);
+    if (!response.ok) {
+      //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
+      localStorage.removeItem('authToken');
+      window.location.href = LOGIN_PAGE;
+      return;
+    }
+  } catch (error) {
+    //Handle fetch errors(network issues, etc.)
+    console.error('Error fetching user profile:', error);
+    localStorage.removeItem('authToken');
+    window.location.href = LOGIN_PAGE; // Redirect to login page on error
+  }
+}
 
 
-      // Call the function to load the user profile
-      document.addEventListener('DOMContentLoaded', () => {
-        loadUserProfile();
-      });
+// Call the function to load the user profile
+document.addEventListener('DOMContentLoaded', () => {
+  loadUserProfile();
+});
 
 
 
 const imageUrls = [];
 
-  const gallery = document.getElementById('gallery-documents');
+const gallery = document.getElementById('gallery-documents');
 
-  imageUrls.forEach((url, index) => {
-    const col = document.createElement('div');
+imageUrls.forEach((url, index) => {
+  const col = document.createElement('div');
 
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = `Image ${index + 1}`;
-    img.className = 'img-card';
-    img.dataset.selected = 'false';
+  const img = document.createElement('img');
+  img.src = url;
+  img.alt = `Image ${index + 1}`;
+  img.className = 'img-card';
+  img.dataset.selected = 'false';
 
-    img.addEventListener('click', () => {
-      if (img.dataset.selected === 'true') {
-        img.dataset.selected = 'false';
-        img.classList.remove('selected');
-      } else {
-        img.dataset.selected = 'true';
-        img.classList.add('selected');
-      }
-    });
-
-    col.appendChild(img);
-    gallery.appendChild(col);
+  img.addEventListener('click', () => {
+    if (img.dataset.selected === 'true') {
+      img.dataset.selected = 'false';
+      img.classList.remove('selected');
+    } else {
+      img.dataset.selected = 'true';
+      img.classList.add('selected');
+    }
   });
 
-  const downloadSelectedBtn = document.getElementById('downloadSelectedBtn');
-  if (downloadSelectedBtn) {
-    downloadSelectedBtn.addEventListener('click', async () => {
-      const selectedImages = [...document.querySelectorAll('.img-card')].filter(img => img.dataset.selected === 'true');
-      if (selectedImages.length === 0) {
-        alert('กรุณาเลือกรูปภาพที่ต้องการดาวน์โหลด');
-        return;
-      }
+  col.appendChild(img);
+  gallery.appendChild(col);
+});
 
-      const zip = new JSZip();
+const downloadSelectedBtn = document.getElementById('downloadSelectedBtn');
+if (downloadSelectedBtn) {
+  downloadSelectedBtn.addEventListener('click', async () => {
+    const selectedImages = [...document.querySelectorAll('.img-card')].filter(img => img.dataset.selected === 'true');
+    if (selectedImages.length === 0) {
+      alert('กรุณาเลือกรูปภาพที่ต้องการดาวน์โหลด');
+      return;
+    }
 
-      await Promise.all(
-        selectedImages.map(async (img, i) => {
-          const url = img.src;
-          const response = await fetch(url);
-          const blob = await response.blob();
-          zip.file(`image-${i + 1}.jpg`, blob);
-        })
-      );
+    const zip = new JSZip();
 
-      zip.generateAsync({ type: 'blob' }).then(content => {
-        saveAs(content, 'selected-images.zip');
-      });
+    await Promise.all(
+      selectedImages.map(async (img, i) => {
+        const url = img.src;
+        const response = await fetch(url);
+        const blob = await response.blob();
+        zip.file(`image-${i + 1}.jpg`, blob);
+      })
+    );
+
+    zip.generateAsync({ type: 'blob' }).then(content => {
+      saveAs(content, 'selected-images.zip');
     });
-  }
+  });
+}
 
-  const downloadAllBtn = document.getElementById('downloadAllBtn');
-  if (downloadAllBtn) {
-    downloadAllBtn.addEventListener('click', async () => {
-      const zip = new JSZip();
+const downloadAllBtn = document.getElementById('downloadAllBtn');
+if (downloadAllBtn) {
+  downloadAllBtn.addEventListener('click', async () => {
+    const zip = new JSZip();
 
-      await Promise.all(
-        imageUrls.map(async (url, i) => {
-          const response = await fetch(url);
-          const blob = await response.blob();
-          zip.file(`image-${i + 1}.jpg`, blob);
-        })
-      );
+    await Promise.all(
+      imageUrls.map(async (url, i) => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        zip.file(`image-${i + 1}.jpg`, blob);
+      })
+    );
 
-      zip.generateAsync({ type: 'blob' }).then(content => {
-        saveAs(content, 'all-images.zip');
-      });
+    zip.generateAsync({ type: 'blob' }).then(content => {
+      saveAs(content, 'all-images.zip');
     });
-  }
+  });
+}
 
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    const imageInput = document.getElementById('imageInput');
-    const previewContainer = document.getElementById('previewContainer');
-    const taskIdInput = document.getElementById('taskId');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const progressWrapper = document.getElementById('uploadProgressWrapper');
+  const imageInput = document.getElementById('imageInput');
+  const previewContainer = document.getElementById('previewContainer');
+  const taskIdInput = document.getElementById('taskId');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const progressWrapper = document.getElementById('uploadProgressWrapper');
 
-    if (imageInput) {
-      imageInput.addEventListener('change', () => {
-        previewContainer.innerHTML = '';
-        const files = Array.from(imageInput.files);
+  if (imageInput) {
+    imageInput.addEventListener('change', () => {
+      previewContainer.innerHTML = '';
+      const files = Array.from(imageInput.files);
 
-        files.forEach(file => {
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            const col = document.createElement('div');
-            col.className = 'col-6 col-sm-4 col-md-3';
-            col.innerHTML = `
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const col = document.createElement('div');
+          col.className = 'col-6 col-sm-4 col-md-3';
+          col.innerHTML = `
             <div class="card shadow-sm border mb-2">
               <img src="${e.target.result}" class="card-img-top rounded" style="height: 120px; object-fit: cover;">
             </div>
           `;
-            previewContainer.appendChild(col);
-          };
-          reader.readAsDataURL(file);
-        });
+          previewContainer.appendChild(col);
+        };
+        reader.readAsDataURL(file);
       });
-    }
+    });
+  }
 
-    if (uploadBtn) {
-      uploadBtn.addEventListener('click', async function (e) {
-        e.preventDefault();
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', async function (e) {
+      e.preventDefault();
 
-        const files = imageInput.files;
-        const folderName = taskIdInput?.value.trim() || 'default';
+      const files = imageInput.files;
+      const folderName = taskIdInput?.value.trim() || 'default';
 
-        if (!files.length) {
-          alert('กรุณาเลือกรูปภาพก่อนอัปโหลด');
-          return;
-        }
+      if (!files.length) {
+        alert('กรุณาเลือกรูปภาพก่อนอัปโหลด');
+        return;
+      }
 
-        const formData = new FormData();
-        formData.append('folder', folderName);
+      const formData = new FormData();
+      formData.append('folder', folderName);
 
-        for (const file of files) {
-          formData.append('images', file);
-        }
+      for (const file of files) {
+        formData.append('images', file);
+      }
 
-        // แสดง progress bar ขณะรอ upload เสร็จ
-        progressWrapper.classList.remove('d-none');
-        uploadBtn.disabled = true;
+      // แสดง progress bar ขณะรอ upload เสร็จ
+      progressWrapper.classList.remove('d-none');
+      uploadBtn.disabled = true;
 
-        try {
-          const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-            method: 'POST',
-            body: formData
-          });
+      try {
+        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+          method: 'POST',
+          body: formData
+        });
 
-          if (response.ok) {
-            const result = await response.json();
-            console.log('Uploaded:', result);
-            alert('Upload completed successfully!');
-            // อัปเดตแกลเลอรีภาพที่นี่
-            const gallery_documents = document.getElementById('gallery-documents');
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Uploaded:', result);
+          alert('Upload completed successfully!');
+          // อัปเดตแกลเลอรีภาพที่นี่
+          const gallery_documents = document.getElementById('gallery-documents');
 
-            // วนลูปเพิ่มรูปที่อัปโหลดลง gallery
-            if (result.uploaded && result.uploaded.length) {
-              result.uploaded.forEach(img => {
-                const col = document.createElement('div');
-                col.className = 'col-6 col-sm-4 col-md-3 mb-3';
-                col.innerHTML = `
+          // วนลูปเพิ่มรูปที่อัปโหลดลง gallery
+          if (result.uploaded && result.uploaded.length) {
+            result.uploaded.forEach(img => {
+              const col = document.createElement('div');
+              col.className = 'col-6 col-sm-4 col-md-3 mb-3';
+              col.innerHTML = `
               <div class="card shadow-sm border">
                 <img src="${img.url}" alt="Uploaded Image" class="card-img-top rounded" style="height: 150px; object-fit: cover;">
               </div>
             `;
-                gallery_documents.appendChild(col);
-              });
-            }
-            imageInput.value = '';
-            previewContainer.innerHTML = '';
-          } else {
-            alert('เกิดข้อผิดพลาดในการอัปโหลด');
+              gallery_documents.appendChild(col);
+            });
           }
-        } catch (error) {
-          console.error('Upload failed:', error);
-          alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
-        } finally {
-          // ซ่อน progress bar หลัง upload เสร็จไม่ว่าจะสำเร็จหรือไม่
-          progressWrapper.classList.add('d-none');
-          uploadBtn.disabled = false;
+          imageInput.value = '';
+          previewContainer.innerHTML = '';
+        } else {
+          alert('เกิดข้อผิดพลาดในการอัปโหลด');
         }
-      });
-    }
+      } catch (error) {
+        console.error('Upload failed:', error);
+        alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
+      } finally {
+        // ซ่อน progress bar หลัง upload เสร็จไม่ว่าจะสำเร็จหรือไม่
+        progressWrapper.classList.add('d-none');
+        uploadBtn.disabled = false;
+      }
+    });
+  }
 
-    const now = new Date();
+  const now = new Date();
 
-    const options = {
-      timeZone: 'Asia/Bangkok',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    };
+  const options = {
+    timeZone: 'Asia/Bangkok',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  };
 
-    const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(now);
-    const getPart = (type) => parts.find(p => p.type === type).value;
+  const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(now);
+  const getPart = (type) => parts.find(p => p.type === type).value;
 
-    const formatted = `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
+  const formatted = `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
 
-    const transactionDateEl = document.getElementById('transactionDate');
-    if(transactionDateEl) {
-        transactionDateEl.value = formatted;
-    }
-
-
+  const transactionDateEl = document.getElementById('transactionDate');
+  if (transactionDateEl) {
+    transactionDateEl.value = formatted;
+  }
 
 
 
-    const openMapBtn = document.getElementById('openMap');
-    if(openMapBtn) {
-        openMapBtn.addEventListener('click', function () {
-            const address = document.getElementById('address').value.trim();
 
-            if (!address) {
-            alert('กรุณากรอกที่อยู่ก่อนเปิดแผนที่');
-            return;
+
+  const openMapBtn = document.getElementById('openMap');
+  if (openMapBtn) {
+    openMapBtn.addEventListener('click', function () {
+      const address = document.getElementById('address').value.trim();
+
+      if (!address) {
+        alert('กรุณากรอกที่อยู่ก่อนเปิดแผนที่');
+        return;
+      }
+
+      const query = encodeURIComponent(address);
+      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+      window.open(mapUrl, '_blank');
+    });
+  }
+
+  // --- CSV Import/Export Logic ---
+  const headerMap = {
+    'ชื่อผู้เอาประกัน': 'c_insure',
+    'เบอร์โทรศัพท์ผู้เอาประกัน': 'c_tell',
+    'ทะเบียนรถ': 'carRegistration',
+    'จังหวัดทะเบียนรถ': 'carProvince',
+    'ยี่ห้อรถ': 'carBrand',
+    'รุ่นรถ': 'carModel',
+    'ปีจดทะเบียน': 'carYear',
+    'เลขตัวถัง': 'carChassis',
+    'เลขเครื่อง': 'carEngine',
+    'เลขไมล์': 'c_mile',
+    'ประเภทรถ': 'carType',
+    'สีรถ': 'carColor',
+    'บริษัทประกันภัย': 'insuranceCompany',
+    'สาขาประกันภัย': 'insuranceBranch',
+    'ข้อมูลอ้างอิง1': 'reference1',
+    'ข้อมูลอ้างอิง2': 'reference2',
+    'เลขที่กรมธรรม์': 'policyNumber',
+    'วันที่เริ่มต้นคุ้มครอง': 'coverageStartDate',
+    'วันที่สิ้นสุดคุ้มครอง': 'coverageEndDate',
+    'ประเภทประกัน': 'insuranceType',
+    'หมายเหตุทั่วไป': 's_remark',
+    'หมายเหตุบริษัทประกัน': 's_ins_remark',
+    'รถFleet': 'fleetCar'
+  };
+
+  const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
+  if (downloadCsvTemplateBtn) {
+    downloadCsvTemplateBtn.addEventListener('click', () => {
+      const headers = Object.keys(headerMap);
+      const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "template_task_detail.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  }
+
+  const uploadCsvInput = document.getElementById('uploadCsvInput');
+  if (uploadCsvInput) {
+    uploadCsvInput.addEventListener('click', function () {
+      this.value = null;
+    });
+    uploadCsvInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text = e.target.result;
+        const lines = text.split(/\r\n|\n/);
+
+        if (lines.length < 2) {
+          alert('ไฟล์ CSV ไม่ถูกต้องหรือไม่มีข้อมูล');
+          return;
+        }
+
+        const fileHeaders = lines[0].split(',').map(h => h.trim());
+        const data = lines[1].split(',').map(d => d.trim());
+
+        const dataMap = fileHeaders.reduce((obj, fileHeader, index) => {
+          const fieldId = headerMap[fileHeader];
+          if (fieldId) {
+            obj[fieldId] = data[index];
+          }
+          return obj;
+        }, {});
+
+        for (const id in dataMap) {
+          if (Object.hasOwnProperty.call(dataMap, id)) {
+            const value = dataMap[id];
+            const element = document.getElementById(id);
+            if (element) {
+              if (element.type === 'checkbox') {
+                element.checked = ['true', '1', 'yes', 'TRUE', 'YES'].includes(value);
+              } else {
+                element.value = value;
+                if (element.tagName === 'SELECT') {
+                  element.dispatchEvent(new Event('change'));
+                }
+              }
             }
-
-            const query = encodeURIComponent(address);
-            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-
-            window.open(mapUrl, '_blank');
-        });
-    }
-
-    // --- CSV Import/Export Logic ---
-    const headerMap = {
-        'ชื่อผู้เอาประกัน': 'c_insure',
-        'เบอร์โทรศัพท์ผู้เอาประกัน': 'c_tell',
-        'ทะเบียนรถ': 'carRegistration',
-        'จังหวัดทะเบียนรถ': 'carProvince',
-        'ยี่ห้อรถ': 'carBrand',
-        'รุ่นรถ': 'carModel',
-        'ปีจดทะเบียน': 'carYear',
-        'เลขตัวถัง': 'carChassis',
-        'เลขเครื่อง': 'carEngine',
-        'เลขไมล์': 'c_mile',
-        'ประเภทรถ': 'carType',
-        'สีรถ': 'carColor',
-        'บริษัทประกันภัย': 'insuranceCompany',
-        'สาขาประกันภัย': 'insuranceBranch',
-        'ข้อมูลอ้างอิง1': 'reference1',
-        'ข้อมูลอ้างอิง2': 'reference2',
-        'เลขที่กรมธรรม์': 'policyNumber',
-        'วันที่เริ่มต้นคุ้มครอง': 'coverageStartDate',
-        'วันที่สิ้นสุดคุ้มครอง': 'coverageEndDate',
-        'ประเภทประกัน': 'insuranceType',
-        'หมายเหตุทั่วไป': 's_remark',
-        'หมายเหตุบริษัทประกัน': 's_ins_remark',
-        'รถFleet': 'fleetCar'
-    };
-
-    const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
-    if (downloadCsvTemplateBtn) {
-        downloadCsvTemplateBtn.addEventListener('click', () => {
-            const headers = Object.keys(headerMap);
-            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "template_task_detail.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    }
-
-    const uploadCsvInput = document.getElementById('uploadCsvInput');
-    if (uploadCsvInput) {
-        uploadCsvInput.addEventListener('click', function() {
-            this.value = null;
-        });
-        uploadCsvInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result;
-                const lines = text.split(/\r\n|\n/);
-
-                if (lines.length < 2) {
-                    alert('ไฟล์ CSV ไม่ถูกต้องหรือไม่มีข้อมูล');
-                    return;
-                }
-
-                const fileHeaders = lines[0].split(',').map(h => h.trim());
-                const data = lines[1].split(',').map(d => d.trim());
-
-                const dataMap = fileHeaders.reduce((obj, fileHeader, index) => {
-                    const fieldId = headerMap[fileHeader];
-                    if (fieldId) {
-                        obj[fieldId] = data[index];
-                    }
-                    return obj;
-                }, {});
-
-                for (const id in dataMap) {
-                    if (Object.hasOwnProperty.call(dataMap, id)) {
-                        const value = dataMap[id];
-                        const element = document.getElementById(id);
-                        if (element) {
-                            if (element.type === 'checkbox') {
-                                element.checked = ['true', '1', 'yes', 'TRUE', 'YES'].includes(value);
-                            } else {
-                                element.value = value;
-                                if (element.tagName === 'SELECT') {
-                                    element.dispatchEvent(new Event('change'));
-                                }
-                            }
-                        }
-                    }
-                }
-                alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
-            };
-            reader.readAsText(file, 'UTF-8');
-        });
-    }
+          }
+        }
+        alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
+      };
+      reader.readAsText(file, 'UTF-8');
+    });
+  }
 
 
   async function loadOrderData(orderId) {
@@ -551,16 +551,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // 🔹 order_hist (แสดงบน timeline)
       const timelineEl = document.getElementById('historyTimeline');
-      if(timelineEl) {
+      if (timelineEl) {
         timelineEl.innerHTML = '';
 
         if (order_hist && order_hist.length > 0) {
-            order_hist.forEach(hist => {
+          order_hist.forEach(hist => {
             const date = new Date(hist.created_date);
             const formattedDate = date.toLocaleDateString('th-TH', {
-                year: 'numeric', month: 'short', day: 'numeric'
+              year: 'numeric', month: 'short', day: 'numeric'
             }) + ' - ' + date.toLocaleTimeString('th-TH', {
-                hour: '2-digit', minute: '2-digit'
+              hour: '2-digit', minute: '2-digit'
             }) + ' น.';
 
             const li = document.createElement('li');
@@ -574,9 +574,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
             timelineEl.appendChild(li);
-            });
+          });
         } else {
-            timelineEl.innerHTML = `
+          timelineEl.innerHTML = `
             <li class="timeline-item">
                 <div class="timeline-content">
                 <p class="timeline-description text-muted">ไม่มีประวัติการอัปเดต</p>
@@ -710,8 +710,8 @@ document.addEventListener('DOMContentLoaded', function () {
   } else {
     // This is a new task, so enable the jobType dropdown
     const jobTypeEl = document.getElementById('jobType');
-    if(jobTypeEl) {
-        jobTypeEl.disabled = false;
+    if (jobTypeEl) {
+      jobTypeEl.disabled = false;
     }
     console.warn('❗ ไม่พบ order ID ใน URL, เปิดโหมดสร้างงานใหม่');
   }
@@ -721,10 +721,10 @@ document.addEventListener('DOMContentLoaded', function () {
   if (form) {
     const manualSubmitBtn = document.getElementById('submittaskBtn');
     if (manualSubmitBtn) {
-        manualSubmitBtn.addEventListener('click', function () {
-            console.log('📥 ปุ่ม #submittaskBtn ถูกกด => ส่งฟอร์มด้วย JS');
-            form.requestSubmit(); // ทำให้เกิด event 'submit' ตามปกติ
-        });
+      manualSubmitBtn.addEventListener('click', function () {
+        console.log('📥 ปุ่ม #submittaskBtn ถูกกด => ส่งฟอร์มด้วย JS');
+        form.requestSubmit(); // ทำให้เกิด event 'submit' ตามปกติ
+      });
     }
 
     form.addEventListener('submit', async function (e) {
@@ -766,7 +766,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const data = {
         // 🔹 orders
-        creator:  created_by,
+        creator: created_by,
         owner: getValueById('responsiblePerson'),
         order_type: getValueById('jobType'),
         order_status: getValueById('orderStatus'),
@@ -850,6 +850,11 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+  // CRM-FIX: Force correct button text to avoid encoding issues
+  const saveBtn = document.getElementById('submittaskBtn');
+  if (saveBtn) {
+    saveBtn.innerText = 'บันทึกข้อมูล';
+  }
 });
 
 // --- CAR MODEL DROPDOWN LOGIC ---
@@ -857,47 +862,47 @@ document.addEventListener('DOMContentLoaded', function () {
 const brandSelect = document.getElementById('carBrand');
 const modelSelect = document.getElementById('carModel');
 
-if(brandSelect) {
-    brandSelect.addEventListener('change', function () {
-        // Ensure carModels is available
-        if (typeof carModels === 'undefined') {
-            console.error('carModels object is not defined. Make sure car-models.js is loaded correctly.');
-            return;
-        }
-        const selectedBrand = this.value;
-        const models = carModels[selectedBrand] || [];
+if (brandSelect) {
+  brandSelect.addEventListener('change', function () {
+    // Ensure carModels is available
+    if (typeof carModels === 'undefined') {
+      console.error('carModels object is not defined. Make sure car-models.js is loaded correctly.');
+      return;
+    }
+    const selectedBrand = this.value;
+    const models = carModels[selectedBrand] || [];
 
-        // Clear previous options
-        modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
+    // Clear previous options
+    modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
 
-        // Add new options
-        models.forEach(model => {
-            const option = document.createElement('option');
-            option.value = model;
-            option.textContent = model;
-            modelSelect.appendChild(option);
-        });
-
-        // Enable or disable the model dropdown
-        modelSelect.disabled = models.length === 0;
+    // Add new options
+    models.forEach(model => {
+      const option = document.createElement('option');
+      option.value = model;
+      option.textContent = model;
+      modelSelect.appendChild(option);
     });
+
+    // Enable or disable the model dropdown
+    modelSelect.disabled = models.length === 0;
+  });
 }
 
 // --- LOGOUT LOGIC ---
 const logoutBtn = document.getElementById('logout');
 if (logoutBtn) {
-    logoutBtn.addEventListener('click', function (event) {
+  logoutBtn.addEventListener('click', function (event) {
     event.preventDefault();
     localStorage.removeItem('authToken');
     window.location.href = '../index.html';
-    });
+  });
 }
 
 const logoutMenu = document.getElementById('logout-menu');
 if (logoutMenu) {
-    logoutMenu.addEventListener('click', function (event) {
+  logoutMenu.addEventListener('click', function (event) {
     event.preventDefault();
     localStorage.removeItem('authToken');
     window.location.href = '../index.html';
-    });
+  });
 }

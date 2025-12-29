@@ -1295,52 +1295,132 @@ function createAddImageButtons() {
       });
     }
 
-    const downloadAllBtn = document.getElementById('downloadAllBtn');
-    if (downloadAllBtn) {
-      downloadAllBtn.addEventListener('click', async (event) => {
+    // --- ZIP DOWNLOAD LOGIC (Refactored) ---
+    async function handleZipDownload(event) {
         event.preventDefault();
         console.log('Download All button clicked.');
         const zip = new JSZip();
-        const orderId = document.getElementById('taskId').value.trim();
-        const imageElements = Array.from(document.querySelectorAll('.image-gallery img, #download-images-container .card-img-top')).filter(img => {
+        // Use taskId (from hidden input) or fallback to 'images'
+        const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
+        
+        // Selector update: include .dynamic-image-slot img to ensure we catch all new uploads
+        // Also keep .image-gallery img for backward compat if needed, and #download-images-container .card-img-top for Tab 7
+        const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
+        const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
           const style = getComputedStyle(img);
-          return (img.src && img.src.startsWith('https') && style.display !== 'none' && img.complete);
+          // Check for valid src, visible, and loaded
+          return (img.src && img.src.startsWith('http') && style.display !== 'none' && img.complete);
         });
-        if (imageElements.length === 0) { alert('ไม่มีภาพให้ดาวน์โหลด'); return; }
+
+        if (imageElements.length === 0) { 
+            alert('ไม่มีภาพให้ดาวน์โหลด'); 
+            return; 
+        }
+
         console.log(`Found ${imageElements.length} images to download.`);
-        await Promise.all(
-          imageElements.map(async (img, i) => {
-            const originalImageUrl = img.src; // This is the Cloudinary URL
-            const label = img.closest('label');
-            const title = label?.querySelector('.title')?.innerText?.trim() || `image-${i + 1}`;
-            const safeName = title.replace(/[\[\\\]^$.|?*+()]/g, '').replace(/\s+/g, '_'); // More robust safe name
+        
+        // Deduplicate images by URL to avoid downloading the same image twice (e.g. if shown in multiple tabs)
+        const uniqueImages = new Map();
+        imageElements.forEach((img, i) => {
+             // Prefer cloud URL, ignore base64 preview if possible unless that's all we have
+             if (!uniqueImages.has(img.src)) {
+                 uniqueImages.set(img.src, { img, index: i });
+             }
+        });
 
-            console.log(`Attempting to download image ${i + 1}: ${originalImageUrl}`);
+        const promises = [];
+        let index = 1;
 
-            try {
-                const token = localStorage.getItem('authToken') || '';
-                                    const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                    body: JSON.stringify({ imageUrl: originalImageUrl })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Failed to download image from proxy: ${response.status} ${response.statusText} - ${errorText}`);
+        for (const [src, item] of uniqueImages) {
+            const img = item.img;
+            
+            // Try to find a meaningful title
+            // 1. Title input in dynamic slot
+            // 2. Title div in legacy gallery
+            // 3. Card text in download tab
+            // 4. Fallback
+            let title = '';
+            
+            const dynamicSlot = img.closest('.dynamic-image-slot');
+            if (dynamicSlot) {
+                title = dynamicSlot.querySelector('.image-title-input')?.value?.trim();
+            } else {
+                const label = img.closest('label');
+                if (label) title = label.querySelector('.title')?.innerText?.trim();
+                else {
+                    const cardBody = img.closest('.card')?.querySelector('.card-body');
+                    if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
                 }
-
-                const blob = await response.blob();
-                zip.file(`${safeName || `image-${i + 1}`}.jpg`, blob);
-                console.log(`Successfully added image ${i + 1} to zip: ${safeName}.jpg`);
-            } catch (err) {
-                console.warn(`ข้ามภาพที่โหลดไม่ได้ (Proxy error): ${originalImageUrl}`, err);
             }
-          })
-        );
+
+            if (!title) title = `image-${index}`;
+            const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_'); 
+            
+            const promise = (async () => {
+                try {
+                    console.log(`Attempting to download: ${src}`);
+                    const token = localStorage.getItem('authToken') || '';
+                    
+                    // Use proxy if it's a relative path or needs auth, otherwise try direct if CORS allows
+                    // Defaulting to proxy for consistent behavior with protected assets
+                    const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {                    
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                        body: JSON.stringify({ imageUrl: src })
+                    });
+    
+                    if (!response.ok) {
+                        // Fallback: try fetching directly if proxy fails (e.g. for some public URLs)
+                        const directResp = await fetch(src);
+                        if(directResp.ok) {
+                             const blob = await directResp.blob();
+                             zip.file(`${safeName}.jpg`, blob);
+                             return;
+                        }
+                        throw new Error('Proxy and direct fetch failed');
+                    }
+    
+                    const blob = await response.blob();
+                    
+                    // Ensure unique filenames in zip
+                    let fileName = `${safeName}.jpg`;
+                    let counter = 1;
+                    while(zip.file(fileName)) {
+                        fileName = `${safeName}_${counter}.jpg`;
+                        counter++;
+                    }
+                    
+                    zip.file(fileName, blob);
+                } catch (err) {
+                    console.warn(`Failed to download image: ${src}`, err);
+                }
+            })();
+            
+            promises.push(promise);
+            index++;
+        }
+
+        await Promise.all(promises);
+        
+        if (Object.keys(zip.files).length === 0) {
+             alert('ไม่สามารถดาวน์โหลดรูปภาพได้ (อาจเกิดข้อผิดพลาดในการเชื่อมต่อ)');
+             return;
+        }
+
         const zipBlob = await zip.generateAsync({ type: 'blob' });
         saveAs(zipBlob, orderId + '.zip');
         console.log('ZIP file generated and ready for download.');
-      });
+    }
+
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    if (downloadAllBtn) {
+      downloadAllBtn.addEventListener('click', handleZipDownload);
+    }
+    
+    // Also bind event to the second button in Tab 7
+    const downloadAllBtnTab7 = document.getElementById('downloadAllBtn_tab7');
+    if (downloadAllBtnTab7) {
+        downloadAllBtnTab7.addEventListener('click', handleZipDownload);
     }
 
     // --- Dynamic Image Upload Logic ---
@@ -1420,6 +1500,12 @@ function createAddImageButtons() {
 
 
     loadUserProfile();
+
+    // CRM-FIX: Force correct button text to avoid encoding issues
+    const saveBtn = document.getElementById('submittaskBtn');
+    if (saveBtn) {
+        saveBtn.innerText = 'บันทึกข้อมูล';
+    }
 
     const userRole = getUserRole();
     if (userRole) {
@@ -1509,7 +1595,11 @@ function createAddImageButtons() {
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
+        // Ensure button has text 'บันทึกข้อมูล' even during processing if we reset it
         const manualSubmitBtn = document.getElementById('submittaskBtn');
+        if (manualSubmitBtn && !manualSubmitBtn.innerText.includes('กำลัง')) {
+             manualSubmitBtn.innerText = 'บันทึกข้อมูล';
+        }
     
         // --- START: NEW UPLOAD LOGIC ---
         if (filesToUpload.size > 0) {
