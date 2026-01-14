@@ -1005,7 +1005,7 @@
                   <!-- Submit -->
                   <div class="row mt-3">
                     <div class="col-md-12 text-end">
-                      <button type="button" id="submittaskBtn" class="btn btn-primary">บันทึกข้อมูล</button>
+                      <button type="button" id="submittaskBtn" class="btn btn-primary">Save Data</button>
                     </div>
                   </div>
                 </form>
@@ -1501,7 +1501,7 @@
 
       const data = {
         // 🔹 orders
-        creator:  document.getElementById('ownerName').value,
+        creator: document.getElementById('ownerName').value,
         owner: document.getElementById('responsiblePerson').value,
         order_type: document.getElementById('jobType').value,
         order_status: document.getElementById('orderStatusHidden').value,
@@ -1597,7 +1597,19 @@
       }
     });
   });
-</script>
 
+</script>
+<script>
+  // Force correct Button text via JS to avoid charset issues
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      const btn = document.getElementById('submittaskBtn');
+      if (btn) {
+        // "บันทึกข้อมูล" in Unicode Escapes
+        btn.innerText = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
+      }
+    }, 500);
+  });
+</script>
   </body>
 </html>
