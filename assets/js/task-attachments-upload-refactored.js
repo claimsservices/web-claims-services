@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (decoded) {
             document.getElementById('user-info').innerText = `${decoded.first_name} ${decoded.last_name}`;
             document.getElementById('user-role').innerText = decoded.role;
-            if(decoded.myPicture) {
+            if (decoded.myPicture) {
                 document.getElementById('userAvatar').src = decoded.myPicture;
             }
         }
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const result = await response.json();
-            
+
             // Get user role from token
             const decodedToken = parseJwt(token);
             if (decodedToken && decodedToken.role === 'Bike' && result.order && result.order.creator) {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             renderOrderDetails(result.order, result.order_details);
-            
+
             if (result.order_pic && result.order_pic.length > 0) {
                 renderExistingImages(result.order_pic);
             }
@@ -186,16 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderExistingImages(images) {
         images.forEach(image => {
             if (!image.pic_title || !image.pic || !image.pic_type) return;
-    
+
             let category = getCategoryFromPicType(image.pic_type);
             let containerId = `${category}-container`;
-    
+
             // Special handling for signature, which is ambiguous in the old data structure
             if (image.pic_type === 'doc_other_9' && image.pic_title === 'ลายเซ็น') {
                 category = 'signature';
                 containerId = 'signature-container';
             }
-    
+
             createImageSlot(containerId, category, image.pic_title, image.pic, image.pic_title);
         });
     }
@@ -279,9 +279,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleActionButtons(status) {
         const buttons = ['btn-accept', 'btn-reject', 'btn-start', 'btn-arrived', 'btn-submit-task'];
-        buttons.forEach(id => { 
+        buttons.forEach(id => {
             const btn = document.getElementById(id);
-            if(btn) btn.style.display = 'none';
+            if (btn) btn.style.display = 'none';
         });
 
         let buttonsToShow = [];
@@ -291,9 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
             case "เริ่มงาน/กำลังเดินทาง": buttonsToShow = ['btn-arrived']; break;
             case "ถึงที่เกิดเหตุ/ปฏิบัติงาน": buttonsToShow = ['btn-submit-task']; break;
         }
-        buttonsToShow.forEach(id => { 
+        buttonsToShow.forEach(id => {
             const btn = document.getElementById(id);
-            if(btn) btn.style.display = 'inline-block';
+            if (btn) btn.style.display = 'inline-block';
         });
     }
 
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         alert('ไม่พบรหัสงานใน URL');
     }
-    
+
     // Function to initialize all image upload sections
     function initializeSections() {
         document.querySelectorAll('.add-image-btn').forEach(button => {
@@ -412,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Determine the picType right away and store it with the file
         let picType = fileInput.dataset.category || 'unknown';
-        
+
         // Stage the file and its type for upload
         filesToUpload.set(inputName, { file: file, type: picType });
 
@@ -420,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const label = fileInput.closest('label.image-gallery');
         const imgPreview = label.querySelector('img');
         const icon = label.querySelector('i');
-        
+
         const reader = new FileReader();
         reader.onload = (event) => {
             imgPreview.src = event.target.result;
@@ -601,6 +601,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             alert('ไม่พบเบอร์โทรศัพท์');
         }
+    });
+
+    document.getElementById('logout')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('authToken');
+        window.location.href = LOGIN_PAGE;
     });
 
     document.body.classList.remove('loading');

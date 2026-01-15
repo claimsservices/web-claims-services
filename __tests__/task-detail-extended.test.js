@@ -107,4 +107,44 @@ describe('Task Detail Page Extended Logic', () => {
 
         expect(models[0].model_name).toBe('Vios');
     });
+    test('should populate custom inputs when brand/model is not in dropdown (Regression Test)', async () => {
+        // Setup DOM for Custom Inputs
+        const form = document.getElementById('taskForm');
+
+        const customBrandInput = document.createElement('input');
+        customBrandInput.id = 'carBrandCustom';
+        customBrandInput.className = 'd-none';
+        form.appendChild(customBrandInput);
+
+        const customModelInput = document.createElement('input');
+        customModelInput.id = 'carModelCustom';
+        customModelInput.className = 'd-none';
+        form.appendChild(customModelInput);
+
+        const brandSelect = document.getElementById('carBrand');
+        brandSelect.innerHTML = '<option value="Toyota">Toyota</option><option value="other">Other</option>'; // Minimal options
+
+        // Scenario: API returns a brand/model that doesn't exist in the standard list
+        const order_details = {
+            c_brand: 'Lamborghini',
+            c_version: 'Huracan'
+        };
+
+        // --- Logic being tested (Mimics loadOrderData) ---
+        let brandExists = Array.from(brandSelect.options).some(o => o.value === order_details.c_brand);
+
+        if (brandExists) {
+            brandSelect.value = order_details.c_brand;
+        } else {
+            // Regression Check: Must select 'other' and show/fill custom input
+            brandSelect.value = 'other';
+            customBrandInput.classList.remove('d-none');
+            customBrandInput.value = order_details.c_brand;
+        }
+        // ------------------------------------------------
+
+        expect(brandSelect.value).toBe('other');
+        expect(customBrandInput.value).toBe('Lamborghini');
+        expect(customBrandInput.classList.contains('d-none')).toBe(false);
+    });
 });

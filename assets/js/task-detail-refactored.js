@@ -400,11 +400,52 @@ async function loadOrderData(orderId) {
             setValue('c_tell', order_details.c_tell);
             setValue('carProvince', order_details.c_car_province);
             const brandSelect = document.getElementById('carBrand');
-            if (brandSelect) {
-                brandSelect.value = order_details.c_brand;
-                brandSelect.dispatchEvent(new Event('change'));
+            if (brandSelect && order_details.c_brand) {
+                // Check if brand exists in dropdown options
+                // Note: brands are loaded async, so we might need to wait or check after load.
+                // However, populateBrands is awaited in initCarModelDropdown which runs on load.
+                // By the time loadOrderData runs, brands should be populated OR we need to ensure it.
+                // Assuming brands are populated:
+                let brandExists = Array.from(brandSelect.options).some(o => o.value === order_details.c_brand);
+
+                if (brandExists) {
+                    brandSelect.value = order_details.c_brand;
+                } else if (order_details.c_brand) {
+                    brandSelect.value = 'other';
+                    const customBrandInput = document.getElementById('carBrandCustom');
+                    if (customBrandInput) {
+                        customBrandInput.classList.remove('d-none');
+                        customBrandInput.value = order_details.c_brand;
+                    }
+                }
+                // เรียก populateModels โดยตรงและรอให้เสร็จ (แทนการ dispatch change event + setTimeout)
+                const modelSelect = document.getElementById('carModel');
+                if (modelSelect) {
+                    await populateModels(brandSelect, modelSelect);
+
+                    // หลังจากโหลดรุ่นเสร็จ ค่อย Set ค่า
+                    if (order_details.c_version) {
+                        let modelExists = Array.from(modelSelect.options).some(o => o.value === order_details.c_version);
+                        if (modelExists) {
+                            modelSelect.value = order_details.c_version;
+                        } else {
+                            modelSelect.value = 'other';
+                            const customModelInput = document.getElementById('carModelCustom');
+                            if (customModelInput) {
+                                customModelInput.classList.remove('d-none');
+                                customModelInput.value = order_details.c_version;
+                            }
+                            // Trigger change to ensure consistent UI state (e.g. if other listeners depend on it)
+                            modelSelect.dispatchEvent(new Event('change'));
+                        }
+                    }
+                }
+            } else {
+                // กรณีไม่มี Brand (หรือหา Element ไม่เจอ) แต่มี Version? (ไม่น่าเกิดขึ้น)
+                // หรือไม่จำเป็นต้องทำอะไร เพราะถ้าไม่มี Brand ก็โหลด Model ไม่ได้อยู่แล้ว
             }
-            setValue('carModel', order_details.c_version);
+
+            // setValue('carModel', order_details.c_version); // Removed direct set, handled above
             setValue('carYear', order_details.c_year);
             setValue('carChassis', order_details.c_number);
             setValue('carEngine', order_details.c_engine);
@@ -440,9 +481,33 @@ async function loadOrderData(orderId) {
                     const li = document.createElement('li');
                     li.className = 'timeline-item';
                     li.innerHTML = `<span class="timeline-icon bg-secondary">${hist.icon || '🕓'}</span><div class="timeline-content"><h6
-  class="timeline-title">${hist.task}</h6><p class="timeline-description">${hist.detail}</p><small class="text-muted">${formattedDate}</small></div>`;
+  class="timeline-title">${hist.task}</h6><p class="timeline-description">${hist.detail}</p>
+  <div class="d-flex justify-content-between align-items-center">
+    <small class="text-muted">${formattedDate}</small>
+    <small class="text-muted fw-bold"><i class="bx bx-user"></i> ${hist.created_by || 'ไม่ระบุ'}</small>
+  </div>
+  </div>`;
                     timelineEl.appendChild(li);
                 });
+
+                // Get latest note to populate note-text
+                try {
+                    const notes = order_hist.filter(h => h.task === 'บันทึกข้อความ' || h.icon === '💬');
+                    if (notes.length > 0) {
+                        // Sort by date descending if needed, but order_hist usually comes sorted or we rely on the list order
+                        // Assuming order_hist is Chronological or Reverse-Chronological?
+                        // Let's assume the last one in the list is the latest (or check created_date if available)
+                        // But usually history log appends. Let's retrieve the latest added note.
+
+                        // If we want the absolute latest by date:
+                        const latestNote = notes.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
+
+                        const noteInput = document.getElementById('note-text');
+                        if (noteInput && latestNote) {
+                            noteInput.value = latestNote.detail;
+                        }
+                    }
+                } catch (e) { console.log('Error populating latest note', e); }
             } else {
                 timelineEl.innerHTML = `<li class="timeline-item"><div class="timeline-content"><p class="timeline-description
   text-muted">ไม่มีประวัติการอัปเดต</p></div></li>`;
@@ -989,23 +1054,60 @@ async function populateBrands(brandSelect) {
                 brandSelect.appendChild(option);
             });
         }
+        // Add "Other" option
+        const otherOption = document.createElement('option');
+        otherOption.value = 'other';
+        otherOption.textContent = 'อื่นๆ (โปรดระบุ)';
+        brandSelect.appendChild(otherOption);
+
     } catch (e) {
         console.error('Error loading brands', e);
-        // Fallback or leave empty? Leave empty as per requirement to use DB.
     }
 }
 
 async function populateModels(brandSelect, modelSelect) {
     if (!brandSelect || !modelSelect) return;
     const selectedBrandName = brandSelect.value;
+    const customBrandInput = document.getElementById('carBrandCustom');
+    const customModelInput = document.getElementById('carModelCustom');
 
+    // Reset Model Logic
     modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
     modelSelect.disabled = true;
+    if (customModelInput) {
+        customModelInput.classList.add('d-none');
+        customModelInput.value = '';
+    }
+
+    // Handle "Other" Brand Selection
+    if (selectedBrandName === 'other') {
+        if (customBrandInput) {
+            customBrandInput.classList.remove('d-none');
+            customBrandInput.focus();
+        }
+        // If brand is other, model should also check if we want to allow free text directly or just simple input
+        // For simplicity, if Brand is Other, Model can be typed directly in the model custom input 
+        // But the UI has a dropdown. Let's enable the dropdown with just "Other" selected or similar logic.
+        // Actually, better: if Brand is Custom, let user Type Model in Custom Input directly.
+        // We can set Dropdown to "other" automatically and show input.
+        const otherOpt = document.createElement('option');
+        otherOpt.value = 'other';
+        otherOpt.textContent = 'ระบุรุ่นเอง';
+        otherOpt.selected = true;
+        modelSelect.appendChild(otherOpt);
+        // Trigger change to show custom model input
+        modelSelect.dispatchEvent(new Event('change'));
+        return;
+    } else {
+        if (customBrandInput) {
+            customBrandInput.classList.add('d-none');
+            customBrandInput.value = '';
+        }
+    }
 
     if (!selectedBrandName) return;
 
     try {
-        // Using the new car-models API with filter
         const response = await fetch(`https://be-claims-service.onrender.com/api/car-models?brand_name=${encodeURIComponent(selectedBrandName)}`);
         const models = await response.json();
 
@@ -1016,16 +1118,40 @@ async function populateModels(brandSelect, modelSelect) {
                 option.textContent = model.model_name;
                 modelSelect.appendChild(option);
             });
-            modelSelect.disabled = models.length === 0;
+
+            // Add "Other" option
+            const otherOption = document.createElement('option');
+            otherOption.value = 'other';
+            otherOption.textContent = 'อื่นๆ (โปรดระบุ)';
+            modelSelect.appendChild(otherOption);
+
+            modelSelect.disabled = false;
         }
     } catch (e) { console.error('Error loading models', e); }
 }
 
 async function initCarModelDropdown(brandSelect, modelSelect) {
     if (brandSelect && modelSelect) {
-        // Return the promise so we can await it
+        const customBrandInput = document.getElementById('carBrandCustom');
+        const customModelInput = document.getElementById('carModelCustom');
+
         await populateBrands(brandSelect);
+
         brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
+
+        modelSelect.addEventListener('change', () => {
+            if (modelSelect.value === 'other') {
+                if (customModelInput) {
+                    customModelInput.classList.remove('d-none');
+                    customModelInput.focus();
+                }
+            } else {
+                if (customModelInput) {
+                    customModelInput.classList.add('d-none');
+                    customModelInput.value = '';
+                }
+            }
+        });
     }
 }
 
@@ -1753,8 +1879,8 @@ window.addEventListener('load', async function () {
                     c_tell: getSafeValue('c_tell'),
                     c_licent: getSafeValue('carRegistration'),
                     c_car_province: getSafeValue('carProvince'),
-                    c_brand: getSafeValue('carBrand'),
-                    c_version: getSafeValue('carModel'),
+                    c_brand: document.getElementById('carBrand')?.value === 'other' ? getSafeValue('carBrandCustom') : getSafeValue('carBrand'),
+                    c_version: document.getElementById('carModel')?.value === 'other' ? getSafeValue('carModelCustom') : getSafeValue('carModel'),
                     c_year: getSafeValue('carYear'),
                     c_number: getSafeValue('carChassis'),
                     c_engine: getSafeValue('carEngine'),

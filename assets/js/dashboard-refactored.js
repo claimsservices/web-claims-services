@@ -32,133 +32,133 @@ function getUserRole() {
 
 // DOMContentLoaded listener for UI adjustments
 document.addEventListener('DOMContentLoaded', () => {
-    let currentFilterType = 'work'; // Default filter for Bike role
-  
-    const workBtn = document.getElementById('filter-work-btn');
-    const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
-  
-    // Event listeners for the new filter buttons
-    if (workBtn) {
-      workBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        currentFilterType = 'work';
-        workBtn.classList.add('btn-primary');
-        workBtn.classList.remove('btn-outline-primary');
-        preApprovedBtn.classList.add('btn-outline-primary');
-        preApprovedBtn.classList.remove('btn-primary');
-        
-        const filters = getFilters();
-        delete filters.order_status;
-        filters.order_status_not = 'Pre-Approved';
-        console.log('Fetching data with filters for "Work":', JSON.stringify(filters, null, 2));
-        fetchData(filters);
-      });
-    }
-  
-    if (preApprovedBtn) {
-      preApprovedBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        currentFilterType = 'pre-approved';
-        preApprovedBtn.classList.add('btn-primary');
-        preApprovedBtn.classList.remove('btn-outline-primary');
-        workBtn.classList.add('btn-outline-primary');
-        workBtn.classList.remove('btn-primary');
+  let currentFilterType = 'work'; // Default filter for Bike role
 
-        const filters = getFilters();
-        delete filters.order_status_not;
-        filters.order_status = 'Pre-Approved';
-        console.log('Fetching data with filters for "Pre Approved":', JSON.stringify(filters, null, 2));
-        fetchData(filters);
-      });
-    }
-  
-    const userRole = getUserRole();
-    console.log('User Role:', userRole);
-  
-    const addNewItemBtn = document.getElementById('add-new-item-btn');
-    const headerOrderDate = document.getElementById('header-order-date');
-    const headerOrderType = document.getElementById('header-order-type');
-    const headerAmount = document.getElementById('header-amount');
-    const headerOwner = document.getElementById('header-owner');
-    const filterAssignedTo = document.getElementById('filterAssignedTo');
-    const summaryCards = document.getElementById('summaryCardsContainer');
-    const accountSettingsMenu = document.getElementById('account-settings-menu');
-    const exportExcelBtn = document.getElementById('exportExcelBtn');
-    const filterPanel = document.getElementById('filter-panel');
-    const filterControls = document.getElementById('filter-controls');
-  
-    // Role-based UI adjustments
-    if (userRole === 'Bike') {
-      if(summaryCards) summaryCards.classList.add('hidden-by-role');
-      if(accountSettingsMenu) accountSettingsMenu.classList.add('hidden-by-role');
-      if(exportExcelBtn) exportExcelBtn.classList.add('hidden-by-role');
-    }
-  
-    if (userRole === 'Bike') {
-      if(filterControls) filterControls.classList.add('hidden-by-role');
-      // Ensure the new filter buttons are visible for Bike role
-      if (workBtn) workBtn.style.display = 'inline-block';
-      if (preApprovedBtn) preApprovedBtn.style.display = 'inline-block';
-      
-      // Initial fetch for Bike role
-      const initialFilters = getFilters();
-      initialFilters.order_status_not = 'Pre-Approved';
-      console.log('Initial fetch for Bike role with filters:', JSON.stringify(initialFilters, null, 2));
-      // fetchData(initialFilters); // Default to Work tasks
-    } else {
-      // Hide the new filter buttons for non-Bike roles
-      if (workBtn) workBtn.style.display = 'none';
-      if (preApprovedBtn) preApprovedBtn.style.display = 'none';
-      // For non-Bike roles, fetch data with existing filters
-      // fetchData(getFilters());
-    }
-  
-    if (userRole === 'Insurance') {
-      if (headerOrderDate) headerOrderDate.style.display = 'none';
-      if (headerOrderType) headerOrderType.style.display = 'none';
-      if (headerAmount) headerAmount.style.display = 'none';
-      if (headerOwner) headerOwner.style.display = 'none';
-    } else if (userRole === 'Bike') {
-      if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
-      if (headerOrderDate) headerOrderDate.style.display = 'none';
-      if (headerOrderType) headerOrderType.style.display = 'none';
-      if(filterAssignedTo) filterAssignedTo.style.display = 'none';
-    }
-  
-    if (userRole === 'Insurance') {
-      const pendingOrdersCard = document.getElementById('pendingOrdersCard');
-      const inProgressOrdersCard = document.getElementById('inProgressOrdersCard');
-      const completedOrdersCard = document.getElementById('completedOrdersCard');
-  
-      if (pendingOrdersCard) pendingOrdersCard.style.display = 'none';
-      if (inProgressOrdersCard) inProgressOrdersCard.style.display = 'none';
-      if (completedOrdersCard) completedOrdersCard.style.display = 'none';
+  const workBtn = document.getElementById('filter-work-btn');
+  const preApprovedBtn = document.getElementById('filter-pre-approved-btn');
 
-      const userRoleSelect = document.getElementById('UserRole');
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        const decodedToken = parseJwt(token);
-        const userInsurComp = decodedToken ? decodedToken.insur_comp : '';
-        if (userRoleSelect && userInsurComp) {
-          userRoleSelect.value = userInsurComp;
-          userRoleSelect.disabled = true;
-        }
+  // Event listeners for the new filter buttons
+  if (workBtn) {
+    workBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentFilterType = 'work';
+      workBtn.classList.add('btn-primary');
+      workBtn.classList.remove('btn-outline-primary');
+      preApprovedBtn.classList.add('btn-outline-primary');
+      preApprovedBtn.classList.remove('btn-primary');
+
+      const filters = getFilters();
+      delete filters.order_status;
+      filters.order_status_not = 'Pre-Approved';
+      console.log('Fetching data with filters for "Work":', JSON.stringify(filters, null, 2));
+      fetchData(filters);
+    });
+  }
+
+  if (preApprovedBtn) {
+    preApprovedBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentFilterType = 'pre-approved';
+      preApprovedBtn.classList.add('btn-primary');
+      preApprovedBtn.classList.remove('btn-outline-primary');
+      workBtn.classList.add('btn-outline-primary');
+      workBtn.classList.remove('btn-primary');
+
+      const filters = getFilters();
+      delete filters.order_status_not;
+      filters.order_status = 'Pre-Approved';
+      console.log('Fetching data with filters for "Pre Approved":', JSON.stringify(filters, null, 2));
+      fetchData(filters);
+    });
+  }
+
+  const userRole = getUserRole();
+  console.log('User Role:', userRole);
+
+  const addNewItemBtn = document.getElementById('add-new-item-btn');
+  const headerOrderDate = document.getElementById('header-order-date');
+  const headerOrderType = document.getElementById('header-order-type');
+  const headerAmount = document.getElementById('header-amount');
+  const headerOwner = document.getElementById('header-owner');
+  const filterAssignedTo = document.getElementById('filterAssignedTo');
+  const summaryCards = document.getElementById('summaryCardsContainer');
+  const accountSettingsMenu = document.getElementById('account-settings-menu');
+  const exportExcelBtn = document.getElementById('exportExcelBtn');
+  const filterPanel = document.getElementById('filter-panel');
+  const filterControls = document.getElementById('filter-controls');
+
+  // Role-based UI adjustments
+  if (userRole === 'Bike') {
+    if (summaryCards) summaryCards.classList.add('hidden-by-role');
+    if (accountSettingsMenu) accountSettingsMenu.classList.add('hidden-by-role');
+    if (exportExcelBtn) exportExcelBtn.classList.add('hidden-by-role');
+  }
+
+  if (userRole === 'Bike') {
+    if (filterControls) filterControls.classList.add('hidden-by-role');
+    // Ensure the new filter buttons are visible for Bike role
+    if (workBtn) workBtn.style.display = 'inline-block';
+    if (preApprovedBtn) preApprovedBtn.style.display = 'inline-block';
+
+    // Initial fetch for Bike role
+    const initialFilters = getFilters();
+    initialFilters.order_status_not = 'Pre-Approved';
+    console.log('Initial fetch for Bike role with filters:', JSON.stringify(initialFilters, null, 2));
+    // fetchData(initialFilters); // Default to Work tasks
+  } else {
+    // Hide the new filter buttons for non-Bike roles
+    if (workBtn) workBtn.style.display = 'none';
+    if (preApprovedBtn) preApprovedBtn.style.display = 'none';
+    // For non-Bike roles, fetch data with existing filters
+    // fetchData(getFilters());
+  }
+
+  if (userRole === 'Insurance') {
+    if (headerOrderDate) headerOrderDate.style.display = 'none';
+    if (headerOrderType) headerOrderType.style.display = 'none';
+    if (headerAmount) headerAmount.style.display = 'none';
+    if (headerOwner) headerOwner.style.display = 'none';
+  } else if (userRole === 'Bike') {
+    if (addNewItemBtn) addNewItemBtn.classList.add('hidden-by-role');
+    if (headerOrderDate) headerOrderDate.style.display = 'none';
+    if (headerOrderType) headerOrderType.style.display = 'none';
+    if (filterAssignedTo) filterAssignedTo.style.display = 'none';
+  }
+
+  if (userRole === 'Insurance') {
+    const pendingOrdersCard = document.getElementById('pendingOrdersCard');
+    const inProgressOrdersCard = document.getElementById('inProgressOrdersCard');
+    const completedOrdersCard = document.getElementById('completedOrdersCard');
+
+    if (pendingOrdersCard) pendingOrdersCard.style.display = 'none';
+    if (inProgressOrdersCard) inProgressOrdersCard.style.display = 'none';
+    if (completedOrdersCard) completedOrdersCard.style.display = 'none';
+
+    const userRoleSelect = document.getElementById('UserRole');
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      const decodedToken = parseJwt(token);
+      const userInsurComp = decodedToken ? decodedToken.insur_comp : '';
+      if (userRoleSelect && userInsurComp) {
+        userRoleSelect.value = userInsurComp;
+        userRoleSelect.disabled = true;
       }
     }
+  }
 
-    // Robustly handle admin menu visibility using polling
-    const adminRoles = ['Operation Manager', 'Director'];
-    if (adminRoles.includes(userRole)) {
-      const interval = setInterval(() => {
-        const adminMenu = document.getElementById('admin-menu');
-        if (adminMenu) {
-          adminMenu.style.display = 'block';
-          clearInterval(interval); // Stop polling once the element is found and updated
-        }
-      }, 100); // Check every 100ms
-    }
+  // Robustly handle admin menu visibility using polling
+  const adminRoles = ['Operation Manager', 'Director'];
+  if (adminRoles.includes(userRole)) {
+    const interval = setInterval(() => {
+      const adminMenu = document.getElementById('admin-menu');
+      if (adminMenu) {
+        adminMenu.style.display = 'block';
+        clearInterval(interval); // Stop polling once the element is found and updated
+      }
+    }, 100); // Check every 100ms
+  }
 
-  
+
   loadUserProfile();
   setupFilterListeners();
   const nowInBangkok = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
@@ -211,10 +211,10 @@ async function loadUserProfile() {
     return;
   }
 
-  if(decoded){
+  if (decoded) {
     document.getElementById('user-info').innerText = decoded.first_name + ' ' + decoded.last_name;
     document.getElementById('user-role').innerText = decoded.role;
-    
+
     const userAvatar = document.getElementById('userAvatar');
     if (decoded.myPicture) {
       userAvatar.src = decoded.myPicture;
@@ -228,11 +228,11 @@ async function loadUserProfile() {
 
     let body = {};
     if (userRole === 'Admin' || userRole === 'Director' || userRole === 'Developer' || userRole === 'Admin Officer' || userRole === 'Officer' || userRole === 'Leader' || userRole === 'Sales Manager') {
-        body = {
-            total_orders_status_not: 'ยกเลิก',
-            pending_orders_status: 'เปิดงาน',
-            in_progress_orders_status: 'รับเรื่อง'
-        };
+      body = {
+        total_orders_status_not: 'ยกเลิก',
+        pending_orders_status: 'เปิดงาน',
+        in_progress_orders_status: 'รับเรื่อง'
+      };
     }
 
     const response = await fetch(ORDER_STATUS_API_URL, {
@@ -244,17 +244,17 @@ async function loadUserProfile() {
       body: JSON.stringify(body)
     });
 
-                    if (!response.ok) {
+    if (!response.ok) {
 
-                      console.error('API call to ORDER_STATUS_API_URL failed:', response.status, await response.text());
+      console.error('API call to ORDER_STATUS_API_URL failed:', response.status, await response.text());
 
-                      localStorage.removeItem('authToken');
+      localStorage.removeItem('authToken');
 
-                      window.location.href = RETURN_LOGIN_PAGE;
+      window.location.href = RETURN_LOGIN_PAGE;
 
-                      return;
+      return;
 
-                    }
+    }
     const result = await response.json();
     const order = result.order;
 
@@ -282,7 +282,7 @@ let allData = [];
 
 function debounce(func, wait) {
   let timeout;
-  return function(...args) {
+  return function (...args) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
   };
@@ -327,9 +327,22 @@ function renderTableData(page) {
   tableBody.innerHTML = "";
 
   paginatedData.forEach(item => {
-    const row = document.createElement("tr");
-    const showAmount = ['Pre-Approved', 'คีย์งานแล้ว', 'ผ่าน'].includes(item.order_status);
-    const amountToDisplay = showAmount ? (item.amount || '') : '';
+    // Format Date/Time to Local Thai Time
+    const formatDateTime = (dateStr) => {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    };
+
+    const displayAppointmentDate = formatDateTime(item.appointment_date);
+    const displayOrderDate = formatDateTime(item.order_date);
 
     let rowContent = `
       <td><a href="task-detail.html?id=${item.id}" class="text-primary" target="_blank" rel="noopener noreferrer">${item.id}</a></td>
@@ -339,7 +352,7 @@ function renderTableData(page) {
     if (userRole === 'Insurance') {
       rowContent += `
         <td>${item.insur_comp || ''}</td>
-        <td>${item.appointment_date || ''}</td>
+        <td>${displayAppointmentDate}</td>
         <td>${item.car_registration || ''}</td>
         <td>${item.location || ''}</td>
         <td>${item.order_status || ''}</td>
@@ -347,7 +360,7 @@ function renderTableData(page) {
     } else if (userRole === 'Bike') {
       rowContent += `
         <td>${item.insur_comp || ''}</td>
-        <td>${item.appointment_date || ''}</td>
+        <td>${displayAppointmentDate}</td>
         <td>${item.car_registration || ''}</td>
         <td>${item.location || ''}</td>
         <td>${item.order_status || ''}</td>
@@ -357,8 +370,8 @@ function renderTableData(page) {
     } else { // Default for other roles
       rowContent += `
         <td>${item.insur_comp || ''}</td>
-        <td>${item.order_date || ''}</td>
-        <td>${item.appointment_date || ''}</td>
+        <td>${displayOrderDate}</td>
+        <td>${displayAppointmentDate}</td>
         <td>${item.car_registration || ''}</td>
         <td>${item.location || ''}</td>
         <td>${item.order_type || ''}</td>
