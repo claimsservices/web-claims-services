@@ -383,8 +383,13 @@ async function loadOrderData(orderId) {
 
         if (order.appointment_date) {
             const dt = new Date(order.appointment_date);
-            setValue('appointmentDate', dt.toISOString().slice(0, 10));
-            setValue('appointmentTime', dt.toTimeString().slice(0, 5));
+            const year = dt.getFullYear();
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            const day = String(dt.getDate()).padStart(2, '0');
+            const hours = String(dt.getHours()).padStart(2, '0');
+            const minutes = String(dt.getMinutes()).padStart(2, '0');
+            setValue('appointmentDate', `${year}-${month}-${day}`);
+            setValue('appointmentTime', `${hours}:${minutes}`);
         }
 
         if (order_details) {
@@ -897,8 +902,8 @@ class UIInsurancePermissionManager extends UIPermissionManager {
         if (saveImagesBtn) saveImagesBtn.style.display = 'none';
 
         // Configure status dropdown
-        if (orderStatus === 'Pre-Approved') {
-            const allowedStatuses = ['ผ่าน', 'ไม่ผ่าน', 'Pre-Approved'];
+        if (orderStatus === 'Pre-Approved' || orderStatus === 'รออนุมัติ') {
+            const allowedStatuses = ['ผ่าน', 'ไม่ผ่าน', 'Pre-Approved', 'รออนุมัติ', 'แก้ไข'];
             this.applyStatusPermissions(allowedStatuses);
             // Make sure the current value is selected
             if (this.statusDropdown) {
@@ -969,22 +974,57 @@ function applyRoleBasedRestrictions(data) {
     console.log('DEBUG: s_detail after applyRoleBasedRestrictions:', document.getElementById('s_detail')?.value);
 }
 
-function populateModels(brandSelect, modelSelect) {
-    if (!brandSelect || !modelSelect) return;
-    const selectedBrand = brandSelect.value;
-    const models = carModels[selectedBrand] || [];
-    modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
-    models.forEach(model => {
-        const option = document.createElement('option');
-        option.value = model;
-        option.textContent = model;
-        modelSelect.appendChild(option);
-    });
-    modelSelect.disabled = models.length === 0;
+async function populateBrands(brandSelect) {
+    if (!brandSelect) return;
+    try {
+        const response = await fetch('https://be-claims-service.onrender.com/api/car-brands');
+        const brands = await response.json();
+        brandSelect.innerHTML = '<option selected disabled>เลือกยี่ห้อ</option>';
+        if (Array.isArray(brands)) {
+            brands.sort((a, b) => a.brand_name.localeCompare(b.brand_name)).forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand.brand_name;
+                option.dataset.id = brand.id;
+                option.textContent = brand.brand_name;
+                brandSelect.appendChild(option);
+            });
+        }
+    } catch (e) {
+        console.error('Error loading brands', e);
+        // Fallback or leave empty? Leave empty as per requirement to use DB.
+    }
 }
 
-function initCarModelDropdown(brandSelect, modelSelect) {
+async function populateModels(brandSelect, modelSelect) {
+    if (!brandSelect || !modelSelect) return;
+    const selectedBrandName = brandSelect.value;
+
+    modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
+    modelSelect.disabled = true;
+
+    if (!selectedBrandName) return;
+
+    try {
+        // Using the new car-models API with filter
+        const response = await fetch(`https://be-claims-service.onrender.com/api/car-models?brand_name=${encodeURIComponent(selectedBrandName)}`);
+        const models = await response.json();
+
+        if (Array.isArray(models)) {
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model.model_name;
+                option.textContent = model.model_name;
+                modelSelect.appendChild(option);
+            });
+            modelSelect.disabled = models.length === 0;
+        }
+    } catch (e) { console.error('Error loading models', e); }
+}
+
+async function initCarModelDropdown(brandSelect, modelSelect) {
     if (brandSelect && modelSelect) {
+        // Return the promise so we can await it
+        await populateBrands(brandSelect);
         brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
     }
 }
@@ -1140,14 +1180,15 @@ function createAddImageButtons() {
     }
 }
 
-window.addEventListener('load', function () {
+window.addEventListener('load', async function () {
     const imagePreviewModalEl = document.getElementById('imagePreviewModal');
     console.log('imagePreviewModalEl found (at top of DOMContentLoaded):', imagePreviewModalEl);
 
     const viewFullImageBtn = document.getElementById('view-full-image-btn');
     console.log('viewFullImageBtn found (at top of DOMContentLoaded):', viewFullImageBtn);
 
-    initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
+    // Await brand population before loading order data to prevent race conditions
+    await initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
     createAddImageButtons();
 
     function handleImageSelection(fileInput) {
@@ -1679,6 +1720,18 @@ window.addEventListener('load', function () {
                     });
                 }
 
+                // Capture Additional Details and Notes
+                const additionalDetails = getSafeValue('additionalDetails');
+                const noteText = getSafeValue('note-text');
+                const dynamicOrderHist = [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }];
+
+                if (additionalDetails) {
+                    dynamicOrderHist.push({ icon: "ℹ️", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by });
+                }
+                if (noteText) {
+                    dynamicOrderHist.push({ icon: "💬", task: "บันทึกข้อความ", detail: noteText, created_by });
+                }
+
                 const commonData = {
                     creator: getSafeValue('ownerName'),
                     owner: getSafeValue('responsiblePerson'),
@@ -1724,7 +1777,7 @@ window.addEventListener('load', function () {
                     updated_by: created_by,
                     c_name: getSafeValue('creatorName'),
                     order_pic: orderPic,
-                    order_hist: [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }],
+                    order_hist: dynamicOrderHist,
                     order_assign: order_assign
                 };
 
@@ -1750,6 +1803,11 @@ window.addEventListener('load', function () {
                     const result = await response.json();
                     if (response.ok) {
                         alert('✅ ดำเนินการเรียบร้อยแล้ว'); // Changed message to be more generic
+                        // Clear Note and Additional Details inputs
+                        const addDetailsEl = document.getElementById('additionalDetails');
+                        if (addDetailsEl) addDetailsEl.value = '';
+                        const noteEl = document.getElementById('note-text');
+                        if (noteEl) noteEl.value = '';
                         loadOrderData(currentOrderId);
                     } else {
                         alert('❌ เกิดข้อผิดพลาด: ' + result.message);
