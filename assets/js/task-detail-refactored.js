@@ -488,7 +488,14 @@ async function loadOrderData(orderId) {
   </div>
   </div>`;
                     timelineEl.appendChild(li);
+                    timelineEl.appendChild(li);
                 });
+
+                // Fix Task 2: Populate 'additionalDetails' from history
+                const latestDetailMock = order_hist.filter(h => h.task === 'รายละเอียดเพิ่มเติม').pop();
+                if (latestDetailMock) {
+                    setValue('additionalDetails', latestDetailMock.detail);
+                }
 
                 // Get latest note to populate note-text
                 try {
@@ -1814,7 +1821,8 @@ window.addEventListener('load', async function () {
 
                 const token = localStorage.getItem('authToken') || '';
                 const currentOrderId = getSafeValue('taskId');
-                const created_by = getSafeValue('ownerName');
+                const userInfoEl = document.getElementById('user-info');
+                const created_by = userInfoEl && userInfoEl.innerText ? userInfoEl.innerText.trim() : getSafeValue('ownerName');
                 let endpoint, data, method;
 
                 const orderPic = [];
