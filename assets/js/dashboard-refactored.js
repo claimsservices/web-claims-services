@@ -327,6 +327,7 @@ function renderTableData(page) {
   tableBody.innerHTML = "";
 
   paginatedData.forEach(item => {
+    const row = document.createElement('tr');
     // Format Date/Time to Local Thai Time
     const formatDateTime = (dateStr) => {
       if (!dateStr) return '';
