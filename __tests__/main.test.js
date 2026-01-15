@@ -26,23 +26,23 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock fetch
-    global.fetch = jest.fn((url) => {
-      if (url === '/version.json') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ version: '1.0.0' }),
-        });
-      } else if (url === 'https://be-claims-service.onrender.com/api/version') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({ version: '2.0.0' }),
-        });
-      }
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({}),
-      });
+global.fetch = jest.fn((url) => {
+  if (url === '/version.json') {
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ version: '1.0.0' }),
     });
+  } else if (url === 'https://be-claims-service.onrender.com/api/version') {
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ version: '2.0.0' }),
+    });
+  }
+  return Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({}),
+  });
+});
 
 // Mock document.querySelectorAll for menu elements
 const mockMenuElement = {
@@ -76,13 +76,27 @@ Object.defineProperty(document, 'getElementById', { value: mockGetElementById })
 describe('main.js', () => {
   beforeEach(() => {
     global.Menu = jest.fn(); // Ensure Menu is globally available for main.js
-    window.Helpers = { toggleCollapsed: jest.fn() }; // Mock window.Helpers
+    window.Helpers = {
+      scrollToActive: jest.fn(),
+      mainMenu: null,
+      isSmallScreen: jest.fn(() => false),
+      setAutoUpdate: jest.fn(),
+      initPasswordToggle: jest.fn(),
+      initSpeechToText: jest.fn(),
+      setCollapsed: jest.fn(),
+      toggleCollapsed: jest.fn(),
+    };
 
     // Reset mocks before each test
     jest.clearAllMocks();
     localStorageMock.clear();
     // Reset window.API_BASE_URL for each test
     window.API_BASE_URL = 'https://be-claims-service.onrender.com';
+
+    // Mock bootstrap
+    global.bootstrap = {
+      Tooltip: jest.fn(),
+    };
   });
 
   test('should initialize Menu and Helpers correctly on DOMContentLoaded', async () => {
@@ -144,7 +158,7 @@ describe('main.js', () => {
   // Test for Bike role menu modification
   test('should modify menu for Bike role', async () => {
     localStorageMock.setItem('authToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQmlrZSIsImlhdCI6MTUxNjIzOTAyMn0.some_signature'); // Mock Bike role token
-    
+
     // Mock document.querySelector for menu links
     const mockDashboardLink = {
       href: 'dashboard.html',
@@ -171,8 +185,9 @@ describe('main.js', () => {
       }
       return null;
     });
-    
+
     // Mock window.location.pathname
+    delete window.location;
     Object.defineProperty(window, 'location', {
       value: {
         pathname: '/web-claims-services/html/agent-dashboard.html',

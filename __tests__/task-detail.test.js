@@ -36,14 +36,18 @@ describe('Task Detail Page', () => {
     getQueryParam.mockReturnValue('TEST-ORDER-ID');
     fetch.mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ order: {}, order_details: {} }), // Mock successful response
+      json: () => Promise.resolve({ order: {}, order_details: {}, order_assign: [], order_hist: [], order_pic: [] }), // Mock successful response
     });
 
-    // Act: Load the script which should trigger the logic inside DOMContentLoaded
+    // Mock initCarModelDropdown
+    global.initCarModelDropdown = jest.fn().mockResolvedValue();
+
+    // Act: Load the script which should trigger the logic inside DOMContentLoaded/load
     jest.isolateModules(() => {
       require('../assets/js/task-detail-refactored.js');
     });
     document.dispatchEvent(new Event('DOMContentLoaded'));
+    window.dispatchEvent(new Event('load'));
     await new Promise(process.nextTick);
 
     // Assert
@@ -55,8 +59,8 @@ describe('Task Detail Page', () => {
     // Arrange
     getQueryParam.mockReturnValue('FAIL-ID');
     fetch.mockResolvedValue({
-        ok: false,
-        json: () => Promise.resolve({ message: 'Order not found' }),
+      ok: false,
+      json: () => Promise.resolve({ message: 'Order not found' }),
     });
 
     // Act
@@ -64,7 +68,8 @@ describe('Task Detail Page', () => {
       require('../assets/js/task-detail-refactored.js');
     });
     document.dispatchEvent(new Event('DOMContentLoaded'));
-    await new Promise(process.nextTick);
+    window.dispatchEvent(new Event('load'));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Assert
     expect(window.alert).toHaveBeenCalledWith('❌ ไม่พบข้อมูล: Order not found');

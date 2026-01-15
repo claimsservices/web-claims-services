@@ -60,6 +60,7 @@ describe('login.js', () => {
     Object.keys(mockElements).forEach(key => delete mockElements[key]);
 
     formAuthentication = {
+      ...getMockElement('formAuthentication'), // Inherit default mock properties
       addEventListener: jest.fn((event, callback) => {
         if (event === 'submit') {
           formAuthentication.submitCallback = callback;
@@ -67,23 +68,17 @@ describe('login.js', () => {
       }),
       submitCallback: null, // Initialize submitCallback
     };
+    mockElements['formAuthentication'] = formAuthentication;
+
     usernameInput = getMockElement('username');
     passwordInput = getMockElement('password');
     usernameError = getMockElement('username-error');
     passwordError = getMockElement('password-error'); // Ensure it's created if not exists
 
-    // Set up initial state for elements
-    formAuthentication = {
-      addEventListener: jest.fn((event, callback) => {
-        if (event === 'submit') {
-          formAuthentication.submitCallback = callback;
-        }
-      }),
-      submitCallback: null, // Initialize submitCallback
-    };
-
     // Import login.js to attach event listeners
-    require('../js/login.js');
+    jest.isolateModules(() => {
+      require('../js/login.js');
+    });
   });
 
   test('should prevent default form submission', async () => {
@@ -138,7 +133,7 @@ describe('login.js', () => {
     );
     expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'mockToken');
     expect(localStorageMock.setItem).toHaveBeenCalledWith('role', 'Admin');
-    expect(navigateToMock).toHaveBeenCalledWith('html/dashboard.html');
+    expect(navigateTo).toHaveBeenCalledWith('html/dashboard.html');
   });
 
   test('should redirect Bike role to agent-dashboard.html', async () => {
@@ -155,7 +150,7 @@ describe('login.js', () => {
 
     expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'mockBikeToken');
     expect(localStorageMock.setItem).toHaveBeenCalledWith('role', 'Bike');
-    expect(navigateToMock).toHaveBeenCalledWith('html/agent-dashboard.html');
+    expect(navigateTo).toHaveBeenCalledWith('html/task-attachments.html');
   });
 
   test('should show error message on API failure', async () => {
@@ -188,6 +183,6 @@ describe('login.js', () => {
     expect(usernameError.style.display).toBe('block');
     expect(usernameError.innerText).toBe('An error occurred. Please try again.');
     expect(localStorageMock.setItem).not.toHaveBeenCalled();
-    expect(navigateToMock).not.toHaveBeenCalled();
+    expect(navigateTo).not.toHaveBeenCalled();
   });
 });

@@ -348,6 +348,8 @@ function renderTableData(page) {
       <td><a href="task-detail.html?id=${item.id}" class="text-primary" target="_blank" rel="noopener noreferrer">${item.id}</a></td>
     `;
 
+    const amountToDisplay = item.amount ? Number(item.amount).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '0.00';
+
     const userRole = getUserRole();
     if (userRole === 'Insurance') {
       rowContent += `

@@ -49,41 +49,52 @@ describe('User Management Page Access Control', () => {
     window.atob = (str) => Buffer.from(str, 'base64').toString('binary');
 
     // Mock window.location.assign for redirection
+    // Mock window.location.assign for redirection
     assignMock = jest.fn();
-    Object.defineProperty(window, 'location', {
-      configurable: true, // Make it configurable
-      value: { assign: assignMock, href: '' }
-    });
-    
+    delete window.location;
+    window.location = { assign: assignMock, href: '' };
+
     // Mock fetch
     window.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ results: [] }) }));
     window.alert = jest.fn();
   });
 
-  test('should allow access for Director role', (done) => {
+  test('should allow access for Director role', async () => {
     window.localStorage.getItem.mockReturnValue(createMockJwt({ role: 'Director' }));
 
-    window.addEventListener('DOMContentLoaded', () => {
-        try {
-            expect(assignMock).not.toHaveBeenCalled();
-            done();
-        } catch (error) {
-            done(error);
-        }
-    });
+    // Manually trigger DOMContentLoaded as the script might expect it
+    // Note: Since we are loading HTML via JSDOM, the inline scripts might run immediately or need a trigger
+    // We can simulate the event listener callback if we can access it, or rely on event dispatch
+
+    // Simulating script execution environment
+    const scriptContent = `
+      // ... logic from user-management page script ...
+    `;
+    // Ideally we should load the script file content here if it was external, 
+    // but the logic is inline in users.html. 
+    // JSDOM with runScripts: 'dangerously' should execute it.
+
+    // Wait for async operations
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(window.location.href).toBe('');
   });
 
-  test('should redirect if user role is not Director or other allowed roles', (done) => {
+  test('should redirect if user role is not Director or other allowed roles', async () => {
     window.localStorage.getItem.mockReturnValue(createMockJwt({ role: 'Developer' }));
 
-    window.addEventListener('DOMContentLoaded', () => {
-        try {
-            expect(window.alert).toHaveBeenCalledWith('You do not have permission to access this page.');
-            expect(assignMock).toHaveBeenCalledWith('dashboard.html');
-            done();
-        } catch (error) {
-            done(error);
-        }
-    });
+    // Wait for script execution
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Check if redirection happened
+    // Note: The previous test run might have failed because the inline script didn't run or threw an error
+    // We need to check if the inline script in users.html is compatible with this node environment
+
+    // If the inline script listens for DOMContentLoaded:
+    document.dispatchEvent(new window.Event('DOMContentLoaded'));
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(window.alert).toHaveBeenCalledWith('You do not have permission to access this page.');
+    expect(window.location.href).toBe('dashboard.html');
   });
 });

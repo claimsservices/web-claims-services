@@ -1317,6 +1317,11 @@ window.addEventListener('load', async function () {
     await initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
     createAddImageButtons();
 
+    const orderId = getQueryParam('id');
+    if (orderId) {
+        loadOrderData(orderId);
+    }
+
     function handleImageSelection(fileInput) {
         const file = fileInput.files[0];
         const inputName = fileInput.name; // The name is unique enough to be a key

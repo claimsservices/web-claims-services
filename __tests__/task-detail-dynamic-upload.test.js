@@ -1,8 +1,10 @@
-global.TextEncoder = require('util').TextEncoder;
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 global.Buffer = require('buffer').Buffer;
 
-import { JSDOM } from 'jsdom';
-import imageCompression from 'browser-image-compression';
+const { JSDOM } = require('jsdom');
+const imageCompression = require('browser-image-compression');
 
 // Mock API_BASE_URL
 jest.mock('../assets/js/api-config.js', () => 'http://localhost:8181');
@@ -84,3 +86,8 @@ describe('Task Detail - Dynamic Image Upload', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+  test('should render add image buttons', () => {
+    const buttons = document.querySelectorAll('.add-image-btn');
+    expect(buttons.length).toBeGreaterThan(0);
+  });
+});
