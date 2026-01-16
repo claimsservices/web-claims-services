@@ -76,7 +76,10 @@
         /* ชิดด้านบน */
         padding: 8px;
         /* เพิ่มระยะห่างในเซลล์ */
-        /* เพิ่มระยะห่างในเซลล์ */
+        word-wrap: break-word;
+        /* ตัดคำเมื่อข้อความยาวเกิน (Restore) */
+        white-space: normal;
+        /* อนุญาตให้ขึ้นบรรทัดใหม่ (Restore) */
       }
   
       th {
@@ -87,7 +90,14 @@
       th:nth-child(6),
       td:nth-child(6) {
         width: 20%;
-        /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ */
+        /* กำหนดความกว้างเฉพาะสำหรับคอลัมน์ Location */
+      }
+
+      /* Fix: Force Date columns to be single line */
+      th:nth-child(3), td:nth-child(3),
+      th:nth-child(4), td:nth-child(4) {
+        white-space: nowrap !important;
+        width: 1%; /* Allow column to shrink to content */
       }
     </style>
   
