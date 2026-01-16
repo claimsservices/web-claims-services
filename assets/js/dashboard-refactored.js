@@ -350,7 +350,9 @@ function renderTableData(page) {
       <td><a href="task-detail.html?id=${item.id}" class="text-primary" target="_blank" rel="noopener noreferrer">${item.id}</a></td>
     `;
 
-    const amountToDisplay = item.amount ? Number(item.amount).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '0.00';
+    // Fix Task 9: Only show amount if status is 'Pass' (ผ่าน)
+    const canShowAmount = item.order_status === 'ผ่าน';
+    const amountToDisplay = canShowAmount && item.amount ? Number(item.amount).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '-';
 
     const userRole = getUserRole();
     if (userRole === 'Insurance') {

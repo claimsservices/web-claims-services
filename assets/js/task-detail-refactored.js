@@ -378,8 +378,15 @@ async function loadOrderData(orderId) {
         setValue('carRegistration', order.car_registration);
         setValue('address', order.location);
 
-        // Set travel expense, prioritizing service_fee from order, then fallback to travel_expense from assignment
-        setValue('travelExpense', order.service_fee || (order_assign.length > 0 ? order_assign[0].travel_expense : null) || '');
+        // Set travel expense - Prioritize order_assign (saved value) over calculated service_fee
+        // Fix Task 10: Ensure saved data is displayed
+        let travelExpenseValue = '';
+        if (order_assign && order_assign.length > 0 && order_assign[0].travel_expense !== null && order_assign[0].travel_expense !== undefined) {
+            travelExpenseValue = order_assign[0].travel_expense;
+        } else {
+            travelExpenseValue = order.service_fee || '';
+        }
+        setValue('travelExpense', travelExpenseValue);
 
         if (order.appointment_date) {
             const dt = new Date(order.appointment_date);
