@@ -350,8 +350,8 @@ function renderTableData(page) {
       <td><a href="task-detail.html?id=${item.id}" class="text-primary" target="_blank" rel="noopener noreferrer">${item.id}</a></td>
     `;
 
-    // Fix Task 9: Only show amount if status is 'Pass' (ผ่าน)
-    const canShowAmount = item.order_status === 'ผ่าน';
+    // Fix Task 9: Show amount for multiple statuses (Pass, Pre-Approved, etc.)
+    const canShowAmount = ['ผ่าน', 'Pre-Approved', 'คีย์งานแล้ว'].includes(item.order_status);
     const amountToDisplay = canShowAmount && item.amount ? Number(item.amount).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '-';
 
     const userRole = getUserRole();
@@ -463,8 +463,23 @@ function getFilters() {
 
   if (dateRangeRaw.includes(' to ')) {
     const [fromRaw, toRaw] = dateRangeRaw.split(" to ").map(s => s.trim());
-    const from = fromRaw + " 00:00:00";
-    const to = toRaw + " 23:59:59";
+
+    // Construct BKK Date objects
+    // fromRaw is "YYYY-MM-DD" e.g. "2024-01-14"
+    // We want 2024-01-14 00:00:00 BKK -> 2024-01-13 17:00:00 UTC
+    // We want 2024-01-16 23:59:59 BKK -> 2024-01-16 16:59:59 UTC
+
+    const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
+    const toDate = new Date(`${toRaw}T23:59:59+07:00`);
+
+    // Helper to format as "YYYY-MM-DD HH:mm:ss" in UTC
+    const toUTCString = (date) => {
+      return date.toISOString().replace('T', ' ').slice(0, 19);
+    };
+
+    const from = toUTCString(fromDate);
+    const to = toUTCString(toDate);
+
     if (dateField === "วันที่สร้างงาน") {
       filter.order_date_from = from;
       filter.order_date_to = to;

@@ -304,6 +304,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // --- Item 6: Save Car Details before submitting work ---
+        if (status === 'รออนุมัติ') {
+            // Assuming validation is handled in saveCarDetails or we just attempt save
+            const saveResult = await saveCarDetails(orderId, token);
+            if (!saveResult.success) {
+                alert(saveResult.message);
+                return; // Stop if car detail save fails
+            }
+        }
+
+        // --- Item 4: Prepare History Log ---
+        const decoded = parseJwt(token);
+        const userName = decoded ? `${decoded.first_name} ${decoded.last_name}` : 'Unknown User';
+        const historyLog = {
+            icon: getStatusIcon(status),
+            task: status,
+            detail: `User: ${userName} updated status to ${status}`,
+            created_by: userName // Backend might use token user, but we send it just in case or for consistency
+        };
+
         try {
             const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
                 method: 'PUT',
@@ -311,7 +331,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': token
                 },
-                body: JSON.stringify({ order_id: orderId, order_status: status })
+                body: JSON.stringify({
+                    order_id: orderId,
+                    order_status: status,
+                    order_hist: [historyLog] // Send history log
+                })
             });
 
             if (!response.ok) {
@@ -325,6 +349,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error updating status:', error);
             alert(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${error.message}`);
+        }
+    }
+
+    function getStatusIcon(status) {
+        switch (status) {
+            case 'รับงาน': return '📝';
+            case 'ปฏิเสธงาน': return '❌';
+            case 'เริ่มงาน/กำลังเดินทาง': return '🚀';
+            case 'ถึงที่เกิดเหตุ/ปฏิบัติงาน': return '📍';
+            case 'รออนุมัติ': return '✅';
+            default: return 'ℹ️';
         }
     }
 

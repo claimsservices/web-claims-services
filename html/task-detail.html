@@ -759,10 +759,10 @@
                               <input type="time" id="appointmentTime" class="form-control mb-3" />
                       
                               <!-- สถานที่ -->
-                              <label class="form-label">สถานที่นัดหมาย</label>
+                              <label class="form-label mt-3">สถานที่นัดหมาย</label>
                               <div class="input-group mb-3">
-                                <input id="address" type="text" class="form-control" placeholder="กรอกที่อยู่หรือปักหมุดจาก Google Maps">
-                                <button   type="button"  class="btn btn-outline-primary" id="openMap">ค้นหาบน Maps</button>
+                                <textarea id="address" class="form-control" rows="4" placeholder="กรอกที่อยู่หรือปักหมุดจาก Google Maps"></textarea>
+                                <button type="button" class="btn btn-outline-primary" id="openMap" style="height: auto;">ค้นหาบน Maps</button>
                               </div>
                       
                               <!-- ผู้รับผิดชอบ -->
@@ -795,6 +795,8 @@
                                 <textarea id="additionalDetails" class="form-control" rows="10"
                                   placeholder="กรอกรายละเอียดเพิ่มเติมที่เกี่ยวข้องกับงานหรือการนัดหมาย..."></textarea>
                               </div>
+
+                              <!-- สถานที่ (ย้ายไปฝั่งซ้ายแล้ว) -->
                             </div>
                           </div>
                           
