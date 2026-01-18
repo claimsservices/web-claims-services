@@ -552,6 +552,8 @@ document.getElementById('exportExcelBtn').addEventListener('click', () => {
     "สถานะงาน": item.order_status,
     "ผู้สร้างงาน": item.creator,
     "ผู้รับผิดชอบ": item.owner_full_name,
+    "ข้อมูลอ้างอิง": item.s_ref,
+    "ข้อมูลอ้างอิง (เพิ่มเติม)": item.s_ref_2
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(worksheetData);
