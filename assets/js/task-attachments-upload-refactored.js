@@ -5,6 +5,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateModels(brandSelect, modelSelect) {
         if (!brandSelect || !modelSelect) return;
         const selectedBrand = brandSelect.value;
+        const customBrandInput = document.getElementById('car-brand-custom');
+        const customModelInput = document.getElementById('car-model-custom');
+
+        // Reset display
+        if (customBrandInput) customBrandInput.classList.add('d-none');
+        if (customModelInput) customModelInput.classList.add('d-none');
+        modelSelect.style.display = 'block';
+
+        // Helper to add 'Other' option
+        const addOtherOption = () => {
+            const option = document.createElement('option');
+            option.value = 'other';
+            option.textContent = 'อื่นๆ';
+            modelSelect.appendChild(option);
+        };
+
+        if (selectedBrand === 'other') {
+            if (customBrandInput) customBrandInput.classList.remove('d-none');
+            // If brand is custom, model is likely custom too. 
+            // We can either show an empty dropdown with "Other" selected, or just hide dropdown and show custom model input.
+            // Let's mimic task-detail: hide dropdown, show custom model input directly
+            modelSelect.style.display = 'none';
+            if (customModelInput) customModelInput.classList.remove('d-none');
+            return;
+        }
+
         const models = carModels[selectedBrand] || [];
         modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
         models.forEach(model => {
@@ -13,12 +39,24 @@ document.addEventListener('DOMContentLoaded', () => {
             option.textContent = model;
             modelSelect.appendChild(option);
         });
+
+        addOtherOption(); // Add 'Other' to models list
         modelSelect.disabled = models.length === 0;
     }
 
     function initCarModelDropdown(brandSelect, modelSelect) {
         if (brandSelect && modelSelect) {
             brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
+
+            // Handle model 'other' selection
+            modelSelect.addEventListener('change', () => {
+                const customModelInput = document.getElementById('car-model-custom');
+                if (modelSelect.value === 'other') {
+                    if (customModelInput) customModelInput.classList.remove('d-none');
+                } else {
+                    if (customModelInput) customModelInput.classList.add('d-none');
+                }
+            });
         }
     }
 
@@ -108,13 +146,41 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('province-category').value = details.c_car_province;
 
             const carBrandSelect = document.getElementById('car-brand');
-            if (carBrandSelect) {
-                carBrandSelect.value = details.c_brand;
-                carBrandSelect.dispatchEvent(new Event('change')); // Trigger change to populate models
-            }
+            const carBrandCustom = document.getElementById('car-brand-custom');
             const carModelSelect = document.getElementById('car-model');
-            if (carModelSelect) {
-                carModelSelect.value = details.c_version;
+            const carModelCustom = document.getElementById('car-model-custom');
+
+            if (carBrandSelect && details.c_brand) {
+                // Check if brand exists in options
+                let brandValues = Array.from(carBrandSelect.options).map(o => o.value);
+                if (brandValues.includes(details.c_brand)) {
+                    carBrandSelect.value = details.c_brand;
+                } else {
+                    carBrandSelect.value = 'other';
+                    if (carBrandCustom) carBrandCustom.value = details.c_brand;
+                    if (carBrandCustom) carBrandCustom.classList.remove('d-none');
+                }
+
+                // Trigger change to populate models (synchronously if possible, or manually call)
+                // populateModels is defined in this scope, so we can call it directly
+                populateModels(carBrandSelect, carModelSelect);
+            }
+
+            if (carModelSelect && details.c_version) {
+                if (carBrandSelect.value === 'other') {
+                    // Brand is custom, so model is custom (UI hidden by populateModels)
+                    if (carModelCustom) carModelCustom.value = details.c_version;
+                    if (carModelCustom) carModelCustom.classList.remove('d-none');
+                } else {
+                    let modelValues = Array.from(carModelSelect.options).map(o => o.value);
+                    if (modelValues.includes(details.c_version)) {
+                        carModelSelect.value = details.c_version;
+                    } else {
+                        carModelSelect.value = 'other';
+                        if (carModelCustom) carModelCustom.value = details.c_version;
+                        if (carModelCustom) carModelCustom.classList.remove('d-none');
+                    }
+                }
             }
             document.getElementById('vin').value = details.c_number;
             document.getElementById('customer-name').value = details.c_name;
@@ -405,8 +471,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const filesToUpload = new Map();
 
     async function saveCarDetails(orderId, token) {
-        const carBrand = document.getElementById('car-brand').value;
-        const carModel = document.getElementById('car-model').value;
+        let carBrand = document.getElementById('car-brand').value;
+        if (carBrand === 'other') {
+            carBrand = document.getElementById('car-brand-custom').value;
+        }
+
+        let carModel = document.getElementById('car-model').value;
+        // Logic: if brand is custom (dropdown hidden), model comes from custom input
+        // if model select is 'other', model comes from custom input
+        const brandSelectVal = document.getElementById('car-brand').value;
+        if (brandSelectVal === 'other') {
+            carModel = document.getElementById('car-model-custom').value;
+        } else if (carModel === 'other') {
+            carModel = document.getElementById('car-model-custom').value;
+        }
 
         const payload = {
             c_brand: carBrand,
