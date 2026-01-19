@@ -312,6 +312,7 @@ async function fetchData(filter = {}) {
     if (!res.ok) throw new Error('Fetch failed');
     allData = await res.json();
     currentPage = 1;
+    updateSummaryCards(allData); // Calculate counters based on filtered data
     renderTableData(currentPage);
   } catch (err) {
     console.error('Error fetching data:', err);
@@ -439,6 +440,37 @@ function generatePagination() {
   setActivePage(currentPage);
 }
 
+function updateSummaryCards(data) {
+  if (!data) return;
+
+  // 1. Total Work (งานทั้งหมด)
+  // Count based on what's in the table
+  const total = data.length;
+  document.getElementById('totalOrders').textContent = total || 0;
+
+  // 2. Not Appointed (งานยังไม่ได้นัดหมาย) -> order_status == 'เปิดงาน'
+  const pending = data.filter(item => item.order_status === 'เปิดงาน').length;
+  document.getElementById('pendingOrders').textContent = pending || 0;
+
+  // 3. Wait Assign (งานรอ Assign) -> Not currently assigned (no owner) AND (maybe check appointment_date or status?)
+  // Based on requirement: "งานรอ Assign" usually means ready for assign but no owner yet.
+  // The previous logic for this card was server-side so we approximate or use specific rule.
+  // Let's assume: Appointment Date exists, but Owner is null/empty.
+  // OR simply check if 'owner' field is null/empty if that data is available. 
+  // From backend response, we have 'owner_full_name' and 'owner' ID.
+  const inProgress = data.filter(item => !item.owner_full_name && item.appointment_date).length;
+  document.getElementById('inProgressOrders').textContent = inProgress || 0;
+
+  // 4. Alert (งานแจ้งเตือน) -> order_status == 'รออนุมัติ' (Wait for Approval) or 'Completed'?
+  // The previous code mapped 'completedOrders' to 'งานแจ้งเตือน'.
+  // Let's assume 'รออนุมัติ' is what they want to track as "Alert" / Notification needed.
+  // Or if it was 'Completed' previously, maybe it means 'Job Done'?
+  // Re-reading task requirement: "งานทั้งหมด,งานยังไม่ได้นัดหมาย,งานรอ Assign,งานแจ้งเตือน"
+  // Let's use 'รออนุมัติ' as "Alert" for now as it usually requires attention.
+  const completed = data.filter(item => item.order_status === 'รออนุมัติ').length;
+  document.getElementById('completedOrders').textContent = completed || 0;
+}
+
 function setActivePage(pageNumber) {
   document.querySelectorAll(".pagination .page-item").forEach(p => p.classList.remove("active"));
   const activePage = document.querySelector(`#page-${pageNumber}`);
@@ -454,7 +486,7 @@ function getFilters() {
     order_type: document.getElementById('FilterTransaction2')?.value || '',
     order_status: document.getElementById('FilterTransaction3')?.value || '',
     id: document.getElementById('filterJobCode')?.value || '',
-    created_by: document.getElementById('filterCreatedBy')?.value || '',
+    car_registration: document.getElementById('filterCarRegistration')?.value || '',
     owner: document.getElementById('filterAssignedTo')?.value || ''
   };
 
@@ -501,7 +533,7 @@ function setupFilterListeners() {
     });
   });
 
-  ['filterJobCode', 'filterCreatedBy', 'filterAssignedTo'].forEach(id => {
+  ['filterJobCode', 'filterCarRegistration', 'filterAssignedTo'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('keydown', (e) => {

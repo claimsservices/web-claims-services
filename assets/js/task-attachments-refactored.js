@@ -89,10 +89,10 @@ async function loadUserProfile() {
     userRoleEl.innerText = role;
   }
 
-            const imgElement = document.getElementById('userAvatar');
-            if (imgElement && decoded.myPicture) {
-                imgElement.src = decoded.myPicture;
-            }
+  const imgElement = document.getElementById('userAvatar');
+  if (imgElement && decoded.myPicture) {
+    imgElement.src = decoded.myPicture;
+  }
 
   if (decoded && isTokenExpired(decoded)) {
     // Token is expired
@@ -142,9 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
       workBtn.classList.remove('btn-outline-primary');
       preApprovedBtn.classList.add('btn-outline-primary');
       preApprovedBtn.classList.remove('btn-primary');
-      
-      if(statusDropdown) statusDropdown.value = ''; // Clear dropdown
-      
+
+      if (statusDropdown) statusDropdown.value = ''; // Clear dropdown
+
       const filters = getFilters();
       delete filters.order_status;
       filters.order_status_not = 'Pre-Approved';
@@ -160,10 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
       workBtn.classList.add('btn-outline-primary');
       workBtn.classList.remove('btn-primary');
 
-      if(statusDropdown) statusDropdown.value = 'Pre-Approved';
-      
+      if (statusDropdown) statusDropdown.value = 'Pre-Approved';
+
       const filters = getFilters();
       delete filters.order_status_not;
+      filters.order_status = ['Pre-Approved', 'ผ่าน'];
       fetchData(filters);
     });
   }
@@ -209,27 +210,27 @@ function getFilters() {
   return filter;
 }
 
-  // Check user role (example assumes role is stored in localStorage)
-  const token = localStorage.getItem('authToken');
-  if (token) {
-    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+// Check user role (example assumes role is stored in localStorage)
+const token = localStorage.getItem('authToken');
+if (token) {
+  const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
 
-    // Check if the user has the 'admin' role
-    if (user.role === 'Officer' || user.role === 'Bike') {
-      //do some think
-    } else {
-      localStorage.removeItem('authToken');
-      window.location.href = '../index.html';
-    }
+  // Check if the user has the 'admin' role
+  if (user.role === 'Officer' || user.role === 'Bike') {
+    //do some think
+  } else {
+    localStorage.removeItem('authToken');
+    window.location.href = '../index.html';
+  }
 
-    // Hide History Attachments menu for Bike role
-    if (user.role === 'Bike') {
-      const historyMenu = document.getElementById('history-attachments-menu');
-      if (historyMenu) {
-        historyMenu.style.display = 'none';
-      }
+  // Hide History Attachments menu for Bike role
+  if (user.role === 'Bike') {
+    const historyMenu = document.getElementById('history-attachments-menu');
+    if (historyMenu) {
+      historyMenu.style.display = 'none';
     }
   }
+}
 const itemsPerPage = 20;
 let currentPage = 1;
 let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
@@ -264,15 +265,33 @@ function renderTableData(page) {
   if (tableBody) {
     tableBody.innerHTML = "";
 
+    // Helper to format date
+    const formatDateTime = (dateStr) => {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Bangkok'
+      });
+    };
+
     paginatedData.forEach(item => {
       const row = document.createElement("tr");
       const showAmount = ['Pre-Approved', 'คีย์งานแล้ว', 'ผ่าน'].includes(item.order_status);
       const amountToDisplay = showAmount ? (item.amount || '') : '';
+
+      const displayAppointmentDate = formatDateTime(item.appointment_date);
+
       row.innerHTML = `
         <td>
           <a href="task-attachments-upload.html?id=${item.id}" class="text-primary">${item.id}</a>
         </td>
-        <td>${item.appointment_date || ''}</td>
+        <td>${displayAppointmentDate}</td>
         <td>
       <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.location)}" target="_blank">
         ${item.location}
