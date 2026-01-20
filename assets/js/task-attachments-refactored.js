@@ -1,7 +1,7 @@
 // Check if the user has a valid token and the required role
 const accessToken = localStorage.getItem('authToken'); // Check if token is available
 const RETURN_LOGIN_PAGE = '../index.html';
-console.log("aaa" + accessToken);
+
 
 // If there's no token, redirect to login
 if (!accessToken) {
@@ -213,7 +213,7 @@ function getFilters() {
 // Check user role (example assumes role is stored in localStorage)
 const token = localStorage.getItem('authToken');
 if (token) {
-  const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+  const user = decodeJWT(token); // Use safe decode function
 
   // Check if the user has the 'admin' role
   if (user.role === 'Officer' || user.role === 'Bike') {
