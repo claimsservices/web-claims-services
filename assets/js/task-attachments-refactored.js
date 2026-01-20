@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const filters = getFilters();
       delete filters.order_status;
-      filters.order_status_not = 'Pre-Approved';
+      filters.order_status_not = ['Pre-Approved', 'ผ่าน'];
       fetchData(filters);
     });
   }
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial fetch for Bike role (default to Work tasks)
   const initialFilters = getFilters();
-  initialFilters.order_status_not = 'Pre-Approved';
+  initialFilters.order_status_not = ['Pre-Approved', 'ผ่าน'];
   fetchData(initialFilters);
 
   const logoutBtn = document.getElementById('logout');
