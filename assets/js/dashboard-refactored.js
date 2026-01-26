@@ -321,6 +321,33 @@ async function fetchData(filter = {}) {
   }
 }
 
+// Format Date/Time to Local Thai Time (Reusable)
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return '';
+
+  // Force UTC interpretation if 'Z' is missing
+  // This fixes the issue where "2024-01-16T00:00:00" is interpreted as Local Time (making it -7 hours when converted back to UTC/Thai)
+  let rawDate = dateStr;
+  if (typeof dateStr === 'string' && !dateStr.endsWith('Z')) {
+    rawDate += 'Z';
+  }
+
+  const date = new Date(rawDate);
+  // Console log removed for cleaner export, or kept if debugging is still needed. 
+  // Let's keep it for consistency but maybe comment it out if it spams too much, but for now user likes logs.
+  // console.log(`[DEBUG] Row Date Input: ${dateStr} -> Parsed as: ${rawDate} -> Result: ${date.toISOString()}`);
+
+  return date.toLocaleString('th-TH', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Bangkok'
+  });
+};
+
 function renderTableData(page) {
   const start = (page - 1) * itemsPerPage;
   const end = start + itemsPerPage;
@@ -331,30 +358,6 @@ function renderTableData(page) {
 
   paginatedData.forEach(item => {
     const row = document.createElement('tr');
-    // Format Date/Time to Local Thai Time
-    const formatDateTime = (dateStr) => {
-      if (!dateStr) return '';
-
-      // Force UTC interpretation if 'Z' is missing
-      // This fixes the issue where "2024-01-16T00:00:00" is interpreted as Local Time (making it -7 hours when converted back to UTC/Thai)
-      let rawDate = dateStr;
-      if (typeof dateStr === 'string' && !dateStr.endsWith('Z')) {
-        rawDate += 'Z';
-      }
-
-      const date = new Date(rawDate);
-      console.log(`[DEBUG] Row Date Input: ${dateStr} -> Parsed as: ${rawDate} -> Result: ${date.toISOString()}`);
-
-      return date.toLocaleString('th-TH', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
-        timeZone: 'Asia/Bangkok'
-      });
-    };
 
     const displayAppointmentDate = formatDateTime(item.appointment_date);
     const displayOrderDate = formatDateTime(item.order_date);
@@ -589,8 +592,8 @@ document.getElementById('exportExcelBtn').addEventListener('click', () => {
   const worksheetData = allData.map(item => ({
     "รหัสงาน": item.id,
     "บริษัทประกัน": item.insur_comp,
-    "วันที่ทำรายการ": item.order_date,
-    "วันที่นัดหมาย": item.appointment_date,
+    "วันที่ทำรายการ": formatDateTime(item.order_date),
+    "วันที่นัดหมาย": formatDateTime(item.appointment_date),
     "ทะเบียนรถ": item.car_registration,
     "สถานที่": item.location,
     "ประเภทงาน": item.order_type,
