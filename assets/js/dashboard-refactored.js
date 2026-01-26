@@ -171,10 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
     locale: "th",
     defaultDate: [todayBangkok, todayBangkok],
     time_24hr: true,
-    onChange: function (selectedDates) {
+    onChange: function (selectedDates, dateStr, instance) {
       if (selectedDates.length === 2) {
-        const from = selectedDates[0].toISOString().slice(0, 10);
-        const to = selectedDates[1].toISOString().slice(0, 10);
+        // Fix: Use instance.formatDate to strictly use the local date selected by the user.
+        // Previous code used toISOString() which converted local time (00:00) to UTC (prev day 17:00), causing the -1 day error.
+        const from = instance.formatDate(selectedDates[0], "Y-m-d");
+        const to = instance.formatDate(selectedDates[1], "Y-m-d");
         document.getElementById('filterDateTime').value = `${from} to ${to}`;
       }
     }
