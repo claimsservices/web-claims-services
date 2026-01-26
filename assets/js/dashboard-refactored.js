@@ -332,7 +332,17 @@ function renderTableData(page) {
     // Format Date/Time to Local Thai Time
     const formatDateTime = (dateStr) => {
       if (!dateStr) return '';
-      const date = new Date(dateStr);
+
+      // Force UTC interpretation if 'Z' is missing
+      // This fixes the issue where "2024-01-16T00:00:00" is interpreted as Local Time (making it -7 hours when converted back to UTC/Thai)
+      let rawDate = dateStr;
+      if (typeof dateStr === 'string' && !dateStr.endsWith('Z')) {
+        rawDate += 'Z';
+      }
+
+      const date = new Date(rawDate);
+      console.log(`[DEBUG] Row Date Input: ${dateStr} -> Parsed as: ${rawDate} -> Result: ${date.toISOString()}`);
+
       return date.toLocaleString('th-TH', {
         year: 'numeric',
         month: '2-digit',
@@ -521,6 +531,7 @@ function getFilters() {
     }
   }
 
+  console.log('[DEBUG] getFilters returning:', JSON.stringify(filter, null, 2));
   return filter;
 }
 
