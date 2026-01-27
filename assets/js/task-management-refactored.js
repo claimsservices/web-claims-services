@@ -773,7 +773,7 @@ document.addEventListener('DOMContentLoaded', function () {
         channel: getValueById('channel'),
         process_type: getValueById('processType'),
         insur_comp: getValueById('insuranceCompany'),
-        order_date: new Date().toISOString(),
+        order_date: getValueById('transactionDate'),
         appointment_date: appointment_date,
         car_registration: getValueById('carRegistration'),
         location: getValueById('address'),

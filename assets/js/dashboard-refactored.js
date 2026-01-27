@@ -405,7 +405,7 @@ function renderTableData(page) {
     } else { // Default for other roles
       rowContent += `
         <td>${item.insur_comp || ''}</td>
-        <td>${displayOrderDate}</td>
+        <td>${formatDateTime(item.created_date)}</td>
         <td>${displayAppointmentDate}</td>
         <td>${item.car_registration || ''}</td>
         <td>${item.location || ''}</td>
