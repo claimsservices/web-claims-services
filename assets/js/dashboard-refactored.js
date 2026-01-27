@@ -325,17 +325,28 @@ async function fetchData(filter = {}) {
 const formatDateTime = (dateStr) => {
   if (!dateStr) return '';
 
-  // Force UTC interpretation if 'Z' is missing
-  // This fixes the issue where "2024-01-16T00:00:00" is interpreted as Local Time (making it -7 hours when converted back to UTC/Thai)
   let rawDate = dateStr;
-  if (typeof dateStr === 'string' && !dateStr.endsWith('Z')) {
-    rawDate += 'Z';
+
+  // Ensure we are working with a string for manipulation
+  if (typeof dateStr === 'string') {
+    // Replace space with T for ISO 8601 compatibility (e.g., "2024-01-01 12:00:00" -> "2024-01-01T12:00:00")
+    if (rawDate.includes(' ')) {
+      rawDate = rawDate.replace(' ', 'T');
+    }
+
+    // Force UTC interpretation if no timezone is specified (no 'Z' and no offset like +07:00)
+    // This fixes issues where local strings are interpreted as browser local time.
+    const hasTimeZone = rawDate.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(rawDate);
+    if (!hasTimeZone) {
+      rawDate += 'Z';
+    }
   }
 
   const date = new Date(rawDate);
-  // Console log removed for cleaner export, or kept if debugging is still needed. 
-  // Let's keep it for consistency but maybe comment it out if it spams too much, but for now user likes logs.
-  // console.log(`[DEBUG] Row Date Input: ${dateStr} -> Parsed as: ${rawDate} -> Result: ${date.toISOString()}`);
+
+  if (isNaN(date.getTime())) {
+    return dateStr; // Fallback if parsing fails
+  }
 
   return date.toLocaleString('th-TH', {
     year: 'numeric',
