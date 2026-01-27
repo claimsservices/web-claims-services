@@ -400,6 +400,10 @@ async function loadOrderData(orderId) {
         }
 
         if (order_details) {
+            // Define locally to avoid TDZ issues if global declaration is later
+            const brandSelect = document.getElementById('carBrand');
+            const modelSelect = document.getElementById('carModel');
+
             setValue('phone', order_details.tell_1);
             setValue('phone2', order_details.tell_2);
             setValue('phone3', order_details.tell_3);
@@ -426,7 +430,6 @@ async function loadOrderData(orderId) {
             }
 
             // Populate models based on selected brand
-            const modelSelect = document.getElementById('carModel');
             if (brandSelect && modelSelect) {
                 populateModels(brandSelect, modelSelect);
 
@@ -2213,5 +2216,4 @@ async function populateModels(brandSelect, modelSelect) {
                 // --- End of Custom Modal Logic ---
 
             }
-            // เพิ่มบรรทัดนี้เพื่อปิด DOMContentLoaded listener ที่ขาดไป
         });
