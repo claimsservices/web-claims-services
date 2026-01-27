@@ -1086,150 +1086,108 @@ async function populateBrands(brandSelect) {
 
 async function populateModels(brandSelect, modelSelect) {
     if (!brandSelect || !modelSelect) return;
-    const selectedBrandName = brandSelect.value;
+
+    // Ensure carModels is available
+    if (typeof carModels === 'undefined') {
+        console.error('carModels object is not defined. Make sure car-models.js is loaded correctly.');
+        return;
+    }
+
+    const selectedBrand = brandSelect.value;
     const customBrandInput = document.getElementById('carBrandCustom');
     const customModelInput = document.getElementById('carModelCustom');
 
-    // Reset Model Logic
-    modelSelect.innerHTML = '<option selected disabled>เลือกรุ่น</option>';
-    modelSelect.disabled = true;
-    if (customModelInput) {
-        customModelInput.classList.add('d-none');
-        customModelInput.value = '';
+    // Reset display
+    if (customBrandInput) {
+        if (selectedBrand === 'other') {
+            customBrandInput.classList.remove('d-none');
+        } else {
+            customBrandInput.classList.add('d-none');
+        }
     }
 
-    // Handle "Other" Brand Selection
-    if (selectedBrandName === 'other') {
-        if (customBrandInput) {
-            customBrandInput.classList.remove('d-none');
-            customBrandInput.focus();
-        }
-        // If brand is other, model should also check if we want to allow free text directly or just simple input
-        // For simplicity, if Brand is Other, Model can be typed directly in the model custom input 
-        // But the UI has a dropdown. Let's enable the dropdown with just "Other" selected or similar logic.
-        // Actually, better: if Brand is Custom, let user Type Model in Custom Input directly.
-        // We can set Dropdown to "other" automatically and show input.
-        const otherOpt = document.createElement('option');
-        otherOpt.value = 'other';
-        otherOpt.textContent = 'ระบุรุ่นเอง';
-        otherOpt.selected = true;
-        modelSelect.appendChild(otherOpt);
-        // Trigger change to show custom model input
-        modelSelect.dispatchEvent(new Event('change'));
+    if (selectedBrand === 'other') {
+        // If brand is custom, model is likely custom too.
+        // Hide dropdown and show custom model input directly
+        modelSelect.style.display = 'none';
+        if (customModelInput) customModelInput.classList.remove('d-none');
         return;
     } else {
-        if (customBrandInput) {
-            customBrandInput.classList.add('d-none');
-            customBrandInput.value = '';
-        }
-        // --- CAR MODEL DROPDOWN LOGIC ---
-        const brandSelect = document.getElementById('carBrand');
-        const modelSelect = document.getElementById('carModel');
+        modelSelect.style.display = 'block';
+        if (customModelInput) customModelInput.classList.add('d-none'); // Hide custom model input initially
+    }
 
-        function populateModels(brandSelect, modelSelect) {
-            if (!brandSelect || !modelSelect) return;
+    const models = carModels[selectedBrand] || [];
 
-            // Ensure carModels is available
-            if (typeof carModels === 'undefined') {
-                console.error('carModels object is not defined. Make sure car-models.js is loaded correctly.');
-                return;
-            }
+    // Clear previous options
+    modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
 
-            const selectedBrand = brandSelect.value;
-            const customBrandInput = document.getElementById('carBrandCustom');
-            const customModelInput = document.getElementById('carModelCustom');
+    // Add new options
+    models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model;
+        option.textContent = model;
+        modelSelect.appendChild(option);
+    });
 
-            // Reset display
-            if (customBrandInput) {
-                if (selectedBrand === 'other') {
-                    customBrandInput.classList.remove('d-none');
-                } else {
-                    customBrandInput.classList.add('d-none');
+    // Add 'Other' option to models list
+    const otherOption = document.createElement('option');
+    otherOption.value = 'other';
+    otherOption.textContent = 'อื่นๆ';
+    modelSelect.appendChild(otherOption);
+
+    // Enable the model dropdown
+    modelSelect.disabled = false;
+}
+
+async function initCarModelDropdown(brandSelect, modelSelect) {
+    if (brandSelect && modelSelect) {
+        const customBrandInput = document.getElementById('carBrandCustom');
+        const customModelInput = document.getElementById('carModelCustom');
+
+        await populateBrands(brandSelect);
+
+        brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
+
+        modelSelect.addEventListener('change', () => {
+            if (modelSelect.value === 'other') {
+                if (customModelInput) {
+                    customModelInput.classList.remove('d-none');
+                    customModelInput.focus();
+                }
+            } else {
+                if (customModelInput) {
+                    customModelInput.classList.add('d-none');
+                    customModelInput.value = '';
                 }
             }
-
-            if (selectedBrand === 'other') {
-                // If brand is custom, model is likely custom too.
-                // Hide dropdown and show custom model input directly
-                modelSelect.style.display = 'none';
-                if (customModelInput) customModelInput.classList.remove('d-none');
-                return;
-            } else {
-                modelSelect.style.display = 'block';
-                if (customModelInput) customModelInput.classList.add('d-none'); // Hide custom model input initially
-            }
-
-            const models = carModels[selectedBrand] || [];
-
-            // Clear previous options
-            modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
-
-            // Add new options
-            models.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model;
-                option.textContent = model;
-                modelSelect.appendChild(option);
-            });
-
-            // Add 'Other' option to models list
-            const otherOption = document.createElement('option');
-            otherOption.value = 'other';
-            otherOption.textContent = 'อื่นๆ';
-            modelSelect.appendChild(otherOption);
-
-            // Enable the model dropdown
-            modelSelect.disabled = false;
-        }
-
-        async function initCarModelDropdown(brandSelect, modelSelect) {
-            if (brandSelect && modelSelect) {
-                const customBrandInput = document.getElementById('carBrandCustom');
-                const customModelInput = document.getElementById('carModelCustom');
-
-                await populateBrands(brandSelect);
-
-                brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
-
-                modelSelect.addEventListener('change', () => {
-                    if (modelSelect.value === 'other') {
-                        if (customModelInput) {
-                            customModelInput.classList.remove('d-none');
-                            customModelInput.focus();
-                        }
-                    } else {
-                        if (customModelInput) {
-                            customModelInput.classList.add('d-none');
-                            customModelInput.value = '';
-                        }
-                    }
-                });
-            }
-        }
+        });
+    }
+}
 
 
 
 
-        export function populateImageSections() {
-            const sectionsMap = {
-                'around': document.getElementById('around-images-section')?.querySelector('.row'),
-                'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
-                'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
-                'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
-                'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
-                'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
-            };
+function populateImageSections() {
+    const sectionsMap = {
+        'around': document.getElementById('around-images-section')?.querySelector('.row'),
+        'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+        'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+        'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+        'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+        'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+    };
 
-            for (const category in sectionsMap) {
-                const targetSection = sectionsMap[category];
-                if (targetSection) {
-                    // Clear existing content to prevent duplicates
-                    targetSection.innerHTML = '';
+    for (const category in sectionsMap) {
+        const targetSection = sectionsMap[category];
+        if (targetSection) {
+            // Clear existing content to prevent duplicates
+            targetSection.innerHTML = '';
 
-                    const items = staticImageConfig[category] || [];
-                    items.forEach(item => {
-                        const uniqueId = `static-upload-${item.name}-${Date.now()}`;
-                        const slotHtml = `
+            const items = staticImageConfig[category] || [];
+            items.forEach(item => {
+                const uniqueId = `static-upload-${item.name}-${Date.now()}`;
+                const slotHtml = `
                     <div class="col-4 mb-3 dynamic-image-slot" data-category="${category}">
                         <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
                             <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${item.defaultTitle}">
@@ -1243,415 +1201,415 @@ async function populateModels(brandSelect, modelSelect) {
                         <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" capture="camera">
                     </div>
                 `;
-                        targetSection.insertAdjacentHTML('beforeend', slotHtml);
-                    });
+                targetSection.insertAdjacentHTML('beforeend', slotHtml);
+            });
 
-                    // Add the "Add Image" button after static slots
-                    const addImageButtonHtml = `
+            // Add the "Add Image" button after static slots
+            const addImageButtonHtml = `
                 <div class="col-4 mb-3 text-center">
                     <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
                         <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
                     </button>
                 </div>
             `;
-                    targetSection.insertAdjacentHTML('beforeend', addImageButtonHtml);
-                }
-            }
+            targetSection.insertAdjacentHTML('beforeend', addImageButtonHtml);
         }
+    }
+}
 
-        // =========================================================
-        // DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
-        // =========================================================
+// =========================================================
+// DOMContentLoaded - MAIN EXECUTION & EVENT LISTENERS
+// =========================================================
 
-        async function uploadStagedImages(orderId, token) {
-            if (filesToUpload.size === 0) {
-                return { success: true }; // Nothing to upload
-            }
+async function uploadStagedImages(orderId, token) {
+    if (filesToUpload.size === 0) {
+        return { success: true }; // Nothing to upload
+    }
 
-            const formData = new FormData();
-            formData.append('order_id', orderId);
-            formData.append('folder', `transactions/${orderId}`);
+    const formData = new FormData();
+    formData.append('order_id', orderId);
+    formData.append('folder', `transactions/${orderId}`);
 
-            const processingPromises = [];
+    const processingPromises = [];
 
-            filesToUpload.forEach(({ file, picType, category }, inputName) => {
-                const fileInput = document.querySelector(`input[name="${inputName}"]`);
-                if (!fileInput) return;
+    filesToUpload.forEach(({ file, picType, category }, inputName) => {
+        const fileInput = document.querySelector(`input[name="${inputName}"]`);
+        if (!fileInput) return;
 
-                const imageSlot = fileInput.closest('.dynamic-image-slot');
-                const titleInput = imageSlot.querySelector('.image-title-input');
-                const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
+        const imageSlot = fileInput.closest('.dynamic-image-slot');
+        const titleInput = imageSlot.querySelector('.image-title-input');
+        const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
 
-                const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
-                    .then(compressedFile => addWatermark(compressedFile))
-                    .then(watermarkedBlob => {
-                        formData.append('images', watermarkedBlob, file.name);
-                        // The backend needs pic_type and pic_title for each image
-                        formData.append('pic_type', picType);
-                        formData.append('pic_title', picTitle);
-                    })
-                    .catch(err => {
-                        console.error('Error processing file:', err);
-                        throw err; // Propagate to stop Promise.all
-                    });
-                processingPromises.push(promise);
+        const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
+            .then(compressedFile => addWatermark(compressedFile))
+            .then(watermarkedBlob => {
+                formData.append('images', watermarkedBlob, file.name);
+                // The backend needs pic_type and pic_title for each image
+                formData.append('pic_type', picType);
+                formData.append('pic_title', picTitle);
+            })
+            .catch(err => {
+                console.error('Error processing file:', err);
+                throw err; // Propagate to stop Promise.all
             });
+        processingPromises.push(promise);
+    });
 
-            try {
-                await Promise.all(processingPromises);
-            } catch (error) {
-                alert('เกิดข้อผิดพลาดในการเตรียมไฟล์สำหรับอัปโหลด');
-                return { success: false };
-            }
+    try {
+        await Promise.all(processingPromises);
+    } catch (error) {
+        alert('เกิดข้อผิดพลาดในการเตรียมไฟล์สำหรับอัปโหลด');
+        return { success: false };
+    }
 
-            try {
-                const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-                    method: 'POST',
-                    headers: { 'Authorization': token },
-                    body: formData
-                });
+    try {
+        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+            method: 'POST',
+            headers: { 'Authorization': token },
+            body: formData
+        });
 
-                const result = await response.json();
-                if (!response.ok) {
-                    throw new Error(result.message || 'Upload failed');
-                }
-
-                filesToUpload.clear(); // Clear staged files on success
-                return { success: true, result: result };
-
-            } catch (err) {
-                console.error('Upload error:', err);
-                alert(`ไม่สามารถอัปโหลดรูปภาพได้: ${err.message}`);
-                return { success: false };
-            }
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.message || 'Upload failed');
         }
 
-        function createAddImageButtons() {
-            const sectionsMap = {
-                'around': document.getElementById('around-images-section'),
-                'accessories': document.getElementById('accessories-images-section'),
-                'inspection': document.getElementById('inspection-images-section'),
-                'fiber': document.getElementById('fiber-documents-section'),
-                'documents': document.getElementById('other-documents-section'),
-                'signature': document.getElementById('signature-documents-section')
-            };
+        filesToUpload.clear(); // Clear staged files on success
+        return { success: true, result: result };
 
-            for (const category in sectionsMap) {
-                const targetSection = sectionsMap[category];
-                if (targetSection) {
-                    // Prevent adding duplicate buttons on data reload
-                    if (targetSection.querySelector('.add-image-btn-container')) {
-                        continue;
-                    }
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.className = 'text-center mt-3 add-image-btn-container';
+    } catch (err) {
+        console.error('Upload error:', err);
+        alert(`ไม่สามารถอัปโหลดรูปภาพได้: ${err.message}`);
+        return { success: false };
+    }
+}
 
-                    const addImageButtonHtml = `
+function createAddImageButtons() {
+    const sectionsMap = {
+        'around': document.getElementById('around-images-section'),
+        'accessories': document.getElementById('accessories-images-section'),
+        'inspection': document.getElementById('inspection-images-section'),
+        'fiber': document.getElementById('fiber-documents-section'),
+        'documents': document.getElementById('other-documents-section'),
+        'signature': document.getElementById('signature-documents-section')
+    };
+
+    for (const category in sectionsMap) {
+        const targetSection = sectionsMap[category];
+        if (targetSection) {
+            // Prevent adding duplicate buttons on data reload
+            if (targetSection.querySelector('.add-image-btn-container')) {
+                continue;
+            }
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'text-center mt-3 add-image-btn-container';
+
+            const addImageButtonHtml = `
                 <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
                     <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
                 </button>
             `;
-                    buttonContainer.innerHTML = addImageButtonHtml;
+            buttonContainer.innerHTML = addImageButtonHtml;
 
-                    targetSection.appendChild(buttonContainer);
-                }
-            }
+            targetSection.appendChild(buttonContainer);
+        }
+    }
+}
+
+window.addEventListener('load', async function () {
+    const imagePreviewModalEl = document.getElementById('imagePreviewModal');
+    console.log('imagePreviewModalEl found (at top of DOMContentLoaded):', imagePreviewModalEl);
+
+    const viewFullImageBtn = document.getElementById('view-full-image-btn');
+    console.log('viewFullImageBtn found (at top of DOMContentLoaded):', viewFullImageBtn);
+
+    // Await brand population before loading order data to prevent race conditions
+    await initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
+    createAddImageButtons();
+
+    const orderId = getQueryParam('id');
+    if (orderId) {
+        loadOrderData(orderId);
+    }
+
+    function handleImageSelection(fileInput) {
+        const file = fileInput.files[0];
+        const inputName = fileInput.name; // The name is unique enough to be a key
+
+        if (!file) {
+            filesToUpload.delete(inputName);
+            return;
         }
 
-        window.addEventListener('load', async function () {
-            const imagePreviewModalEl = document.getElementById('imagePreviewModal');
-            console.log('imagePreviewModalEl found (at top of DOMContentLoaded):', imagePreviewModalEl);
+        // For new uploads, the picType should be the general category.
+        // For existing slots (replace), it's the specific name like 'exterior_front'.
+        const picType = fileInput.dataset.category || fileInput.name;
+        const category = fileInput.dataset.category;
 
-            const viewFullImageBtn = document.getElementById('view-full-image-btn');
-            console.log('viewFullImageBtn found (at top of DOMContentLoaded):', viewFullImageBtn);
+        filesToUpload.set(inputName, { file: file, picType: picType, category: category });
 
-            // Await brand population before loading order data to prevent race conditions
-            await initCarModelDropdown(document.getElementById('carBrand'), document.getElementById('carModel'));
-            createAddImageButtons();
+        // Update UI to show preview
+        const imageSlot = fileInput.closest('.dynamic-image-slot');
+        const imgPreview = imageSlot.querySelector('img');
 
-            const orderId = getQueryParam('id');
-            if (orderId) {
-                loadOrderData(orderId);
-            }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            imgPreview.src = event.target.result;
+            // Mark this slot as having a pending upload, but not yet "data-uploaded"
+            imageSlot.setAttribute('data-pending-upload', 'true');
+        };
+        reader.readAsDataURL(file);
+    }
 
-            function handleImageSelection(fileInput) {
-                const file = fileInput.files[0];
-                const inputName = fileInput.name; // The name is unique enough to be a key
+    document.addEventListener('change', (e) => {
+        const fileInput = e.target;
+        if (fileInput.matches('input[type="file"]') && fileInput.closest('.dynamic-image-slot')) {
+            handleImageSelection(fileInput);
+        }
+    });
 
-                if (!file) {
-                    filesToUpload.delete(inputName);
+    // --- CSV Import/Export Logic ---
+    const headerMap = {
+        'ชื่อผู้เอาประกัน': 'c_insure',
+        'เบอร์โทรศัพท์ผู้เอาประกัน': 'c_tell',
+        'ทะเบียนรถ': 'carRegistration',
+        'จังหวัดทะเบียนรถ': 'carProvince',
+        'ยี่ห้อรถ': 'carBrand',
+        'รุ่นรถ': 'carModel',
+        'ปีจดทะเบียน': 'carYear',
+        'เลขตัวถัง': 'carChassis',
+        'เลขเครื่อง': 'carEngine',
+        'เลขไมล์': 'c_mile',
+        'ประเภทรถ': 'carType',
+        'สีรถ': 'carColor',
+        'บริษัทประกันภัย': 'insuranceCompany',
+        'สาขาประกันภัย': 'insuranceBranch',
+        'ข้อมูลอ้างอิง1': 'reference1',
+        'ข้อมูลอ้างอิง2': 'reference2',
+        'เลขที่กรมธรรม์': 'policyNumber',
+        'วันที่เริ่มต้นคุ้มครอง': 'coverageStartDate',
+        'วันที่สิ้นสุดคุ้มครอง': 'coverageEndDate',
+        'ประเภทประกัน': 'insuranceType',
+        'หมายเหตุทั่วไป': 's_remark',
+        'หมายเหตุบริษัทประกัน': 's_ins_remark',
+        'รถFleet': 'fleetCar'
+    };
+
+    const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
+    if (downloadCsvTemplateBtn) {
+        downloadCsvTemplateBtn.addEventListener('click', () => {
+            const headers = Object.keys(headerMap);
+            const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "template_task_detail.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
+
+    const uploadCsvInput = document.getElementById('uploadCsvInput');
+    if (uploadCsvInput) {
+        uploadCsvInput.addEventListener('click', function () {
+            this.value = null;
+        });
+        uploadCsvInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const text = e.target.result;
+                const lines = text.split(/\r\n|\n/);
+
+                if (lines.length < 2) {
+                    alert('ไฟล์ CSV ไม่ถูกต้องหรือไม่มีข้อมูล');
                     return;
                 }
 
-                // For new uploads, the picType should be the general category.
-                // For existing slots (replace), it's the specific name like 'exterior_front'.
-                const picType = fileInput.dataset.category || fileInput.name;
-                const category = fileInput.dataset.category;
+                const fileHeaders = lines[0].split(',').map(h => h.trim());
+                const data = lines[1].split(',').map(d => d.trim());
 
-                filesToUpload.set(inputName, { file: file, picType: picType, category: category });
+                const dataMap = fileHeaders.reduce((obj, fileHeader, index) => {
+                    const fieldId = headerMap[fileHeader];
+                    if (fieldId) {
+                        obj[fieldId] = data[index];
+                    }
+                    return obj;
+                }, {});
 
-                // Update UI to show preview
-                const imageSlot = fileInput.closest('.dynamic-image-slot');
-                const imgPreview = imageSlot.querySelector('img');
-
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    imgPreview.src = event.target.result;
-                    // Mark this slot as having a pending upload, but not yet "data-uploaded"
-                    imageSlot.setAttribute('data-pending-upload', 'true');
-                };
-                reader.readAsDataURL(file);
-            }
-
-            document.addEventListener('change', (e) => {
-                const fileInput = e.target;
-                if (fileInput.matches('input[type="file"]') && fileInput.closest('.dynamic-image-slot')) {
-                    handleImageSelection(fileInput);
+                for (const id in dataMap) {
+                    if (Object.hasOwnProperty.call(dataMap, id)) {
+                        const value = dataMap[id];
+                        const element = document.getElementById(id);
+                        if (element) {
+                            if (element.type === 'checkbox') {
+                                element.checked = ['true', '1', 'yes', 'TRUE', 'YES'].includes(value);
+                            } else {
+                                element.value = value;
+                                if (element.tagName === 'SELECT') {
+                                    element.dispatchEvent(new Event('change'));
+                                }
+                            }
+                        }
+                    }
                 }
-            });
-
-            // --- CSV Import/Export Logic ---
-            const headerMap = {
-                'ชื่อผู้เอาประกัน': 'c_insure',
-                'เบอร์โทรศัพท์ผู้เอาประกัน': 'c_tell',
-                'ทะเบียนรถ': 'carRegistration',
-                'จังหวัดทะเบียนรถ': 'carProvince',
-                'ยี่ห้อรถ': 'carBrand',
-                'รุ่นรถ': 'carModel',
-                'ปีจดทะเบียน': 'carYear',
-                'เลขตัวถัง': 'carChassis',
-                'เลขเครื่อง': 'carEngine',
-                'เลขไมล์': 'c_mile',
-                'ประเภทรถ': 'carType',
-                'สีรถ': 'carColor',
-                'บริษัทประกันภัย': 'insuranceCompany',
-                'สาขาประกันภัย': 'insuranceBranch',
-                'ข้อมูลอ้างอิง1': 'reference1',
-                'ข้อมูลอ้างอิง2': 'reference2',
-                'เลขที่กรมธรรม์': 'policyNumber',
-                'วันที่เริ่มต้นคุ้มครอง': 'coverageStartDate',
-                'วันที่สิ้นสุดคุ้มครอง': 'coverageEndDate',
-                'ประเภทประกัน': 'insuranceType',
-                'หมายเหตุทั่วไป': 's_remark',
-                'หมายเหตุบริษัทประกัน': 's_ins_remark',
-                'รถFleet': 'fleetCar'
+                alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
             };
+            reader.readAsText(file, 'UTF-8');
+        });
+    }
 
-            const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
-            if (downloadCsvTemplateBtn) {
-                downloadCsvTemplateBtn.addEventListener('click', () => {
-                    const headers = Object.keys(headerMap);
-                    const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
-                    const encodedUri = encodeURI(csvContent);
-                    const link = document.createElement("a");
-                    link.setAttribute("href", encodedUri);
-                    link.setAttribute("download", "template_task_detail.csv");
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                });
+    const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
+    if (autoFillDamageBtn) {
+        autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
+    }
+
+    const openMapBtn = document.getElementById('openMap');
+    if (openMapBtn) {
+        openMapBtn.addEventListener('click', function () {
+            const address = document.getElementById('address').value.trim();
+            if (!address) { alert('กรุณากรอกที่อยู่ก่อนเปิดแผนที่'); return; }
+            const query = encodeURIComponent(address);
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+            window.open(mapUrl, '_blank');
+        });
+    }
+
+    // --- ZIP DOWNLOAD LOGIC (Refactored) ---
+    async function handleZipDownload(event) {
+        event.preventDefault();
+        console.log('Download All button clicked.');
+        const zip = new JSZip();
+        // Use taskId (from hidden input) or fallback to 'images'
+        const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
+
+        // Selector update: include .dynamic-image-slot img to ensure we catch all new uploads
+        // Also keep .image-gallery img for backward compat if needed, and #download-images-container .card-img-top for Tab 7
+        const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
+        const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
+            const style = getComputedStyle(img);
+            // Check for valid src, visible, and loaded
+            return (img.src && img.src.startsWith('http') && style.display !== 'none' && img.complete);
+        });
+
+        if (imageElements.length === 0) {
+            alert('ไม่มีภาพให้ดาวน์โหลด');
+            return;
+        }
+
+        console.log(`Found ${imageElements.length} images to download.`);
+
+        // Deduplicate images by URL to avoid downloading the same image twice (e.g. if shown in multiple tabs)
+        const uniqueImages = new Map();
+        imageElements.forEach((img, i) => {
+            // Prefer cloud URL, ignore base64 preview if possible unless that's all we have
+            if (!uniqueImages.has(img.src)) {
+                uniqueImages.set(img.src, { img, index: i });
+            }
+        });
+
+        const promises = [];
+        let index = 1;
+
+        for (const [src, item] of uniqueImages) {
+            const img = item.img;
+
+            // Try to find a meaningful title
+            // 1. Title input in dynamic slot
+            // 2. Title div in legacy gallery
+            // 3. Card text in download tab
+            // 4. Fallback
+            let title = '';
+
+            const dynamicSlot = img.closest('.dynamic-image-slot');
+            if (dynamicSlot) {
+                title = dynamicSlot.querySelector('.image-title-input')?.value?.trim();
+            } else {
+                const label = img.closest('label');
+                if (label) title = label.querySelector('.title')?.innerText?.trim();
+                else {
+                    const cardBody = img.closest('.card')?.querySelector('.card-body');
+                    if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
+                }
             }
 
-            const uploadCsvInput = document.getElementById('uploadCsvInput');
-            if (uploadCsvInput) {
-                uploadCsvInput.addEventListener('click', function () {
-                    this.value = null;
-                });
-                uploadCsvInput.addEventListener('change', (event) => {
-                    const file = event.target.files[0];
-                    if (!file) return;
+            if (!title) title = `image-${index}`;
+            const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_');
 
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const text = e.target.result;
-                        const lines = text.split(/\r\n|\n/);
+            const promise = (async () => {
+                try {
+                    console.log(`Attempting to download: ${src}`);
+                    const token = localStorage.getItem('authToken') || '';
 
-                        if (lines.length < 2) {
-                            alert('ไฟล์ CSV ไม่ถูกต้องหรือไม่มีข้อมูล');
+                    // Use proxy if it's a relative path or needs auth, otherwise try direct if CORS allows
+                    // Defaulting to proxy for consistent behavior with protected assets
+                    const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                        body: JSON.stringify({ imageUrl: src })
+                    });
+
+                    if (!response.ok) {
+                        // Fallback: try fetching directly if proxy fails (e.g. for some public URLs)
+                        const directResp = await fetch(src);
+                        if (directResp.ok) {
+                            const blob = await directResp.blob();
+                            zip.file(`${safeName}.jpg`, blob);
                             return;
                         }
-
-                        const fileHeaders = lines[0].split(',').map(h => h.trim());
-                        const data = lines[1].split(',').map(d => d.trim());
-
-                        const dataMap = fileHeaders.reduce((obj, fileHeader, index) => {
-                            const fieldId = headerMap[fileHeader];
-                            if (fieldId) {
-                                obj[fieldId] = data[index];
-                            }
-                            return obj;
-                        }, {});
-
-                        for (const id in dataMap) {
-                            if (Object.hasOwnProperty.call(dataMap, id)) {
-                                const value = dataMap[id];
-                                const element = document.getElementById(id);
-                                if (element) {
-                                    if (element.type === 'checkbox') {
-                                        element.checked = ['true', '1', 'yes', 'TRUE', 'YES'].includes(value);
-                                    } else {
-                                        element.value = value;
-                                        if (element.tagName === 'SELECT') {
-                                            element.dispatchEvent(new Event('change'));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
-                    };
-                    reader.readAsText(file, 'UTF-8');
-                });
-            }
-
-            const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
-            if (autoFillDamageBtn) {
-                autoFillDamageBtn.addEventListener('click', populateDamageDetailFromImages);
-            }
-
-            const openMapBtn = document.getElementById('openMap');
-            if (openMapBtn) {
-                openMapBtn.addEventListener('click', function () {
-                    const address = document.getElementById('address').value.trim();
-                    if (!address) { alert('กรุณากรอกที่อยู่ก่อนเปิดแผนที่'); return; }
-                    const query = encodeURIComponent(address);
-                    const mapUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-                    window.open(mapUrl, '_blank');
-                });
-            }
-
-            // --- ZIP DOWNLOAD LOGIC (Refactored) ---
-            async function handleZipDownload(event) {
-                event.preventDefault();
-                console.log('Download All button clicked.');
-                const zip = new JSZip();
-                // Use taskId (from hidden input) or fallback to 'images'
-                const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
-
-                // Selector update: include .dynamic-image-slot img to ensure we catch all new uploads
-                // Also keep .image-gallery img for backward compat if needed, and #download-images-container .card-img-top for Tab 7
-                const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
-                const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
-                    const style = getComputedStyle(img);
-                    // Check for valid src, visible, and loaded
-                    return (img.src && img.src.startsWith('http') && style.display !== 'none' && img.complete);
-                });
-
-                if (imageElements.length === 0) {
-                    alert('ไม่มีภาพให้ดาวน์โหลด');
-                    return;
-                }
-
-                console.log(`Found ${imageElements.length} images to download.`);
-
-                // Deduplicate images by URL to avoid downloading the same image twice (e.g. if shown in multiple tabs)
-                const uniqueImages = new Map();
-                imageElements.forEach((img, i) => {
-                    // Prefer cloud URL, ignore base64 preview if possible unless that's all we have
-                    if (!uniqueImages.has(img.src)) {
-                        uniqueImages.set(img.src, { img, index: i });
-                    }
-                });
-
-                const promises = [];
-                let index = 1;
-
-                for (const [src, item] of uniqueImages) {
-                    const img = item.img;
-
-                    // Try to find a meaningful title
-                    // 1. Title input in dynamic slot
-                    // 2. Title div in legacy gallery
-                    // 3. Card text in download tab
-                    // 4. Fallback
-                    let title = '';
-
-                    const dynamicSlot = img.closest('.dynamic-image-slot');
-                    if (dynamicSlot) {
-                        title = dynamicSlot.querySelector('.image-title-input')?.value?.trim();
-                    } else {
-                        const label = img.closest('label');
-                        if (label) title = label.querySelector('.title')?.innerText?.trim();
-                        else {
-                            const cardBody = img.closest('.card')?.querySelector('.card-body');
-                            if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
-                        }
+                        throw new Error('Proxy and direct fetch failed');
                     }
 
-                    if (!title) title = `image-${index}`;
-                    const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_');
+                    const blob = await response.blob();
 
-                    const promise = (async () => {
-                        try {
-                            console.log(`Attempting to download: ${src}`);
-                            const token = localStorage.getItem('authToken') || '';
+                    // Ensure unique filenames in zip
+                    let fileName = `${safeName}.jpg`;
+                    let counter = 1;
+                    while (zip.file(fileName)) {
+                        fileName = `${safeName}_${counter}.jpg`;
+                        counter++;
+                    }
 
-                            // Use proxy if it's a relative path or needs auth, otherwise try direct if CORS allows
-                            // Defaulting to proxy for consistent behavior with protected assets
-                            const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                                body: JSON.stringify({ imageUrl: src })
-                            });
-
-                            if (!response.ok) {
-                                // Fallback: try fetching directly if proxy fails (e.g. for some public URLs)
-                                const directResp = await fetch(src);
-                                if (directResp.ok) {
-                                    const blob = await directResp.blob();
-                                    zip.file(`${safeName}.jpg`, blob);
-                                    return;
-                                }
-                                throw new Error('Proxy and direct fetch failed');
-                            }
-
-                            const blob = await response.blob();
-
-                            // Ensure unique filenames in zip
-                            let fileName = `${safeName}.jpg`;
-                            let counter = 1;
-                            while (zip.file(fileName)) {
-                                fileName = `${safeName}_${counter}.jpg`;
-                                counter++;
-                            }
-
-                            zip.file(fileName, blob);
-                        } catch (err) {
-                            console.warn(`Failed to download image: ${src}`, err);
-                        }
-                    })();
-
-                    promises.push(promise);
-                    index++;
+                    zip.file(fileName, blob);
+                } catch (err) {
+                    console.warn(`Failed to download image: ${src}`, err);
                 }
+            })();
 
-                await Promise.all(promises);
+            promises.push(promise);
+            index++;
+        }
 
-                if (Object.keys(zip.files).length === 0) {
-                    alert('ไม่สามารถดาวน์โหลดรูปภาพได้ (อาจเกิดข้อผิดพลาดในการเชื่อมต่อ)');
-                    return;
-                }
+        await Promise.all(promises);
 
-                const zipBlob = await zip.generateAsync({ type: 'blob' });
-                saveAs(zipBlob, orderIdVal + '.zip');
-                console.log('ZIP file generated and ready for download.');
-            }
+        if (Object.keys(zip.files).length === 0) {
+            alert('ไม่สามารถดาวน์โหลดรูปภาพได้ (อาจเกิดข้อผิดพลาดในการเชื่อมต่อ)');
+            return;
+        }
 
-            const downloadAllBtn = document.getElementById('downloadAllBtn');
-            if (downloadAllBtn) {
-                downloadAllBtn.addEventListener('click', handleZipDownload);
-            }
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        saveAs(zipBlob, orderIdVal + '.zip');
+        console.log('ZIP file generated and ready for download.');
+    }
 
-            // Also bind event to the second button in Tab 7
-            const downloadAllBtnTab7 = document.getElementById('downloadAllBtn_tab7');
-            if (downloadAllBtnTab7) {
-                downloadAllBtnTab7.addEventListener('click', handleZipDownload);
-            }
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    if (downloadAllBtn) {
+        downloadAllBtn.addEventListener('click', handleZipDownload);
+    }
 
-            // --- Dynamic Image Upload Logic ---
-            function renderNewImageUploadSlot(category) {
-                const uniqueId = `dynamic-upload-${category}-${Date.now()}`;
-                const newSlotHtml = `
+    // Also bind event to the second button in Tab 7
+    const downloadAllBtnTab7 = document.getElementById('downloadAllBtn_tab7');
+    if (downloadAllBtnTab7) {
+        downloadAllBtnTab7.addEventListener('click', handleZipDownload);
+    }
+
+    // --- Dynamic Image Upload Logic ---
+    function renderNewImageUploadSlot(category) {
+        const uniqueId = `dynamic-upload-${category}-${Date.now()}`;
+        const newSlotHtml = `
             <div class="col-4 mb-3 dynamic-image-slot" data-category="${category}">
                 <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="New Image">
@@ -1664,556 +1622,555 @@ async function populateModels(brandSelect, modelSelect) {
                 <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="camera">
             </div>
         `;
-                return newSlotHtml;
+        return newSlotHtml;
+    }
+
+    document.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('add-image-btn')) {
+            const category = e.target.dataset.category;
+            const newSlotHtml = renderNewImageUploadSlot(category);
+            e.target.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
+        }
+    });
+
+
+
+    // Delegated event listener to trigger file input when the new upload button is clicked
+    document.addEventListener('click', function (e) {
+        console.log('Click event detected on document.');
+        const uploadBtn = e.target.closest('.upload-btn');
+        if (uploadBtn) {
+            console.log('Upload button clicked.');
+            const imageSlot = uploadBtn.closest('.dynamic-image-slot');
+            console.log('Found parent image slot:', imageSlot);
+            const fileInput = imageSlot.querySelector('input[type="file"]');
+            console.log('Found file input:', fileInput);
+            if (fileInput) {
+                console.log('Triggering click on file input.');
+                fileInput.click();
             }
+        }
+    });
 
-            document.addEventListener('click', function (e) {
-                if (e.target && e.target.classList.contains('add-image-btn')) {
-                    const category = e.target.dataset.category;
-                    const newSlotHtml = renderNewImageUploadSlot(category);
-                    e.target.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
-                }
-            });
+    // Delegated event listener for delete buttons on dynamic image slots
+    document.addEventListener('click', async function (e) {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+            e.preventDefault();
 
+            if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?')) {
+                const imageSlot = deleteBtn.closest('.dynamic-image-slot');
+                const orderId = getSafeValue('taskId');
+                const picUrl = imageSlot.getAttribute('data-pic-url');
 
-
-            // Delegated event listener to trigger file input when the new upload button is clicked
-            document.addEventListener('click', function (e) {
-                console.log('Click event detected on document.');
-                const uploadBtn = e.target.closest('.upload-btn');
-                if (uploadBtn) {
-                    console.log('Upload button clicked.');
-                    const imageSlot = uploadBtn.closest('.dynamic-image-slot');
-                    console.log('Found parent image slot:', imageSlot);
-                    const fileInput = imageSlot.querySelector('input[type="file"]');
-                    console.log('Found file input:', fileInput);
-                    if (fileInput) {
-                        console.log('Triggering click on file input.');
-                        fileInput.click();
-                    }
-                }
-            });
-
-            // Delegated event listener for delete buttons on dynamic image slots
-            document.addEventListener('click', async function (e) {
-                const deleteBtn = e.target.closest('.delete-btn');
-                if (deleteBtn) {
-                    e.preventDefault();
-
-                    if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?')) {
-                        const imageSlot = deleteBtn.closest('.dynamic-image-slot');
-                        const orderId = getSafeValue('taskId');
-                        const picUrl = imageSlot.getAttribute('data-pic-url');
-
-                        // If there's no picUrl, it's a newly added slot that hasn't been uploaded. Just remove it.
-                        if (!picUrl) {
-                            imageSlot.remove();
-                            populateDamageDetailFromImages();
-                            return;
-                        }
-
-                        // If there is a picUrl, it needs to be deleted from the backend.
-                        const success = await deleteImage(orderId, picUrl);
-                        if (success) {
-                            // Reload all data to ensure UI is consistent with the database
-                            loadOrderData(orderId);
-                        }
-                    }
-                }
-            });
-
-
-
-            loadUserProfile();
-
-            // CRM-FIX: Force correct button text to avoid encoding issues
-            const saveBtn = document.getElementById('submittaskBtn');
-            if (saveBtn) {
-                saveBtn.innerText = 'บันทึกข้อมูล';
-            }
-
-            const userRole = getUserRole();
-            if (userRole) {
-                const adminMenuEl = document.getElementById('admin-menu');
-                const userManagementMenuEl = document.getElementById('user-management-menu');
-
-                if (['Operation Manager', 'Director', 'Developer'].includes(userRole)) {
-                    if (adminMenuEl) adminMenuEl.style.display = 'block';
+                // If there's no picUrl, it's a newly added slot that hasn't been uploaded. Just remove it.
+                if (!picUrl) {
+                    imageSlot.remove();
+                    populateDamageDetailFromImages();
+                    return;
                 }
 
-                if (userRole === 'Admin Officer') {
-                    const orderStatusSelect = document.getElementById('orderStatus');
-                    if (orderStatusSelect) orderStatusSelect.setAttribute('disabled', 'disabled');
-                }
-
-
-                const orderId = getQueryParam('id');
-                if (orderId) {
+                // If there is a picUrl, it needs to be deleted from the backend.
+                const success = await deleteImage(orderId, picUrl);
+                if (success) {
+                    // Reload all data to ensure UI is consistent with the database
                     loadOrderData(orderId);
-                } else {
-                    const now = new Date();
-                    const options = {
-                        timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:
-                            false
-                    };
-                    const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(now);
-                    const getPart = (type) => parts.find(p => p.type === type)?.value;
-                    const formatted = `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
-                    const transactionDateEl = document.getElementById('transactionDate');
-                    if (transactionDateEl) transactionDateEl.value = formatted;
+                }
+            }
+        }
+    });
+
+
+
+    loadUserProfile();
+
+    // CRM-FIX: Force correct button text to avoid encoding issues
+    const saveBtn = document.getElementById('submittaskBtn');
+    if (saveBtn) {
+        saveBtn.innerText = 'บันทึกข้อมูล';
+    }
+
+    const userRole = getUserRole();
+    if (userRole) {
+        const adminMenuEl = document.getElementById('admin-menu');
+        const userManagementMenuEl = document.getElementById('user-management-menu');
+
+        if (['Operation Manager', 'Director', 'Developer'].includes(userRole)) {
+            if (adminMenuEl) adminMenuEl.style.display = 'block';
+        }
+
+        if (userRole === 'Admin Officer') {
+            const orderStatusSelect = document.getElementById('orderStatus');
+            if (orderStatusSelect) orderStatusSelect.setAttribute('disabled', 'disabled');
+        }
+
+
+        const orderId = getQueryParam('id');
+        if (orderId) {
+            loadOrderData(orderId);
+        } else {
+            const now = new Date();
+            const options = {
+                timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12:
+                    false
+            };
+            const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(now);
+            const getPart = (type) => parts.find(p => p.type === type)?.value;
+            const formatted = `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
+            const transactionDateEl = document.getElementById('transactionDate');
+            if (transactionDateEl) transactionDateEl.value = formatted;
+        }
+
+        const form = document.getElementById('taskForm');
+        if (!form) return;
+
+        const logoutBtn = document.getElementById('logout');
+        if (logoutBtn) logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault(); localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE);
+        });
+        const logoutMenu = document.getElementById('logout-menu');
+        if (logoutMenu) logoutMenu.addEventListener('click', (e) => {
+            e.preventDefault(); localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE);
+        });
+
+        const manualSubmitBtn = document.getElementById('submittaskBtn');
+        if (manualSubmitBtn) manualSubmitBtn.addEventListener('click', () => form.requestSubmit());
+
+        const saveImagesBtn = document.getElementById('save-images-btn');
+        if (saveImagesBtn) {
+            saveImagesBtn.addEventListener('click', () => {
+                const mainSaveBtn = document.getElementById('submittaskBtn');
+                if (mainSaveBtn) {
+                    mainSaveBtn.click();
+                }
+            });
+        }
+
+
+
+        // Fix for Tab Switching based on legacy code
+        document.querySelectorAll('.nav-tabs .nav-link[data-bs-toggle="tab"]').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                console.log('Tab button clicked!', this);
+
+                const targetPaneId = this.getAttribute('data-bs-target');
+                console.log('Target Pane ID:', targetPaneId);
+                const targetPane = document.querySelector(targetPaneId);
+
+                if (!targetPane) {
+                    console.error('Target pane not found!');
+                    return;
                 }
 
-                const form = document.getElementById('taskForm');
-                if (!form) return;
+                console.log('Removing active classes from all tabs and panes...');
+                document.querySelectorAll('.nav-tabs .nav-link').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content .tab-pane').forEach(pane => pane.classList.remove('active', 'show'));
 
-                const logoutBtn = document.getElementById('logout');
-                if (logoutBtn) logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault(); localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE);
+                console.log('Adding active class to clicked button:', this);
+                this.classList.add('active');
+
+                console.log('Adding active and show class to target pane:', targetPane);
+                targetPane.classList.add('active', 'show');
+
+                console.log('Tab switch complete. Active button:', document.querySelector('.nav-tabs .nav-link.active'));
+                console.log('Active pane:', document.querySelector('.tab-content .tab-pane.active'));
+            });
+        });
+
+        if (getUserRole() !== 'Bike') {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Ensure button has text 'บันทึกข้อมูล' even during processing if we reset it
+                const manualSubmitBtn = document.getElementById('submittaskBtn');
+                if (manualSubmitBtn && !manualSubmitBtn.innerText.includes('กำลัง')) {
+                    manualSubmitBtn.innerText = 'บันทึกข้อมูล';
+                }
+
+                // --- START: NEW UPLOAD LOGIC ---
+                if (filesToUpload.size > 0) {
+                    const currentOrderId = getSafeValue('taskId');
+                    const token = localStorage.getItem('authToken') || '';
+
+                    if (!currentOrderId) {
+                        alert('กรุณาสร้างงานก่อนทำการอัปโหลดรูปภาพ');
+                        return;
+                    }
+
+                    if (manualSubmitBtn) {
+                        manualSubmitBtn.disabled = true;
+                        manualSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังอัปโหลดรูปภาพ...';
+                    }
+
+                    const uploadResult = await uploadStagedImages(currentOrderId, token);
+
+                    if (!uploadResult.success) {
+                        if (manualSubmitBtn) {
+                            manualSubmitBtn.disabled = false;
+                            manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
+                        }
+                        // Error is already alerted in uploadStagedImages
+                        return; // Stop submission
+                    }
+
+                    // After successful upload, reload all the data to get the new image URLs in the DOM
+                    // This is crucial for the rest of the submit handler to work correctly.
+                    await loadOrderData(currentOrderId);
+                }
+                // --- END: NEW UPLOAD LOGIC ---
+
+                const currentUserRole = getUserRole();
+
+                const token = localStorage.getItem('authToken') || '';
+                const currentOrderId = getSafeValue('taskId');
+                const userInfoEl = document.getElementById('user-info');
+                const created_by = userInfoEl && userInfoEl.innerText ? userInfoEl.innerText.trim() : getSafeValue('ownerName');
+                let endpoint, data, method;
+
+                const orderPic = [];
+                document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
+                    const imgUrl = slot.getAttribute('data-pic-url');
+                    const picType = slot.getAttribute('data-pic-type');
+                    const titleInput = slot.querySelector('.image-title-input');
+                    const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
+
+                    if (imgUrl && picType) {
+                        orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: created_by });
+                    }
                 });
-                const logoutMenu = document.getElementById('logout-menu');
-                if (logoutMenu) logoutMenu.addEventListener('click', (e) => {
-                    e.preventDefault(); localStorage.removeItem('authToken'); navigateTo(LOGIN_PAGE);
-                });
+
+                const date = getSafeValue('appointmentDate');
+                const time = getSafeValue('appointmentTime');
+                let appointment_date = null;
+                if (date) appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
+                const s_start = getSafeValue('coverageStartDate')?.trim();
+                const s_end = getSafeValue('coverageEndDate')?.trim();
+
+                // Construct order_assign data
+                const order_assign = [];
+                const responsiblePerson = getSafeValue('responsiblePerson');
+                // Only add to array if there is an owner for the assignment
+                if (responsiblePerson) {
+                    order_assign.push({
+                        date: appointment_date,
+                        destination: getSafeValue('address'),
+                        owner: responsiblePerson,
+                        is_contact: document.getElementById('contactedCustomer')?.checked || false,
+                        travel_expense: getSafeValue('travelExpense') ? parseFloat(getSafeValue('travelExpense')) : null,
+                        created_by: created_by
+                    });
+                }
+
+                // Capture Additional Details and Notes
+                const additionalDetails = getSafeValue('additionalDetails');
+                const noteText = getSafeValue('note-text');
+                const dynamicOrderHist = [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }];
+
+                if (additionalDetails) {
+                    dynamicOrderHist.push({ icon: "ℹ️", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by });
+                }
+                if (noteText) {
+                    dynamicOrderHist.push({ icon: "💬", task: "บันทึกข้อความ", detail: noteText, created_by });
+                }
+
+                const commonData = {
+                    creator: getSafeValue('ownerName'),
+                    owner: getSafeValue('responsiblePerson'),
+                    order_type: getSafeValue('jobType'),
+                    order_status: getSafeValue('orderStatus'),
+                    channel: getSafeValue('channel'),
+                    process_type: getSafeValue('processType'),
+                    insur_comp: getSafeValue('insuranceCompany'),
+                    order_date: getSafeValue('transactionDate'),
+                    appointment_date: appointment_date,
+                    car_registration: getSafeValue('carRegistration'),
+                    location: getSafeValue('address'),
+                    created_by,
+                    incident_province: getSafeValue('carProvince'),
+                    tell_1: getSafeValue('phone'),
+                    tell_2: getSafeValue('phone2'),
+                    tell_3: getSafeValue('phone3'),
+                    c_insure: getSafeValue('c_insure'),
+                    c_tell: getSafeValue('c_tell'),
+                    c_licent: getSafeValue('carRegistration'),
+                    c_car_province: getSafeValue('carProvince'),
+                    c_brand: document.getElementById('carBrand')?.value === 'other' ? getSafeValue('carBrandCustom') : getSafeValue('carBrand'),
+                    c_version: (document.getElementById('carBrand')?.value === 'other' || document.getElementById('carModel')?.value === 'other') ? getSafeValue('carModelCustom') : getSafeValue('carModel'),
+                    c_year: getSafeValue('carYear'),
+                    c_number: getSafeValue('carChassis'),
+                    c_engine: getSafeValue('carEngine'),
+                    c_mile: getSafeValue('c_mile'),
+                    c_type: getSafeValue('carType'),
+                    c_coller: getSafeValue('carColor'),
+                    c_recieve: document.getElementById('received-doc')?.checked || false,
+                    s_insure: getSafeValue('insuranceCompany'),
+                    s_branch: getSafeValue('insuranceBranch'),
+                    s_ref: getSafeValue('reference1'),
+                    s_ref_2: getSafeValue('reference2'),
+                    s_number: getSafeValue('policyNumber'),
+                    ...(s_start ? { s_start } : {}),
+                    ...(s_end ? { s_end } : {}),
+                    s_type: getSafeValue('insuranceType'),
+                    s_remark: getSafeValue('s_remark'),
+                    s_ins_remark: getSafeValue('s_ins_remark'),
+                    s_detail: getSafeValue('s_detail'),
+                    s_fleet: document.getElementById('fleetCar')?.checked || false,
+                    updated_by: created_by,
+                    c_name: getSafeValue('creatorName'),
+                    order_pic: orderPic,
+                    order_hist: dynamicOrderHist,
+                    order_assign: order_assign
+                };
+
+                if (!currentOrderId) { // Creating a new order
+                    endpoint = `https://be-claims-service.onrender.com/api/orders/create`;
+                    method = 'POST';
+                    data = { ...commonData, created_by: created_by }; // Ensure created_by is passed for new orders
+                } else if (currentUserRole === 'Insurance') { // Updating existing order for Insurance role
+                    endpoint = `https://be-claims-service.onrender.com/api/orders/update/${currentOrderId}`;
+                    method = 'PUT';
+                    data = commonData;
+                } else { // Updating existing order for other roles
+                    endpoint = `https://be-claims-service.onrender.com/api/orders/update/${currentOrderId}`;
+                    method = 'PUT';
+                    data = commonData;
+                }
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
+                            JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert('✅ ดำเนินการเรียบร้อยแล้ว'); // Changed message to be more generic
+                        // Clear Note and Additional Details inputs
+                        const addDetailsEl = document.getElementById('additionalDetails');
+                        if (addDetailsEl) addDetailsEl.value = '';
+                        const noteEl = document.getElementById('note-text');
+                        if (noteEl) noteEl.value = '';
+                        loadOrderData(currentOrderId);
+                    } else {
+                        alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+                    }
+                } catch (error) {
+                    alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+                    console.error('Fetch error:', error);
+                } finally {
+                    if (manualSubmitBtn) {
+                        manualSubmitBtn.disabled = false;
+                        manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
+                    }
+                }
+            });
+        }
+
+        if (getUserRole() === 'Bike') {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
 
                 const manualSubmitBtn = document.getElementById('submittaskBtn');
-                if (manualSubmitBtn) manualSubmitBtn.addEventListener('click', () => form.requestSubmit());
 
-                const saveImagesBtn = document.getElementById('save-images-btn');
-                if (saveImagesBtn) {
-                    saveImagesBtn.addEventListener('click', () => {
-                        const mainSaveBtn = document.getElementById('submittaskBtn');
-                        if (mainSaveBtn) {
-                            mainSaveBtn.click();
+                // --- START: NEW UPLOAD LOGIC ---
+                if (filesToUpload.size > 0) {
+                    const currentOrderId = getSafeValue('taskId');
+                    const token = localStorage.getItem('authToken') || '';
+
+                    if (!currentOrderId) {
+                        alert('❌ ไม่พบรหัสงาน ไม่สามารถบันทึกได้');
+                        return;
+                    }
+
+                    if (manualSubmitBtn) {
+                        manualSubmitBtn.disabled = true;
+                        manualSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังอัปโหลดรูปภาพ...';
+                    }
+
+                    const uploadResult = await uploadStagedImages(currentOrderId, token);
+
+                    if (!uploadResult.success) {
+                        if (manualSubmitBtn) {
+                            manualSubmitBtn.disabled = false;
+                            manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
                         }
-                    });
+                        // Error is already alerted in uploadStagedImages
+                        return; // Stop submission
+                    }
+
+                    // After successful upload, reload all the data to get the new image URLs in the DOM
+                    await loadOrderData(currentOrderId);
+                }
+                // --- END: NEW UPLOAD LOGIC ---
+
+                const token = localStorage.getItem('authToken') || '';
+                const currentOrderId = getSafeValue('taskId');
+                const userInfoEl = document.getElementById('user-info');
+                const updated_by = userInfoEl ? userInfoEl.innerText : 'Bike User';
+
+                if (!currentOrderId) {
+                    alert('❌ ไม่พบรหัสงาน ไม่สามารถบันทึกได้');
+                    return;
                 }
 
-
-
-                // Fix for Tab Switching based on legacy code
-                document.querySelectorAll('.nav-tabs .nav-link[data-bs-toggle="tab"]').forEach(button => {
-                    button.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        console.log('Tab button clicked!', this);
-
-                        const targetPaneId = this.getAttribute('data-bs-target');
-                        console.log('Target Pane ID:', targetPaneId);
-                        const targetPane = document.querySelector(targetPaneId);
-
-                        if (!targetPane) {
-                            console.error('Target pane not found!');
-                            return;
-                        }
-
-                        console.log('Removing active classes from all tabs and panes...');
-                        document.querySelectorAll('.nav-tabs .nav-link').forEach(btn => btn.classList.remove('active'));
-                        document.querySelectorAll('.tab-content .tab-pane').forEach(pane => pane.classList.remove('active', 'show'));
-
-                        console.log('Adding active class to clicked button:', this);
-                        this.classList.add('active');
-
-                        console.log('Adding active and show class to target pane:', targetPane);
-                        targetPane.classList.add('active', 'show');
-
-                        console.log('Tab switch complete. Active button:', document.querySelector('.nav-tabs .nav-link.active'));
-                        console.log('Active pane:', document.querySelector('.tab-content .tab-pane.active'));
-                    });
-                });
-
-                if (getUserRole() !== 'Bike') {
-                    form.addEventListener('submit', async function (e) {
-                        e.preventDefault();
-
-                        // Ensure button has text 'บันทึกข้อมูล' even during processing if we reset it
-                        const manualSubmitBtn = document.getElementById('submittaskBtn');
-                        if (manualSubmitBtn && !manualSubmitBtn.innerText.includes('กำลัง')) {
-                            manualSubmitBtn.innerText = 'บันทึกข้อมูล';
-                        }
-
-                        // --- START: NEW UPLOAD LOGIC ---
-                        if (filesToUpload.size > 0) {
-                            const currentOrderId = getSafeValue('taskId');
-                            const token = localStorage.getItem('authToken') || '';
-
-                            if (!currentOrderId) {
-                                alert('กรุณาสร้างงานก่อนทำการอัปโหลดรูปภาพ');
-                                return;
-                            }
-
-                            if (manualSubmitBtn) {
-                                manualSubmitBtn.disabled = true;
-                                manualSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังอัปโหลดรูปภาพ...';
-                            }
-
-                            const uploadResult = await uploadStagedImages(currentOrderId, token);
-
-                            if (!uploadResult.success) {
-                                if (manualSubmitBtn) {
-                                    manualSubmitBtn.disabled = false;
-                                    manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
-                                }
-                                // Error is already alerted in uploadStagedImages
-                                return; // Stop submission
-                            }
-
-                            // After successful upload, reload all the data to get the new image URLs in the DOM
-                            // This is crucial for the rest of the submit handler to work correctly.
-                            await loadOrderData(currentOrderId);
-                        }
-                        // --- END: NEW UPLOAD LOGIC ---
-
-                        const currentUserRole = getUserRole();
-
-                        const token = localStorage.getItem('authToken') || '';
-                        const currentOrderId = getSafeValue('taskId');
-                        const userInfoEl = document.getElementById('user-info');
-                        const created_by = userInfoEl && userInfoEl.innerText ? userInfoEl.innerText.trim() : getSafeValue('ownerName');
-                        let endpoint, data, method;
-
-                        const orderPic = [];
-                        document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
-                            const imgUrl = slot.getAttribute('data-pic-url');
-                            const picType = slot.getAttribute('data-pic-type');
-                            const titleInput = slot.querySelector('.image-title-input');
-                            const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
-
-                            if (imgUrl && picType) {
-                                orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: created_by });
-                            }
-                        });
-
-                        const date = getSafeValue('appointmentDate');
-                        const time = getSafeValue('appointmentTime');
-                        let appointment_date = null;
-                        if (date) appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
-                        const s_start = getSafeValue('coverageStartDate')?.trim();
-                        const s_end = getSafeValue('coverageEndDate')?.trim();
-
-                        // Construct order_assign data
-                        const order_assign = [];
-                        const responsiblePerson = getSafeValue('responsiblePerson');
-                        // Only add to array if there is an owner for the assignment
-                        if (responsiblePerson) {
-                            order_assign.push({
-                                date: appointment_date,
-                                destination: getSafeValue('address'),
-                                owner: responsiblePerson,
-                                is_contact: document.getElementById('contactedCustomer')?.checked || false,
-                                travel_expense: getSafeValue('travelExpense') ? parseFloat(getSafeValue('travelExpense')) : null,
-                                created_by: created_by
-                            });
-                        }
-
-                        // Capture Additional Details and Notes
-                        const additionalDetails = getSafeValue('additionalDetails');
-                        const noteText = getSafeValue('note-text');
-                        const dynamicOrderHist = [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }];
-
-                        if (additionalDetails) {
-                            dynamicOrderHist.push({ icon: "ℹ️", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by });
-                        }
-                        if (noteText) {
-                            dynamicOrderHist.push({ icon: "💬", task: "บันทึกข้อความ", detail: noteText, created_by });
-                        }
-
-                        const commonData = {
-                            creator: getSafeValue('ownerName'),
-                            owner: getSafeValue('responsiblePerson'),
-                            order_type: getSafeValue('jobType'),
-                            order_status: getSafeValue('orderStatus'),
-                            channel: getSafeValue('channel'),
-                            process_type: getSafeValue('processType'),
-                            insur_comp: getSafeValue('insuranceCompany'),
-                            order_date: getSafeValue('transactionDate'),
-                            appointment_date: appointment_date,
-                            car_registration: getSafeValue('carRegistration'),
-                            location: getSafeValue('address'),
-                            created_by,
-                            incident_province: getSafeValue('carProvince'),
-                            tell_1: getSafeValue('phone'),
-                            tell_2: getSafeValue('phone2'),
-                            tell_3: getSafeValue('phone3'),
-                            c_insure: getSafeValue('c_insure'),
-                            c_tell: getSafeValue('c_tell'),
-                            c_licent: getSafeValue('carRegistration'),
-                            c_car_province: getSafeValue('carProvince'),
-                            c_brand: document.getElementById('carBrand')?.value === 'other' ? getSafeValue('carBrandCustom') : getSafeValue('carBrand'),
-                            c_version: (document.getElementById('carBrand')?.value === 'other' || document.getElementById('carModel')?.value === 'other') ? getSafeValue('carModelCustom') : getSafeValue('carModel'),
-                            c_year: getSafeValue('carYear'),
-                            c_number: getSafeValue('carChassis'),
-                            c_engine: getSafeValue('carEngine'),
-                            c_mile: getSafeValue('c_mile'),
-                            c_type: getSafeValue('carType'),
-                            c_coller: getSafeValue('carColor'),
-                            c_recieve: document.getElementById('received-doc')?.checked || false,
-                            s_insure: getSafeValue('insuranceCompany'),
-                            s_branch: getSafeValue('insuranceBranch'),
-                            s_ref: getSafeValue('reference1'),
-                            s_ref_2: getSafeValue('reference2'),
-                            s_number: getSafeValue('policyNumber'),
-                            ...(s_start ? { s_start } : {}),
-                            ...(s_end ? { s_end } : {}),
-                            s_type: getSafeValue('insuranceType'),
-                            s_remark: getSafeValue('s_remark'),
-                            s_ins_remark: getSafeValue('s_ins_remark'),
-                            s_detail: getSafeValue('s_detail'),
-                            s_fleet: document.getElementById('fleetCar')?.checked || false,
-                            updated_by: created_by,
-                            c_name: getSafeValue('creatorName'),
-                            order_pic: orderPic,
-                            order_hist: dynamicOrderHist,
-                            order_assign: order_assign
-                        };
-
-                        if (!currentOrderId) { // Creating a new order
-                            endpoint = `https://be-claims-service.onrender.com/api/orders/create`;
-                            method = 'POST';
-                            data = { ...commonData, created_by: created_by }; // Ensure created_by is passed for new orders
-                        } else if (currentUserRole === 'Insurance') { // Updating existing order for Insurance role
-                            endpoint = `https://be-claims-service.onrender.com/api/orders/update/${currentOrderId}`;
-                            method = 'PUT';
-                            data = commonData;
-                        } else { // Updating existing order for other roles
-                            endpoint = `https://be-claims-service.onrender.com/api/orders/update/${currentOrderId}`;
-                            method = 'PUT';
-                            data = commonData;
-                        }
-
-                        try {
-                            const response = await fetch(endpoint, {
-                                method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
-                                    JSON.stringify(data)
-                            });
-                            const result = await response.json();
-                            if (response.ok) {
-                                alert('✅ ดำเนินการเรียบร้อยแล้ว'); // Changed message to be more generic
-                                // Clear Note and Additional Details inputs
-                                const addDetailsEl = document.getElementById('additionalDetails');
-                                if (addDetailsEl) addDetailsEl.value = '';
-                                const noteEl = document.getElementById('note-text');
-                                if (noteEl) noteEl.value = '';
-                                loadOrderData(currentOrderId);
-                            } else {
-                                alert('❌ เกิดข้อผิดพลาด: ' + result.message);
-                            }
-                        } catch (error) {
-                            alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
-                            console.error('Fetch error:', error);
-                        } finally {
-                            if (manualSubmitBtn) {
-                                manualSubmitBtn.disabled = false;
-                                manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
-                            }
-                        }
-                    });
+                // --- Consolidate data into a single payload ---
+                let newStatus = getSafeValue('orderStatus');
+                if (newStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
+                    newStatus = 'รออนุมัติ';
                 }
 
-                if (getUserRole() === 'Bike') {
-                    form.addEventListener('submit', async function (e) {
-                        e.preventDefault();
+                const carDetailsPayload = {
+                    order_status: newStatus, // Add status to this payload
+                    c_brand: document.getElementById('carBrand')?.value === 'other' ? getSafeValue('carBrandCustom') : getSafeValue('carBrand'),
+                    c_version: (document.getElementById('carBrand')?.value === 'other' || document.getElementById('carModel')?.value === 'other') ? getSafeValue('carModelCustom') : getSafeValue('carModel'),
+                    c_mile: getSafeValue('c_mile'),
+                    c_type: getSafeValue('carType'),
+                    updated_by: updated_by,
+                    order_hist: [{ icon: "🚲", task: "ส่งงานและอัปเดตข้อมูล", detail: `อัปเดตสถานะและข้อมูลโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
+                };
 
-                        const manualSubmitBtn = document.getElementById('submittaskBtn');
+                // Collect picture data
+                const orderPic = [];
+                document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
+                    const imgUrl = slot.getAttribute('data-pic-url');
+                    const picType = slot.getAttribute('data-pic-type');
+                    const titleInput = slot.querySelector('.image-title-input');
+                    const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
 
-                        // --- START: NEW UPLOAD LOGIC ---
-                        if (filesToUpload.size > 0) {
-                            const currentOrderId = getSafeValue('taskId');
-                            const token = localStorage.getItem('authToken') || '';
-
-                            if (!currentOrderId) {
-                                alert('❌ ไม่พบรหัสงาน ไม่สามารถบันทึกได้');
-                                return;
-                            }
-
-                            if (manualSubmitBtn) {
-                                manualSubmitBtn.disabled = true;
-                                manualSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังอัปโหลดรูปภาพ...';
-                            }
-
-                            const uploadResult = await uploadStagedImages(currentOrderId, token);
-
-                            if (!uploadResult.success) {
-                                if (manualSubmitBtn) {
-                                    manualSubmitBtn.disabled = false;
-                                    manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
-                                }
-                                // Error is already alerted in uploadStagedImages
-                                return; // Stop submission
-                            }
-
-                            // After successful upload, reload all the data to get the new image URLs in the DOM
-                            await loadOrderData(currentOrderId);
-                        }
-                        // --- END: NEW UPLOAD LOGIC ---
-
-                        const token = localStorage.getItem('authToken') || '';
-                        const currentOrderId = getSafeValue('taskId');
-                        const userInfoEl = document.getElementById('user-info');
-                        const updated_by = userInfoEl ? userInfoEl.innerText : 'Bike User';
-
-                        if (!currentOrderId) {
-                            alert('❌ ไม่พบรหัสงาน ไม่สามารถบันทึกได้');
-                            return;
-                        }
-
-                        // --- Consolidate data into a single payload ---
-                        let newStatus = getSafeValue('orderStatus');
-                        if (newStatus === 'ส่งงาน/ตรวจสอบเบื้องต้น') {
-                            newStatus = 'รออนุมัติ';
-                        }
-
-                        const carDetailsPayload = {
-                            order_status: newStatus, // Add status to this payload
-                            c_brand: document.getElementById('carBrand')?.value === 'other' ? getSafeValue('carBrandCustom') : getSafeValue('carBrand'),
-                            c_version: (document.getElementById('carBrand')?.value === 'other' || document.getElementById('carModel')?.value === 'other') ? getSafeValue('carModelCustom') : getSafeValue('carModel'),
-                            c_mile: getSafeValue('c_mile'),
-                            c_type: getSafeValue('carType'),
-                            updated_by: updated_by,
-                            order_hist: [{ icon: "🚲", task: "ส่งงานและอัปเดตข้อมูล", detail: `อัปเดตสถานะและข้อมูลโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
-                        };
-
-                        // Collect picture data
-                        const orderPic = [];
-                        document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
-                            const imgUrl = slot.getAttribute('data-pic-url');
-                            const picType = slot.getAttribute('data-pic-type');
-                            const titleInput = slot.querySelector('.image-title-input');
-                            const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
-
-                            if (imgUrl && picType) {
-                                orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
-                            }
-                        });
-                        carDetailsPayload.order_pic = orderPic;
-
-                        const endpoint = `https://be-claims-service.onrender.com/api/order-pic/update/${currentOrderId}`;
-
-                        // Log the payload for debugging
-                        console.log('Submitting payload for Bike:', JSON.stringify(carDetailsPayload, null, 2));
-
-                        try {
-                            const response = await fetch(endpoint, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
-                                body: JSON.stringify(carDetailsPayload)
-                            });
-                            const result = await response.json();
-                            if (response.ok) {
-                                alert('✅ อัปเดตข้อมูลและสถานะเรียบร้อยแล้ว');
-                                loadOrderData(currentOrderId);
-                            } else {
-                                throw new Error(result.message || 'การอัปเดตล้มเหลว');
-                            }
-                        } catch (error) {
-                            alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
-                            console.error('Fetch error for bike submission:', error);
-                        } finally {
-                            if (manualSubmitBtn) {
-                                manualSubmitBtn.disabled = false;
-                                manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
-                            }
-                        }
-                    });
-                }
-
-
-
-
-
-
-
-                // Delegated event listener for individual image download buttons
-                document.addEventListener('click', async function (e) {
-                    if (e.target && e.target.classList.contains('individual-download-btn')) {
-                        e.preventDefault();
-                        const button = e.target;
-                        const imageUrl = button.dataset.url;
-                        const imageTitle = button.dataset.title;
-
-                        if (!imageUrl) return;
-
-                        try {
-                            button.disabled = true;
-                            button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Downloading...';
-
-                            const token = localStorage.getItem('authToken') || '';
-                            const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                                body: JSON.stringify({ imageUrl: imageUrl })
-                            });
-
-                            if (!response.ok) {
-                                throw new Error(`Failed to download image from proxy: ${response.statusText}`);
-                            }
-
-                            const blob = await response.blob();
-                            saveAs(blob, `${imageTitle}.jpg`);
-
-                        } catch (err) {
-                            console.error(`Error downloading individual image: ${imageUrl}`, err);
-                            alert(`🚫 ไม่สามารถดาวน์โหลดรูปภาพได้: ${err.message}`);
-                        } finally {
-                            button.disabled = false;
-                            button.innerHTML = '<i class="bx bx-download"></i> Download';
-                        }
+                    if (imgUrl && picType) {
+                        orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
                     }
                 });
+                carDetailsPayload.order_pic = orderPic;
 
-                // --- Custom Plain JavaScript Modal Logic ---
-                const modal = document.getElementById("customImageModal");
-                if (modal) {
-                    const modalImg = document.getElementById("customModalImage");
-                    const captionText = document.getElementById("customModalCaption");
-                    const span = document.getElementsByClassName("custom-modal-close")[0];
+                const endpoint = `https://be-claims-service.onrender.com/api/order-pic/update/${currentOrderId}`;
 
-                    document.addEventListener('click', function (e) {
-                        let imageUrl = null;
-                        let imageTitle = '';
-                        let shouldOpenModal = false;
+                // Log the payload for debugging
+                console.log('Submitting payload for Bike:', JSON.stringify(carDetailsPayload, null, 2));
 
-                        // Check if the click is on an image that should open the modal
-                        const clickedImage = e.target.closest('img');
-                        if (clickedImage) {
-                            // Case 1: Image in "Image Info" tab (dynamic slot)
-                            const imageSlot = clickedImage.closest('.dynamic-image-slot');
-                            if (imageSlot && imageSlot.hasAttribute('data-uploaded') && imageSlot.getAttribute('data-uploaded') === 'true') {
-                                imageUrl = clickedImage.src;
-                                const titleInput = imageSlot.querySelector('.image-title-input');
-                                imageTitle = titleInput ? titleInput.value : '';
-                                shouldOpenModal = true;
-                            }
-
-                            // Case 2: Image in "Download Image" tab
-                            const downloadCard = clickedImage.closest('.card');
-                            if (downloadCard && downloadCard.closest('#download-images-container')) {
-                                imageUrl = clickedImage.src;
-                                const cardBody = downloadCard.querySelector('.card-body');
-                                imageTitle = cardBody ? cardBody.querySelector('p.card-text').textContent : '';
-                                shouldOpenModal = true;
-                            }
-                        }
-
-                        if (shouldOpenModal) {
-                            e.preventDefault();
-                            modal.style.display = "block";
-                            modalImg.src = imageUrl;
-                            captionText.innerHTML = imageTitle;
-                        }
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
+                        body: JSON.stringify(carDetailsPayload)
                     });
-
-                    if (span) {
-                        span.onclick = function () {
-                            modal.style.display = "none";
-                        }
+                    const result = await response.json();
+                    if (response.ok) {
+                        alert('✅ อัปเดตข้อมูลและสถานะเรียบร้อยแล้ว');
+                        loadOrderData(currentOrderId);
+                    } else {
+                        throw new Error(result.message || 'การอัปเดตล้มเหลว');
                     }
-
-                    window.onclick = function (event) {
-                        if (event.target == modal) {
-                            modal.style.display = "none";
-                        }
+                } catch (error) {
+                    alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+                    console.error('Fetch error for bike submission:', error);
+                } finally {
+                    if (manualSubmitBtn) {
+                        manualSubmitBtn.disabled = false;
+                        manualSubmitBtn.innerHTML = '\u0E1A\u0E31\u0E19\u0E17\u0E36\u0E01\u0E02\u0E49\u0E2D\u0E21\u0E39\u0E25';
                     }
                 }
-                // --- End of Custom Modal Logic ---
+            });
+        }
 
+
+
+
+
+
+
+        // Delegated event listener for individual image download buttons
+        document.addEventListener('click', async function (e) {
+            if (e.target && e.target.classList.contains('individual-download-btn')) {
+                e.preventDefault();
+                const button = e.target;
+                const imageUrl = button.dataset.url;
+                const imageTitle = button.dataset.title;
+
+                if (!imageUrl) return;
+
+                try {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Downloading...';
+
+                    const token = localStorage.getItem('authToken') || '';
+                    const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                        body: JSON.stringify({ imageUrl: imageUrl })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to download image from proxy: ${response.statusText}`);
+                    }
+
+                    const blob = await response.blob();
+                    saveAs(blob, `${imageTitle}.jpg`);
+
+                } catch (err) {
+                    console.error(`Error downloading individual image: ${imageUrl}`, err);
+                    alert(`🚫 ไม่สามารถดาวน์โหลดรูปภาพได้: ${err.message}`);
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="bx bx-download"></i> Download';
+                }
             }
         });
+
+        // --- Custom Plain JavaScript Modal Logic ---
+        const modal = document.getElementById("customImageModal");
+        if (modal) {
+            const modalImg = document.getElementById("customModalImage");
+            const captionText = document.getElementById("customModalCaption");
+            const span = document.getElementsByClassName("custom-modal-close")[0];
+
+            document.addEventListener('click', function (e) {
+                let imageUrl = null;
+                let imageTitle = '';
+                let shouldOpenModal = false;
+
+                // Check if the click is on an image that should open the modal
+                const clickedImage = e.target.closest('img');
+                if (clickedImage) {
+                    // Case 1: Image in "Image Info" tab (dynamic slot)
+                    const imageSlot = clickedImage.closest('.dynamic-image-slot');
+                    if (imageSlot && imageSlot.hasAttribute('data-uploaded') && imageSlot.getAttribute('data-uploaded') === 'true') {
+                        imageUrl = clickedImage.src;
+                        const titleInput = imageSlot.querySelector('.image-title-input');
+                        imageTitle = titleInput ? titleInput.value : '';
+                        shouldOpenModal = true;
+                    }
+
+                    // Case 2: Image in "Download Image" tab
+                    const downloadCard = clickedImage.closest('.card');
+                    if (downloadCard && downloadCard.closest('#download-images-container')) {
+                        imageUrl = clickedImage.src;
+                        const cardBody = downloadCard.querySelector('.card-body');
+                        imageTitle = cardBody ? cardBody.querySelector('p.card-text').textContent : '';
+                        shouldOpenModal = true;
+                    }
+                }
+
+                if (shouldOpenModal) {
+                    e.preventDefault();
+                    modal.style.display = "block";
+                    modalImg.src = imageUrl;
+                    captionText.innerHTML = imageTitle;
+                }
+            });
+
+            if (span) {
+                span.onclick = function () {
+                    modal.style.display = "none";
+                }
+            }
+
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+        }
+        // --- End of Custom Modal Logic ---
+    }
+});
