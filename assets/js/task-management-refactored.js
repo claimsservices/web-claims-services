@@ -787,8 +787,8 @@ document.addEventListener('DOMContentLoaded', function () {
         c_tell: getValueById('c_tell'),
         c_licent: getValueById('carRegistration'),
         c_car_province: getValueById('carProvince'),
-        c_brand: getValueById('carBrand'),
-        c_version: getValueById('carModel'),
+        c_brand: getValueById('carBrand') === 'other' ? getValueById('carBrandCustom') : getValueById('carBrand'),
+        c_version: (getValueById('carBrand') === 'other' || getValueById('carModel') === 'other') ? getValueById('carModelCustom') : getValueById('carModel'),
         c_year: getValueById('carYear'),
         c_number: getValueById('carChassis'),
         c_engine: getValueById('carEngine'),
@@ -858,33 +858,76 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // --- CAR MODEL DROPDOWN LOGIC ---
-// Moved from DOMContentLoaded to ensure carModels is available globally
 const brandSelect = document.getElementById('carBrand');
 const modelSelect = document.getElementById('carModel');
 
-if (brandSelect) {
-  brandSelect.addEventListener('change', function () {
-    // Ensure carModels is available
-    if (typeof carModels === 'undefined') {
-      console.error('carModels object is not defined. Make sure car-models.js is loaded correctly.');
-      return;
+function populateModels(brandSelect, modelSelect) {
+  if (!brandSelect || !modelSelect) return;
+
+  // Ensure carModels is available
+  if (typeof carModels === 'undefined') {
+    console.error('carModels object is not defined. Make sure car-models.js is loaded correctly.');
+    return;
+  }
+
+  const selectedBrand = brandSelect.value;
+  const customBrandInput = document.getElementById('carBrandCustom');
+  const customModelInput = document.getElementById('carModelCustom');
+
+  // Reset display
+  if (customBrandInput) {
+    if (selectedBrand === 'other') {
+      customBrandInput.classList.remove('d-none');
+    } else {
+      customBrandInput.classList.add('d-none');
     }
-    const selectedBrand = this.value;
-    const models = carModels[selectedBrand] || [];
+  }
 
-    // Clear previous options
-    modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
+  if (selectedBrand === 'other') {
+    // If brand is custom, model is likely custom too.
+    // Hide dropdown and show custom model input directly
+    modelSelect.style.display = 'none';
+    if (customModelInput) customModelInput.classList.remove('d-none');
+    return;
+  } else {
+    modelSelect.style.display = 'block';
+    if (customModelInput) customModelInput.classList.add('d-none'); // Hide custom model input initially
+  }
 
-    // Add new options
-    models.forEach(model => {
-      const option = document.createElement('option');
-      option.value = model;
-      option.textContent = model;
-      modelSelect.appendChild(option);
-    });
+  const models = carModels[selectedBrand] || [];
 
-    // Enable or disable the model dropdown
-    modelSelect.disabled = models.length === 0;
+  // Clear previous options
+  modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
+
+  // Add new options
+  models.forEach(model => {
+    const option = document.createElement('option');
+    option.value = model;
+    option.textContent = model;
+    modelSelect.appendChild(option);
+  });
+
+  // Add 'Other' option to models list
+  const otherOption = document.createElement('option');
+  otherOption.value = 'other';
+  otherOption.textContent = 'อื่นๆ';
+  modelSelect.appendChild(otherOption);
+
+  // Enable the model dropdown
+  modelSelect.disabled = false;
+}
+
+if (brandSelect && modelSelect) {
+  brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
+
+  // Handle model 'other' selection
+  modelSelect.addEventListener('change', () => {
+    const customModelInput = document.getElementById('carModelCustom');
+    if (modelSelect.value === 'other') {
+      if (customModelInput) customModelInput.classList.remove('d-none');
+    } else {
+      if (customModelInput) customModelInput.classList.add('d-none');
+    }
   });
 }
 
