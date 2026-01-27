@@ -1061,7 +1061,10 @@ function applyRoleBasedRestrictions(data) {
 async function populateBrands(brandSelect) {
     if (!brandSelect) return;
     try {
-        const response = await fetch('https://be-claims-service.onrender.com/api/car-brands');
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('https://be-claims-service.onrender.com/api/car-brands', {
+            headers: { 'Authorization': token }
+        });
         const brands = await response.json();
         brandSelect.innerHTML = '<option selected disabled>เลือกยี่ห้อ</option>';
         if (Array.isArray(brands)) {
