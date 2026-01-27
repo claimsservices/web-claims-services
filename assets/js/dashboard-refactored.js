@@ -605,7 +605,7 @@ document.getElementById('exportExcelBtn').addEventListener('click', () => {
   const worksheetData = allData.map(item => ({
     "รหัสงาน": item.id,
     "บริษัทประกัน": item.insur_comp,
-    "วันที่ทำรายการ": formatDateTime(item.order_date),
+    "วันที่ทำรายการ": formatDateTime(item.created_date),
     "วันที่นัดหมาย": formatDateTime(item.appointment_date),
     "ทะเบียนรถ": item.car_registration,
     "สถานที่": item.location,
