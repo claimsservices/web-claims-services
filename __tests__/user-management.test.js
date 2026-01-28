@@ -57,6 +57,14 @@ describe('User Management Page Access Control', () => {
     // Mock fetch
     window.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ results: [] }) }));
     window.alert = jest.fn();
+
+    // Mock bootstrap
+    window.bootstrap = {
+      Offcanvas: {
+        getInstance: jest.fn(),
+        getOrCreateInstance: jest.fn(),
+      }
+    };
   });
 
   test('should allow access for Director role', async () => {

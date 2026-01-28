@@ -64,7 +64,22 @@ document.getElementById("formAuthentication").addEventListener("submit", async f
 
     } else {
       const errorMessage = await response.text(); // Get backend error message
-      usernameError.innerText = "Invalid username or password.";
+
+      if (response.status === 401) {
+        // 401 Unauthorized - ชื่อผู้ใช้หรือรหัสผ่านผิดจริง
+        usernameError.innerText = "Invalid username or password.";
+      } else if (response.status >= 500) {
+        // 5xx Server Error - ระบบมีปัญหา
+        usernameError.innerText = "Server error. Please try again later.";
+      } else {
+        // Other errors - แสดงข้อความจาก Server หรือข้อความทั่วไป
+        try {
+          const errorObj = JSON.parse(errorMessage);
+          usernameError.innerText = errorObj.message || "Login failed.";
+        } catch (e) {
+          usernameError.innerText = "Login failed. Please check your connection.";
+        }
+      }
       usernameError.style.display = "block";
     }
   } catch (error) {

@@ -153,12 +153,13 @@ describe('login.js', () => {
     expect(navigateTo).toHaveBeenCalledWith('html/task-attachments.html');
   });
 
-  test('should show error message on API failure', async () => {
+  test('should show error message on API failure (401)', async () => {
     usernameInput.value = 'testuser';
     passwordInput.value = 'password123';
 
     global.fetch.mockResolvedValueOnce({
       ok: false,
+      status: 401,
       text: () => Promise.resolve('Invalid credentials'),
     });
 
@@ -168,7 +169,26 @@ describe('login.js', () => {
     expect(usernameError.style.display).toBe('block');
     expect(usernameError.innerText).toBe('Invalid username or password.');
     expect(localStorageMock.setItem).not.toHaveBeenCalled();
-    expect(navigateToMock).not.toHaveBeenCalled();
+    expect(navigateTo).not.toHaveBeenCalled();
+  });
+
+  test('should show server error message on 500 status', async () => {
+    usernameInput.value = 'testuser';
+    passwordInput.value = 'password123';
+
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      text: () => Promise.resolve('Internal Server Error'),
+    });
+
+    const preventDefault = jest.fn();
+    await formAuthentication.submitCallback({ preventDefault });
+
+    expect(usernameError.style.display).toBe('block');
+    expect(usernameError.innerText).toBe('Server error. Please try again later.');
+    expect(localStorageMock.setItem).not.toHaveBeenCalled();
+    expect(navigateTo).not.toHaveBeenCalled();
   });
 
   test('should show error message on network error', async () => {

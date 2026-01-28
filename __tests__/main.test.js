@@ -99,9 +99,11 @@ describe('main.js', () => {
     };
   });
 
-  test('should initialize Menu and Helpers correctly on DOMContentLoaded', async () => {
-    // Import main.js after mocks are set up
-    await import('../assets/js/main.js');
+  test('should initialize Menu and Helpers correctly on DOMContentLoaded', () => {
+    // Use isolateModules to ensure main.js re-runs
+    jest.isolateModules(() => {
+      require('../assets/js/main.js');
+    });
 
     // Manually trigger DOMContentLoaded
     document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -115,8 +117,10 @@ describe('main.js', () => {
     expect(window.Helpers.mainMenu).toBeInstanceOf(global.Menu);
   });
 
-  test('should fetch and display app versions', async () => {
-    await import('../assets/js/main.js');
+  test('should fetch and display app versions', () => {
+    jest.isolateModules(() => {
+      require('../assets/js/main.js');
+    });
     document.dispatchEvent(new Event('DOMContentLoaded'));
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
@@ -127,8 +131,10 @@ describe('main.js', () => {
     expect(appVersionEl.textContent).toBe('FE: 1.0.0 | BE: 1.0.0');
   });
 
-  test('should handle menu toggler clicks', async () => {
-    await import('../assets/js/main.js');
+  test('should handle menu toggler clicks', () => {
+    jest.isolateModules(() => {
+      require('../assets/js/main.js');
+    });
     document.dispatchEvent(new Event('DOMContentLoaded'));
 
     const mockToggler = {
@@ -156,7 +162,7 @@ describe('main.js', () => {
   });
 
   // Test for Bike role menu modification
-  test('should modify menu for Bike role', async () => {
+  test('should modify menu for Bike role', () => {
     localStorageMock.setItem('authToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQmlrZSIsImlhdCI6MTUxNjIzOTAyMn0.some_signature'); // Mock Bike role token
 
     // Mock document.querySelector for menu links
@@ -195,7 +201,9 @@ describe('main.js', () => {
       writable: true,
     });
 
-    await import('../assets/js/main.js');
+    jest.isolateModules(() => {
+      require('../assets/js/main.js');
+    });
     document.dispatchEvent(new Event('DOMContentLoaded'));
 
     expect(mockDashboardLink.href).toBe('bike-dashboard.html');

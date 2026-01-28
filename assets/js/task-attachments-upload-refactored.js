@@ -631,72 +631,96 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadBtn.disabled = true;
             uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังอัปโหลด...';
 
-            const formData = new FormData();
-            formData.append('order_id', orderId);
-            formData.append('folder', `transactions/${orderId}`);
+            const CHUNK_SIZE = 3; // Process 3 images at a time
+            const allFiles = Array.from(filesToUpload.entries());
+            const totalFiles = allFiles.length;
+            let uploadedCount = 0;
+            let failedCount = 0;
 
-            console.log(`[DEBUG] Processing ${filesToUpload.size} files for upload.`);
-            const compressionPromises = [];
+            console.log(`[DEBUG] Starting chunked upload for ${totalFiles} files. Chunk size: ${CHUNK_SIZE}`);
 
-            filesToUpload.forEach(({ file, type }, inputName) => {
-                const fileInput = document.querySelector(`[name="${inputName}"]`);
-                if (!fileInput) return;
+            // Process in chunks
+            for (let i = 0; i < totalFiles; i += CHUNK_SIZE) {
+                const chunk = allFiles.slice(i, i + CHUNK_SIZE);
+                console.log(`[DEBUG] Processing chunk ${i / CHUNK_SIZE + 1} (${chunk.length} files)`);
 
-                const picType = type; // Use the pre-determined type
-                const picTitleInput = fileInput.closest('.image-upload-slot').querySelector('.image-title-input');
-                const picTitle = picTitleInput ? picTitleInput.value.trim() : 'unknown';
+                // Update button status
+                uploadBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังอัปโหลดชุดที่ ${Math.floor(i / CHUNK_SIZE) + 1}/${Math.ceil(totalFiles / CHUNK_SIZE)}...`;
 
-                console.log(`[DEBUG] Staging File -> Name: ${file.name}, Type: ${picType}, Title: ${picTitle}`);
+                const chunkFormData = new FormData();
+                chunkFormData.append('order_id', orderId);
+                chunkFormData.append('folder', `transactions/${orderId}`);
 
-                const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
-                    .then(compressedFile => addWatermark(compressedFile)) // Add watermark after compression
-                    .then(watermarkedBlob => {
-                        // Use the original file name for the watermarked blob
-                        formData.append('images', watermarkedBlob, file.name);
-                        formData.append('pic_type', picType);
-                        formData.append('pic_title', picTitle);
-                    })
-                    .catch(err => {
-                        console.error('Compression or Watermarking error:', err);
-                        alert(`เกิดข้อผิดพลาดในการประมวลผลไฟล์: ${file.name}`);
-                        throw err; // Propagate error to stop the upload process
-                    });
-                compressionPromises.push(promise);
-            });
+                // Prepare promises for this chunk (Compression + Watermark)
+                const chunkPromises = chunk.map(([inputName, { file, type }]) => {
+                    const fileInput = document.querySelector(`[name="${inputName}"]`);
+                    // If element is missing (removed by user mid-process), skip
+                    if (!fileInput) return Promise.resolve(null);
 
-            try {
-                await Promise.all(compressionPromises);
-            } catch (error) {
-                // Re-enable button and return if compression fails
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = 'บันทึกข้อมูล';
-                return;
-            }
+                    const picType = type;
+                    const picTitleInput = fileInput.closest('.image-upload-slot').querySelector('.image-title-input');
+                    const picTitle = picTitleInput ? picTitleInput.value.trim() : 'unknown';
 
-            console.log('[DEBUG] FormData prepared. Sending to backend...');
-
-            // Send the single request
-            try {
-                const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-                    method: 'POST',
-                    headers: { 'Authorization': token },
-                    body: formData
+                    return imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
+                        .then(compressedFile => addWatermark(compressedFile))
+                        .then(watermarkedBlob => {
+                            chunkFormData.append('images', watermarkedBlob, file.name);
+                            chunkFormData.append('pic_type', picType);
+                            chunkFormData.append('pic_title', picTitle);
+                            return true; // Success marker
+                        })
+                        .catch(err => {
+                            console.error(`Failed to process ${file.name}:`, err);
+                            return false; // Error marker
+                        });
                 });
 
-                const result = await response.json();
-                if (response.ok) {
-                    alert('✅ อัปโหลดรูปภาพทั้งหมดสำเร็จ!');
-                    filesToUpload.clear(); // Clear the map after successful upload
+                // Wait for chunk processing
+                const results = await Promise.all(chunkPromises);
+                const validUploads = results.filter(r => r === true).length;
+
+                if (validUploads > 0) {
+                    // Upload this chunk
+                    try {
+                        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+                            method: 'POST',
+                            headers: { 'Authorization': token },
+                            body: chunkFormData
+                        });
+
+                        // Parse response to count successes if needed, or assume all in batch succeeded if 200 OK
+                        if (response.ok) {
+                            uploadedCount += validUploads;
+                            console.log(`[DEBUG] Chunk uploaded successfully. Total so far: ${uploadedCount}`);
+                        } else {
+                            console.error(`[DEBUG] Chunk upload failed.`);
+                            failedCount += validUploads;
+                        }
+
+                    } catch (err) {
+                        console.error(`[DEBUG] Network error during chunk upload:`, err);
+                        failedCount += validUploads;
+                    }
                 } else {
-                    throw new Error(result.message || 'Upload failed');
+                    // If all failed processing in this chunk
+                    failedCount += chunk.length;
                 }
-            } catch (err) {
-                console.error('Upload error:', err);
-                alert(`🚫 ไม่สามารถอัปโหลดรูปภาพได้: ${err.message}`);
-            } finally {
-                // Re-enable button
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = 'บันทึกข้อมูล';
+            }
+
+            // Final Summary
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = 'บันทึกข้อมูล';
+
+            if (failedCount === 0) {
+                alert(`✅ อัปโหลดสำเร็จครบทั้งหมด (${uploadedCount} รูป)`);
+                filesToUpload.clear();
+                // Optional: Refresh page or update UI to show uploaded state
+                window.location.reload();
+            } else {
+                alert(`⚠️ อัปโหลดเสร็จสิ้น แต่มีบางรูปไม่ผ่าน\nสำเร็จ: ${uploadedCount}\nล้มเหลว: ${failedCount}\nกรุณาลองอัปโหลดรูปที่เหลือใหม่อีกครั้ง`);
+                // Here we could clear successful ones from the map, but logic is complex since we iterate array. 
+                // Simple approach: Reload page to see what's actually on server.
+                window.location.reload();
             }
         });
     }
@@ -723,4 +747,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.body.classList.remove('loading');
+
+    // Expose for testing
+    if (typeof window !== 'undefined') {
+        window.handleImageSelection = handleImageSelection;
+        window.filesToUpload = filesToUpload;
+    }
 });
