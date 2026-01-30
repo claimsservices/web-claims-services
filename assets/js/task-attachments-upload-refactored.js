@@ -542,6 +542,22 @@ document.addEventListener('DOMContentLoaded', () => {
             label.setAttribute('data-filled', 'true');
         };
         reader.readAsDataURL(file);
+
+        // --- Auto-Save to Device (User Request) ---
+        // Trigger a download of the captured/selected file so it saves to the device
+        try {
+            const downloadUrl = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `captured_${new Date().getTime()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
+        } catch (err) {
+            console.warn('Auto-save to device failed:', err);
+        }
+
     }
 
     // NEW: Delegated event listener for all file inputs

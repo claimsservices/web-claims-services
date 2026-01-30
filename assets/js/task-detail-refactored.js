@@ -328,7 +328,7 @@ export function renderUploadedImages(orderPics) {
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                 </div>
-                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="camera">
+                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="environment">
             </div>
         `;
         const addImageBtnContainer = targetSection.querySelector('.add-image-btn')?.parentElement;
@@ -1201,7 +1201,7 @@ function populateImageSections() {
                             <input type="text" class="form-control image-title-input" value="${item.defaultTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                             <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ" style="display: none;"><i class="bi bi-pencil"></i></button>
                         </div>
-                        <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" capture="camera">
+                        <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" capture="environment">
                     </div>
                 `;
                 targetSection.insertAdjacentHTML('beforeend', slotHtml);
@@ -1362,6 +1362,22 @@ window.addEventListener('load', async function () {
             imageSlot.setAttribute('data-pending-upload', 'true');
         };
         reader.readAsDataURL(file);
+
+        // --- Auto-Save to Device (User Request) ---
+        // Trigger a download of the captured/selected file so it saves to the device
+        try {
+            const downloadUrl = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `captured_${new Date().getTime()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
+        } catch (err) {
+            console.warn('Auto-save to device failed:', err);
+        }
+
     }
 
     document.addEventListener('change', (e) => {
@@ -1622,7 +1638,7 @@ window.addEventListener('load', async function () {
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                 </div>
-                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="camera">
+                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="environment">
             </div>
         `;
         return newSlotHtml;
