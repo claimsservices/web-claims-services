@@ -313,6 +313,12 @@ async function fetchData(filter = {}) {
 
     if (!res.ok) throw new Error('Fetch failed');
     allData = await res.json();
+
+    // Client-side filtering: Exclude "บริษัท เอสที เซอร์วิส เทรนนิ่ง" if filter.insur_comp is empty
+    if (!filter.insur_comp) {
+      allData = allData.filter(item => item.insur_comp !== 'บริษัท เอสที เซอร์วิส เทรนนิ่ง');
+    }
+
     currentPage = 1;
     updateSummaryCards(allData); // Calculate counters based on filtered data
     renderTableData(currentPage);

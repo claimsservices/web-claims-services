@@ -8,9 +8,9 @@
 
 // Simple logging utility to avoid build issues
 const log = {
-  info: function() { console.info.apply(console, arguments); },
-  warn: function() { console.warn.apply(console, arguments); },
-  error: function() { console.error.apply(console, arguments); },
+  info: function () { console.info.apply(console, arguments); },
+  warn: function () { console.warn.apply(console, arguments); },
+  error: function () { console.error.apply(console, arguments); },
   // Add other console methods as needed
 };
 
@@ -27,7 +27,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
 for (const level in log) {
   if (typeof console[level] === 'function' && log.hasOwnProperty(level)) {
     const originalMethod = console[level];
-    console[level] = function() {
+    console[level] = function () {
       if (
         log.level === 'info' ||
         (log.level === 'warn' && (level === 'warn' || level === 'error')) ||
@@ -57,7 +57,7 @@ function parseJwt(token) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   let menu;
 
   // Initialize menu
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (layoutMenuEl.length > 0 && typeof window.Menu === 'function') {
     console.log('Proceeding with menu initialization.');
-    layoutMenuEl.forEach(function(element) {
+    layoutMenuEl.forEach(function (element) {
       menu = new window.Menu(element, {
         orientation: 'vertical',
         closeChildren: false
@@ -92,7 +92,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const taskManagementLink = document.querySelector('a[href="dashboard.html"]');
       if (taskManagementLink) {
         const parentLi = taskManagementLink.closest('.menu-item');
-        const parentUl = parentLi ? parentLi.closest('.menu-sub') : null;
+        // Use parentElement to support both nested (.menu-sub) and top-level (.menu-inner) lists
+        const parentUl = parentLi ? parentLi.parentElement : null;
 
         if (parentLi && parentUl) {
           // 1. Update existing link to be the main bike dashboard
@@ -115,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const preApprovedLink = preApprovedLi.querySelector('a');
           preApprovedLink.href = 'bike-pre-approved.html';
           preApprovedLink.querySelector('div').textContent = 'งาน Pre-approved';
-          
+
           // Make the original link inactive and the current page active
           parentLi.classList.remove('active');
           if (window.location.pathname.endsWith('bike-dashboard.html')) {
@@ -140,15 +141,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Display menu toggle (layout-menu-toggle) on hover with delay
   if (window.Helpers) {
-    let delay = function(elem, callback) {
+    let delay = function (elem, callback) {
       let timeout = null;
-      elem.onmouseenter = function() {
+      elem.onmouseenter = function () {
         if (!window.Helpers.isSmallScreen()) {
           timeout = setTimeout(callback, 0);
         }
       };
 
-      elem.onmouseleave = function() {
+      elem.onmouseleave = function () {
         // Clear any timers set to timeout
         document.querySelector('.layout-menu-toggle').classList.remove('d-block');
         clearTimeout(timeout);
@@ -156,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     if (document.getElementById('layout-menu')) {
-      delay(document.getElementById('layout-menu'), function() {
+      delay(document.getElementById('layout-menu'), function () {
         if (!window.Helpers.isSmallScreen()) {
           document.querySelector('.layout-menu-toggle').classList.add('d-block');
         }
@@ -166,9 +167,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Display in main menu when menu scrolls
   let menuInnerContainer = document.getElementsByClassName('menu-inner'),
-      menuInnerShadow = document.getElementsByClassName('menu-inner-shadow')[0];
+    menuInnerShadow = document.getElementsByClassName('menu-inner-shadow')[0];
   if (menuInnerContainer.length > 0 && menuInnerShadow) {
-    menuInnerContainer[0].addEventListener('ps-scroll-y', function() {
+    menuInnerContainer[0].addEventListener('ps-scroll-y', function () {
       if (this.querySelector('.ps__thumb-y').offsetTop) {
         menuInnerShadow.style.display = 'block';
       } else {
@@ -182,12 +183,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Init BS Tooltip
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  tooltipTriggerList.map(function(tooltipTriggerEl) {
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
 
   // Accordion active class
-  const accordionActiveFunction = function(e) {
+  const accordionActiveFunction = function (e) {
     if (e.type == 'show.bs.collapse' || e.type == 'shown.bs.collapse') {
       e.target.closest('.accordion-item').classList.add('active');
     } else {
@@ -196,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   const accordionTriggerList = [].slice.call(document.querySelectorAll('.accordion'));
-  accordionTriggerList.map(function(accordionTriggerEl) {
+  accordionTriggerList.map(function (accordionTriggerEl) {
     accordionTriggerEl.addEventListener('show.bs.collapse', accordionActiveFunction);
     accordionTriggerEl.addEventListener('hide.bs.collapse', accordionActiveFunction);
   });

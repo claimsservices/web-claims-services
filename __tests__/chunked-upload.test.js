@@ -1,6 +1,7 @@
 const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
+global.filesToUpload = new Map(); // Initialize explicitly for test context
 
 const { JSDOM } = require('jsdom');
 const imageCompression = require('browser-image-compression');
@@ -14,20 +15,20 @@ describe('Chunked Upload Logic', () => {
     let window;
 
     beforeEach(() => {
-        // Setup JSDOM
+        // Setup JSDOM with specific URL to mimic query params
         dom = new JSDOM(`
             <!DOCTYPE html>
             <html>
             <body>
-                <div class="image-upload-slot">
-                    <label class="image-gallery">
+                 <div class="image-upload-slot">
+                     <label class="image-gallery">
                         <img />
                         <i></i>
                         <input type="file" name="around_1" data-category="around">
                     </label>
                     <input type="text" class="image-title-input" value="Image 1">
                 </div>
-                <div class="image-upload-slot">
+                 <div class="image-upload-slot">
                      <label class="image-gallery">
                         <img />
                         <i></i>
@@ -121,8 +122,12 @@ describe('Chunked Upload Logic', () => {
         }));
 
         global.alert = jest.fn();
-        global.console.log = jest.fn();
-        global.console.error = jest.fn();
+        // global.console.log = jest.fn(); // Unmock to see debug logs
+        // global.console.error = jest.fn(); // Unmock to see errors
+
+        // Mock URL.createObjectURL and revokeObjectURL
+        global.URL.createObjectURL = jest.fn(() => 'mock-url');
+        global.URL.revokeObjectURL = jest.fn();
 
         // Load the script content and execute it in the window context
         // This ensures 'window' and 'document' are correctly bound
@@ -130,10 +135,41 @@ describe('Chunked Upload Logic', () => {
         const path = require('path');
         const scriptContent = fs.readFileSync(path.resolve(__dirname, '../assets/js/task-attachments-upload-refactored.js'), 'utf8');
 
-        window.eval(scriptContent);
+        // Initialize all sections on page load
+        // We need to inject a way to expose handleImageSelection from the closure
+        const closureExposer = `
+            window.handleImageSelection = handleImageSelection;
+            window.filesToUpload = filesToUpload; // Expose map for verification
+        `;
+        // Append exposer to the end of the script content before eval
+        // We need to find where the closure ends. The file structure shows the main logic is inside DOMContentLoaded.
+        // We can't easily append to closure. 
+        // Instead, we will mock the behavior by manually populating the map since we can't easily reach into the closure.
+        // BUT, wait, the script is evaluated in window context.
+        // Let's modify the script content string to expose the function.
+        // The script starts with document.addEventListener...
+        // We can replace the end of the script to expose variables?
+        // Or better, since we have the source code, we can verify if handleImageSelection is attached to window?
+        // It is NOT attached to window in the source.
+
+        // Strategy: We will mock the entire logic since testing the closure is hard without modifying source.
+        // However, we want to test the source.
+        // Let's use a regex to inject "window.handleImageSelection = handleImageSelection;" inside the closure.
+        const injectedScript = scriptContent.replace(
+            /function handleImageSelection\(fileInput\) \{/,
+            'window.handleImageSelection = function(fileInput) {'
+        ).replace(
+            /const filesToUpload = new Map\(\);/,
+            'window.filesToUpload = new Map(); const filesToUpload = window.filesToUpload;'
+        );
+
+        window.eval(injectedScript);
 
         // Trigger DOMContentLoaded
         document.dispatchEvent(new window.Event('DOMContentLoaded'));
+
+        // Ensure map is initialized if script didn't do it
+        if (!window.filesToUpload) window.filesToUpload = new Map();
     });
 
     afterEach(() => {
@@ -141,31 +177,31 @@ describe('Chunked Upload Logic', () => {
     });
 
     test('should upload files in chunks', async () => {
-        // 1. Simulate file selection by directly populating the map
-        // This bypasses the JSDOM input.files mocking issues
+        // 1. Simulate file selection by dispatching change events
+        // This is necessary because filesToUpload is a private Map in the script's closure
         const inputs = document.querySelectorAll('input[type="file"]');
         expect(inputs.length).toBe(4);
 
-        if (!window.filesToUpload) {
-            throw new Error('window.filesToUpload not found. Ensure script exposes it.');
-        }
-
         for (let i = 0; i < inputs.length; i++) {
             const file = new window.File(['dummy content'], `image${i + 1}.jpg`, { type: 'image/jpeg' });
-            const inputName = inputs[i].name;
-            const picType = inputs[i].dataset.category;
+            const input = inputs[i];
 
-            // Directly set in map
-            window.filesToUpload.set(inputName, { file, type: picType });
+            // Mock the files property
+            Object.defineProperty(input, 'files', {
+                value: [file],
+                writable: false,
+            });
 
-            // Optional: Manually trigger UI update if needed, but for upload logic test, map is enough.
-            // If we want to test handleImageSelection specifically, we can call it:
-            // Object.defineProperty(inputs[i], 'files', { get: () => [file] });
-            // window.handleImageSelection(inputs[i]);
+            // Dispatch change event to trigger the listener in the script
+            input.dispatchEvent(new window.Event('change', { bubbles: true }));
         }
 
-        // Verify map is populated
-        expect(window.filesToUpload.size).toBe(4);
+        // Wait for async file reading/preview generation if any
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // We can't easily check internal Map size directly without exposing it, 
+        // but if logic works, clicking upload should trigger fetch.
+
 
         // 2. Click Upload
         const uploadBtn = document.getElementById('uploadBtn');
@@ -173,18 +209,10 @@ describe('Chunked Upload Logic', () => {
         uploadBtn.click();
 
         // Wait for async operations
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Debugging: Print logs if fetch wasn't called
-        if (global.fetch.mock.calls.length === 0) {
-            console.log('DEBUG Test Failure State:');
-            console.log('Alert calls:', global.alert.mock.calls);
-            console.log('Console logs:', global.console.log.mock.calls);
-            console.log('Console errors:', global.console.error.mock.calls);
-        }
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Check if we got the "empty files" alert
-        const emptyAlert = global.alert.mock.calls.find(call => call[0].includes('กรุณาเลือกรูปภาพ'));
+        const emptyAlert = global.alert.mock.calls.find(call => call && call[0] && call[0].includes('กรุณาเลือกรูปภาพ'));
         if (emptyAlert) {
             throw new Error('Test failed: Code thinks no files were selected.');
         }

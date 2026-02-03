@@ -30,26 +30,26 @@
       <!-- Menu -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo d-flex align-items-center justify-content-between px-3 py-3"
-            style="background-color: #f9f8f4; border-bottom: 1px solid #e5e5e5;">
-            <div class="d-flex align-items-center">
-              <a href="dashboard.html" class="app-brand-link d-flex align-items-center">
-                <span class="app-brand-logo demo me-3">
-                  <img src="..\assets\img\elements\3P4.jpg" alt="Logo" width="60" style="object-fit: contain;">
-                </span>
-              </a>
-              <div style="line-height: 1.3;">
-                <div style="font-size: 0.9rem; color: #a68b64; font-weight: 400; margin-bottom: 2px;">
-                  Welcome to
-                </div>
-                <div style="font-size: 0.95rem; color: #b38e5d; font-weight: 600;">
-                  ST Application
-                </div>
+          style="background-color: #f9f8f4; border-bottom: 1px solid #e5e5e5;">
+          <div class="d-flex align-items-center">
+            <a href="dashboard.html" class="app-brand-link d-flex align-items-center">
+              <span class="app-brand-logo demo me-3">
+                <img src="..\assets\img\elements\3P4.jpg" alt="Logo" width="60" style="object-fit: contain;">
+              </span>
+            </a>
+            <div style="line-height: 1.3;">
+              <div style="font-size: 0.9rem; color: #a68b64; font-weight: 400; margin-bottom: 2px;">
+                Welcome to
+              </div>
+              <div style="font-size: 0.95rem; color: #b38e5d; font-weight: 600;">
+                ST Application
               </div>
             </div>
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large d-block d-xl-none ms-auto">
-              <i class="bx bx-chevron-left bx-sm align-middle" style="color: #b38e5d;"></i>
-            </a>
           </div>
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large d-block d-xl-none ms-auto">
+            <i class="bx bx-chevron-left bx-sm align-middle" style="color: #b38e5d;"></i>
+          </a>
+        </div>
         <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
           <li class="menu-item">
@@ -91,7 +91,9 @@
       <!-- Layout container -->
       <div class="layout-page">
         <!-- Navbar -->
-        <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+        <nav
+          class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+          id="layout-navbar">
           <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
             <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
               <i class="bx bx-menu bx-sm"></i>
@@ -100,7 +102,8 @@
           <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
             <ul class="navbar-nav flex-row align-items-center ms-auto">
               <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3"
+                  href="javascript:void(0);" data-bs-toggle="dropdown">
                   <div class="avatar avatar-online">
                     <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
                   </div>
@@ -146,8 +149,10 @@
                     </div>
                   </div>
                   <div class="col-md-4 ms-auto d-flex justify-content-end">
-                    <button id="new-user-btn" class="btn rounded-pill btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasAddUser">
-                      <span><i class="icon-base bx bx-plus icon-sm me-0 me-sm-2"></i><span class="d-none d-sm-inline-block">Add New User</span></span>
+                    <button id="new-user-btn" class="btn rounded-pill btn-primary" type="button"
+                      data-bs-toggle="offcanvas" data-bs-target="#offcanvasAddUser">
+                      <span><i class="icon-base bx bx-plus icon-sm me-0 me-sm-2"></i><span
+                          class="d-none d-sm-inline-block">Add New User</span></span>
                     </button>
                   </div>
                 </div>
@@ -197,7 +202,8 @@
           <input type="password" class="form-control" id="add-user-password" required>
         </div>
         <div class="mb-4">
-          <label class="form-label" for="add-user-confirm-password">Confirm Password <span class="text-danger">*</span></label>
+          <label class="form-label" for="add-user-confirm-password">Confirm Password <span
+              class="text-danger">*</span></label>
           <input type="password" class="form-control" id="add-user-confirm-password" required>
         </div>
         <div class="mb-4">
@@ -235,15 +241,22 @@
           <select id="add-user-insur-comp" class="form-select">
             <option value="">-- Select Company --</option>
             <option value="บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)">บริษัท กรุงเทพประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)">บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)</option>
-            <option value="บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)">บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)</option>
+            <option value="บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)">บริษัท กรุงไทยพานิชประกันภัย จำกัด (มหาชน)
+            </option>
+            <option value="บริษัท คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท
+              คุ้มภัยโตเกียวมารีนประกันภัย (ประเทศไทย) จำกัด (มหาชน)</option>
+            <option value="บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)">บริษัท เคดับบลิวไอ ประกันภัย จำกัด (มหาชน)
+            </option>
             <option value="บริษัท จรัญประกันภัย จำกัด (มหาชน)">บริษัท จรัญประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)">บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)</option>
+            <option value="บริษัท เจนเนอราลี่ ประกันภัย (ไทยแลนด์) จำกัด (มหาชน)">บริษัท เจนเนอราลี่ ประกันภัย
+              (ไทยแลนด์) จำกัด (มหาชน)</option>
             <option value="บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)">บริษัท เจมาร์ท ประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)">บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)</option>
-            <option value="บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)</option>
+            <option value="บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)">บริษัท ชับบ์สามัคคีประกันภัย จำกัด (มหาชน)
+            </option>
+            <option value="บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซมโปะ ประกันภัย (ประเทศไทย) จำกัด
+              (มหาชน)</option>
+            <option value="บริษัท ซันเดย์ ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท ซันเดย์ ประกันภัย (ประเทศไทย)
+              จำกัด (มหาชน)</option>
             <option value="บริษัท ทิพยประกันภัย จำกัด (มหาชน)">บริษัท ทิพยประกันภัย จำกัด (มหาชน)</option>
             <option value="บริษัท ทูนประกันภัย จำกัด (มหาชน)">บริษัท ทูนประกันภัย จำกัด (มหาชน)</option>
             <option value="บริษัท เทเวศประกันภัย จำกัด (มหาชน)">บริษัท เทเวศประกันภัย จำกัด (มหาชน)</option>
@@ -263,15 +276,20 @@
             <option value="บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)">บริษัท สยามสไมล์ ประกันภัย จำกัด (มหาชน)</option>
             <option value="บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)">บริษัท สหนิรภัยประกันภัย จำกัด (มหาชน)</option>
             <option value="บริษัท สหมงคลประกันภัย จำกัด (มหาชน)">บริษัท สหมงคลประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)">บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)</option>
+            <option value="บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด (มหาชน)">บริษัท อลิอันซ์ อยุธยา ประกันภัย จำกัด
+              (มหาชน)</option>
             <option value="บริษัท อินทรประกันภัย จำกัด (มหาชน)">บริษัท อินทรประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)</option>
-            <option value="บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)</option>
-            <option value="บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)</option>
+            <option value="บริษัท เอ็ม เอส ไอ จี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอ็ม เอส ไอ จี ประกันภัย
+              (ประเทศไทย) จำกัด (มหาชน)</option>
+            <option value="บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เออร์โกประกันภัย (ประเทศไทย) จำกัด
+              (มหาชน)</option>
+            <option value="บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด (มหาชน)">บริษัท เอไอจี ประกันภัย (ประเทศไทย) จำกัด
+              (มหาชน)</option>
             <option value="บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)">บริษัท แอกซ่าประกันภัย จำกัด (มหาชน)</option>
             <option value="บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)">บริษัท แอลเอ็มจี ประกันภัย จำกัด (มหาชน)</option>
             <option value="บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)">บริษัท ไอแคร์ ประกันภัย จำกัด (มหาชน)</option>
-            <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)</option>
+            <option value="บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)">บริษัท ไอโออิ กรุงเทพ ประกันภัย จำกัด (มหาชน)
+            </option>
             <option value="บริษัท เอสที เซอร์วิส เทรนนิ่ง">บริษัท เอสที เซอร์วิส เทรนนิ่ง</option>
           </select>
         </div>
@@ -347,6 +365,8 @@
         }
 
         console.log('Authentication and authorization passed.');
+
+        console.log('Authentication and authorization passed.');
         // 2. Setup UI and Event Listeners
         setupUI(decodedToken);
         setupEventListeners();
@@ -361,9 +381,9 @@
         document.getElementById('user-role').innerText = decodedToken.role || '';
         const userAvatar = document.getElementById('userAvatar');
         if (decodedToken.myPicture) {
-            userAvatar.src = decodedToken.myPicture;
+          userAvatar.src = decodedToken.myPicture;
         } else {
-            userAvatar.src = '../assets/img/avatars/A1.png'; // Default avatar
+          userAvatar.src = '../assets/img/avatars/A1.png'; // Default avatar
         }
 
         fetch('/version.json')
@@ -383,7 +403,7 @@
         document.getElementById('userTableBody').addEventListener('click', handleDeleteUser);
 
         // Show/hide insurance company dropdown based on role
-        document.getElementById('user-role-regist').addEventListener('change', function(e) {
+        document.getElementById('user-role-regist').addEventListener('change', function (e) {
           const insurCompContainer = document.getElementById('insur-comp-container');
           if (e.target.value === 'Insurance') {
             insurCompContainer.style.display = 'block';
@@ -427,13 +447,13 @@
         tableBody.innerHTML = ''; // Clear existing rows
 
         if (!users || users.length === 0) {
-            // Optionally, display a message in the table
-            const row = tableBody.insertRow();
-            const cell = row.insertCell();
-            cell.colSpan = 5;
-            cell.textContent = 'No users found.';
-            cell.style.textAlign = 'center';
-            return;
+          // Optionally, display a message in the table
+          const row = tableBody.insertRow();
+          const cell = row.insertCell();
+          cell.colSpan = 5;
+          cell.textContent = 'No users found.';
+          cell.style.textAlign = 'center';
+          return;
         }
 
         users.forEach((user) => {
@@ -477,7 +497,7 @@
           alert("Passwords do not match!");
           return;
         }
-        
+
         const userData = {
           username: document.getElementById("add-user-username").value,
           password: password,
@@ -493,28 +513,28 @@
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/register`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': accessToken 
-                },
-                body: JSON.stringify(userData),
-            });
+          const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': accessToken
+            },
+            body: JSON.stringify(userData),
+          });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to add user');
-            }
-            
-            alert('User added successfully!');
-            document.getElementById("addNewUserForm").reset();
-            const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasAddUser'));
-            offcanvas.hide();
-            fetchUsers(); // Refresh the table
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to add user');
+          }
+
+          alert('User added successfully!');
+          document.getElementById("addNewUserForm").reset();
+          const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasAddUser'));
+          offcanvas.hide();
+          fetchUsers(); // Refresh the table
         } catch (error) {
-            console.error('Error adding user:', error);
-            alert(`Failed to add user: ${error.message}`);
+          console.error('Error adding user:', error);
+          alert(`Failed to add user: ${error.message}`);
         }
       }
 
@@ -528,25 +548,25 @@
         if (!confirm(`Are you sure you want to delete the user: ${username}?`)) return;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/user-management/delete-user`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': accessToken,
-                },
-                body: JSON.stringify({ username }),
-            });
+          const response = await fetch(`${API_BASE_URL}/user-management/delete-user`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': accessToken,
+            },
+            body: JSON.stringify({ username }),
+          });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to delete user');
-            }
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete user');
+          }
 
-            alert('User deleted successfully.');
-            fetchUsers(); // Refresh the table
+          alert('User deleted successfully.');
+          fetchUsers(); // Refresh the table
         } catch (error) {
-            console.error('Error deleting user:', error);
-            alert(`Failed to delete user: ${error.message}`);
+          console.error('Error deleting user:', error);
+          alert(`Failed to delete user: ${error.message}`);
         }
       }
 
@@ -555,4 +575,5 @@
     });
   </script>
 </body>
+
 </html>

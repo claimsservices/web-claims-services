@@ -834,6 +834,9 @@ class UIPermissionManager {
         }
     }
 
+
+
+
     configure(orderStatus, data) {
         this.disableAll();
     }
@@ -2193,3 +2196,127 @@ window.addEventListener('load', async function () {
         // --- End of Custom Modal Logic ---
     }
 });
+
+// =========================================================
+// TEMPLATE GENERATION LOGIC (Top Level)
+// =========================================================
+
+function createEmptyImageSlot(category, configItem) {
+    const sectionsMap = {
+        'around': document.getElementById('around-images-section')?.querySelector('.row'),
+        'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+        'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+        'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+        'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+        'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+    };
+
+    const targetSection = sectionsMap[category];
+    if (!targetSection) {
+        console.warn(`Target section not found for category: ${category}`);
+        return;
+    }
+
+    const uniqueId = `new-image-${category}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const displayTitle = configItem.defaultTitle || 'กรุณาใส่ชื่อ';
+    const picType = configItem.name || 'unknown';
+
+
+
+
+    const newSlotHtml = `
+        <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${picType}" data-uploaded="false">
+            <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer; background-color: #f8f9fa; border: 2px dashed #dee2e6; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <img src="" style="width:100%; height:100%; object-fit: cover; display:none;" id="img-${uniqueId}" alt="${displayTitle}">
+                <div class="placeholder-content text-center" id="placeholder-${uniqueId}">
+                    <i class="bi bi-camera" style="font-size: 3rem; color: #adb5bd;"></i>
+                    <p class="text-muted mt-2 mb-0 small">คลิกเพื่ออัปโหลด</p>
+                </div>
+                <button type="button" class="delete-btn" title="ลบ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: #dc3545; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10;"><i class="bi bi-x-circle-fill"></i></button>
+                <label for="${uniqueId}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 5;"></label>
+            </div>
+            <div class="d-flex align-items-center">
+                <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1;">
+            </div>
+            <input type="file" id="${uniqueId}" name="${picType}" data-category="${category}" hidden accept="image/*" capture="environment">
+        </div>
+    `;
+
+    targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
+
+    // Add event listener for the new file input
+    const newFileInput = document.getElementById(uniqueId);
+    if (newFileInput) {
+        newFileInput.addEventListener('change', handleFileSelect);
+    }
+
+    // Add event listener for delete button
+    const addedSlot = targetSection.lastElementChild;
+    const deleteBtn = addedSlot.querySelector('.delete-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            addedSlot.remove();
+        });
+    }
+}
+
+function handleFileSelect(event) {
+    const input = event.target;
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const uniqueId = input.id;
+        const img = document.getElementById(`img-${uniqueId}`);
+        const placeholder = document.getElementById(`placeholder-${uniqueId}`);
+        const slot = input.closest('.dynamic-image-slot');
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            if (img) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            if (slot) {
+                slot.setAttribute('data-uploaded', 'staged');
+                const container = slot.querySelector('.image-container');
+                if (container) {
+                    container.style.border = 'none';
+                    container.style.backgroundColor = 'transparent';
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+
+function initializeTemplateButtons() {
+    console.log('Initializing template buttons...');
+    const buttons = document.querySelectorAll('.create-template-btn');
+    console.log(`Found ${buttons.length} template buttons.`);
+
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const category = button.getAttribute('data-category');
+            console.log(`Creating template for category: ${category}`);
+
+            if (staticImageConfig[category]) {
+                staticImageConfig[category].forEach(configItem => {
+                    createEmptyImageSlot(category, configItem);
+                });
+
+                // Do not disable the button. User can click again to add more sets.
+            }
+        });
+    });
+}
+
+// Call init
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeTemplateButtons);
+} else {
+    initializeTemplateButtons();
+}

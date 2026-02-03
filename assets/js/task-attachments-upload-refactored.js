@@ -466,6 +466,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize all sections on page load
     initializeSections();
+    initializeTemplateButtons();
+
+    const standardTemplates = {
+        'around': [
+            "ภาพถ่ายรอบคัน - ด้านหน้ารถ",
+            "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า",
+            "ภาพถ่ายรอบคัน - ด้านซ้ายตรง",
+            "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง",
+            "ภาพถ่ายรอบคัน - ด้านท้ายรถ",
+            "ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง",
+            "ภาพถ่ายรอบคัน - ด้านขวาตรง",
+            "ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า",
+            "ภาพถ่ายรอบคัน - หลังคา"
+        ],
+        'accessories': [
+            "ล้อหน้าด้านซ้าย",
+            "ล้อหน้าด้านขวา",
+            "ล้อหลังด้านซ้าย",
+            "ล้อหลังด้านขวา",
+            "ปียางขนาดยาง",
+            "ห้องเครื่อง",
+            "คอลโซล",
+            "วิทยุ",
+            "จอไมล์",
+            "กระจกบังลม",
+            "ฟิล์ม",
+            "กล้องหน้ารถ",
+            "แผงหน้าปัด"
+        ],
+        'inspection': [
+            "ภาพถ่ายความเสียหาย - 1",
+            "ภาพถ่ายความเสียหาย - 2",
+            "ภาพถ่ายความเสียหาย - 3",
+            "ภาพถ่ายความเสียหาย - 4",
+            "ภาพถ่ายความเสียหาย - 5",
+            "ภาพถ่ายความเสียหาย - 6",
+            "ภาพถ่ายความเสียหาย - 7",
+            "ภาพถ่ายความเสียหาย - 8",
+            "ภาพถ่ายความเสียหาย - 9",
+            "ภาพถ่ายความเสียหาย - 10"
+        ],
+        'fiber': [
+            "เอกสารยืนยันตัวบุคคล",
+            "ใบตรวจสภาพรถ",
+            "ใบตรวจความเสียหาย",
+            "ใบตรวจอุปกรณ์ตกแต่ง"
+        ]
+    };
+
+    function initializeTemplateButtons() {
+        document.querySelectorAll('.create-template-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const category = button.getAttribute('data-category');
+                const containerId = `${category}-container`;
+                const container = document.getElementById(containerId);
+
+                if (container && standardTemplates[category]) {
+                    standardTemplates[category].forEach(title => {
+                        createImageSlot(containerId, category, title);
+                    });
+
+                    // Optional: Disable button to indicate it's done
+                    button.disabled = true;
+                    button.textContent = 'สร้างรูปแบบแล้ว';
+                    button.classList.remove('btn-outline-primary');
+                    button.classList.add('btn-secondary');
+                }
+            });
+        });
+    }
 
     // Map to hold files staged for upload
     const filesToUpload = new Map();
