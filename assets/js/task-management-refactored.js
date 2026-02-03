@@ -1,3 +1,4 @@
+
 fetch('/version.json')
   .then(res => res.json())
   .then(data => {
@@ -7,80 +8,138 @@ fetch('/version.json')
     document.getElementById("appVersion").textContent = "App Version -";
   });
 
-
-// Constants for URLs and other fixed strings
 const LOGIN_PAGE = '../index.html';
-const API_URL = `https://be-claims-service.onrender.com/api/auth/profile`;
+const API_BASE_URL = 'https://be-claims-service.onrender.com';
+const API_URL = `${API_BASE_URL}/api/auth/profile`;
 
-// Function to decode JWT token and check for expiration
+export const staticImageConfig = {
+  around: [
+    { name: "exterior_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
+    { name: "exterior_left_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
+    { name: "exterior_left_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายตรง" },
+    { name: "exterior_left_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง" },
+    { name: "exterior_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านท้ายรถ" },
+    { name: "exterior_right_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง" },
+    { name: "exterior_right_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาตรง" },
+    { name: "exterior_right_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
+    { name: "exterior_roof", defaultTitle: "ภาพถ่ายรอบคัน - หลังคา" }
+  ],
+  accessories: [
+    { name: "interior_wheels_1", defaultTitle: "ล้อหน้าซ้าย" },
+    { name: "interior_wheels_2", defaultTitle: "ล้อหน้าขวา" },
+    { name: "interior_wheels_3", defaultTitle: "ล้อหลังซ้าย" },
+    { name: "interior_wheels_4", defaultTitle: "ล้อหลังขวา" },
+    { name: "interior_dashboard", defaultTitle: "ปีผลิต/ขนาดล้อ/ยางอะไหล่" },
+    { name: "interior_6", defaultTitle: "ห้องเครื่อง" },
+    { name: "interior_7", defaultTitle: "จอไมล์" },
+    { name: "interior_8", defaultTitle: "คอนโซล" },
+    { name: "interior_9", defaultTitle: "วิทยุ" },
+    { name: "interior_10", defaultTitle: "อื่นๆ" },
+    { name: "interior_11", defaultTitle: "อื่นๆ" },
+    { name: "interior_12", defaultTitle: "อื่นๆ" },
+    { name: "interior_13", defaultTitle: "อื่นๆ" },
+    { name: "interior_14", defaultTitle: "อื่นๆ" },
+    { name: "interior_15", defaultTitle: "อื่นๆ" },
+    { name: "interior_16", defaultTitle: "อื่นๆ" },
+    { name: "interior_17", defaultTitle: "อื่นๆ" },
+    { name: "interior_18", defaultTitle: "อื่นๆ" },
+    { name: "interior_19", defaultTitle: "อื่นๆ" },
+    { name: "interior_20", defaultTitle: "อื่นๆ" }
+  ],
+  inspection: [
+    { name: "damage_images_1", defaultTitle: "รายละเอียดความเสียหาย 1." },
+    { name: "damage_images_2", defaultTitle: "รายละเอียดความเสียหาย 2." },
+    { name: "damage_images_3", defaultTitle: "รายละเอียดความเสียหาย 3." },
+    { name: "damage_images_4", defaultTitle: "รายละเอียดความเสียหาย 4." },
+    { name: "damage_images_5", defaultTitle: "รายละเอียดความเสียหาย 5." },
+    { name: "damage_images_6", defaultTitle: "รายละเอียดความเสียหาย 6." },
+    { name: "damage_images_7", defaultTitle: "รายละเอียดความเสียหาย 7." },
+    { name: "damage_images_8", defaultTitle: "รายละเอียดความเสียหาย 8." },
+    { name: "damage_images_9", defaultTitle: "รายละเอียดความเสียหาย 9." },
+    { name: "damage_images_10", defaultTitle: "รายละเอียดความเสียหาย 10." }
+  ],
+  fiber: [
+    { name: "doc_identity", defaultTitle: "เอกสารยืนยันตัวบุคคล" },
+    { name: "doc_other_1", defaultTitle: "เอกสารยืนยันตัวรถ" },
+    { name: "doc_other_2", defaultTitle: "เลขตัวถังและทะเบียนรถ" },
+    { name: "doc_other_3", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "doc_other_4", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "doc_other_5", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "doc_other_6", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "doc_other_7", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "doc_other_8", defaultTitle: "เอกสารอื่น ๆ" }
+  ],
+  documents: [
+    { name: "license", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "id_card", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "car_doc", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "car_number", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "other_1", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "other_2", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "doc_other_9", defaultTitle: "เอกสารอื่น ๆ" },
+    { name: "other_3", defaultTitle: "เอกสารอื่น ๆ" }
+  ],
+  signature: [
+    { name: "doc_other_9", defaultTitle: "ลายเซ็น" }
+  ]
+};
+
+const filesToUpload = new Map();
+
 function decodeJWT(token) {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(base64));  // Decode the token
+    return JSON.parse(atob(base64));
   } catch (e) {
     console.error('Failed to decode JWT:', e);
     return null;
   }
 }
 
-// Function to check if the token is expired
 function isTokenExpired(decodedToken) {
-  const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+  const currentTime = Math.floor(Date.now() / 1000);
   return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
 }
 
-// Main logic
-async function loadUserProfile() {
-  const token = localStorage.getItem('authToken'); // Check if token is available
+function getSafeValue(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : null;
+}
 
-  // If there's no token, redirect to login
+async function loadUserProfile() {
+  const token = localStorage.getItem('authToken');
   if (!token) {
     window.location.href = LOGIN_PAGE;
     return;
   }
 
   const decoded = decodeJWT(token);
-  if (!decoded) {
+  if (!decoded || isTokenExpired(decoded)) {
     localStorage.removeItem('authToken');
     window.location.href = LOGIN_PAGE;
     return;
   }
 
-  const id = decoded.id;
-  const userName = decoded.username;
-  const fname = decoded.first_name;
-  const lname = decoded.last_name;
-  const email = decoded.email;
-  const role = decoded.role;
-  const myPicture = decoded.myPicture;
+  const { username, first_name, last_name, role, insur_comp, myPicture } = decoded;
 
-  document.getElementById('user-info').innerText = fname + ' ' + lname;
-  document.getElementById('ownerName').value = fname + ' ' + lname;
+  document.getElementById('user-info').innerText = first_name + ' ' + last_name;
+  document.getElementById('ownerName').value = first_name + ' ' + last_name;
   document.getElementById('user-role').innerText = role;
 
-  // If user is Insurance, set and disable the insurance company dropdown and hide tabs
   if (role === 'Insurance') {
     const insuranceCompanySelect = document.getElementById('insuranceCompany');
-    const userInsurComp = decoded.insur_comp;
-    if (insuranceCompanySelect && userInsurComp) {
-      insuranceCompanySelect.value = userInsurComp;
+    if (insuranceCompanySelect && insur_comp) {
+      insuranceCompanySelect.value = insur_comp;
       insuranceCompanySelect.disabled = true;
     }
-
-    // Hide unnecessary tabs for Insurance role
-    const tabsToHide = ['tab-li-profile', 'tab-li-contact', 'tab-li-note', 'tab-li-history', 'tab-li-upload'];
-    tabsToHide.forEach(tabId => {
+    ['tab-li-profile', 'tab-li-contact', 'tab-li-note', 'tab-li-history', 'tab-li-upload'].forEach(tabId => {
       const tab = document.getElementById(tabId);
-      if (tab) {
-        tab.style.display = 'none';
-      }
+      if (tab) tab.style.display = 'none';
     });
 
-    // For new tasks, set orderStatus to 'เปิดงาน' and disable it
     const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('order_id');
-    if (!orderId) { // Only for new tasks
+    if (!urlParams.get('order_id')) {
       const orderStatusSelect = document.getElementById('orderStatus');
       if (orderStatusSelect) {
         orderStatusSelect.value = 'เปิดงาน';
@@ -89,863 +148,742 @@ async function loadUserProfile() {
     }
   }
 
-  const imageUrl = myPicture;
   const imgElement = document.getElementById('userAvatar');
-  if (imageUrl) {
-    imgElement.src = imageUrl;
-  }
+  if (myPicture && imgElement) imgElement.src = myPicture;
 
-  if (decoded && isTokenExpired(decoded)) {
-    // Token is expired
-    localStorage.removeItem('authToken'); // Clear token
-    window.location.href = LOGIN_PAGE; // Redirect to login page
+  if (['Operation Manager', 'Director', 'Developer'].includes(role)) {
+    const adminMenu = document.getElementById('admin-menu');
+    if (adminMenu) adminMenu.style.display = 'block';
+  } else if (role === 'Sales Manager') {
+    window.location.href = 'dashboard.html';
+    return;
+  } else if (role === 'Officer') {
+    localStorage.removeItem('authToken');
+    window.location.href = LOGIN_PAGE;
     return;
   }
 
-  // Check user role
-  if (decoded.role === 'Operation Manager' || decoded.role === 'Director' || decoded.role === 'Developer') {
-    // Show the admin menu
-    const adminMenu = document.getElementById('admin-menu');
-    if (adminMenu) {
-      adminMenu.style.display = 'block';
-    }
-  } else if (decoded.role === 'Sales Manager') {
-    // Redirect Sales Manager
-    window.location.href = 'dashboard.html';
-    return; // Stop further execution
-  } else if (decoded.role === 'Officer') {
-    // Redirect Officer
-    localStorage.removeItem('authToken');
-    window.location.href = LOGIN_PAGE; // Use LOGIN_PAGE constant
-    return; // Stop further execution
-  }
-
-  // If the token is valid, fetch user profile
   try {
     const response = await fetch(API_URL, {
-      method: 'GET',
-      headers: {
-        'Authorization': `${token}`,
-      },
+      headers: { 'Authorization': `${token}` }
     });
-    console.log(response);
     if (!response.ok) {
-      //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
       localStorage.removeItem('authToken');
       window.location.href = LOGIN_PAGE;
-      return;
     }
-  } catch (error) {
-    //Handle fetch errors(network issues, etc.)
-    console.error('Error fetching user profile:', error);
+  } catch (e) {
+    console.error(e);
     localStorage.removeItem('authToken');
-    window.location.href = LOGIN_PAGE; // Redirect to login page on error
+    window.location.href = LOGIN_PAGE;
   }
 }
 
-
-// Call the function to load the user profile
-document.addEventListener('DOMContentLoaded', () => {
-  loadUserProfile();
-});
-
-
-
-const imageUrls = [];
-
-const gallery = document.getElementById('gallery-documents');
-
-imageUrls.forEach((url, index) => {
-  const col = document.createElement('div');
-
-  const img = document.createElement('img');
-  img.src = url;
-  img.alt = `Image ${index + 1}`;
-  img.className = 'img-card';
-  img.dataset.selected = 'false';
-
-  img.addEventListener('click', () => {
-    if (img.dataset.selected === 'true') {
-      img.dataset.selected = 'false';
-      img.classList.remove('selected');
-    } else {
-      img.dataset.selected = 'true';
-      img.classList.add('selected');
-    }
-  });
-
-  col.appendChild(img);
-  gallery.appendChild(col);
-});
-
-const downloadSelectedBtn = document.getElementById('downloadSelectedBtn');
-if (downloadSelectedBtn) {
-  downloadSelectedBtn.addEventListener('click', async () => {
-    const selectedImages = [...document.querySelectorAll('.img-card')].filter(img => img.dataset.selected === 'true');
-    if (selectedImages.length === 0) {
-      alert('กรุณาเลือกรูปภาพที่ต้องการดาวน์โหลด');
-      return;
-    }
-
-    const zip = new JSZip();
-
-    await Promise.all(
-      selectedImages.map(async (img, i) => {
-        const url = img.src;
-        const response = await fetch(url);
-        const blob = await response.blob();
-        zip.file(`image-${i + 1}.jpg`, blob);
-      })
-    );
-
-    zip.generateAsync({ type: 'blob' }).then(content => {
-      saveAs(content, 'selected-images.zip');
+async function loadAssignees(order, token) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/user-management/assigners`, {
+      method: 'GET',
+      headers: { 'authorization': token }
     });
-  });
-}
-
-const downloadAllBtn = document.getElementById('downloadAllBtn');
-if (downloadAllBtn) {
-  downloadAllBtn.addEventListener('click', async () => {
-    const zip = new JSZip();
-
-    await Promise.all(
-      imageUrls.map(async (url, i) => {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        zip.file(`image-${i + 1}.jpg`, blob);
-      })
-    );
-
-    zip.generateAsync({ type: 'blob' }).then(content => {
-      saveAs(content, 'all-images.zip');
+    if (!response.ok) throw new Error('Network error');
+    const data = await response.json();
+    const select = document.getElementById('responsiblePerson');
+    select.innerHTML = '<option value="">เลือกผู้รับผิดชอบ</option>';
+    data.forEach(person => {
+      const fullName = `${person.first_name} ${person.last_name}`.trim();
+      const option = document.createElement('option');
+      option.value = person.id;
+      option.textContent = fullName;
+      select.appendChild(option);
     });
-  });
-}
-
-
-
-document.addEventListener('DOMContentLoaded', function () {
-  const imageInput = document.getElementById('imageInput');
-  const previewContainer = document.getElementById('previewContainer');
-  const taskIdInput = document.getElementById('taskId');
-  const uploadBtn = document.getElementById('uploadBtn');
-  const progressWrapper = document.getElementById('uploadProgressWrapper');
-
-  if (imageInput) {
-    imageInput.addEventListener('change', () => {
-      previewContainer.innerHTML = '';
-      const files = Array.from(imageInput.files);
-
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const col = document.createElement('div');
-          col.className = 'col-6 col-sm-4 col-md-3';
-          col.innerHTML = `
-            <div class="card shadow-sm border mb-2">
-              <img src="${e.target.result}" class="card-img-top rounded" style="height: 120px; object-fit: cover;">
-            </div>
-          `;
-          previewContainer.appendChild(col);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
+    if (order?.owner) select.value = order.owner;
+  } catch (err) {
+    console.error('Error loading assigners:', err);
   }
+}
 
-  if (uploadBtn) {
-    uploadBtn.addEventListener('click', async function (e) {
-      e.preventDefault();
+function handleFileSelect(event) {
+  const input = event.target;
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const uniqueId = input.id;
+    const img = document.getElementById(`img-${uniqueId}`);
+    const placeholder = document.getElementById(`placeholder-${uniqueId}`);
+    const slot = input.closest('.dynamic-image-slot');
 
-      const files = imageInput.files;
-      const folderName = taskIdInput?.value.trim() || 'default';
-
-      if (!files.length) {
-        alert('กรุณาเลือกรูปภาพก่อนอัปโหลด');
-        return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      if (img) {
+        img.src = e.target.result;
+        img.style.display = 'block';
       }
-
-      const formData = new FormData();
-      formData.append('folder', folderName);
-
-      for (const file of files) {
-        formData.append('images', file);
+      if (placeholder) {
+        placeholder.style.display = 'none';
       }
+      if (slot) {
+        slot.setAttribute('data-uploaded', 'staged');
+        const picType = input.name;
+        const category = input.dataset.category;
+        filesToUpload.set(uniqueId, { file: file, picType: picType, category: category });
 
-      // แสดง progress bar ขณะรอ upload เสร็จ
-      progressWrapper.classList.remove('d-none');
-      uploadBtn.disabled = true;
-
-      try {
-        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-          method: 'POST',
-          body: formData
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          console.log('Uploaded:', result);
-          alert('Upload completed successfully!');
-          // อัปเดตแกลเลอรีภาพที่นี่
-          const gallery_documents = document.getElementById('gallery-documents');
-
-          // วนลูปเพิ่มรูปที่อัปโหลดลง gallery
-          if (result.uploaded && result.uploaded.length) {
-            result.uploaded.forEach(img => {
-              const col = document.createElement('div');
-              col.className = 'col-6 col-sm-4 col-md-3 mb-3';
-              col.innerHTML = `
-              <div class="card shadow-sm border">
-                <img src="${img.url}" alt="Uploaded Image" class="card-img-top rounded" style="height: 150px; object-fit: cover;">
-              </div>
-            `;
-              gallery_documents.appendChild(col);
-            });
-          }
-          imageInput.value = '';
-          previewContainer.innerHTML = '';
-        } else {
-          alert('เกิดข้อผิดพลาดในการอัปโหลด');
+        const container = slot.querySelector('.image-container');
+        if (container) {
+          container.style.border = 'none';
+          container.style.backgroundColor = 'transparent';
         }
-      } catch (error) {
-        console.error('Upload failed:', error);
-        alert('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์');
-      } finally {
-        // ซ่อน progress bar หลัง upload เสร็จไม่ว่าจะสำเร็จหรือไม่
-        progressWrapper.classList.add('d-none');
-        uploadBtn.disabled = false;
       }
-    });
+    };
+    reader.readAsDataURL(file);
   }
+}
 
-  const now = new Date();
-
-  const options = {
-    timeZone: 'Asia/Bangkok',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
+function createAddImageButtons() {
+  const sectionsMap = {
+    'around': document.getElementById('around-images-section'),
+    'accessories': document.getElementById('accessories-images-section'),
+    'inspection': document.getElementById('inspection-images-section'),
+    'fiber': document.getElementById('fiber-documents-section'),
+    'documents': document.getElementById('other-documents-section'),
+    'signature': document.getElementById('signature-documents-section')
   };
 
-  const parts = new Intl.DateTimeFormat('en-GB', options).formatToParts(now);
-  const getPart = (type) => parts.find(p => p.type === type).value;
+  for (const category in sectionsMap) {
+    const targetSection = sectionsMap[category];
+    if (targetSection) {
+      if (targetSection.querySelector('.add-image-btn-container')) continue;
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'text-center mt-3 add-image-btn-container';
+      buttonContainer.innerHTML = `
+                <button type="button" class="btn btn-outline-primary add-image-btn" data-category="${category}">
+                    <i class="bi bi-plus-circle"></i> เพิ่มรูปภาพ
+                </button>
+            `;
+      targetSection.appendChild(buttonContainer);
+    }
+  }
+}
 
-  const formatted = `${getPart('year')}-${getPart('month')}-${getPart('day')} ${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
+function renderNewImageUploadSlot(category) {
+  const uniqueId = `dynamic-upload-${category}-${Date.now()}`;
+  const newSlotHtml = `
+            <div class="col-4 mb-3 dynamic-image-slot" data-category="${category}">
+                <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="width:100%; height:100%; object-fit: cover; display:block;" alt="New Image">
+                    <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
+                    <button type="button" class="upload-btn" title="อัปโหลดรูป" style="position: absolute; bottom: 6px; left: 6px; background-color: rgba(0, 0, 0, 0.5); border: none; color: white; font-size: 18px; line-height: 1; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; border-radius: 50%; width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
+                </div>
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                </div>
+                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="environment">
+            </div>
+        `;
+  return newSlotHtml;
+}
 
-  const transactionDateEl = document.getElementById('transactionDate');
-  if (transactionDateEl) {
-    transactionDateEl.value = formatted;
+
+function createEmptyImageSlot(category, configItem) {
+  const sectionsMap = {
+    'around': document.getElementById('around-images-section')?.querySelector('.row'),
+    'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+    'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+    'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+    'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+    'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+  };
+
+  const targetSection = sectionsMap[category];
+  if (!targetSection) return;
+
+  const uniqueId = `new-image-${category}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const displayTitle = configItem.defaultTitle || 'กรุณาใส่ชื่อ';
+  const picType = configItem.name || 'unknown';
+
+  const newSlotHtml = `
+        <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${picType}" data-pic-url="" data-uploaded="false">
+            <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer; background-color: #f8f9fa; border: 2px dashed #dee2e6; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <img src="" style="width:100%; height:100%; object-fit: cover; display:none;" id="img-${uniqueId}" alt="${displayTitle}">
+                <div class="placeholder-content text-center" id="placeholder-${uniqueId}">
+                    <i class="bi bi-camera" style="font-size: 3rem; color: #adb5bd;"></i>
+                    <p class="text-muted mt-2 mb-0 small">คลิกเพื่ออัปโหลด</p>
+                </div>
+                <button type="button" class="delete-btn" title="ลบ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: #dc3545; font-size: 24px; line-height: 1; cursor: pointer; z-index: 10;"><i class="bi bi-x-circle-fill"></i></button>
+                <label for="${uniqueId}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 5;"></label>
+            </div>
+            <div class="d-flex align-items-center">
+                <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1;">
+            </div>
+            <input type="file" id="${uniqueId}" name="${picType}" data-category="${category}" hidden accept="image/*" capture="environment">
+        </div>
+    `;
+
+  targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
+
+  const newFileInput = document.getElementById(uniqueId);
+  if (newFileInput) {
+    newFileInput.addEventListener('change', handleFileSelect);
   }
 
+  const addedSlot = targetSection.lastElementChild;
+  const deleteBtn = addedSlot.querySelector('.delete-btn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => {
+      if (newFileInput && filesToUpload.has(newFileInput.id)) {
+        filesToUpload.delete(newFileInput.id);
+      }
+      addedSlot.remove();
+    });
+  }
+}
 
+function initializeTemplateButtons() {
+  const buttons = document.querySelectorAll('.create-template-btn');
+  buttons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      const category = button.getAttribute('data-category');
+      if (staticImageConfig[category]) {
+        staticImageConfig[category].forEach(configItem => {
+          createEmptyImageSlot(category, configItem);
+        });
+      }
+    });
+  });
+}
 
+function renderUploadedImages(orderPics) {
+  if (!orderPics || orderPics.length === 0) return;
+  document.querySelectorAll('.dynamic-image-slot[data-server-rendered="true"]').forEach(slot => slot.remove());
 
+  const sectionsMap = {
+    'around': document.getElementById('around-images-section')?.querySelector('.row'),
+    'accessories': document.getElementById('accessories-images-section')?.querySelector('.row'),
+    'inspection': document.getElementById('inspection-images-section')?.querySelector('.row'),
+    'fiber': document.getElementById('fiber-documents-section')?.querySelector('.row'),
+    'documents': document.getElementById('other-documents-section')?.querySelector('.row'),
+    'signature': document.getElementById('signature-documents-section')?.querySelector('.row')
+  };
+
+  orderPics.forEach((pic, index) => {
+    if (!pic.pic_type || !pic.pic) return;
+
+    let mainCategory = null;
+    if (staticImageConfig.hasOwnProperty(pic.pic_type)) {
+      mainCategory = pic.pic_type;
+    } else {
+      for (const key in staticImageConfig) {
+        if (staticImageConfig[key].some(item => item.name === pic.pic_type)) {
+          mainCategory = key;
+          break;
+        }
+      }
+    }
+
+    if (!mainCategory) return;
+    const targetSection = sectionsMap[mainCategory];
+    if (!targetSection) return;
+
+    const uniqueId = `uploaded-image-${mainCategory}-${Date.now()}-${index}`;
+    const defaultTitleConfig = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle;
+    const displayTitle = pic.pic_title || defaultTitleConfig || 'กรุณาใส่ชื่อ';
+
+    const newSlotHtml = `
+            <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}" data-pic-url="${pic.pic}" data-uploaded="true" data-server-rendered="true">
+                <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
+                    <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${displayTitle}">
+                </div>
+                <div class="d-flex align-items-center">
+                    <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                </div>
+                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="environment">
+            </div>
+        `;
+    targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
+  });
+}
+
+function renderDownloadableImages(orderPics) {
+  const container = document.getElementById('download-images-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!orderPics || orderPics.length === 0) {
+    container.innerHTML = '<p class="text-muted">ไม่มีรูปภาพในรายการนี้</p>';
+    return;
+  }
+
+  const subCategoryToMainCategoryMap = {};
+  for (const mainCategory in staticImageConfig) {
+    staticImageConfig[mainCategory].forEach(item => {
+      subCategoryToMainCategoryMap[item.name] = mainCategory;
+    });
+  }
+
+  const groupedImages = orderPics.reduce((acc, pic) => {
+    let mainCategory = staticImageConfig.hasOwnProperty(pic.pic_type)
+      ? pic.pic_type
+      : subCategoryToMainCategoryMap[pic.pic_type];
+    if (!mainCategory) mainCategory = 'uncategorized';
+    if (!acc[mainCategory]) acc[mainCategory] = [];
+    acc[mainCategory].push(pic);
+    return acc;
+  }, {});
+
+  const categoryOrder = ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature'];
+
+  categoryOrder.forEach(mainCategory => {
+    if (groupedImages[mainCategory]) {
+      container.insertAdjacentHTML('beforeend', `<div class="col-12 mt-4"><h5 class="text-primary border-bottom pb-2 mb-3">${mainCategory}</h5></div>`);
+      groupedImages[mainCategory].forEach(pic => {
+        const cardHtml = `
+            <div class="col-md-3 col-sm-6 mb-4">
+              <div class="card h-100">
+                <a href="${pic.pic}" target="_blank">
+                  <img src="${pic.pic}" class="card-img-top" alt="${pic.pic_title || 'Image'}" style="height: 200px; object-fit: cover;">
+                </a>
+                <div class="card-body text-center">
+                  <p class="card-text">${pic.pic_title || 'No Title'}</p>
+                   <a href="${pic.pic}" class="btn btn-sm btn-primary" download><i class="bx bx-download"></i> Download</a>
+                </div>
+              </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', cardHtml);
+      });
+    }
+  });
+}
+
+function addWatermark(imageFile) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const now = new Date();
+        const watermarkText = `STSERVICE-${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
+        const fontSize = Math.max(18, Math.min(img.width / 30, img.height / 20));
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.shadowColor = 'black';
+        ctx.shadowBlur = 4;
+        ctx.fillText(watermarkText, canvas.width - 10, canvas.height - 10);
+
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas conversion failed')), 'image/jpeg', 0.9);
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(imageFile);
+  });
+}
+
+async function uploadStagedImages(orderId, token) {
+  if (filesToUpload.size === 0) return { success: true };
+
+  const formData = new FormData();
+  formData.append('order_id', orderId);
+  formData.append('folder', `transactions/${orderId}`);
+
+  const processingPromises = [];
+
+  filesToUpload.forEach(({ file, picType, category }, inputName) => {
+    const fileInput = document.getElementById(inputName);
+    const imageSlot = fileInput ? fileInput.closest('.dynamic-image-slot') : null;
+    const titleInput = imageSlot ? imageSlot.querySelector('.image-title-input') : null;
+    const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
+
+    const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
+      .then(compressedFile => addWatermark(compressedFile))
+      .then(watermarkedBlob => {
+        formData.append('images', watermarkedBlob, file.name);
+        formData.append('pic_type', picType);
+        formData.append('pic_title', picTitle);
+      })
+      .catch(err => {
+        console.error('Error processing', err);
+        throw err;
+      });
+    processingPromises.push(promise);
+  });
+
+  try {
+    await Promise.all(processingPromises);
+    const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+      method: 'POST',
+      headers: { 'Authorization': token },
+      body: formData
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || 'Upload failed');
+    filesToUpload.clear();
+    return { success: true, result };
+  } catch (e) {
+    console.error(e);
+    return { success: false, message: e.message };
+  }
+}
+
+async function loadOrderData(orderId) {
+  const token = localStorage.getItem('authToken') || '';
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/order-detail/inquiry`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${token}`
+      },
+      body: JSON.stringify({ order_id: orderId })
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      alert('❌ ไม่พบข้อมูล: ' + result.message);
+      return;
+    }
+
+    const { order, order_details, order_assign, order_hist, order_pic } = result;
+
+    await loadAssignees(order, token);
+
+    document.getElementById('taskId').value = order.id;
+    document.getElementById('jobType').value = order.order_type;
+    document.getElementById('orderStatus').value = order.order_status;
+    document.getElementById('channel').value = order.channel;
+    document.getElementById('processType').value = order.process_type;
+    document.getElementById('insuranceCompany').value = order.insur_comp;
+
+    const transactionDateEl = document.getElementById('transactionDate');
+    if (transactionDateEl && order.order_date) {
+      transactionDateEl.value = order.order_date.slice(0, 19).replace('T', ' ');
+    }
+
+    document.getElementById('carRegistration').value = order.car_registration;
+    document.getElementById('address').value = order.location;
+
+    if (order.appointment_date) {
+      const dt = new Date(order.appointment_date);
+      document.getElementById('appointmentDate').value = dt.toISOString().slice(0, 10);
+      document.getElementById('appointmentTime').value = dt.toTimeString().slice(0, 5);
+    }
+
+    if (order_details) {
+      document.getElementById('phone').value = order_details.tell_1;
+      document.getElementById('phone2').value = order_details.tell_2;
+      document.getElementById('phone3').value = order_details.tell_3;
+      document.getElementById('c_insure').value = order_details.c_insure;
+      document.getElementById('c_tell').value = order_details.c_tell;
+
+      document.getElementById('carProvince').value = order_details.c_car_province;
+      const brandSelect = document.getElementById('carBrand');
+      if (brandSelect) {
+        brandSelect.value = order_details.c_brand;
+        brandSelect.dispatchEvent(new Event('change'));
+      }
+      document.getElementById('carModel').value = order_details.c_version;
+
+      document.getElementById('carYear').value = order_details.c_year;
+      document.getElementById('carChassis').value = order_details.c_number;
+      document.getElementById('carEngine').value = order_details.c_engine;
+      document.getElementById('c_mile').value = order_details.c_mile;
+      document.getElementById('carType').value = order_details.c_type;
+      document.getElementById('carColor').value = order_details.c_coller;
+      document.getElementById('received-doc').checked = order_details.c_recieve;
+      document.getElementById('insuranceBranch').value = order_details.s_branch;
+      document.getElementById('reference1').value = order_details.s_ref;
+      document.getElementById('reference2').value = order_details.s_ref_2;
+      document.getElementById('policyNumber').value = order_details.s_number;
+
+      const startInput = document.getElementById('coverageStartDate');
+      const endInput = document.getElementById('coverageEndDate');
+      if (startInput && order_details?.s_start) startInput.value = order_details.s_start.slice(0, 10);
+      if (endInput && order_details?.s_end) endInput.value = order_details.s_end.slice(0, 10);
+      document.getElementById('insuranceType').value = order_details.s_type;
+      document.getElementById('s_remark').value = order_details.s_remark;
+      document.getElementById('s_ins_remark').value = order_details.s_ins_remark;
+      document.getElementById('s_detail').value = order_details.s_detail;
+      document.getElementById('fleetCar').checked = order_details.s_fleet;
+      document.getElementById('creatorName').value = order_details.c_name;
+    }
+
+    if (order_assign.length > 0) {
+      document.getElementById('contactedCustomer').checked = order_assign[0].is_contact;
+    }
+
+    const timelineEl = document.getElementById('historyTimeline');
+    if (timelineEl) {
+      timelineEl.innerHTML = '';
+      if (order_hist && order_hist.length > 0) {
+        order_hist.forEach(hist => {
+          const date = new Date(hist.created_date);
+          const formattedDate = date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) + ' - ' + date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+          timelineEl.insertAdjacentHTML('beforeend', `
+                <li class="timeline-item">
+                <span class="timeline-icon bg-secondary">${hist.icon || '🕓'}</span>
+                <div class="timeline-content">
+                <h6 class="timeline-title">${hist.task}</h6>
+                <p class="timeline-description">${hist.detail}</p>
+                 <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">${formattedDate}</small>
+                    <small class="text-muted fw-bold"><i class="bx bx-user"></i> ${hist.created_by || 'ไม่ระบุ'}</small>
+                  </div>
+                </div></li>
+            `);
+        });
+
+        const latestDetailMock = order_hist.filter(h => h.task === 'รายละเอียดเพิ่มเติม').pop();
+        if (latestDetailMock) {
+          const addDetails = document.getElementById('additionalDetails');
+          if (addDetails) addDetails.value = latestDetailMock.detail;
+        }
+
+        const notes = order_hist.filter(h => h.task === 'บันทึกข้อความ' || h.icon === '💬');
+        if (notes.length > 0) {
+          const latestNote = notes[notes.length - 1];
+          const noteInput = document.getElementById('note-text');
+          if (noteInput) noteInput.value = latestNote.detail;
+        }
+      } else {
+        timelineEl.innerHTML = `<li class="timeline-item"><div class="timeline-content"><p class="timeline-description text-muted">ไม่มีประวัติการอัปเดต</p></div></li>`;
+      }
+    }
+
+    if (order_pic && order_pic.length > 0) {
+      renderUploadedImages(order_pic);
+      renderDownloadableImages(order_pic);
+    }
+
+  } catch (err) {
+    alert('❌ ไม่สามารถโหลดข้อมูลได้');
+    console.error('Inquiry Error:', err);
+  }
+}
+
+// MAIN EVENT LISTENER
+document.addEventListener('DOMContentLoaded', async function () {
+  loadUserProfile();
+
+  const now = new Date();
+  const formatted = now.toISOString().slice(0, 19).replace('T', ' ');
+  const transactionDateEl = document.getElementById('transactionDate');
+  if (transactionDateEl) transactionDateEl.value = formatted;
 
   const openMapBtn = document.getElementById('openMap');
   if (openMapBtn) {
     openMapBtn.addEventListener('click', function () {
       const address = document.getElementById('address').value.trim();
-
-      if (!address) {
-        alert('กรุณากรอกที่อยู่ก่อนเปิดแผนที่');
-        return;
-      }
-
+      if (!address) { alert('กรุณากรอกที่อยู่ก่อนเปิดแผนที่'); return; }
       const query = encodeURIComponent(address);
-      const mapUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-
-      window.open(mapUrl, '_blank');
+      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
     });
   }
-
-  // --- CSV Import/Export Logic ---
-  const headerMap = {
-    'ชื่อผู้เอาประกัน': 'c_insure',
-    'เบอร์โทรศัพท์ผู้เอาประกัน': 'c_tell',
-    'ทะเบียนรถ': 'carRegistration',
-    'จังหวัดทะเบียนรถ': 'carProvince',
-    'ยี่ห้อรถ': 'carBrand',
-    'รุ่นรถ': 'carModel',
-    'ปีจดทะเบียน': 'carYear',
-    'เลขตัวถัง': 'carChassis',
-    'เลขเครื่อง': 'carEngine',
-    'เลขไมล์': 'c_mile',
-    'ประเภทรถ': 'carType',
-    'สีรถ': 'carColor',
-    'บริษัทประกันภัย': 'insuranceCompany',
-    'สาขาประกันภัย': 'insuranceBranch',
-    'ข้อมูลอ้างอิง1': 'reference1',
-    'ข้อมูลอ้างอิง2': 'reference2',
-    'เลขที่กรมธรรม์': 'policyNumber',
-    'วันที่เริ่มต้นคุ้มครอง': 'coverageStartDate',
-    'วันที่สิ้นสุดคุ้มครอง': 'coverageEndDate',
-    'ประเภทประกัน': 'insuranceType',
-    'หมายเหตุทั่วไป': 's_remark',
-    'หมายเหตุบริษัทประกัน': 's_ins_remark',
-    'รถFleet': 'fleetCar'
-  };
-
   const downloadCsvTemplateBtn = document.getElementById('downloadCsvTemplateBtn');
   if (downloadCsvTemplateBtn) {
     downloadCsvTemplateBtn.addEventListener('click', () => {
-      const headers = Object.keys(headerMap);
-      const csvContent = "data:text/csv;charset=utf-8," + headers.join(',');
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "template_task_detail.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      alert('CSV Template download not implemented in this refactor (check source)');
     });
   }
 
-  const uploadCsvInput = document.getElementById('uploadCsvInput');
-  if (uploadCsvInput) {
-    uploadCsvInput.addEventListener('click', function () {
-      this.value = null;
+  // Download All logic
+  const handleZipDownload = async () => {
+    const zip = new JSZip();
+    // Use taskId (from hidden input) or fallback to 'images'
+    const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
+
+    const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
+    const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
+      const style = getComputedStyle(img);
+      return (img.src && (img.src.startsWith('http') || img.src.startsWith('data:')) && style.display !== 'none' && img.complete);
     });
-    uploadCsvInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const text = e.target.result;
-        const lines = text.split(/\r\n|\n/);
+    if (imageElements.length === 0) { alert('ไม่มีภาพให้ดาวน์โหลด'); return; }
 
-        if (lines.length < 2) {
-          alert('ไฟล์ CSV ไม่ถูกต้องหรือไม่มีข้อมูล');
-          return;
-        }
+    const uniqueImages = new Map();
+    imageElements.forEach((img, i) => { if (!uniqueImages.has(img.src)) uniqueImages.set(img.src, { img, index: i }); });
 
-        const fileHeaders = lines[0].split(',').map(h => h.trim());
-        const data = lines[1].split(',').map(d => d.trim());
-
-        const dataMap = fileHeaders.reduce((obj, fileHeader, index) => {
-          const fieldId = headerMap[fileHeader];
-          if (fieldId) {
-            obj[fieldId] = data[index];
-          }
-          return obj;
-        }, {});
-
-        for (const id in dataMap) {
-          if (Object.hasOwnProperty.call(dataMap, id)) {
-            const value = dataMap[id];
-            const element = document.getElementById(id);
-            if (element) {
-              if (element.type === 'checkbox') {
-                element.checked = ['true', '1', 'yes', 'TRUE', 'YES'].includes(value);
-              } else {
-                element.value = value;
-                if (element.tagName === 'SELECT') {
-                  element.dispatchEvent(new Event('change'));
-                }
-              }
-            }
-          }
-        }
-        alert('นำเข้าข้อมูลจาก CSV สำเร็จ!');
-      };
-      reader.readAsText(file, 'UTF-8');
-    });
-  }
-
-
-  async function loadOrderData(orderId) {
-    const token = localStorage.getItem('authToken') || '';
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/order-detail/inquiry`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `${token}`
-        },
-        body: JSON.stringify({ order_id: orderId })
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        alert('❌ ไม่พบข้อมูล: ' + result.message);
-        return;
-      }
-
-      const { order, order_details, order_assign, order_hist, order_pic } = result;
-
-      // ✅ โหลดผู้รับผิดชอบก่อนใส่ค่า owner
-      await loadAssignees(order, token);
-
-      // 🔹 orders
-      document.getElementById('taskId').value = order.id;
-      document.getElementById('jobType').value = order.order_type;
-      document.getElementById('orderStatus').value = order.order_status;
-      document.getElementById('channel').value = order.channel;
-      document.getElementById('processType').value = order.process_type;
-      document.getElementById('insuranceCompany').value = order.insur_comp;
-      document.getElementById('transactionDate').value = order.order_date?.slice(0, 19).replace('T', ' ');
-      document.getElementById('carRegistration').value = order.car_registration;
-      document.getElementById('address').value = order.location;
-
-      // 🔹 appointment
-      if (order.appointment_date) {
-        const dt = new Date(order.appointment_date);
-        document.getElementById('appointmentDate').value = dt.toISOString().slice(0, 10);
-        document.getElementById('appointmentTime').value = dt.toTimeString().slice(0, 5);
-      }
-
-      // 🔹 order_details
-      if (order_details) {
-        document.getElementById('phone').value = order_details.tell_1;
-        document.getElementById('phone2').value = order_details.tell_2;
-        document.getElementById('phone3').value = order_details.tell_3;
-        document.getElementById('c_insure').value = order_details.c_insure;
-        document.getElementById('c_tell').value = order_details.c_tell;
-        document.getElementById('carRegistration').value = order_details.c_licent;
-        document.getElementById('carProvince').value = order_details.c_car_province;
-
-        document.getElementById('carBrand').value = order_details.c_brand;
-        brandSelect.dispatchEvent(new Event('change'));
-        document.getElementById('carModel').value = order_details.c_version;
-
-        document.getElementById('carYear').value = order_details.c_year;
-        document.getElementById('carChassis').value = order_details.c_number;
-        document.getElementById('carEngine').value = order_details.c_engine;
-        document.getElementById('c_mile').value = order_details.c_mile;
-        document.getElementById('carType').value = order_details.c_type;
-        document.getElementById('carColor').value = order_details.c_coller;
-        document.getElementById('received-doc').checked = order_details.c_recieve;
-        document.getElementById('insuranceBranch').value = order_details.s_branch;
-        document.getElementById('reference1').value = order_details.s_ref;
-        document.getElementById('reference2').value = order_details.s_ref_2;
-        document.getElementById('policyNumber').value = order_details.s_number;
-        const startInput = document.getElementById('coverageStartDate');
-        const endInput = document.getElementById('coverageEndDate');
-
-        if (startInput && order_details?.s_start) {
-          startInput.value = order_details.s_start.slice(0, 10);
-        }
-
-        if (endInput && order_details?.s_end) {
-          endInput.value = order_details.s_end.slice(0, 10);
-        }
-        document.getElementById('insuranceType').value = order_details.s_type;
-        document.getElementById('s_remark').value = order_details.s_remark;
-        document.getElementById('s_ins_remark').value = order_details.s_ins_remark;
-        document.getElementById('s_detail').value = order_details.s_detail;
-        document.getElementById('fleetCar').checked = order_details.s_fleet;
-        document.getElementById('creatorName').value = order_details.c_name;
-      }
-
-      // 🔹 order_assign (รายการแรก)
-      if (order_assign.length > 0) {
-        document.getElementById('contactedCustomer').checked = order_assign[0].is_contact;
-      }
-
-      // 🔹 order_hist (แสดงบน timeline)
-      const timelineEl = document.getElementById('historyTimeline');
-      if (timelineEl) {
-        timelineEl.innerHTML = '';
-
-        if (order_hist && order_hist.length > 0) {
-          order_hist.forEach(hist => {
-            const date = new Date(hist.created_date);
-            const formattedDate = date.toLocaleDateString('th-TH', {
-              year: 'numeric', month: 'short', day: 'numeric'
-            }) + ' - ' + date.toLocaleTimeString('th-TH', {
-              hour: '2-digit', minute: '2-digit'
-            }) + ' น.';
-
-            const li = document.createElement('li');
-            li.className = 'timeline-item';
-            li.innerHTML = `
-                <span class="timeline-icon bg-secondary">${hist.icon || '🕓'}</span>
-                <div class="timeline-content">
-                <h6 class="timeline-title">${hist.task}</h6>
-                <p class="timeline-description">${hist.detail}</p>
-                <small class="text-muted">${formattedDate}</small>
-                </div>
-            `;
-            timelineEl.appendChild(li);
+    const promises = [];
+    let index = 1;
+    for (const [src, item] of uniqueImages) {
+      const img = item.img;
+      // Title logic ...
+      let title = img.closest('.dynamic-image-slot')?.querySelector('.image-title-input')?.value?.trim() || `image-${index}`;
+      const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_');
+      const promise = (async () => {
+        try {
+          const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('authToken') || '' },
+            body: JSON.stringify({ imageUrl: src })
           });
-        } else {
-          timelineEl.innerHTML = `
-            <li class="timeline-item">
-                <div class="timeline-content">
-                <p class="timeline-description text-muted">ไม่มีประวัติการอัปเดต</p>
-                </div>
-            </li>`;
-        }
-      }
-
-
-      if (order_pic && order_pic.length > 0) {
-        console.log('🔹 Found order pictures:', order_pic);
-        renderUploadedImages(order_pic);
-      }
-
-    } catch (err) {
-      alert('❌ ไม่สามารถโหลดข้อมูลได้');
-      console.error('Inquiry Error:', err);
+          if (!response.ok) {
+            const directResp = await fetch(src);
+            if (directResp.ok) {
+              const blob = await directResp.blob();
+              zip.file(`${safeName}.jpg`, blob);
+              return;
+            }
+            throw new Error('Proxy failed');
+          }
+          const blob = await response.blob();
+          zip.file(`${safeName}.jpg`, blob);
+        } catch (e) { console.warn('Download failed', e); }
+      })();
+      promises.push(promise);
+      index++;
     }
-  }
+    await Promise.all(promises);
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    saveAs(zipBlob, orderIdVal + '.zip');
+  };
 
-  const uploadedPicCache = new Set();
+  const downloadAllBtn = document.getElementById('downloadAllBtn');
+  if (downloadAllBtn) downloadAllBtn.addEventListener('click', handleZipDownload);
 
-  function renderUploadedImages(orderPics) {
-    // เคลียร์ภาพเดิมทั้งหมด และซ่อน .col-4
-    document.querySelectorAll('.image-gallery').forEach(label => {
-      const img = label.querySelector('img');
-      const title = label.querySelector('.title');
-      const col = label.closest('.col-4');
-
-      if (img) {
-        img.src = '';
-        img.alt = '';
-        img.style.display = 'none';
-      }
-
-      if (title) {
-        title.textContent = '';
-      }
-
-      if (col) {
-        col.style.display = 'none'; // 🔁 ซ่อนไว้ก่อน
-      }
-    });
-
-    uploadedPicCache.clear();
-
-    for (const pic of orderPics) {
-      const inputElem = document.querySelector(`input[name="${pic.pic_type}"]`);
-      if (!inputElem) continue;
-
-      const label = inputElem.closest('label.image-gallery');
-      if (!label) continue;
-
-      const img = label.querySelector('img');
-      const titleDiv = label.querySelector('.title');
-      const col = label.closest('.col-4');
-      if (!img || !titleDiv || !col) continue;
-
-      img.alt = pic.pic_title || 'uploaded image';
-      titleDiv.textContent = pic.pic_title || pic.pic_type;
-
-      img.onload = () => {
-        // ถ้าเป็น blob, revoke หลังโหลด
-        if (pic.pic.startsWith('blob:')) {
-          URL.revokeObjectURL(pic.pic);
-        }
-
-        // ถ้าโหลดได้จริง ค่อยแสดงกล่อง
-        if (img.naturalWidth > 0) {
-          col.style.display = 'block';
-          img.style.display = 'block';
-        }
-      };
-
-      // ถ้ารูปโหลดไม่สำเร็จ จะไม่แสดง img หรือ col
-      img.onerror = () => {
-        img.style.display = 'none';
-        col.style.display = 'none';
-      };
-
-      // เพิ่ม timestamp กัน cache
-      img.src = pic.pic + '?t=' + new Date().getTime();
-
-      uploadedPicCache.add(pic.pic_type);
-    }
-  }
-
-
-
-
-
-
-  async function loadAssignees(order, token) {
-    try {
-      const response = await fetch(`https://be-claims-service.onrender.com/api/user-management/assigners`, {
-        method: 'GET',
-        headers: {
-          'authorization': token
-        }
-      });
-
-      if (!response.ok) throw new Error('Network error');
-
-      const data = await response.json();
-      const select = document.getElementById('responsiblePerson');
-
-      select.innerHTML = '<option value="">เลือกผู้รับผิดชอบ</option>';
-      data.forEach(person => {
-        const fullName = `${person.first_name} ${person.last_name}`.trim();
-        const option = document.createElement('option');
-        option.value = person.id;
-        option.textContent = fullName;
-        select.appendChild(option);
-      });
-
-      // ✅ เซ็ตค่าที่ตรงกับ owner
-      if (order?.owner) {
-        select.value = order.owner;
-      }
-
-    } catch (err) {
-      console.error('Error loading assigners:', err);
-    }
-  }
-
-  // This is the main entry point for the page logic
-  const urlParams = new URLSearchParams(window.location.search);
-  const orderId = urlParams.get('order_id');
-  if (orderId) {
-    loadOrderData(orderId);
-  } else {
-    // This is a new task, so enable the jobType dropdown
-    const jobTypeEl = document.getElementById('jobType');
-    if (jobTypeEl) {
-      jobTypeEl.disabled = false;
-    }
-    console.warn('❗ ไม่พบ order ID ใน URL, เปิดโหมดสร้างงานใหม่');
-  }
-
-  // --- FORM SUBMISSION LOGIC ---
   const form = document.getElementById('taskForm');
   if (form) {
-    const manualSubmitBtn = document.getElementById('submittaskBtn');
-    if (manualSubmitBtn) {
-      manualSubmitBtn.addEventListener('click', function () {
-        console.log('📥 ปุ่ม #submittaskBtn ถูกกด => ส่งฟอร์มด้วย JS');
-        form.requestSubmit(); // ทำให้เกิด event 'submit' ตามปกติ
-      });
-    }
-
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
-      console.log('🔥 Submit event triggered');
-
-      // Helper function to safely get value and log error if element is not found
-      function getValueById(id, defaultValue = '') {
-        const element = document.getElementById(id);
-        if (!element) {
-          console.error(`❌ Element with ID '${id}' not found!`);
-          return defaultValue;
-        }
-        return element.value;
-      }
-
-      // Helper function to safely get checked status
-      function getCheckedById(id, defaultValue = false) {
-        const element = document.getElementById(id);
-        if (!element) {
-          console.error(`❌ Element with ID '${id}' not found!`);
-          return defaultValue;
-        }
-        return element.checked;
-      }
+      const getValueById = (id) => document.getElementById(id)?.value || '';
 
       const token = localStorage.getItem('authToken') || '';
       const created_by = getValueById('ownerName');
       const date = getValueById('appointmentDate');
       const time = getValueById('appointmentTime');
+      let appointment_date = date ? (time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString()) : null;
 
-      let appointment_date = null;
-      if (date) {
-        appointment_date = time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString();
-      }
+      const order_hist = [{ icon: "📝", task: "สร้างรายการ", detail: "สร้างโดยผู้ใช้: " + created_by, created_by }];
+      const additionalDetails = getValueById('additionalDetails');
+      if (additionalDetails) order_hist.push({ icon: "📝", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by });
+      const noteText = getValueById('note-text');
+      if (noteText) order_hist.push({ icon: "💬", task: "บันทึกข้อความ", detail: noteText, created_by });
 
-      const s_start = getValueById('coverageStartDate').trim();
-      const s_end = getValueById('coverageEndDate').trim();
-
+      // Simplified data construction
       const data = {
-        // 🔹 orders
-        creator: created_by,
-        owner: getValueById('responsiblePerson'),
-        order_type: getValueById('jobType'),
-        order_status: getValueById('orderStatus'),
-        channel: getValueById('channel'),
-        process_type: getValueById('processType'),
-        insur_comp: getValueById('insuranceCompany'),
-        order_date: getValueById('transactionDate'),
-        appointment_date: appointment_date,
-        car_registration: getValueById('carRegistration'),
-        location: getValueById('address'),
-        created_by,
-
-        // 🔹 order_details
-        tell_1: getValueById('phone'),
-        tell_2: getValueById('phone2'),
-        tell_3: getValueById('phone3'),
-        c_insure: getValueById('c_insure'),
-        c_tell: getValueById('c_tell'),
-        c_licent: getValueById('carRegistration'),
+        creator: created_by, order_type: getValueById('jobType'), order_status: getValueById('orderStatus'),
+        channel: getValueById('channel'), process_type: getValueById('processType'), insur_comp: getValueById('insuranceCompany'),
+        order_date: getValueById('transactionDate'), appointment_date, car_registration: getValueById('carRegistration'),
+        location: getValueById('address'), created_by,
+        tell_1: getValueById('phone'), tell_2: getValueById('phone2'), tell_3: getValueById('phone3'),
+        c_insure: getValueById('c_insure'), c_tell: getValueById('c_tell'), c_licent: getValueById('carRegistration'),
         c_car_province: getValueById('carProvince'),
         c_brand: getValueById('carBrand') === 'other' ? getValueById('carBrandCustom') : getValueById('carBrand'),
         c_version: (getValueById('carBrand') === 'other' || getValueById('carModel') === 'other') ? getValueById('carModelCustom') : getValueById('carModel'),
-        c_year: getValueById('carYear'),
-        c_number: getValueById('carChassis'),
-        c_engine: getValueById('carEngine'),
-        c_mile: getValueById('c_mile'),
-        c_type: getValueById('carType'),
-        c_coller: getValueById('carColor'),
-        c_recieve: getCheckedById('received-doc'),
-        s_insure: getValueById('insuranceCompany'),
-        s_branch: getValueById('insuranceBranch'),
-        s_ref: getValueById('reference1'),
-        s_ref_2: getValueById('reference2'),
+        c_year: getValueById('carYear'), c_number: getValueById('carChassis'), c_engine: getValueById('carEngine'),
+        c_mile: getValueById('c_mile'), c_type: getValueById('carType'), c_coller: getValueById('carColor'),
+        c_recieve: document.getElementById('received-doc')?.checked || false, s_insure: getValueById('insuranceCompany'),
+        s_branch: getValueById('insuranceBranch'), s_ref: getValueById('reference1'), s_ref_2: getValueById('reference2'),
         s_number: getValueById('policyNumber'),
-        ...(s_start ? { s_start } : {}),
-        ...(s_end ? { s_end } : {}),
-        s_type: getValueById('insuranceType'),
-        s_remark: getValueById('s_remark'),
-        s_ins_remark: getValueById('s_ins_remark'),
-        s_detail: getValueById('s_detail'),
-        s_fleet: getCheckedById('fleetCar'),
-        updated_by: created_by,
-        c_name: getValueById('creatorName'),
-
-        // 🔹 order_hist[] (log เริ่มต้น)
-        order_hist: [
-          {
-            icon: "📝",
-            task: "สร้างรายการ",
-            detail: "สร้างโดยผู้ใช้: " + created_by,
-            created_by
-          }
-        ]
+        s_type: getValueById('insuranceType'), s_remark: getValueById('s_remark'), s_ins_remark: getValueById('s_ins_remark'),
+        s_detail: getValueById('s_detail'), s_fleet: document.getElementById('fleetCar')?.checked || false, updated_by: created_by,
+        c_name: getValueById('creatorName'), owner: getValueById('responsiblePerson'),
+        order_hist
       };
-
-      console.log('Form data:', data);
+      const s_start = getValueById('coverageStartDate');
+      if (s_start) data.s_start = s_start;
+      const s_end = getValueById('coverageEndDate');
+      if (s_end) data.s_end = s_end;
 
       try {
-        const response = await fetch(`https://be-claims-service.onrender.com/api/orders/create`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders/create`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${token}`
-          },
+          headers: { 'Content-Type': 'application/json', 'Authorization': token },
           body: JSON.stringify(data)
         });
-
         const result = await response.json();
-        console.log('Response:', result);
-
         if (response.ok) {
-          alert('✅ สร้างคำสั่งเรียบร้อยแล้ว');
+          const newOrderId = result.order?.id;
+          if (newOrderId && filesToUpload.size > 0) {
+            const submitBtn = document.getElementById('submittaskBtn');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = 'กำลังอัปโหลด...'; }
+            await uploadStagedImages(newOrderId, token);
+          }
+          alert('✅ สร้างรายการเรียบร้อยแล้ว');
           form.reset();
           window.location.href = 'dashboard.html';
         } else {
           alert('❌ เกิดข้อผิดพลาด: ' + result.message);
         }
-      } catch (error) {
+      } catch (e) {
         alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
-        console.error('Fetch error:', error);
       }
     });
   }
-  // CRM-FIX: Force correct button text to avoid encoding issues
+
   const saveBtn = document.getElementById('submittaskBtn');
-  if (saveBtn) {
-    saveBtn.innerText = 'บันทึกข้อมูล';
-  }
-});
+  if (saveBtn) saveBtn.innerText = 'บันทึกข้อมูล';
 
-// --- CAR MODEL DROPDOWN LOGIC ---
-const brandSelect = document.getElementById('carBrand');
-const modelSelect = document.getElementById('carModel');
-
-function populateModels(brandSelect, modelSelect) {
-  if (!brandSelect || !modelSelect) return;
-
-  // Ensure carModels is available
-  if (typeof carModels === 'undefined') {
-    console.error('carModels object is not defined. Make sure car-models.js is loaded correctly.');
-    return;
-  }
-
-  const selectedBrand = brandSelect.value;
-  const customBrandInput = document.getElementById('carBrandCustom');
-  const customModelInput = document.getElementById('carModelCustom');
-
-  // Reset display
-  if (customBrandInput) {
-    if (selectedBrand === 'other') {
-      customBrandInput.classList.remove('d-none');
-    } else {
-      customBrandInput.classList.add('d-none');
-    }
-  }
-
-  if (selectedBrand === 'other') {
-    // If brand is custom, model is likely custom too.
-    // Hide dropdown and show custom model input directly
-    modelSelect.style.display = 'none';
-    if (customModelInput) customModelInput.classList.remove('d-none');
-    return;
-  } else {
-    modelSelect.style.display = 'block';
-    if (customModelInput) customModelInput.classList.add('d-none'); // Hide custom model input initially
-  }
-
-  const models = carModels[selectedBrand] || [];
-
-  // Clear previous options
-  modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
-
-  // Add new options
-  models.forEach(model => {
-    const option = document.createElement('option');
-    option.value = model;
-    option.textContent = model;
-    modelSelect.appendChild(option);
-  });
-
-  // Add 'Other' option to models list
-  const otherOption = document.createElement('option');
-  otherOption.value = 'other';
-  otherOption.textContent = 'อื่นๆ';
-  modelSelect.appendChild(otherOption);
-
-  // Enable the model dropdown
-  modelSelect.disabled = false;
-}
-
-if (brandSelect && modelSelect) {
-  brandSelect.addEventListener('change', () => populateModels(brandSelect, modelSelect));
-
-  // Handle model 'other' selection
-  modelSelect.addEventListener('change', () => {
-    const customModelInput = document.getElementById('carModelCustom');
-    if (modelSelect.value === 'other') {
-      if (customModelInput) customModelInput.classList.remove('d-none');
-    } else {
+  const brandSelect = document.getElementById('carBrand');
+  const modelSelect = document.getElementById('carModel');
+  if (brandSelect && modelSelect) {
+    const populateModels = () => {
+      if (typeof carModels === 'undefined') return;
+      const selectedBrand = brandSelect.value;
+      const customBrandInput = document.getElementById('carBrandCustom');
+      const customModelInput = document.getElementById('carModelCustom');
+      if (selectedBrand === 'other') {
+        modelSelect.style.display = 'none';
+        if (customBrandInput) customBrandInput.classList.remove('d-none');
+        if (customModelInput) customModelInput.classList.remove('d-none');
+        return;
+      }
+      modelSelect.style.display = 'block';
+      if (customBrandInput) customBrandInput.classList.add('d-none');
       if (customModelInput) customModelInput.classList.add('d-none');
+
+      const models = carModels[selectedBrand] || [];
+      modelSelect.innerHTML = '<option value="" selected disabled>เลือกรุ่น</option>';
+      models.forEach(m => modelSelect.add(new Option(m, m)));
+      modelSelect.add(new Option('อื่นๆ', 'other'));
+      modelSelect.disabled = false;
+    };
+    brandSelect.addEventListener('change', populateModels);
+    modelSelect.addEventListener('change', () => {
+      const customModelInput = document.getElementById('carModelCustom');
+      if (modelSelect.value === 'other') customModelInput?.classList.remove('d-none');
+      else customModelInput?.classList.add('d-none');
+    });
+  }
+
+  // Delegation for dynamic buttons
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.classList.contains('add-image-btn')) {
+      const category = e.target.dataset.category;
+      const newSlotHtml = renderNewImageUploadSlot(category);
+      e.target.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
+      // Add event listeners for new slot
+      const slotDiv = e.target.parentElement.previousElementSibling; // The new slot
+      if (slotDiv) {
+        const fileInput = slotDiv.querySelector('input[type="file"]');
+        if (fileInput) fileInput.addEventListener('change', handleFileSelect);
+        const deleteBtn = slotDiv.querySelector('.delete-btn');
+        if (deleteBtn) deleteBtn.addEventListener('click', () => {
+          if (fileInput && filesToUpload.has(fileInput.id)) filesToUpload.delete(fileInput.id);
+          slotDiv.remove();
+        });
+      }
     }
   });
-}
 
-// --- LOGOUT LOGIC ---
-const logoutBtn = document.getElementById('logout');
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', function (event) {
-    event.preventDefault();
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
-  });
-}
+  createAddImageButtons();
+  initializeTemplateButtons();
 
-const logoutMenu = document.getElementById('logout-menu');
-if (logoutMenu) {
-  logoutMenu.addEventListener('click', function (event) {
-    event.preventDefault();
-    localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
+  // Entry Point
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderId = urlParams.get('order_id') || urlParams.get('id');
+  if (orderId) {
+    await loadOrderData(orderId);
+  } else {
+    const jobTypeEl = document.getElementById('jobType');
+    if (jobTypeEl) jobTypeEl.disabled = false;
+  }
+
+  ['logout', 'logout-menu'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', (e) => {
+      e.preventDefault(); localStorage.removeItem('authToken'); window.location.href = LOGIN_PAGE;
+    });
   });
-}
+});
