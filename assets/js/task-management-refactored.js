@@ -742,9 +742,10 @@ document.addEventListener('DOMContentLoaded', async function () {
   const downloadAllBtn = document.getElementById('downloadAllBtn');
   if (downloadAllBtn) downloadAllBtn.addEventListener('click', handleZipDownload);
 
-  const form = document.getElementById('taskForm');
-  if (form) {
-    form.addEventListener('submit', async function (e) {
+  // เปลี่ยนไปจับที่ปุ่ม submittaskBtn แทน และใช้ event 'click'
+  const submitBtn = document.getElementById('submittaskBtn');
+  if (submitBtn) {
+  submitBtn.addEventListener('click', async function (e) {
       e.preventDefault();
       const getValueById = (id) => document.getElementById(id)?.value || '';
 
