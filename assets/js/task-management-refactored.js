@@ -746,6 +746,8 @@ document.addEventListener('DOMContentLoaded', async function () {
   const submitBtn = document.getElementById('submittaskBtn');
   if (submitBtn) {
   submitBtn.addEventListener('click', async function (e) {
+      const form = document.getElementById('taskForm');
+    
       e.preventDefault();
       const getValueById = (id) => document.getElementById(id)?.value || '';
 
