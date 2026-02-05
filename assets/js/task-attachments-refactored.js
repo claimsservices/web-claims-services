@@ -235,7 +235,7 @@ const itemsPerPage = 20;
 let currentPage = 1;
 let allData = []; // จะเก็บข้อมูลที่ได้จาก API ทั้งหมด
 
-async function fetchData(filter = {}) {
+export async function fetchData(filter = {}) {
   try {
     const res = await fetch(`https://be-claims-service.onrender.com/api/orders/inquiry`, {
       method: 'POST',
@@ -256,7 +256,7 @@ async function fetchData(filter = {}) {
   }
 }
 
-function renderTableData(page) {
+export function renderTableData(page) {
   const start = (page - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   const paginatedData = allData.slice(start, end);
@@ -298,6 +298,7 @@ function renderTableData(page) {
       </a>
     </td>
         <td>${item.order_status}</td>
+        <td>${item.car_registration || '-'}</td>
         <td>${amountToDisplay}</td>
       `;
       tableBody.appendChild(row);
