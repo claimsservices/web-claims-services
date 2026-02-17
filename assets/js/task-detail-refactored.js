@@ -136,6 +136,15 @@ function hideTabs(tabIds) {
     });
 }
 
+function showTabs(tabIds) {
+    tabIds.forEach(id => {
+        const tabElement = document.getElementById(id);
+        if (tabElement) {
+            tabElement.style.display = 'block';
+        }
+    });
+}
+
 function hideUserManagementMenu() {
     const userRole = getUserRole();
     const userManagementMenu = document.getElementById('user-management-menu');
@@ -327,6 +336,7 @@ export function renderUploadedImages(orderPics) {
                 </div>
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
                 </div>
                 <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="environment">
             </div>
@@ -845,11 +855,14 @@ class UIPermissionManager {
 class UIAdminPermissionManager extends UIPermissionManager {
     configure(orderStatus, data) {
         this.enableAll();
-        // Ensure the image tab is visible for admin-level roles
-        const imageTabLink = document.querySelector('button[data-bs-target="#tab-contact"]');
-        if (imageTabLink) {
-            imageTabLink.parentElement.style.display = 'block';
-        }
+        // Ensure the image tab and history tab are visible for admin-level roles
+        showTabs(['tab-contact-li', 'tab-history-li']);
+
+        // Explicitly show all edit-title-btn for internal staff
+        document.querySelectorAll('.edit-title-btn').forEach(btn => {
+            btn.style.display = 'inline-block';
+            btn.disabled = false;
+        });
 
         // Show the toggle button and hide empty slots by default
         const toggleBtn = document.getElementById('toggleEmptySlotsBtn');
@@ -1146,6 +1159,87 @@ async function populateModels(brandSelect, modelSelect) {
     modelSelect.disabled = false;
 }
 
+// =========================================================
+// OFFLINE LOG MANAGER
+// =========================================================
+const OfflineLogManager = {
+    STORAGE_KEY: 'offline_claims_logs',
+
+    getLogs() {
+        try {
+            const logs = localStorage.getItem(this.STORAGE_KEY);
+            return logs ? JSON.parse(logs) : [];
+        } catch (e) {
+            console.error('Error reading offline logs', e);
+            return [];
+        }
+    },
+
+    saveLog(orderId, orderStatus, createdBy, logEntry) {
+        try {
+            const logs = this.getLogs();
+            logs.push({
+                orderId,
+                orderStatus,
+                createdBy,
+                logEntry,
+                timestamp: Date.now(),
+                retryCount: 0
+            });
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(logs));
+            console.log('✅ Offline log saved to queue:', logEntry);
+        } catch (e) {
+            console.error('Error saving offline log', e);
+        }
+    },
+
+    async processLogs() {
+        if (!navigator.onLine) {
+            console.log('Device is offline. Skipping log processing.');
+            return;
+        }
+
+        const logs = this.getLogs();
+        if (logs.length === 0) return;
+
+        console.log(`Attempting to send ${logs.length} offline logs...`);
+        const remainingLogs = [];
+        const token = localStorage.getItem('authToken') || '';
+
+        for (const log of logs) {
+            try {
+                const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${log.orderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                    body: JSON.stringify({
+                        order_status: log.orderStatus,
+                        updated_by: log.createdBy,
+                        order_hist: [log.logEntry]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server responded with ${response.status}`);
+                }
+
+                console.log(`✅ Successfully synced offline log for order ${log.orderId}`);
+
+            } catch (err) {
+                console.error(`Failed to retry offline log for order ${log.orderId}:`, err);
+                log.retryCount = (log.retryCount || 0) + 1;
+                if (log.retryCount < 5) { // helper to prevent infinite loops of bad logs
+                    remainingLogs.push(log);
+                }
+            }
+        }
+
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(remainingLogs));
+    }
+};
+
+window.addEventListener('online', () => OfflineLogManager.processLogs());
+window.addEventListener('load', () => OfflineLogManager.processLogs());
+
 async function initCarModelDropdown(brandSelect, modelSelect) {
     if (brandSelect && modelSelect) {
         const customBrandInput = document.getElementById('carBrandCustom');
@@ -1261,10 +1355,23 @@ async function uploadStagedImages(orderId, token) {
         processingPromises.push(promise);
     });
 
+    const userInfoEl = document.getElementById('user-info');
+    const created_by = userInfoEl && userInfoEl.innerText ? userInfoEl.innerText.trim() : 'System/Unknown';
+
     try {
         await Promise.all(processingPromises);
     } catch (error) {
         alert('เกิดข้อผิดพลาดในการเตรียมไฟล์สำหรับอัปโหลด');
+        // Log failure to history
+        fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+            body: JSON.stringify({
+                order_status: getSafeValue('orderStatus'),
+                updated_by: created_by,
+                order_hist: [{ icon: "🚨", task: "เตรียมอัปโหลดล้มเหลว", detail: `ล้มเหลวในการเตรียมไฟล์: ${error.message}`, created_by }]
+            })
+        }).catch(e => console.error('Emergency logging failed', e));
         return { success: false };
     }
 
@@ -1276,16 +1383,46 @@ async function uploadStagedImages(orderId, token) {
         });
 
         const result = await response.json();
-        if (!response.ok) {
-            throw new Error(result.message || 'Upload failed');
+
+        if (response.ok) {
+            // Success logging is usually handled by the main save if this is part of a larger update,
+            // but we can add a small log here if it was purely an upload session.
+            // Actually, the main save handles it.
+            filesToUpload.clear(); // Clear staged files on success
+            return { success: true, data: result };
+        } else {
+            alert('❌ อัปโหลดรูปภาพล้มเหลว: ' + result.message);
+            // Log failure to history
+            fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                body: JSON.stringify({
+                    order_status: getSafeValue('orderStatus'),
+                    updated_by: created_by,
+                    order_hist: [{ icon: "🚨", task: "อัปโหลดล้มเหลว", detail: `ล้มเหลว: ${result.message}`, created_by }]
+                })
+            }).catch(e => console.error('Emergency logging failed', e));
+            return { success: false };
         }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์อัปโหลด (บันทึก Log ลงเครื่องแล้ว)');
+        // Log failure to history
+        const logEntry = { icon: "🚨", task: "อัปโหลดล้มเหลว (Network)", detail: `ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์: ${error.message}`, created_by };
 
-        filesToUpload.clear(); // Clear staged files on success
-        return { success: true, result: result };
+        fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+            body: JSON.stringify({
+                order_status: getSafeValue('orderStatus'),
+                updated_by: created_by,
+                order_hist: [logEntry]
+            })
+        }).catch(e => {
+            console.warn('Network failed immediately during upload, queuing offline log...', e);
+            OfflineLogManager.saveLog(orderId, getSafeValue('orderStatus'), created_by, logEntry);
+        });
 
-    } catch (err) {
-        console.error('Upload error:', err);
-        alert(`ไม่สามารถอัปโหลดรูปภาพได้: ${err.message}`);
         return { success: false };
     }
 }
@@ -1700,6 +1837,40 @@ window.addEventListener('load', async function () {
                 }
             }
         }
+
+        const editTitleBtn = e.target.closest('.edit-title-btn');
+        if (editTitleBtn) {
+            e.preventDefault();
+            const imageSlot = editTitleBtn.closest('.dynamic-image-slot');
+            const orderId = getSafeValue('taskId');
+            const picUrl = imageSlot.getAttribute('data-pic-url');
+            const titleInput = imageSlot.querySelector('.image-title-input');
+            const newTitle = titleInput ? titleInput.value.trim() : '';
+
+            if (!picUrl) {
+                alert('⚠️ รูปภาพนี้ยังไม่ได้อัปโหลด ไม่สามารถแก้ไขชื่อในระบบได้ (ชื่อจะถูกบันทึกเมื่อกดบันทึกข้อมูลหลัก)');
+                return;
+            }
+
+            if (!newTitle) {
+                alert('⚠️ กรุณาใส่ชื่อรูปภาพ');
+                return;
+            }
+
+            editTitleBtn.disabled = true;
+            const originalIcon = editTitleBtn.innerHTML;
+            editTitleBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+            const success = await updateImageTitle(orderId, picUrl, newTitle);
+
+            editTitleBtn.disabled = false;
+            editTitleBtn.innerHTML = originalIcon;
+
+            if (success) {
+                // Optionally reload or just show success
+                console.log('Image title updated successfully');
+            }
+        }
     });
 
 
@@ -1887,7 +2058,14 @@ window.addEventListener('load', async function () {
                 // Capture Additional Details and Notes
                 const additionalDetails = getSafeValue('additionalDetails');
                 const noteText = getSafeValue('note-text');
-                const dynamicOrderHist = [{ icon: "📝", task: "อัปเดตรายการ", detail: `อัปเดตโดยผู้ใช้: ${created_by}`, created_by }];
+
+                // --- Detailed Logging Logic ---
+                const imgCount = orderPic.length;
+                const imgTitles = orderPic.map(p => p.pic_title || 'ไม่ระบุชื่อ').join(', ');
+                const payloadSize = JSON.stringify({ ...orderPic }).length; // Approx size of images part
+                const logDetail = `อัปเดตโดย: ${created_by} | รูป: ${imgCount} ใบ (${(payloadSize / 1024).toFixed(2)} KB) | รายชื่อ: ${imgTitles.substring(0, 100)}${imgTitles.length > 100 ? '...' : ''}`;
+
+                const dynamicOrderHist = [{ icon: "📝", task: "อัปเดตรายการ", detail: logDetail, created_by }];
 
                 if (additionalDetails) {
                     dynamicOrderHist.push({ icon: "ℹ️", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by });
@@ -1960,13 +2138,18 @@ window.addEventListener('load', async function () {
                 }
 
                 try {
+                    const startTime = Date.now();
                     const response = await fetch(endpoint, {
                         method: method, headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` }, body:
                             JSON.stringify(data)
                     });
+                    const endTime = Date.now();
+                    const duration = endTime - startTime;
+                    console.log(`Update Request Duration: ${duration}ms`);
+
                     const result = await response.json();
                     if (response.ok) {
-                        alert('✅ ดำเนินการเรียบร้อยแล้ว'); // Changed message to be more generic
+                        alert('✅ ดำเนินการเรียบร้อยแล้ว (ใช้เวลา ' + (duration / 1000).toFixed(2) + ' วินาที)'); // Changed message to be more generic
                         // Clear Note and Additional Details inputs
                         const addDetailsEl = document.getElementById('additionalDetails');
                         if (addDetailsEl) addDetailsEl.value = '';
@@ -1975,10 +2158,40 @@ window.addEventListener('load', async function () {
                         loadOrderData(currentOrderId);
                     } else {
                         alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+                        // Log failure to history
+                        if (currentOrderId && result.message) {
+                            fetch(`https://be-claims-service.onrender.com/api/order-status/update/${currentOrderId}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                                body: JSON.stringify({
+                                    order_status: getSafeValue('orderStatus'),
+                                    updated_by: created_by,
+                                    order_hist: [{ icon: "🚨", task: "อัปเดตล้มเหลว", detail: `ล้มเหลว: ${result.message}`, created_by }]
+                                })
+                            }).catch(e => console.error('Emergency logging failed', e));
+                        }
                     }
                 } catch (error) {
-                    alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์');
+                    alert('❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ (บันทึก Log ลงเครื่องแล้ว)');
                     console.error('Fetch error:', error);
+                    // Log failure to history (if we have orderId)
+                    if (currentOrderId) {
+                        const logEntry = { icon: "🚨", task: "อัปเดตล้มเหลว (Network)", detail: `ล้มเหลว: ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (${error.message})`, created_by };
+
+                        // Try standard fetch first (might fail if offline), then queue
+                        fetch(`https://be-claims-service.onrender.com/api/order-status/update/${currentOrderId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                            body: JSON.stringify({
+                                order_status: getSafeValue('orderStatus'),
+                                updated_by: created_by,
+                                order_hist: [logEntry]
+                            })
+                        }).catch(e => {
+                            console.warn('Network failed immediately, queuing offline log...', e);
+                            OfflineLogManager.saveLog(currentOrderId, getSafeValue('orderStatus'), created_by, logEntry);
+                        });
+                    }
                 } finally {
                     if (manualSubmitBtn) {
                         manualSubmitBtn.disabled = false;
@@ -2048,7 +2261,7 @@ window.addEventListener('load', async function () {
                     c_mile: getSafeValue('c_mile'),
                     c_type: getSafeValue('carType'),
                     updated_by: updated_by,
-                    order_hist: [{ icon: "🚲", task: "ส่งงานและอัปเดตข้อมูล", detail: `อัปเดตสถานะและข้อมูลโดยผู้ใช้: ${updated_by}`, created_by: updated_by }]
+                    order_hist: [] // Will be populated below
                 };
 
                 // Collect picture data
@@ -2063,6 +2276,15 @@ window.addEventListener('load', async function () {
                         orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
                     }
                 });
+
+                // --- Detailed Logging Logic (Bike) ---
+                const imgCount = orderPic.length;
+                const imgTitles = orderPic.map(p => p.pic_title || 'ไม่ระบุชื่อ').join(', ');
+                const payloadSize = JSON.stringify(orderPic).length;
+                const logDetail = `อัปเดตสถานะและข้อมูลปโดย: ${updated_by} | รูป: ${imgCount} ใบ (${(payloadSize / 1024).toFixed(2)} KB) | รายชื่อ: ${imgTitles.substring(0, 100)}${imgTitles.length > 100 ? '...' : ''}`;
+
+                carDetailsPayload.order_hist = [{ icon: "🚲", task: "ส่งงานและอัปเดตข้อมูล", detail: logDetail, created_by: updated_by }];
+
                 carDetailsPayload.order_pic = orderPic;
 
                 const endpoint = `https://be-claims-service.onrender.com/api/order-pic/update/${currentOrderId}`;
@@ -2071,21 +2293,44 @@ window.addEventListener('load', async function () {
                 console.log('Submitting payload for Bike:', JSON.stringify(carDetailsPayload, null, 2));
 
                 try {
+                    const startTime = Date.now();
                     const response = await fetch(endpoint, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
                         body: JSON.stringify(carDetailsPayload)
                     });
+                    const endTime = Date.now();
+                    const duration = endTime - startTime;
+                    console.log(`Bike Update Request Duration: ${duration}ms`);
+
                     const result = await response.json();
+
                     if (response.ok) {
-                        alert('✅ อัปเดตข้อมูลและสถานะเรียบร้อยแล้ว');
+                        alert('✅ อัปเดตข้อมูลและสถานะเรียบร้อยแล้ว (ใช้เวลา ' + (duration / 1000).toFixed(2) + ' วินาที)');
                         loadOrderData(currentOrderId);
                     } else {
                         throw new Error(result.message || 'การอัปเดตล้มเหลว');
                     }
                 } catch (error) {
-                    alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+                    alert(`❌ เกิดข้อผิดพลาด: ${error.message} (บันทึก Log ลงเครื่องแล้ว)`);
                     console.error('Fetch error for bike submission:', error);
+                    // Emergency logging for Bike failure
+                    if (currentOrderId && token) {
+                        const logEntry = { icon: "🚨", task: "อัปเดตล้มเหลว (Bike)", detail: `ล้มเหลว: ${error.message}`, created_by: updated_by };
+
+                        fetch(`https://be-claims-service.onrender.com/api/order-status/update/${currentOrderId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                            body: JSON.stringify({
+                                order_status: newStatus,
+                                updated_by: updated_by,
+                                order_hist: [logEntry]
+                            })
+                        }).catch(e => {
+                            console.warn('Network failed immediately (Bike), queuing offline log...', e);
+                            OfflineLogManager.saveLog(currentOrderId, newStatus, updated_by, logEntry);
+                        });
+                    }
                 } finally {
                     if (manualSubmitBtn) {
                         manualSubmitBtn.disabled = false;

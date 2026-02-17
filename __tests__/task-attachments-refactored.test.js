@@ -15,12 +15,25 @@ Object.defineProperty(window, 'localStorage', {
     value: mockLocalStorage,
 });
 
-// Fix JSDOM navigation error by mocking window.location
+// Fix JSDOM navigation error by mocking window.location properly
 delete window.location;
-window.location = { href: '' };
+window.location = {
+    href: 'http://localhost/',
+    assign: jest.fn(),
+    replace: jest.fn(),
+    reload: jest.fn(),
+    origin: 'http://localhost',
+    pathname: '/',
+    search: '',
+    hash: ''
+};
 
 // Mock fetch globally
 global.fetch = jest.fn();
+
+// Valid-looking mock JWT payload: {"id":1,"username":"test","role":"Officer"}
+// Base64URL encoded: eyJpZCI6MSwidXNlcm5hbWUiOiJ0ZXN0Iiwicm9sZSI6Ik9mZmljZXIifQ
+const MOCK_TOKEN = 'header.eyJpZCI6MSwidXNlcm5hbWUiOiJ0ZXN0Iiwicm9sZSI6Ik9mZmljZXIifQ.signature';
 
 describe('task-attachments-refactored.js', () => {
     let fetchData;
@@ -28,7 +41,7 @@ describe('task-attachments-refactored.js', () => {
 
     beforeAll(async () => {
         // 2. Setup initial state to prevent top-level redirect in the module
-        mockLocalStorage.getItem.mockReturnValue('mock-token');
+        mockLocalStorage.getItem.mockReturnValue(MOCK_TOKEN);
 
         // Mock the version.json fetch that runs at top level
         global.fetch.mockImplementation((url) => {

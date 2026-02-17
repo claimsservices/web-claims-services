@@ -216,7 +216,7 @@ if (token) {
   const user = decodeJWT(token); // Use safe decode function
 
   // Check if the user has the 'admin' role
-  if (user.role === 'Officer' || user.role === 'Bike') {
+  if (user && (user.role === 'Officer' || user.role === 'Bike')) {
     //do some think
   } else {
     localStorage.removeItem('authToken');
