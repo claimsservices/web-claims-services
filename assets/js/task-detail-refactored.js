@@ -414,7 +414,8 @@ async function loadOrderData(orderId) {
         setValue('channel', order.channel);
         setValue('processType', order.process_type);
         setValue('insuranceCompany', order.insur_comp);
-        setValue('transactionDate', formatDateTime(order.order_date));
+        console.log('DEBUG: order_date:', order.order_date, 'created_date:', order.created_date);
+        setValue('transactionDate', formatDateTime(order.created_date));
         setValue('carRegistration', order.car_registration);
         setValue('address', order.location);
 
