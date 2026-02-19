@@ -464,8 +464,20 @@ function addWatermark(imageFile) {
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
 
+        // Prepare the watermark text in Thailand time (Asia/Bangkok)
         const now = new Date();
-        const watermarkText = `STSERVICE-${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${now.getMinutes()}`;
+        const formatter = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Asia/Bangkok',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+        const parts = formatter.formatToParts(now);
+        const getPart = (type) => parts.find(p => p.type === type).value;
+        const watermarkText = `STSERVICE-${getPart('day')}-${getPart('month')}-${getPart('year')} ${getPart('hour')}:${getPart('minute')}`;
         const fontSize = Math.max(18, Math.min(img.width / 30, img.height / 20));
         ctx.font = `bold ${fontSize}px Arial`;
         ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
@@ -745,9 +757,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   // เปลี่ยนไปจับที่ปุ่ม submittaskBtn แทน และใช้ event 'click'
   const submitBtn = document.getElementById('submittaskBtn');
   if (submitBtn) {
-  submitBtn.addEventListener('click', async function (e) {
+    submitBtn.addEventListener('click', async function (e) {
       const form = document.getElementById('taskForm');
-    
+
       e.preventDefault();
       const getValueById = (id) => document.getElementById(id)?.value || '';
 

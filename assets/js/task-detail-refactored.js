@@ -107,6 +107,30 @@ function getUserRole() {
     return decoded ? decoded.role : null;
 }
 
+function formatDateTime(dateStr) {
+    if (!dateStr) return '';
+    let rawDate = dateStr;
+    if (typeof dateStr === 'string') {
+        if (rawDate.includes(' ')) rawDate = rawDate.replace(' ', 'T');
+        const hasTimeZone = rawDate.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(rawDate);
+        if (!hasTimeZone) rawDate += 'Z';
+    }
+
+    // Explicitly parse string to Date to handle various formats if needed, but new Date() usually works with ISO
+    const date = new Date(rawDate);
+    if (isNaN(date.getTime())) return dateStr;
+
+    return date.toLocaleString('th-TH', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Bangkok'
+    });
+}
+
 function getSafeValue(id) {
     const el = document.getElementById(id);
     return el ? el.value : null;
@@ -186,14 +210,20 @@ function addWatermark(imageFile) {
                 // Draw the original image
                 ctx.drawImage(img, 0, 0);
 
-                // Prepare the watermark text
+                // Prepare the watermark text in Thailand time (Asia/Bangkok)
                 const now = new Date();
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-                const year = now.getFullYear();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const watermarkText = `STSERVICE-${day}-${month}-${year} ${hours}:${minutes}`;
+                const formatter = new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Bangkok',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                const parts = formatter.formatToParts(now);
+                const getPart = (type) => parts.find(p => p.type === type).value;
+                const watermarkText = `STSERVICE-${getPart('day')}-${getPart('month')}-${getPart('year')} ${getPart('hour')}:${getPart('minute')}`;
 
                 // Style the watermark
                 const fontSize = Math.max(18, Math.min(img.width / 30, img.height / 20)); // Dynamic font size
@@ -384,7 +414,7 @@ async function loadOrderData(orderId) {
         setValue('channel', order.channel);
         setValue('processType', order.process_type);
         setValue('insuranceCompany', order.insur_comp);
-        setValue('transactionDate', order.order_date?.slice(0, 19).replace('T', ' '));
+        setValue('transactionDate', formatDateTime(order.order_date));
         setValue('carRegistration', order.car_registration);
         setValue('address', order.location);
 

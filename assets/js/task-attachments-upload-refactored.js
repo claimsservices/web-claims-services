@@ -654,14 +654,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Draw the original image
                     ctx.drawImage(img, 0, 0);
 
-                    // Prepare the watermark text
+                    // Prepare the watermark text in Thailand time (Asia/Bangkok)
                     const now = new Date();
-                    const day = String(now.getDate()).padStart(2, '0');
-                    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-                    const year = now.getFullYear();
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                    const watermarkText = `STSERVICE-${day}-${month}-${year} ${hours}:${minutes}`;
+                    const formatter = new Intl.DateTimeFormat('en-GB', {
+                        timeZone: 'Asia/Bangkok',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+                    const parts = formatter.formatToParts(now);
+                    const getPart = (type) => parts.find(p => p.type === type).value;
+                    const watermarkText = `STSERVICE-${getPart('day')}-${getPart('month')}-${getPart('year')} ${getPart('hour')}:${getPart('minute')}`;
 
                     // Style the watermark
                     const fontSize = Math.max(18, Math.min(img.width / 30, img.height / 20)); // Dynamic font size
