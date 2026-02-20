@@ -513,7 +513,7 @@ class Menu {
   manageScroll() {
     const { PerfectScrollbar } = window
     const menuInner = document.querySelector('.menu-inner')
-
+    if (!menuInner) return
     if (window.innerWidth < window.Helpers.LAYOUT_BREAKPOINT) {
       if (this._scrollbar && typeof this._scrollbar.destroy === 'function') {
         // window.Helpers.menuPsScroll.destroy()
