@@ -515,7 +515,7 @@ class Menu {
     const menuInner = document.querySelector('.menu-inner')
 
     if (window.innerWidth < window.Helpers.LAYOUT_BREAKPOINT) {
-      if (this._scrollbar !== null) {
+      if (this._scrollbar && typeof this._scrollbar.destroy === 'function') {
         // window.Helpers.menuPsScroll.destroy()
         this._scrollbar.destroy()
         this._scrollbar = null
@@ -575,7 +575,7 @@ class Menu {
     this._onOpened = null
     this._onClose = null
     this._onClosed = null
-    if (this._scrollbar) {
+    if (this._scrollbar && typeof this._scrollbar.destroy === 'function') {
       this._scrollbar.destroy()
       this._scrollbar = null
     }
