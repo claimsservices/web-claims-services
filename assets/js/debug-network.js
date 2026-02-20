@@ -25,17 +25,41 @@
             </button>
         </div>
     `;
-    document.body.appendChild(overlay);
+    // Buffer for early logs
+    const logBuffer = [];
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!document.getElementById('debug-network-overlay')) {
+                document.body.appendChild(overlay);
+            }
+            // Flush buffer
+            logBuffer.forEach(item => logError(item.title, item.detail));
+            logBuffer.length = 0;
+        });
+    } else {
+        document.body.appendChild(overlay);
+    }
 
     function logError(title, detail) {
-        const list = document.getElementById('debug-log-list');
-        const entry = document.createElement('div');
-        entry.style.cssText = 'border-bottom: 1px solid #444; padding: 8px 0; margin-bottom: 5px; color: #ffadad;';
-        entry.innerHTML = `<strong>${title}</strong><br><small>${detail}</small><br><small style="color: #888;">${new Date().toLocaleTimeString()}</small>`;
-        list.appendChild(entry);
+        let list = document.getElementById('debug-log-list');
+        // Fallback to overlay in memory if not in DOM
+        if (!list) list = overlay.querySelector('#debug-log-list');
 
-        // Show overlay automatically
-        overlay.style.display = 'block';
+        if (list) {
+            const entry = document.createElement('div');
+            entry.style.cssText = 'border-bottom: 1px solid #444; padding: 8px 0; margin-bottom: 5px; color: #ffadad;';
+            entry.innerHTML = `<strong>${title}</strong><br><small>${detail}</small><br><small style="color: #888;">${new Date().toLocaleTimeString()}</small>`;
+            list.appendChild(entry);
+
+            // Show overlay automatically if attached to body
+            if (document.body.contains(overlay)) {
+                overlay.style.display = 'block';
+            }
+        } else {
+            // Buffer if overlay not ready
+            logBuffer.push({ title, detail });
+        }
         console.error(`[DEBUG-TRAP] ${title}: ${detail}`);
     }
 
