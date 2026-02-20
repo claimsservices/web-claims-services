@@ -543,15 +543,20 @@ function getFilters() {
       return date.toISOString();
     };
 
-    const from = toUTCString(fromDate);
-    const to = toUTCString(toDate);
+    // Check if dates are valid before processing
+    if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+      const from = toUTCString(fromDate);
+      const to = toUTCString(toDate);
 
-    if (dateField === "วันที่สร้างงาน") {
-      filter.order_date_from = from;
-      filter.order_date_to = to;
-    } else if (dateField === "วันที่นัดหมาย") {
-      filter.appointment_date_from = from;
-      filter.appointment_date_to = to;
+      if (dateField === "วันที่สร้างงาน") {
+        filter.order_date_from = from;
+        filter.order_date_to = to;
+      } else if (dateField === "วันที่นัดหมาย") {
+        filter.appointment_date_from = from;
+        filter.appointment_date_to = to;
+      }
+    } else {
+      console.warn("Invalid date range selected:", dateRangeRaw);
     }
   }
 
