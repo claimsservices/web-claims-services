@@ -148,7 +148,7 @@ class Menu {
 
     el = el.tagName.toUpperCase() !== 'BODY' ? el : null
 
-    if (!el && throwError) throw new Error(`Cannot find \".${cls}\" parent element`)
+    if (!el && throwError) throw new Error(`Cannot find \`.${cls}\` parent element`)
 
     return el
   }
@@ -284,7 +284,7 @@ class Menu {
     }
 
     if (!item) {
-      throw new Error(`${toggle ? 'Toggable ' : ''}\`.menu-item\` element not found.`) 
+      throw new Error(`${toggle ? 'Toggable ' : ''}\`.menu-item\` element not found.`)
     }
 
     return item
@@ -297,8 +297,7 @@ class Menu {
     if (el.classList.contains(selector)) found = [el]
     else if (el.classList.contains('menu-item')) found = Menu._findChild(el, [selector])
 
-    if (!found.length) throw new Error(`\
-${selector}\\\` element not found.`) 
+    if (!found.length) throw new Error(`\`${selector}\` element not found.`)
 
     return found[0]
   }
@@ -514,9 +513,9 @@ ${selector}\\\` element not found.`)
   manageScroll() {
     const { PerfectScrollbar } = window
     const menuInner = document.querySelector('.menu-inner')
-
+    if (!menuInner) return
     if (window.innerWidth < window.Helpers.LAYOUT_BREAKPOINT) {
-      if (this._scrollbar !== null) {
+      if (this._scrollbar && typeof this._scrollbar.destroy === 'function') {
         // window.Helpers.menuPsScroll.destroy()
         this._scrollbar.destroy()
         this._scrollbar = null
@@ -576,7 +575,7 @@ ${selector}\\\` element not found.`)
     this._onOpened = null
     this._onClose = null
     this._onClosed = null
-    if (this._scrollbar) {
+    if (this._scrollbar && typeof this._scrollbar.destroy === 'function') {
       this._scrollbar.destroy()
       this._scrollbar = null
     }
@@ -587,4 +586,4 @@ ${selector}\\\` element not found.`)
   }
 }
 
-window.Menu = Menu
+export { Menu }
