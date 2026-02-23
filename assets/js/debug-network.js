@@ -1,6 +1,6 @@
 (function () {
     // Configuration
-    const TIMEOUT_MS = 15000; // 15 seconds threshold for slow requests
+    const TIMEOUT_MS = 120000; // 120 seconds threshold for slow requests
     const IGNORE_URLS = ['/version.json', 'livereload']; // URLs to ignore
 
     // Create Overlay UI
@@ -73,7 +73,7 @@
         }
 
         const timeoutId = setTimeout(() => {
-            logError('Network Timeout (15s+)', `Response timed out for: ${url}`);
+            logError('Network Timeout (120s+)', `Response timed out for: ${url}`);
         }, TIMEOUT_MS);
 
         try {
