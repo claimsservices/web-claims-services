@@ -791,22 +791,31 @@ function renderDownloadableImages(orderPics) {
 export function populateDamageDetailFromImages() {
     console.log('populateDamageDetailFromImages function called.');
     const allImageTitles = [];
-    const inspectionSlots = document.querySelectorAll('.dynamic-image-slot[data-category="inspection"]');
-    console.log(`Found ${inspectionSlots.length} inspection image slots.`);
+
+    // Instead of querying by data attributes, we query by the DOM container
+    const inspectionSection = document.getElementById('inspection-images-section');
+    if (!inspectionSection) {
+        console.error('Could not find #inspection-images-section container.');
+        return;
+    }
+
+    const inspectionSlots = inspectionSection.querySelectorAll('.dynamic-image-slot');
+    console.log(`Found ${inspectionSlots.length} inspection image slots in the container.`);
 
     inspectionSlots.forEach(slot => {
-        const isUploaded = slot.getAttribute('data-uploaded') === 'true' ||
-            slot.getAttribute('data-uploaded') === 'staged' ||
-            slot.getAttribute('data-pending-upload') === 'true';
+        // We only care if there's an image title and if the image has content (e.g. img source is not empty or staged)
+        // We'll trust all slots inside this container which have a title that's not default.
+        const img = slot.querySelector('img');
+        const hasImage = img && img.src && img.style.display !== 'none' && !img.src.includes('R0lGODlhAQAB');
 
-        if (isUploaded) {
+        if (hasImage) {
             const titleInput = slot.querySelector('.image-title-input');
             if (titleInput) {
                 const titleText = titleInput.value.trim();
-                // Filter out default titles...
+                // Filter out default empty titles
                 if (titleText && titleText !== 'กรุณาใส่ชื่อ' && !titleText.startsWith('รายละเอียดความเสียหาย')) {
                     allImageTitles.push(titleText);
-                    console.log(`Collected category inspection title: "${titleText}"`);
+                    console.log(`Collected inspection title: "${titleText}"`);
                 }
             }
         }
