@@ -366,7 +366,7 @@ export function renderUploadedImages(orderPics) {
         const defaultTitleConfig = staticImageConfig[mainCategory]?.find(item => item.name === pic.pic_type)?.defaultTitle;
         const displayTitle = pic.pic_title || defaultTitleConfig || 'กรุณาใส่ชื่อ';
         const newSlotHtml = `
-            <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}" data-pic-url="${pic.pic}" data-uploaded="true" data-server-rendered="true">
+            <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${pic.pic_type}" data-pic-url="${pic.pic}" data-uploaded="true" data-server-rendered="true" data-category="${mainCategory}">
                 <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
                     <img src="${pic.pic}" style="width:100%; height:100%; object-fit: cover; display:block;" alt="${displayTitle}" data-created-date="${pic.created_date || new Date().toISOString()}">
                     <button type="button" class="delete-btn" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; display: block;"><i class="bi bi-x-circle-fill"></i></button>
@@ -791,16 +791,23 @@ function renderDownloadableImages(orderPics) {
 export function populateDamageDetailFromImages() {
     console.log('populateDamageDetailFromImages function called.');
     const allImageTitles = [];
-    const filledImageSlots = document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"][data-category="inspection"]');
-    console.log(`Found ${filledImageSlots.length} filled inspection image slots.`);
+    const inspectionSlots = document.querySelectorAll('.dynamic-image-slot[data-category="inspection"]');
+    console.log(`Found ${inspectionSlots.length} inspection image slots.`);
 
-    filledImageSlots.forEach(slot => {
-        const titleInput = slot.querySelector('.image-title-input');
-        if (titleInput) {
-            const titleText = titleInput.value.trim();
-            if (titleText && titleText !== 'กรุณาใส่ชื่อ' && !titleText.startsWith('รายละเอียดความเสียหาย')) {
-                allImageTitles.push(titleText);
-                console.log(`Collected category inspection title: "${titleText}"`);
+    inspectionSlots.forEach(slot => {
+        const isUploaded = slot.getAttribute('data-uploaded') === 'true' ||
+            slot.getAttribute('data-uploaded') === 'staged' ||
+            slot.getAttribute('data-pending-upload') === 'true';
+
+        if (isUploaded) {
+            const titleInput = slot.querySelector('.image-title-input');
+            if (titleInput) {
+                const titleText = titleInput.value.trim();
+                // Filter out default titles...
+                if (titleText && titleText !== 'กรุณาใส่ชื่อ' && !titleText.startsWith('รายละเอียดความเสียหาย')) {
+                    allImageTitles.push(titleText);
+                    console.log(`Collected category inspection title: "${titleText}"`);
+                }
             }
         }
     });
@@ -2514,7 +2521,7 @@ function createEmptyImageSlot(category, configItem) {
 
 
     const newSlotHtml = `
-        <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${picType}" data-uploaded="false">
+        <div class="col-4 mb-3 dynamic-image-slot" data-pic-type="${picType}" data-uploaded="false" data-category="${category}">
             <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer; background-color: #f8f9fa; border: 2px dashed #dee2e6; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                 <img src="" style="width:100%; height:100%; object-fit: cover; display:none;" id="img-${uniqueId}" alt="${displayTitle}">
                 <div class="placeholder-content text-center" id="placeholder-${uniqueId}">
