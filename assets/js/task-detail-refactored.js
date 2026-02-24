@@ -100,6 +100,14 @@ function parseJwt(token) {
     }
 }
 
+function getCaptureAttr() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return '';
+    const decoded = parseJwt(token);
+    if (!decoded) return '';
+    return (decoded.role === 'Bike' || decoded.role === 'Insurance') ? 'capture="environment"' : '';
+}
+
 function getUserRole() {
     const token = localStorage.getItem('authToken');
     if (!token) return null;
@@ -368,7 +376,7 @@ export function renderUploadedImages(orderPics) {
                     <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                     <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ"><i class="bi bi-pencil"></i></button>
                 </div>
-                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="environment">
+                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" ${getCaptureAttr()}>
             </div>
         `;
         const addImageBtnContainer = targetSection.querySelector('.add-image-btn')?.parentElement;
@@ -783,25 +791,30 @@ function renderDownloadableImages(orderPics) {
 export function populateDamageDetailFromImages() {
     console.log('populateDamageDetailFromImages function called.');
     const allImageTitles = [];
-    const filledImageSlots = document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]');
-    console.log(`Found ${filledImageSlots.length} filled image slots.`);
+    const filledImageSlots = document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"][data-category="inspection"]');
+    console.log(`Found ${filledImageSlots.length} filled inspection image slots.`);
 
     filledImageSlots.forEach(slot => {
         const titleInput = slot.querySelector('.image-title-input');
         if (titleInput) {
             const titleText = titleInput.value.trim();
-            if (titleText) {
+            if (titleText && titleText !== 'กรุณาใส่ชื่อ' && !titleText.startsWith('รายละเอียดความเสียหาย')) {
                 allImageTitles.push(titleText);
-                console.log(`Collected title: "${titleText}"`);
+                console.log(`Collected category inspection title: "${titleText}"`);
             }
         }
     });
 
     const sDetailInput = document.getElementById('s_detail');
     if (sDetailInput) {
-        const finalText = allImageTitles.join(', ');
-        console.log(`Setting s_detail value to: "${finalText}"`);
-        sDetailInput.value = finalText;
+        if (allImageTitles.length > 0) {
+            const finalText = `รายการความเสียหายรวม ${allImageTitles.length} รายการ\n` + allImageTitles.map((title, index) => `${index + 1}. ${title}`).join('\n');
+            console.log(`Setting s_detail value to formatted text.`);
+            sDetailInput.value = finalText;
+        } else {
+            console.log(`No valid inspection titles found to populate.`);
+            sDetailInput.value = 'ไม่มีรายการความเสียหาย';
+        }
     } else {
         console.error('s_detail input field not found.');
     }
@@ -1329,7 +1342,7 @@ function populateImageSections() {
                             <input type="text" class="form-control image-title-input" value="${item.defaultTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                             <button type="button" class="btn btn-sm btn-outline-primary edit-title-btn" title="บันทึกชื่อ" style="display: none;"><i class="bi bi-pencil"></i></button>
                         </div>
-                        <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" capture="environment">
+                        <input type="file" id="${uniqueId}" name="${item.name}" data-category="${category}" hidden accept="image/*" ${getCaptureAttr()}>
                     </div>
                 `;
                 targetSection.insertAdjacentHTML('beforeend', slotHtml);
@@ -1809,7 +1822,7 @@ window.addEventListener('load', async function () {
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                 </div>
-                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="environment">
+                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" ${getCaptureAttr()}>
             </div>
         `;
         return newSlotHtml;
@@ -2514,7 +2527,7 @@ function createEmptyImageSlot(category, configItem) {
             <div class="d-flex align-items-center">
                 <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1;">
             </div>
-            <input type="file" id="${uniqueId}" name="${picType}" data-category="${category}" hidden accept="image/*" capture="environment">
+            <input type="file" id="${uniqueId}" name="${picType}" data-category="${category}" hidden accept="image/*" ${getCaptureAttr()}>
         </div>
     `;
 

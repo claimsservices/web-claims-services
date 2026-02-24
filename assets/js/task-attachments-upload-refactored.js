@@ -62,8 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initCarModelDropdown(document.getElementById('car-brand'), document.getElementById('car-model'));
 
+    // =========================================================
+    function getCaptureAttr() {
+        const token = localStorage.getItem('authToken');
+        if (!token) return '';
+        const decoded = parseJwt(token); // parseJwt is defined below, but needs to be accessible here
+        if (!decoded) return '';
+        return (decoded.role === 'Bike' || decoded.role === 'Insurance') ? 'capture="environment"' : '';
+    }
+    // =========================================================
+
     const LOGIN_PAGE = '../index.html';
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken'); // This token is for the DOMContentLoaded scope
 
     // --- Auth & Profile --- //
     if (!token) {
@@ -292,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <label class="image-gallery w-100" style="cursor:pointer; padding-bottom: 10px; margin-bottom: 0;">
                 <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
                 <i class="bi bi-camera fs-1"></i>
-                <input type="file" name="${fileInputName}" data-category="${category}" accept="image/*" capture="environment" hidden>
+                <input type="file" name="${fileInputName}" data-category="${category}" accept="image/*" ${getCaptureAttr()} hidden>
             </label>
             <input type="text" class="form-control mt-2 image-title-input" placeholder="ระบุคำอธิบาย (ถ้ามี)" value="${initialPicTitle || defaultTitle}" style="font-weight: 600; text-align: center;">
             <button class="btn btn-outline-danger btn-sm remove-other-image-slot-btn" type="button" style="position:absolute; top:5px; right:5px;">

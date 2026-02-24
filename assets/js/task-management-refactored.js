@@ -102,6 +102,14 @@ function isTokenExpired(decodedToken) {
   return decodedToken && decodedToken.exp && decodedToken.exp < currentTime;
 }
 
+function getCaptureAttr() {
+  const token = localStorage.getItem('authToken');
+  if (!token) return '';
+  const decoded = decodeJWT(token);
+  if (!decoded) return '';
+  return (decoded.role === 'Bike' || decoded.role === 'Insurance') ? 'capture="environment"' : '';
+}
+
 function getSafeValue(id) {
   const el = document.getElementById(id);
   return el ? el.value : null;
@@ -274,7 +282,7 @@ function renderNewImageUploadSlot(category) {
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="กรุณาใส่ชื่อ" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                 </div>
-                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" capture="environment">
+                <input type="file" id="${uniqueId}" name="${uniqueId}" data-category="${category}" hidden accept="image/*" ${getCaptureAttr()}>
             </div>
         `;
   return newSlotHtml;
@@ -312,7 +320,7 @@ function createEmptyImageSlot(category, configItem) {
             <div class="d-flex align-items-center">
                 <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1;">
             </div>
-            <input type="file" id="${uniqueId}" name="${picType}" data-category="${category}" hidden accept="image/*" capture="environment">
+            <input type="file" id="${uniqueId}" name="${picType}" data-category="${category}" hidden accept="image/*" ${getCaptureAttr()}>
         </div>
     `;
 
@@ -394,7 +402,7 @@ function renderUploadedImages(orderPics) {
                 <div class="d-flex align-items-center">
                     <input type="text" class="form-control image-title-input" value="${displayTitle}" placeholder="กรุณาใส่ชื่อ" style="flex-grow: 1; margin-right: 8px;">
                 </div>
-                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" capture="environment">
+                <input type="file" id="${uniqueId}" name="${pic.pic_type}" data-category="${mainCategory}" hidden accept="image/*" ${getCaptureAttr()}>
             </div>
         `;
     targetSection.insertAdjacentHTML('beforeend', newSlotHtml);
