@@ -708,7 +708,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  // Download All logic
+  // Download All logic (with Batch Processing / Concurrency Limit)
   const handleZipDownload = async () => {
     const zip = new JSZip();
     // Use taskId (from hidden input) or fallback to 'images'
@@ -725,19 +725,28 @@ document.addEventListener('DOMContentLoaded', async function () {
     const uniqueImages = new Map();
     imageElements.forEach((img, i) => { if (!uniqueImages.has(img.src)) uniqueImages.set(img.src, { img, index: i }); });
 
-    const promises = [];
+    // Convert Map to Array for batch processing
+    const imagesToProcess = Array.from(uniqueImages.entries());
+    const batchSize = 5; // Process 5 requests at a time to prevent Network Timeout & DB Connection limit
     let index = 1;
-    for (const [src, item] of uniqueImages) {
-      const img = item.img;
-      // Title logic ...
-      let title = img.closest('.dynamic-image-slot')?.querySelector('.image-title-input')?.value?.trim() || `image-${index}`;
-      const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_');
-      const promise = (async () => {
+
+    for (let i = 0; i < imagesToProcess.length; i += batchSize) {
+      const batch = imagesToProcess.slice(i, i + batchSize);
+
+      const batchPromises = batch.map(async ([src, item]) => {
+        const img = item.img;
+        const currentIndex = index++; // Keep track of image number
+
+        let title = img.closest('.dynamic-image-slot')?.querySelector('.image-title-input')?.value?.trim() || `image-${currentIndex}`;
+        const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_');
+
         try {
           const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
-            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('authToken') || '' },
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': localStorage.getItem('authToken') || '' },
             body: JSON.stringify({ imageUrl: src })
           });
+
           if (!response.ok) {
             const directResp = await fetch(src);
             if (directResp.ok) {
@@ -747,14 +756,18 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             throw new Error('Proxy failed');
           }
+
           const blob = await response.blob();
           zip.file(`${safeName}.jpg`, blob);
-        } catch (e) { console.warn('Download failed', e); }
-      })();
-      promises.push(promise);
-      index++;
+        } catch (e) {
+          console.warn('Download failed', e);
+        }
+      });
+
+      // Wait for the current batch to finish before moving to the next
+      await Promise.all(batchPromises);
     }
-    await Promise.all(promises);
+
     const zipBlob = await zip.generateAsync({ type: 'blob' });
     saveAs(zipBlob, orderIdVal + '.zip');
   };

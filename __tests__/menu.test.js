@@ -1,19 +1,24 @@
-import { Menu } from '../js/menu.js';
-import { Helpers } from '../js/helpers.js';
-
-// Mock window and document
+// Mock window and document FIRST so scripts can attach to it
 global.window = {
-    Helpers: Helpers,
-    innerWidth: 1920
+  innerWidth: 1920
 };
 global.document = {
-    querySelector: jest.fn(),
-    documentElement: {
-        classList: {
-            contains: jest.fn()
-        }
+  querySelector: jest.fn(),
+  documentElement: {
+    classList: {
+      contains: jest.fn()
     }
+  }
 };
+
+// Require scripts after globals are mocked
+require('../js/helpers.js');
+require('../js/menu.js');
+
+const Helpers = global.window.Helpers;
+global.window.Helpers = Helpers; // Ensure it's accessible as window.Helpers just in case
+
+const Menu = global.window.Menu;
 
 describe('Menu static methods', () => {
 
@@ -26,7 +31,7 @@ describe('Menu static methods', () => {
     };
 
     beforeEach(() => {
-        mockElement.classList.contains.mockClear();
+      mockElement.classList.contains.mockClear();
     });
 
     it('should return true if the element has the class', () => {
@@ -41,14 +46,14 @@ describe('Menu static methods', () => {
     });
 
     it('should handle multiple classes check', () => {
-        mockElement.classList.contains.mockImplementation(c => c === 'class1');
-        expect(Menu._hasClass('class1 class2', mockElement)).toBe(true);
+      mockElement.classList.contains.mockImplementation(c => c === 'class1');
+      expect(Menu._hasClass('class1 class2', mockElement)).toBe(true);
     });
   });
 
   describe('Menu._promisify', () => {
     it('should return a promise', () => {
-      const result = Menu._promisify(() => {});
+      const result = Menu._promisify(() => { });
       expect(result).toBeInstanceOf(Promise);
     });
 
@@ -69,9 +74,9 @@ describe('Menu static methods', () => {
     });
 
     it('should pass arguments to the function', () => {
-        const func = jest.fn();
-        Menu._promisify(func, 1, 'a');
-        expect(func).toHaveBeenCalledWith(1, 'a');
+      const func = jest.fn();
+      Menu._promisify(func, 1, 'a');
+      expect(func).toHaveBeenCalledWith(1, 'a');
     });
   });
 });
