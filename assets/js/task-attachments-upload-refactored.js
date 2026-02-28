@@ -373,7 +373,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let isUploading = false;
+
     async function setStatusFromClick(status) {
+        if (isUploading) {
+            alert('กรุณารอให้อัปโหลดรูปภาพเสร็จสิ้นก่อนทำการทำรายการต่อ');
+            return;
+        }
+
         const orderId = urlParams.get('id');
         if (!orderId) {
             alert('ไม่พบรหัสงาน');
@@ -761,6 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             uploadBtn.disabled = true;
             uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังบันทึกข้อมูล...';
+            isUploading = true;
 
             // 1. Update titles for existing images
             if (hasExistingFiles) {
@@ -859,19 +867,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (failedCount === 0) {
                     alert(`✅ บันทึกข้อมูลเรียบร้อยแล้ว (${uploadedCount} รูป)`);
                     filesToUpload.clear();
+                    isUploading = false;
                     window.location.reload();
                 } else {
                     alert(`⚠️ อัปโหลดเสร็จสิ้น แต่มีบางรูปไม่ผ่าน\nสำเร็จ: ${uploadedCount}\nล้มเหลว: ${failedCount}\nกรุณาลองอัปโหลดรูปที่เหลือใหม่อีกครั้ง`);
+                    isUploading = false;
                     window.location.reload();
                 }
             } else {
                 // No new files, but we updated titles
                 alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว');
+                isUploading = false;
                 window.location.reload();
             }
 
             uploadBtn.disabled = false;
             uploadBtn.textContent = 'บันทึกข้อมูล';
+            isUploading = false;
         });
     }
 

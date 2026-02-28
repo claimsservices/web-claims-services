@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentOrderData = null;
     let uploadedImages = {}; // To store { 'title': 'url' }
     let currentPhotoTitle = null; // To know which photo item is being uploaded/replaced
+    let uploadingPathsCount = 0; // Number of images currently processing uploads
 
     // --- Main Function to Load Task Details ---
     async function loadTaskDetails() {
@@ -51,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const result = await response.json();
             currentOrderData = result;
-            
+
             if (result.order_pic && result.order_pic.length > 0) {
                 result.order_pic.forEach(pic => {
                     uploadedImages[pic.pic_title] = pic.pic;
@@ -128,11 +129,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 category.items.forEach(itemText => {
                     const col = document.createElement('div');
                     col.className = 'col-6 col-md-4 mb-2';
-                    
+
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'photo-item p-2';
                     itemDiv.setAttribute('data-title', itemText);
-                    
+
                     const imageUrl = uploadedImages[itemText];
                     if (imageUrl) {
                         itemDiv.innerHTML = `<i class="bx bx-check-circle bx-sm d-block mb-1 text-success"></i><span>${itemText}</span>`;
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else {
                         itemDiv.innerHTML = `<i class="bx bx-camera bx-sm d-block mb-1"></i><span>${itemText}</span>`;
                     }
-                    
+
                     itemDiv.addEventListener('click', () => {
                         currentPhotoTitle = itemText;
                         const existingImageUrl = uploadedImages[itemText];
@@ -170,7 +171,9 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('images', files[0]); // Simplified to one file per click for clarity
 
         const itemDiv = document.querySelector(`.photo-item[data-title="${currentPhotoTitle}"]`);
-        if(itemDiv) itemDiv.innerHTML = `<div class="spinner-border spinner-border-sm text-primary" role="status"></div><span>Uploading...</span>`;
+        if (itemDiv) itemDiv.innerHTML = `<div class="spinner-border spinner-border-sm text-primary" role="status"></div><span>Uploading...</span>`;
+
+        uploadingPathsCount++; // Increment when upload starts
 
         try {
             const response = await fetch(`https://be-claims-service.onrender.com/api/image/transactions`, {
@@ -193,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } finally {
             imageUploadInput.value = '';
             currentPhotoTitle = null;
+            uploadingPathsCount--; // Decrement when upload is finished or failed
         }
     }
 
@@ -249,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const callBtn2 = document.getElementById('call-btn-2');
-    if(callBtn2) {
+    if (callBtn2) {
         callBtn2.addEventListener('click', () => {
             const phoneNumber = currentOrderData?.order_details?.tell_1;
             if (phoneNumber) {
@@ -271,6 +275,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function submitWork() {
+        if (uploadingPathsCount > 0) {
+            alert('กรุณารอให้อัปโหลดรูปภาพเสร็จสิ้นก่อนทำการส่งงาน');
+            return;
+        }
+
         // Create a reverse map to find the category from the image title
         const titleToCategoryMap = {};
         for (const categoryKey in photoCategories) {
@@ -318,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const errData = await response.json();
                 throw new Error(errData.message || 'ไม่สามารถส่งงานได้');
             }
-            
+
             alert('ส่งงานเรียบร้อยแล้ว');
             window.location.href = DASHBOARD_PAGE;
 

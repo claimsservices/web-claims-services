@@ -18,7 +18,7 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock flatpickr globally
-global.flatpickr = jest.fn();
+window.flatpickr = jest.fn();
 
 describe('history-attachments-refactored.js', () => {
     let fetchMock;
@@ -39,7 +39,7 @@ describe('history-attachments-refactored.js', () => {
     `;
 
         localStorageMock.clear();
-        global.flatpickr.mockClear();
+        window.flatpickr.mockClear();
 
         // Mock fetch
         fetchMock = jest.fn((url) => {
