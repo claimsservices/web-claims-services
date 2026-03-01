@@ -2041,6 +2041,18 @@ window.addEventListener('load', async function () {
                     manualSubmitBtn.innerText = 'บันทึกข้อมูล';
                 }
 
+                // Preserve user's input titles for existing images before any DOM refresh
+                const preservedTitles = new Map();
+                if (filesToUpload.size > 0) {
+                    document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
+                        const imgUrl = slot.getAttribute('data-pic-url');
+                        const titleInput = slot.querySelector('.image-title-input');
+                        if (imgUrl && titleInput) {
+                            preservedTitles.set(imgUrl.split('?')[0], titleInput.value.trim());
+                        }
+                    });
+                }
+
                 // --- START: NEW UPLOAD LOGIC ---
                 if (filesToUpload.size > 0) {
                     const currentOrderId = getSafeValue('taskId');
@@ -2086,10 +2098,16 @@ window.addEventListener('load', async function () {
                     const imgUrl = slot.getAttribute('data-pic-url');
                     const picType = slot.getAttribute('data-pic-type');
                     const titleInput = slot.querySelector('.image-title-input');
-                    const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
+
+                    // Recover preserved title or use current DOM value
+                    const baseImgUrl = imgUrl ? imgUrl.split('?')[0] : '';
+                    let title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
+                    if (baseImgUrl && preservedTitles.has(baseImgUrl)) {
+                        title = preservedTitles.get(baseImgUrl) || title;
+                    }
 
                     if (imgUrl && picType) {
-                        orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: created_by });
+                        orderPic.push({ pic: baseImgUrl, pic_type: picType, pic_title: title, created_by: created_by });
                     }
                 });
 
@@ -2267,6 +2285,18 @@ window.addEventListener('load', async function () {
 
                 const manualSubmitBtn = document.getElementById('submittaskBtn');
 
+                // Preserve user's input titles for existing images before any DOM refresh
+                const preservedTitles = new Map();
+                if (filesToUpload.size > 0) {
+                    document.querySelectorAll('.dynamic-image-slot[data-uploaded="true"]').forEach(slot => {
+                        const imgUrl = slot.getAttribute('data-pic-url');
+                        const titleInput = slot.querySelector('.image-title-input');
+                        if (imgUrl && titleInput) {
+                            preservedTitles.set(imgUrl.split('?')[0], titleInput.value.trim());
+                        }
+                    });
+                }
+
                 // --- START: NEW UPLOAD LOGIC ---
                 if (filesToUpload.size > 0) {
                     const currentOrderId = getSafeValue('taskId');
@@ -2330,10 +2360,16 @@ window.addEventListener('load', async function () {
                     const imgUrl = slot.getAttribute('data-pic-url');
                     const picType = slot.getAttribute('data-pic-type');
                     const titleInput = slot.querySelector('.image-title-input');
-                    const title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
+
+                    // Recover preserved title or use current DOM value
+                    const baseImgUrl = imgUrl ? imgUrl.split('?')[0] : '';
+                    let title = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
+                    if (baseImgUrl && preservedTitles.has(baseImgUrl)) {
+                        title = preservedTitles.get(baseImgUrl) || title;
+                    }
 
                     if (imgUrl && picType) {
-                        orderPic.push({ pic: imgUrl.split('?')[0], pic_type: picType, pic_title: title, created_by: updated_by });
+                        orderPic.push({ pic: baseImgUrl, pic_type: picType, pic_title: title, created_by: updated_by });
                     }
                 });
 
