@@ -1391,6 +1391,8 @@ async function uploadStagedImages(orderId, token) {
     formData.append('folder', `transactions/${orderId}`);
 
     const processingPromises = [];
+    const replacePromises = []; // To hold promises for image replacements
+    let hasNewImages = false;
 
     filesToUpload.forEach(({ file, picType, category }, inputName) => {
         const fileInput = document.querySelector(`input[name="${inputName}"]`);
@@ -1398,15 +1400,39 @@ async function uploadStagedImages(orderId, token) {
 
         const imageSlot = fileInput.closest('.dynamic-image-slot');
         const titleInput = imageSlot.querySelector('.image-title-input');
-        const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
+        const picTitle = titleInput ? titleInput.value.trim() : 'ไม่ระบุข้อมูล';
+
+        // Determine if this is replacing an existing image
+        const existingUrl = imageSlot.getAttribute('data-pic-url');
+        const isReplacement = existingUrl && !existingUrl.startsWith('blob:');
 
         const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
             .then(compressedFile => addWatermark(compressedFile))
             .then(watermarkedBlob => {
-                formData.append('images', watermarkedBlob, file.name);
-                // The backend needs pic_type and pic_title for each image
-                formData.append('pic_type', picType);
-                formData.append('pic_title', picTitle);
+                if (isReplacement) {
+                    const replaceData = new FormData();
+                    replaceData.append('order_id', orderId);
+                    replaceData.append('old_pic_url', existingUrl.split('?')[0]);
+                    replaceData.append('pic_title', picTitle);
+                    replaceData.append('image', watermarkedBlob, file.name);
+
+                    const replacePromise = fetch(`https://be-claims-service.onrender.com/api/upload/image/replace`, {
+                        method: 'PUT',
+                        headers: { 'Authorization': token },
+                        body: replaceData
+                    }).then(async res => {
+                        const result = await res.json();
+                        if (!res.ok) throw new Error(result.message || 'Replace failed');
+                        return result;
+                    });
+                    replacePromises.push(replacePromise);
+                } else {
+                    formData.append('images', watermarkedBlob, file.name);
+                    // The backend needs pic_type and pic_title for each image
+                    formData.append('pic_type', picType);
+                    formData.append('pic_title', picTitle);
+                    hasNewImages = true;
+                }
             })
             .catch(err => {
                 console.error('Error processing file:', err);
@@ -1436,34 +1462,38 @@ async function uploadStagedImages(orderId, token) {
     }
 
     try {
-        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-            method: 'POST',
-            headers: { 'Authorization': token },
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            // Success logging is usually handled by the main save if this is part of a larger update,
-            // but we can add a small log here if it was purely an upload session.
-            // Actually, the main save handles it.
-            filesToUpload.clear(); // Clear staged files on success
-            return { success: true, data: result };
-        } else {
-            alert('❌ อัปโหลดรูปภาพล้มเหลว: ' + result.message);
-            // Log failure to history
-            fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                body: JSON.stringify({
-                    order_status: getSafeValue('orderStatus'),
-                    updated_by: created_by,
-                    order_hist: [{ icon: "🚨", task: "อัปโหลดล้มเหลว", detail: `ล้มเหลว: ${result.message}`, created_by }]
-                })
-            }).catch(e => console.error('Emergency logging failed', e));
-            return { success: false };
+        // 1. Process Replacements first
+        if (replacePromises.length > 0) {
+            await Promise.all(replacePromises);
         }
+
+        // 2. Process New Uploads
+        if (hasNewImages) {
+            const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
+                method: 'POST',
+                headers: { 'Authorization': token },
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                alert('❌ อัปโหลดรูปภาพใหม่ล้มเหลว: ' + result.message);
+                fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                    body: JSON.stringify({
+                        order_status: getSafeValue('orderStatus'),
+                        updated_by: created_by,
+                        order_hist: [{ icon: "🚨", task: "อัปโหลดล้มเหลว", detail: `ล้มเหลว: ${result.message}`, created_by }]
+                    })
+                }).catch(e => console.error('Emergency logging failed', e));
+                return { success: false };
+            }
+        }
+
+        filesToUpload.clear(); // Clear staged files on success
+        return { success: true };
     } catch (error) {
         console.error('Upload error:', error);
         alert('❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์อัปโหลด (บันทึก Log ลงเครื่องแล้ว)');
