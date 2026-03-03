@@ -127,7 +127,10 @@ async function loadUserProfile() {
 loadUserProfile();
 
 
-async function fetchUsers() {
+let currentPage = 1;
+const USERS_PER_PAGE = 50;
+
+async function fetchUsers(page = 1, append = false) {
     const token = localStorage.getItem('authToken');
     if (!token) {
         window.location.href = '../index.html'; // Redirect if no token
@@ -164,7 +167,7 @@ async function fetchUsers() {
     }
 
     try {
-        const response = await fetch(API_URL_USERS, {
+        const response = await fetch(`${API_URL_USERS}?page=${page}&limit=${USERS_PER_PAGE}`, {
             method: 'GET',
             headers: {
                 Authorization: token,
@@ -179,7 +182,46 @@ async function fetchUsers() {
 
         const data = await response.json();
         console.log('API response data.results:', data.results); // Added log
-        populateTable(data.results);
+
+        if (append) {
+            allUsers = [...allUsers, ...data.results];
+        } else {
+            allUsers = data.results;
+        }
+
+        populateTable(data.results, append);
+
+        // Handle load more button visibility
+        let loadMoreBtn = document.getElementById('load-more-users-btn');
+        if (data.pagination) {
+            currentPage = data.pagination.page;
+            if (currentPage < data.pagination.totalPages) {
+                if (!loadMoreBtn) {
+                    // Create Load More button if it doesn't exist
+                    loadMoreBtn = document.createElement('button');
+                    loadMoreBtn.id = 'load-more-users-btn';
+                    loadMoreBtn.className = 'btn btn-outline-primary d-block mx-auto mt-3 mb-4';
+                    loadMoreBtn.textContent = 'Load More';
+
+                    loadMoreBtn.addEventListener('click', () => {
+                        loadMoreBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+                        loadMoreBtn.disabled = true;
+                        fetchUsers(currentPage + 1, true).then(() => {
+                            loadMoreBtn.innerHTML = 'Load More';
+                            loadMoreBtn.disabled = false;
+                        });
+                    });
+
+                    const tableContainer = document.querySelector('.table-responsive');
+                    if (tableContainer && tableContainer.parentNode) {
+                        tableContainer.parentNode.insertBefore(loadMoreBtn, tableContainer.nextSibling);
+                    }
+                }
+                loadMoreBtn.style.display = 'block';
+            } else if (loadMoreBtn) {
+                loadMoreBtn.style.display = 'none';
+            }
+        }
     } catch (error) {
         console.error('Error fetching users:', error);
         ///window.location.href = '../index.html'; // Redirect on network error
@@ -200,14 +242,14 @@ const offcanvasTitle = document.getElementById('offcanvasAddUserLabel');
 
 
 
-function populateTable(users) {
+function populateTable(users, append = false) {
     console.log('populateTable called with users:', users); // Added log
-
-    allUsers = users; // Cache the user data
 
     const tableBody = document.getElementById('userTableBody');
 
-    tableBody.innerHTML = ''; // Clear existing table rows
+    if (!append) {
+        tableBody.innerHTML = ''; // Clear existing table rows only if not appending
+    }
 
 
 
@@ -393,9 +435,8 @@ function resetFormForAdd() {
 
 
 
-// Load users on page load
-
-fetchUsers();
+// Load initial users on page load
+fetchUsers(1, false);
 
 
 
@@ -476,7 +517,7 @@ addNewUserForm.onsubmit = async function (e) {
 
     }
 
-    
+
 
     if (data.role === 'Insurance') {
 
@@ -513,10 +554,8 @@ addNewUserForm.onsubmit = async function (e) {
         if (response.ok) {
 
             alert(`User ${currentEditUsername ? 'updated' : 'added'} successfully!`);
-
             offcanvas.hide();
-
-            fetchUsers(); // Refresh the table
+            fetchUsers(1, false); // Refresh the table from first page
 
         } else {
 
@@ -616,8 +655,7 @@ document.addEventListener('click', async (event) => {
             if (response.ok) {
 
                 alert('User deleted successfully.');
-
-                fetchUsers(); // Refresh table
+                fetchUsers(1, false); // Refresh table from first page
 
             } else {
 
@@ -671,4 +709,4 @@ document.getElementById('logout').addEventListener('click', function (event) {
 
     // Optionally, redirect the user to the login page or home page
     window.location.href = '../index.html'; // Modify this if you want to redirect somewhere else
-});''
+}); ''

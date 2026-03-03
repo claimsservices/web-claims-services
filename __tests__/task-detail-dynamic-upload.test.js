@@ -3,6 +3,13 @@ global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 global.Buffer = require('buffer').Buffer;
 
+// Polyfill for JSDOM
+const { window } = new (require('jsdom').JSDOM)();
+global.window = window;
+global.document = window.document;
+global.window.TextEncoder = TextEncoder;
+global.window.TextDecoder = TextDecoder;
+
 const { JSDOM } = require('jsdom');
 const imageCompression = require('browser-image-compression');
 
@@ -53,6 +60,9 @@ describe('Task Detail - Dynamic Image Upload', () => {
 
     global.document = document;
     global.window = window;
+
+    global.window.TextEncoder = TextEncoder;
+    global.window.TextDecoder = TextDecoder;
 
     global.localStorage = {
       getItem: jest.fn(key => {

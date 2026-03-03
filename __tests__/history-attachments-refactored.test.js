@@ -19,52 +19,13 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock flatpickr globally
 window.flatpickr = jest.fn();
+global.flatpickr = window.flatpickr;
 
 describe('history-attachments-refactored.js', () => {
     let fetchMock;
 
-    beforeEach(() => {
-        // Reset DOM
-        document.body.innerHTML = `
-      <div id="history-attachments-menu"></div>
-      <span id="appVersion"></span>
-      <div id="user-info"></div>
-      <div id="user-role"></div>
-      <img id="userAvatar" />
-      <div id="admin-menu" style="display: none;"></div>
-      <table id="userTable"><tbody></tbody></table>
-      <ul class="pagination"></ul>
-      <input id="filterDateTime" />
-      <button id="logout"></button>
-    `;
-
-        localStorageMock.clear();
-        window.flatpickr.mockClear();
-
-        // Mock fetch
-        fetchMock = jest.fn((url) => {
-            if (url === '/version.json') {
-                return Promise.resolve({
-                    ok: true,
-                    json: () => Promise.resolve({ version: '1.0.0' })
-                });
-            }
-            return Promise.resolve({
-                ok: true,
-                json: () => Promise.resolve({})
-            });
-        });
-        global.fetch = fetchMock;
-
-        // Reset modules to ensure fresh execution
-        jest.resetModules();
-    });
-
     const loadScript = () => {
         jest.isolateModules(() => {
-            // We need to require the file to run it
-            // Note: The file adds an event listener to DOMContentLoaded.
-            // We need to trigger it.
             require('../assets/js/history-attachments-refactored.js');
         });
         document.dispatchEvent(new Event('DOMContentLoaded'));
@@ -88,35 +49,57 @@ describe('history-attachments-refactored.js', () => {
         return `${b64(header)}.${b64(payload)}.signature`;
     };
 
-    // JSDOM throws "Not implemented: navigation" when setting window.location.href.
-    // We cannot easily mock this without complex setup, so we skip this test.
-    // The logic is simply `window.location.href = ...` which is standard.
-    test.skip('should redirect to login if no token is present', () => {
-        // Attempt to mock location
-        try {
-            delete window.location;
-            window.location = { href: '' };
-        } catch (e) {
-            // Ignore if delete fails
+    beforeEach(() => {
+        // Reset DOM
+        document.body.innerHTML = `
+      <div id="history-attachments-menu"></div>
+      <span id="appVersion"></span>
+      <div id="user-info"></div>
+      <div id="user-role"></div>
+      <img id="userAvatar" />
+      <div id="admin-menu" style="display: none;"></div>
+      <table id="userTable"><tbody></tbody></table>
+      <ul class="pagination"></ul>
+      <input id="filterDateTime" />
+      <button id="logout"></button>
+    `;
+
+        localStorageMock.clear();
+        if (window.flatpickr && window.flatpickr.mockClear) {
+            window.flatpickr.mockClear();
         }
 
+        // Mock fetch
+        fetchMock = jest.fn((url) => {
+            if (url === '/version.json') {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ version: '1.0.0' })
+                });
+            }
+            if (url.includes('/api/auth/profile')) {
+                return Promise.resolve({ ok: true });
+            }
+            if (url.includes('/api/history-agent/inquiry')) {
+                return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+            }
+            return Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({})
+            });
+        });
+        global.fetch = fetchMock;
+    });
+
+    test.skip('should redirect to login if no token is present', () => {
         localStorageMock.getItem.mockReturnValue(null);
-
         loadScript();
-
-        // This line is unreachable if loadScript throws navigation error
         expect(window.location.href).toContain('index.html');
     });
 
     test('should hide history menu if role is Bike', () => {
         const token = createMockToken('Bike');
         localStorageMock.getItem.mockReturnValue(token);
-
-        // Also userRole check is synchronous in the script?
-        // "const userRole = getRoleFromToken(accessToken);"
-        // This runs BEFORE DOMContentLoaded in the script?
-        // No, everything is inside `document.addEventListener('DOMContentLoaded', ...)` in the provided file content.
-        // So it runs when we dispatch DOMContentLoaded.
 
         loadScript();
 
@@ -149,23 +132,12 @@ describe('history-attachments-refactored.js', () => {
         const token = createMockToken('Director');
         localStorageMock.getItem.mockReturnValue(token);
 
-        fetchMock.mockImplementation((url) => {
-            if (url === '/version.json') return Promise.resolve({ ok: true, json: () => Promise.resolve({ version: '1.0.0' }) });
-            // The script calls profile API
-            if (url.includes('/api/auth/profile')) return Promise.resolve({ ok: true });
-            // And inquiry API
-            if (url.includes('/api/history-agent/inquiry')) return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
-
-            return Promise.resolve({ ok: true });
-        });
-
         loadScript();
         await new Promise(resolve => setTimeout(resolve, 0));
 
         expect(document.getElementById('user-info').innerText).toBe('Test User');
         expect(document.getElementById('user-role').innerText).toBe('Director');
 
-        // Director/Op Manager/Developer show admin menu
         const adminMenu = document.getElementById('admin-menu');
         expect(adminMenu.style.display).toBe('block');
     });

@@ -408,6 +408,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
+
             const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
                 method: 'PUT',
                 headers: {
@@ -418,8 +421,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     order_id: orderId,
                     order_status: status,
                     order_hist: [historyLog] // Send history log
-                })
+                }),
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -431,7 +436,11 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.reload(); // Reload to reflect changes and button states
         } catch (error) {
             console.error('Error updating status:', error);
-            alert(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${error.message}`);
+            if (error.name === 'AbortError') {
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: การเชื่อมต่อใช้เวลานานเกินไป (Timeout) กรุณาลองใหม่อีกครั้ง');
+            } else {
+                alert(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${error.message}`);
+            }
         }
     }
 
@@ -599,39 +608,120 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NEW: Unified image selection handler (stages files instead of uploading)
-    function handleImageSelection(fileInput) {
+    // NEW: Unified image selection handler (real-time upload)
+    async function handleImageSelection(fileInput) {
         const file = fileInput.files[0];
         const inputName = fileInput.name;
+        if (!file) return;
 
-        if (!file) {
-            // Clear the staged file if user cancels selection
-            filesToUpload.delete(inputName);
-            return;
-        }
+        const orderId = new URLSearchParams(window.location.search).get('id');
+        const token = localStorage.getItem('authToken') || '';
 
-        // Determine the picType right away and store it with the file
-        let picType = fileInput.dataset.category || 'unknown';
+        // Find slot wrapper
+        const newSlot = fileInput.closest('.image-upload-slot');
+        const exactSlot = fileInput.closest('.dynamic-image-slot');
+        const slot = newSlot || exactSlot;
 
-        // Stage the file and its type for upload
-        filesToUpload.set(inputName, { file: file, type: picType });
+        let picType = fileInput.dataset.category || fileInput.name || 'unknown';
+        const titleInput = slot ? slot.querySelector('.image-title-input') : null;
+        const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
 
-        // Update UI to show preview
-        const label = fileInput.closest('label.image-gallery');
-        const imgPreview = label.querySelector('img');
-        const icon = label.querySelector('i');
+        const label = newSlot ? fileInput.closest('label.image-gallery') : null;
+        const imgContainer = exactSlot ? slot.querySelector('.image-container') : null;
+        const imgPreview = slot ? slot.querySelector('img') : null;
+        const icon = label ? label.querySelector('i') : null;
 
+        // Visual preview
         const reader = new FileReader();
         reader.onload = (event) => {
-            imgPreview.src = event.target.result;
-            imgPreview.style.display = 'block';
+            if (imgPreview) {
+                imgPreview.src = event.target.result;
+                imgPreview.style.display = 'block';
+                imgPreview.style.opacity = '0.5';
+            }
             if (icon) icon.style.display = 'none';
-            label.setAttribute('data-filled', 'true');
+            if (label) label.setAttribute('data-filled', 'true');
+
+            // Loading Overlay
+            let loadingOverlay = document.createElement('div');
+            loadingOverlay.className = 'upload-spinner-overlay';
+            loadingOverlay.innerHTML = '<div class="spinner-border text-primary" role="status"></div>';
+            loadingOverlay.setAttribute('style', 'position:absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background-color:rgba(255,255,255,0.7); z-index:5;');
+            if (label) label.appendChild(loadingOverlay);
+            if (imgContainer) imgContainer.appendChild(loadingOverlay);
         };
         reader.readAsDataURL(file);
 
-        // --- Auto-Save to Device (User Request) ---
-        // Trigger a download of the captured/selected file so it saves to the device
+        try {
+            const formData = new FormData();
+            formData.append('order_id', orderId);
+            formData.append('folder', `transactions/${orderId}`);
+
+            const compressedFile = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true });
+            const watermarkedBlob = await addWatermark(compressedFile);
+
+            const isReplace = exactSlot && exactSlot.dataset.picUrl;
+            formData.append('images', watermarkedBlob, file.name || 'image.jpg');
+            formData.append('pic_type', picType);
+            formData.append('pic_title', picTitle);
+
+            let targetUrl = `https://be-claims-service.onrender.com/api/upload/image/transactions`;
+            let method = 'POST';
+
+            if (isReplace) {
+                targetUrl = `https://be-claims-service.onrender.com/api/upload/image/replace`;
+                method = 'PUT';
+                formData.append('oldPicUrl', exactSlot.dataset.picUrl);
+            }
+
+            // --- Apply Timeout using AbortController ---
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
+
+            const response = await fetch(targetUrl, {
+                method: method,
+                headers: { 'Authorization': token },
+                body: formData,
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            const result = await response.json();
+
+            if (!response.ok) throw new Error(result.message || 'Upload failed');
+
+            let uploadedUrl = '';
+            if (isReplace) {
+                uploadedUrl = result.url;
+            } else if (result.uploaded && result.uploaded.length > 0) {
+                uploadedUrl = result.uploaded[0].url;
+            }
+
+            if (uploadedUrl && slot) {
+                slot.dataset.picUrl = uploadedUrl;
+                slot.dataset.uploaded = 'true';
+                if (exactSlot) exactSlot.dataset.serverRendered = 'true';
+                if (imgPreview) {
+                    imgPreview.src = uploadedUrl;
+                    imgPreview.style.opacity = '1';
+                }
+                fileInput.value = ''; // Reset input to allow replace
+            }
+        } catch (err) {
+            console.error('Realtime upload failed:', err);
+            if (err.name === 'AbortError') {
+                alert('อัปโหลดรูปล้มเหลว: การเชื่อมต่อใช้เวลานานเกินไป (Timeout) กรุณาลองใหม่อีกครั้ง');
+            } else {
+                alert('อัปโหลดรูปล้มเหลว: ' + err.message);
+            }
+            if (imgPreview) imgPreview.style.display = 'none';
+            if (icon) icon.style.display = 'block';
+        } finally {
+            const overlay = slot ? slot.querySelector('.upload-spinner-overlay') : null;
+            if (overlay) overlay.remove();
+        }
+
+        // --- Auto-Save to Device ---
         try {
             const downloadUrl = URL.createObjectURL(file);
             const link = document.createElement('a');
@@ -641,19 +731,96 @@ document.addEventListener('DOMContentLoaded', () => {
             link.click();
             document.body.removeChild(link);
             setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
-        } catch (err) {
-            console.warn('Auto-save to device failed:', err);
-        }
-
+        } catch (err) { }
     }
 
-    // NEW: Delegated event listener for all file inputs
+    // NEW: Delegated event listener for all file inputs and interactive buttons
     document.addEventListener('change', (e) => {
         if (e.target.matches('input[type="file"]')) {
             handleImageSelection(e.target);
         }
     });
 
+    document.addEventListener('click', async (e) => {
+        const orderId = new URLSearchParams(window.location.search).get('id');
+        const token = localStorage.getItem('authToken') || '';
+
+        // 1. Delete btn (New upload slot)
+        if (e.target.closest('.remove-other-image-slot-btn')) {
+            const btn = e.target.closest('.remove-other-image-slot-btn');
+            const slot = btn.closest('.image-upload-slot');
+            const picUrl = slot.dataset.picUrl;
+            if (picUrl) {
+                if (!confirm('คุณต้องการลบรูปภาพนี้ใช่หรือไม่?')) return;
+                try {
+                    const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/delete`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                        body: JSON.stringify({ orderId, picUrl })
+                    });
+                    if (response.ok) slot.remove();
+                    else alert('ลบไม่สำเร็จ');
+                } catch (err) { console.error(err); alert('เกิดข้อผิดพลาด'); }
+            } else {
+                slot.remove();
+            }
+            return;
+        }
+
+        // 2. Delete btn (Existing image from task-detail-refactored)
+        if (e.target.closest('.delete-btn')) {
+            const btn = e.target.closest('.delete-btn');
+            const slot = btn.closest('.dynamic-image-slot');
+            if (slot) {
+                const picUrl = slot.dataset.picUrl;
+                if (!picUrl) return;
+                if (!confirm('คุณต้องการลบรูปภาพนี้ใช่หรือไม่?')) return;
+                try {
+                    const response = await fetch(`https://be-claims-service.onrender.com/api/order-pic/delete`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                        body: JSON.stringify({ orderId, picUrl })
+                    });
+                    if (response.ok) slot.remove();
+                    else alert('ลบไม่สำเร็จ');
+                } catch (err) { console.error(err); alert('เกิดข้อผิดพลาด'); }
+            }
+            return;
+        }
+
+        // 3. Edit title btn (Existing image from task-detail-refactored)
+        if (e.target.closest('.edit-title-btn')) {
+            const btn = e.target.closest('.edit-title-btn');
+            const slot = btn.closest('.dynamic-image-slot') || btn.closest('.image-upload-slot');
+            const input = slot.querySelector('.image-title-input');
+            const picUrl = slot.dataset.picUrl;
+            if (picUrl && input) {
+                btn.disabled = true;
+                btn.innerHTML = '...';
+                const success = await updateImageTitle(orderId, picUrl, input.value.trim(), token);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-pencil"></i>';
+                if (success) {
+                    btn.classList.add('btn-success');
+                    btn.classList.remove('btn-outline-primary');
+                    setTimeout(() => {
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-outline-primary');
+                    }, 2000);
+                }
+            }
+            return;
+        }
+
+        // 4. Upload btn (Change picture of existing image)
+        if (e.target.closest('.upload-btn')) {
+            const btn = e.target.closest('.upload-btn');
+            const slot = btn.closest('.dynamic-image-slot');
+            const fileInput = slot.querySelector('input[type="file"]');
+            if (fileInput) fileInput.click();
+            return;
+        }
+    });
 
     // Function to add a watermark to an image file
     function addWatermark(imageFile) {
@@ -751,18 +918,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Check for both new files and existing files
-            const existingImageSlots = document.querySelectorAll('.image-upload-slot');
-            const hasNewFiles = filesToUpload.size > 0;
-            // Existing visible images that are NOT previews of new uploads (src starts with http)
-            const existingImagesToUpdate = Array.from(existingImageSlots).filter(slot => {
-                const img = slot.querySelector('img.preview-img');
-                return img && img.src && img.src.startsWith('http');
-            });
-            const hasExistingFiles = existingImagesToUpdate.length > 0;
+            // Fallback for "Update all titles manually" - if user still expects "Save Data"
+            const allVisibleImages = [
+                ...document.querySelectorAll('.image-upload-slot'),
+                ...document.querySelectorAll('.dynamic-image-slot')
+            ];
 
-            if (!hasNewFiles && !hasExistingFiles) {
-                alert('กรุณาเลือกรูปภาพอย่างน้อย 1 รูปเพื่ออัปโหลด');
+            const existingImagesToUpdate = allVisibleImages.filter(slot => {
+                return slot.dataset.picUrl && slot.dataset.picUrl.startsWith('http');
+            });
+
+            if (existingImagesToUpdate.length === 0) {
+                alert('ยังไม่มีรูปภาพ หรือมีการอัปโหลดเรียบร้อยแล้ว');
                 return;
             }
 
@@ -770,120 +937,23 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังบันทึกข้อมูล...';
             isUploading = true;
 
-            // 1. Update titles for existing images
-            if (hasExistingFiles) {
-                const titleUpdatePromises = existingImagesToUpdate.map(slot => {
-                    const img = slot.querySelector('img.preview-img');
-                    const titleInput = slot.querySelector('.image-title-input');
-                    if (img && titleInput) {
-                        return updateImageTitle(orderId, img.src, titleInput.value.trim(), token);
-                    }
-                    return Promise.resolve(true); // Skip invalid slots
-                });
-
-                console.log(`[DEBUG] Updating titles for ${titleUpdatePromises.length} existing images.`);
-                await Promise.all(titleUpdatePromises);
-            }
-
-            // 2. Upload new images (if any)
-            if (hasNewFiles) {
-                const CHUNK_SIZE = 3; // Process 3 images at a time
-                const allFiles = Array.from(filesToUpload.entries());
-                const totalFiles = allFiles.length;
-                let uploadedCount = 0;
-                let failedCount = 0;
-
-                console.log(`[DEBUG] Starting chunked upload for ${totalFiles} files. Chunk size: ${CHUNK_SIZE}`);
-
-                // Process in chunks
-                for (let i = 0; i < totalFiles; i += CHUNK_SIZE) {
-                    const chunk = allFiles.slice(i, i + CHUNK_SIZE);
-                    console.log(`[DEBUG] Processing chunk ${i / CHUNK_SIZE + 1} (${chunk.length} files)`);
-
-                    // Update button status
-                    uploadBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> กำลังอัปโหลดชุดที่ ${Math.floor(i / CHUNK_SIZE) + 1}/${Math.ceil(totalFiles / CHUNK_SIZE)}...`;
-
-                    const chunkFormData = new FormData();
-                    chunkFormData.append('order_id', orderId);
-                    chunkFormData.append('folder', `transactions/${orderId}`);
-
-                    // Prepare promises for this chunk (Compression + Watermark)
-                    const chunkPromises = chunk.map(([inputName, { file, type }]) => {
-                        const fileInput = document.querySelector(`[name="${inputName}"]`);
-                        // If element is missing (removed by user mid-process), skip
-                        if (!fileInput) return Promise.resolve(null);
-
-                        const picType = type;
-                        const picTitleInput = fileInput.closest('.image-upload-slot').querySelector('.image-title-input');
-                        const picTitle = picTitleInput ? picTitleInput.value.trim() : 'unknown';
-
-                        return imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
-                            .then(compressedFile => addWatermark(compressedFile))
-                            .then(watermarkedBlob => {
-                                chunkFormData.append('images', watermarkedBlob, file.name);
-                                chunkFormData.append('pic_type', picType);
-                                chunkFormData.append('pic_title', picTitle);
-                                return true; // Success marker
-                            })
-                            .catch(err => {
-                                console.error(`Failed to process ${file.name}:`, err);
-                                return false; // Error marker
-                            });
-                    });
-
-                    // Wait for chunk processing
-                    const results = await Promise.all(chunkPromises);
-                    const validUploads = results.filter(r => r === true).length;
-
-                    if (validUploads > 0) {
-                        // Upload this chunk
-                        try {
-                            const response = await fetch(`https://be-claims-service.onrender.com/api/upload/image/transactions`, {
-                                method: 'POST',
-                                headers: { 'Authorization': token },
-                                body: chunkFormData
-                            });
-
-                            // Parse response to count successes if needed, or assume all in batch succeeded if 200 OK
-                            if (response.ok) {
-                                uploadedCount += validUploads;
-                                console.log(`[DEBUG] Chunk uploaded successfully. Total so far: ${uploadedCount}`);
-                            } else {
-                                console.error(`[DEBUG] Chunk upload failed.`);
-                                failedCount += validUploads;
-                            }
-
-                        } catch (err) {
-                            console.error(`[DEBUG] Network error during chunk upload:`, err);
-                            failedCount += validUploads;
-                        }
-                    } else {
-                        // If all failed processing in this chunk
-                        failedCount += chunk.length;
-                    }
+            const titleUpdatePromises = existingImagesToUpdate.map(slot => {
+                const titleInput = slot.querySelector('.image-title-input');
+                if (titleInput && slot.dataset.picUrl) {
+                    return updateImageTitle(orderId, slot.dataset.picUrl, titleInput.value.trim(), token);
                 }
+                return Promise.resolve(true); // Skip invalid slots
+            });
 
-                // Final Summary for Uploads
-                if (failedCount === 0) {
-                    alert(`✅ บันทึกข้อมูลเรียบร้อยแล้ว (${uploadedCount} รูป)`);
-                    filesToUpload.clear();
-                    isUploading = false;
-                    window.location.reload();
-                } else {
-                    alert(`⚠️ อัปโหลดเสร็จสิ้น แต่มีบางรูปไม่ผ่าน\nสำเร็จ: ${uploadedCount}\nล้มเหลว: ${failedCount}\nกรุณาลองอัปโหลดรูปที่เหลือใหม่อีกครั้ง`);
-                    isUploading = false;
-                    window.location.reload();
-                }
-            } else {
-                // No new files, but we updated titles
-                alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว');
-                isUploading = false;
-                window.location.reload();
-            }
+            await Promise.all(titleUpdatePromises);
+
+            alert('✅ บันทึกข้อมูลเรียบร้อยแล้ว');
 
             uploadBtn.disabled = false;
             uploadBtn.textContent = 'บันทึกข้อมูล';
             isUploading = false;
+            // Optionally reload to ensure UI syncing
+            window.location.reload();
         });
     }
 

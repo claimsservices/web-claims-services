@@ -43,6 +43,9 @@ document.querySelector = jest.fn((selector) => {
   if (selector === '.form-password-toggle') {
     return getMockElement('form-password-toggle');
   }
+  if (selector === '#formAuthentication') {
+    return getMockElement('formAuthentication');
+  }
   return null;
 });
 
@@ -60,13 +63,13 @@ describe('login.js', () => {
     Object.keys(mockElements).forEach(key => delete mockElements[key]);
 
     formAuthentication = {
-      ...getMockElement('formAuthentication'), // Inherit default mock properties
-      addEventListener: jest.fn((event, callback) => {
+      ...getMockElement('formAuthentication'),
+      addEventListener: jest.fn(function (event, callback) {
         if (event === 'submit') {
           formAuthentication.submitCallback = callback;
         }
       }),
-      submitCallback: null, // Initialize submitCallback
+      submitCallback: null,
     };
     mockElements['formAuthentication'] = formAuthentication;
 
@@ -83,7 +86,11 @@ describe('login.js', () => {
 
   test('should prevent default form submission', async () => {
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
     expect(preventDefault).toHaveBeenCalled();
   });
 
@@ -92,7 +99,11 @@ describe('login.js', () => {
     passwordInput.value = 'password123';
 
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
 
     expect(usernameError.style.display).toBe('block');
     expect(usernameError.innerText).toBe('Please enter your username.');
@@ -104,7 +115,11 @@ describe('login.js', () => {
     passwordInput.value = '';
 
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
 
     expect(passwordError.style.display).toBe('block');
     expect(passwordError.innerText).toBe('Please enter your password.');
@@ -121,7 +136,11 @@ describe('login.js', () => {
     });
 
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
 
     expect(global.fetch).toHaveBeenCalledWith(
       'https://be-claims-service.onrender.com/api/auth/login',
@@ -146,7 +165,11 @@ describe('login.js', () => {
     });
 
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
 
     expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'mockBikeToken');
     expect(localStorageMock.setItem).toHaveBeenCalledWith('role', 'Bike');
@@ -164,7 +187,11 @@ describe('login.js', () => {
     });
 
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
 
     expect(usernameError.style.display).toBe('block');
     expect(usernameError.innerText).toBe('Invalid username or password.');
@@ -183,7 +210,11 @@ describe('login.js', () => {
     });
 
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
 
     expect(usernameError.style.display).toBe('block');
     expect(usernameError.innerText).toBe('Server error. Please try again later.');
@@ -198,7 +229,11 @@ describe('login.js', () => {
     global.fetch.mockRejectedValueOnce(new Error('Network down'));
 
     const preventDefault = jest.fn();
-    await formAuthentication.submitCallback({ preventDefault });
+    if (formAuthentication.submitCallback) {
+      await formAuthentication.submitCallback({ preventDefault });
+    } else {
+      throw new Error('submitCallback is missing');
+    }
 
     expect(usernameError.style.display).toBe('block');
     expect(usernameError.innerText).toBe('An error occurred. Please try again.');

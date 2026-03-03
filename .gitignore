@@ -49,7 +49,7 @@ gulpfile.tmp.*
 /build
 /tmp
 /temp
-
+*.txt
 # Assets
 # **/static/vendor
 assets/vendor/

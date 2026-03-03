@@ -85,6 +85,7 @@ export const staticImageConfig = {
 };
 
 const filesToUpload = new Map();
+let currentOrderId = null;
 
 function decodeJWT(token) {
   try {
@@ -209,7 +210,7 @@ async function loadAssignees(order, token) {
   }
 }
 
-function handleFileSelect(event) {
+async function handleFileSelect(event) {
   const input = event.target;
   if (input.files && input.files[0]) {
     const file = input.files[0];
@@ -217,30 +218,130 @@ function handleFileSelect(event) {
     const img = document.getElementById(`img-${uniqueId}`);
     const placeholder = document.getElementById(`placeholder-${uniqueId}`);
     const slot = input.closest('.dynamic-image-slot');
+    const titleInput = slot ? slot.querySelector('.image-title-input') : null;
+    const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
+    const picType = input.name;
+
+    if (!currentOrderId) {
+      alert('กรุณารอสักครู่ ระบบกำลังสร้างหมายเลขใบงาน');
+      input.value = '';
+      return;
+    }
+
+    if (placeholder) placeholder.style.display = 'none';
 
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = async function (e) {
       if (img) {
         img.src = e.target.result;
         img.style.display = 'block';
+        img.style.opacity = '0.5';
       }
-      if (placeholder) {
-        placeholder.style.display = 'none';
-      }
-      if (slot) {
-        slot.setAttribute('data-uploaded', 'staged');
-        const picType = input.name;
-        const category = input.dataset.category;
-        filesToUpload.set(uniqueId, { file: file, picType: picType, category: category });
 
-        const container = slot.querySelector('.image-container');
+      const container = slot.querySelector('.image-container');
+      if (container) {
+        container.style.border = 'none';
+        container.style.backgroundColor = 'transparent';
+
+        let loadingOverlay = document.createElement('div');
+        loadingOverlay.className = 'upload-spinner-overlay';
+        loadingOverlay.innerHTML = '<div class="spinner-border text-primary" role="status"></div>';
+        loadingOverlay.style.position = 'absolute';
+        loadingOverlay.style.top = '0';
+        loadingOverlay.style.left = '0';
+        loadingOverlay.style.width = '100%';
+        loadingOverlay.style.height = '100%';
+        loadingOverlay.style.display = 'flex';
+        loadingOverlay.style.alignItems = 'center';
+        loadingOverlay.style.justifyContent = 'center';
+        loadingOverlay.style.backgroundColor = 'rgba(255,255,255,0.7)';
+        loadingOverlay.style.zIndex = '5';
+        container.appendChild(loadingOverlay);
+      }
+
+      try {
+        const token = localStorage.getItem('authToken') || '';
+        const formData = new FormData();
+        formData.append('order_id', currentOrderId);
+        formData.append('folder', `transactions/${currentOrderId}`);
+
+        const compressedFile = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true });
+        const watermarkedBlob = await addWatermark(compressedFile);
+
+        formData.append('images', watermarkedBlob, file.name);
+        formData.append('pic_type', picType);
+        formData.append('pic_title', picTitle);
+
+        const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
+          method: 'POST',
+          headers: { 'Authorization': token },
+          body: formData
+        });
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Upload failed');
+
+        if (result.uploaded && result.uploaded.length > 0) {
+          const uploadedData = result.uploaded[0];
+          if (img) {
+            img.src = uploadedData.url;
+            img.style.opacity = '1';
+          }
+          if (slot) {
+            slot.dataset.picUrl = uploadedData.url;
+            slot.dataset.uploaded = 'true';
+            slot.dataset.serverRendered = 'true';
+          }
+          input.value = ''; // Reset to allow replacement if needed
+        }
+      } catch (err) {
+        console.error('Real-time upload failed:', err);
+        alert('อัปโหลดรูปภาพไม่สำเร็จ: ' + err.message);
+        if (img) img.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'block';
+      } finally {
+        const container = slot ? slot.querySelector('.image-container') : null;
         if (container) {
-          container.style.border = 'none';
-          container.style.backgroundColor = 'transparent';
+          const overlay = container.querySelector('.upload-spinner-overlay');
+          if (overlay) overlay.remove();
         }
       }
     };
     reader.readAsDataURL(file);
+  }
+}
+
+async function deleteImage(picUrl, slotElement) {
+  if (!picUrl) {
+    slotElement.remove();
+    return;
+  }
+  const token = localStorage.getItem('authToken') || '';
+  if (!confirm('คุณต้องการลบรูปภาพนี้ใช่หรือไม่?')) return;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/order-pic/delete`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
+      body: JSON.stringify({
+        order_id: currentOrderId,
+        picUrl: picUrl,
+        picTitle: slotElement.querySelector('.image-title-input')?.value || 'Unknown'
+      })
+    });
+
+    if (response.ok) {
+      slotElement.remove();
+    } else {
+      const result = await response.json();
+      alert('ลบรูปภาพไม่สำเร็จ: ' + result.message);
+    }
+  } catch (err) {
+    console.error('Error deleting image:', err);
+    alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
   }
 }
 
@@ -332,15 +433,7 @@ function createEmptyImageSlot(category, configItem) {
   }
 
   const addedSlot = targetSection.lastElementChild;
-  const deleteBtn = addedSlot.querySelector('.delete-btn');
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', () => {
-      if (newFileInput && filesToUpload.has(newFileInput.id)) {
-        filesToUpload.delete(newFileInput.id);
-      }
-      addedSlot.remove();
-    });
-  }
+  // delete button is handled via event delegation now
 }
 
 function initializeTemplateButtons() {
@@ -503,51 +596,7 @@ function addWatermark(imageFile) {
   });
 }
 
-async function uploadStagedImages(orderId, token) {
-  if (filesToUpload.size === 0) return { success: true };
-
-  const formData = new FormData();
-  formData.append('order_id', orderId);
-  formData.append('folder', `transactions/${orderId}`);
-
-  const processingPromises = [];
-
-  filesToUpload.forEach(({ file, picType, category }, inputName) => {
-    const fileInput = document.getElementById(inputName);
-    const imageSlot = fileInput ? fileInput.closest('.dynamic-image-slot') : null;
-    const titleInput = imageSlot ? imageSlot.querySelector('.image-title-input') : null;
-    const picTitle = titleInput ? titleInput.value.trim() : 'unknown';
-
-    const promise = imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true })
-      .then(compressedFile => addWatermark(compressedFile))
-      .then(watermarkedBlob => {
-        formData.append('images', watermarkedBlob, file.name);
-        formData.append('pic_type', picType);
-        formData.append('pic_title', picTitle);
-      })
-      .catch(err => {
-        console.error('Error processing', err);
-        throw err;
-      });
-    processingPromises.push(promise);
-  });
-
-  try {
-    await Promise.all(processingPromises);
-    const response = await fetch(`${API_BASE_URL}/api/upload/image/transactions`, {
-      method: 'POST',
-      headers: { 'Authorization': token },
-      body: formData
-    });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.message || 'Upload failed');
-    filesToUpload.clear();
-    return { success: true, result };
-  } catch (e) {
-    console.error(e);
-    return { success: false, message: e.message };
-  }
-}
+// uploadStagedImages logic removed due to Real-time upload
 
 async function loadOrderData(orderId) {
   const token = localStorage.getItem('authToken') || '';
@@ -822,21 +871,27 @@ document.addEventListener('DOMContentLoaded', async function () {
       const s_end = getValueById('coverageEndDate');
       if (s_end) data.s_end = s_end;
 
+      // Collect images
+      const order_pic = [];
+      document.querySelectorAll('.dynamic-image-slot').forEach(slot => {
+        const url = slot.dataset.picUrl;
+        const title = slot.querySelector('.image-title-input')?.value.trim() || 'ไม่ระบุข้อมูล';
+        const type = slot.dataset.picType || 'unknown';
+        if (url) {
+          order_pic.push({ pic: url, pic_title: title, pic_type: type });
+        }
+      });
+      data.order_pic = order_pic;
+
       try {
-        const response = await fetch(`${API_BASE_URL}/api/orders/create`, {
-          method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/api/orders/update/${currentOrderId}`, {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': token },
           body: JSON.stringify(data)
         });
         const result = await response.json();
         if (response.ok) {
-          const newOrderId = result.order?.id;
-          if (newOrderId && filesToUpload.size > 0) {
-            const submitBtn = document.getElementById('submittaskBtn');
-            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = 'กำลังอัปโหลด...'; }
-            await uploadStagedImages(newOrderId, token);
-          }
-          alert('✅ สร้างรายการเรียบร้อยแล้ว');
+          alert('✅ บันทึกข้อมูลรายการเรียบร้อยแล้ว');
           form.reset();
           window.location.href = 'dashboard.html';
         } else {
@@ -885,20 +940,26 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   // Delegation for dynamic buttons
   document.addEventListener('click', function (e) {
-    if (e.target && e.target.classList.contains('add-image-btn')) {
-      const category = e.target.dataset.category;
+    if (e.target && e.target.closest('.delete-btn')) {
+      const btn = e.target.closest('.delete-btn');
+      const slotDiv = btn.closest('.dynamic-image-slot');
+      if (slotDiv) {
+        const picUrl = slotDiv.dataset.picUrl;
+        deleteImage(picUrl, slotDiv);
+      }
+      return;
+    }
+
+    if (e.target && e.target.closest('.add-image-btn')) {
+      const btn = e.target.closest('.add-image-btn');
+      const category = btn.dataset.category;
       const newSlotHtml = renderNewImageUploadSlot(category);
-      e.target.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
+      btn.parentElement.insertAdjacentHTML('beforebegin', newSlotHtml);
       // Add event listeners for new slot
-      const slotDiv = e.target.parentElement.previousElementSibling; // The new slot
+      const slotDiv = btn.parentElement.previousElementSibling; // The new slot
       if (slotDiv) {
         const fileInput = slotDiv.querySelector('input[type="file"]');
         if (fileInput) fileInput.addEventListener('change', handleFileSelect);
-        const deleteBtn = slotDiv.querySelector('.delete-btn');
-        if (deleteBtn) deleteBtn.addEventListener('click', () => {
-          if (fileInput && filesToUpload.has(fileInput.id)) filesToUpload.delete(fileInput.id);
-          slotDiv.remove();
-        });
       }
     }
   });
@@ -910,10 +971,32 @@ document.addEventListener('DOMContentLoaded', async function () {
   const urlParams = new URLSearchParams(window.location.search);
   const orderId = urlParams.get('order_id') || urlParams.get('id');
   if (orderId) {
+    currentOrderId = orderId;
     await loadOrderData(orderId);
   } else {
     const jobTypeEl = document.getElementById('jobType');
     if (jobTypeEl) jobTypeEl.disabled = false;
+
+    // Auto Create Order
+    const token = localStorage.getItem('authToken') || '';
+    try {
+      const decoded = decodeJWT(token);
+      const username = decoded ? (decoded.first_name + ' ' + decoded.last_name) : 'System';
+      const response = await fetch(`${API_BASE_URL}/api/orders/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+        body: JSON.stringify({ created_by: username, creator: username, order_status: 'เปิดงาน' })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        currentOrderId = result.id;
+        document.getElementById('taskId').value = result.id;
+      } else {
+        console.error('Failed to auto-create order:', result.message);
+      }
+    } catch (e) {
+      console.error('Error auto-creating order:', e);
+    }
   }
 
   ['logout', 'logout-menu'].forEach(id => {
