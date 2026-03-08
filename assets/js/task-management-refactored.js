@@ -681,6 +681,10 @@ async function loadOrderData(orderId) {
 
     if (order_assign.length > 0) {
       document.getElementById('contactedCustomer').checked = order_assign[0].is_contact;
+      const travelExpenseEl = document.getElementById('travelExpense');
+      if (travelExpenseEl) {
+        travelExpenseEl.value = order_assign[0].travel_expense || '';
+      }
     }
 
     const timelineEl = document.getElementById('historyTimeline');
@@ -839,6 +843,15 @@ document.addEventListener('DOMContentLoaded', async function () {
       const time = getValueById('appointmentTime');
       let appointment_date = date ? (time ? new Date(`${date}T${time}`).toISOString() : new Date(date).toISOString()) : null;
 
+      const order_assign = [{
+        owner: getValueById('responsiblePerson'),
+        date: appointment_date,
+        is_contact: document.getElementById('contactedCustomer')?.checked || false,
+        created_by: created_by,
+        destination: getValueById('address'),
+        travel_expense: getValueById('travelExpense') || null
+      }];
+
       const order_hist = [{ icon: "📝", task: "สร้างรายการ", detail: "สร้างโดยผู้ใช้: " + created_by, created_by }];
       const additionalDetails = getValueById('additionalDetails');
       if (additionalDetails) order_hist.push({ icon: "📝", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by });
@@ -864,7 +877,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         s_type: getValueById('insuranceType'), s_remark: getValueById('s_remark'), s_ins_remark: getValueById('s_ins_remark'),
         s_detail: getValueById('s_detail'), s_fleet: document.getElementById('fleetCar')?.checked || false, updated_by: created_by,
         c_name: getValueById('creatorName'), owner: getValueById('responsiblePerson'),
-        order_hist
+        order_hist,
+        order_assign
       };
       const s_start = getValueById('coverageStartDate');
       if (s_start) data.s_start = s_start;
