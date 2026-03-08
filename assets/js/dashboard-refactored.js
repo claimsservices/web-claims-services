@@ -558,6 +558,28 @@ function getFilters() {
     } else {
       console.warn("Invalid date range selected:", dateRangeRaw);
     }
+  } else if (dateRangeRaw !== '') {
+    // Single date selection (No ' to ' separator)
+    const fromRaw = dateRangeRaw.trim();
+    const toRaw = dateRangeRaw.trim();
+
+    const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
+    const toDate = new Date(`${toRaw}T23:59:59+07:00`);
+
+    const toUTCString = (date) => date.toISOString();
+
+    if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+      const from = toUTCString(fromDate);
+      const to = toUTCString(toDate);
+
+      if (dateField === "วันที่สร้างงาน") {
+        filter.order_date_from = from;
+        filter.order_date_to = to;
+      } else if (dateField === "วันที่นัดหมาย") {
+        filter.appointment_date_from = from;
+        filter.appointment_date_to = to;
+      }
+    }
   }
 
   console.log('[DEBUG] getFilters returning:', JSON.stringify(filter, null, 2));
