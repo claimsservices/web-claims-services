@@ -965,7 +965,8 @@ class UIBikePermissionManager extends UIPermissionManager {
                 "รับงาน",
                 "เริ่มงาน/กำลังเดินทาง",
                 "ถึงที่เกิดเหตุ/ปฏิบัติงาน",
-                "ส่งงาน/ตรวจสอบเบื้องต้น"
+                "ส่งงาน/ตรวจสอบเบื้องต้น",
+                "แก้ไข"
             ];
             const currentStatus = statusDropdown.value;
             statusDropdown.innerHTML = '';

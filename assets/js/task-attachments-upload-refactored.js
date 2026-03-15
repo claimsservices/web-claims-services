@@ -134,6 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderExistingImages(result.order_pic);
             }
 
+            if (result.order_hist && result.order_hist.length > 0) {
+                const latestDetail = result.order_hist.filter(h => h.task === 'รายละเอียดเพิ่มเติม').pop();
+                if (latestDetail) {
+                    const detailEl = document.getElementById('additional-details');
+                    if (detailEl) detailEl.value = latestDetail.detail;
+                }
+            }
+
             handleOrderStatus(result.order.order_status || "เปิดงาน");
 
         } catch (err) {
@@ -344,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case "รับงาน": activeSteps = 1; break;
             case "เริ่มงาน/กำลังเดินทาง": activeSteps = 2; break;
             case "ถึงที่เกิดเหตุ/ปฏิบัติงาน": activeSteps = 3; break;
-            case "ส่งงาน/ตรวจสอบเบื้องต้น": case "รออนุมัติ": case "ผ่าน": activeSteps = 4; break;
+            case "ส่งงาน/ตรวจสอบเบื้องต้น": case "รออนุมัติ": case "ผ่าน": case "แก้ไข": activeSteps = 4; break;
         }
         const percent = activeSteps > 1 ? ((activeSteps - 1) / 3) * 100 : 0;
         document.getElementById('progressFill').style.width = `${percent}%`;
@@ -365,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case "เปิดงาน": case "รับเรื่องแล้ว": buttonsToShow = ['btn-accept', 'btn-reject']; break;
             case "รับงาน": buttonsToShow = ['btn-start']; break;
             case "เริ่มงาน/กำลังเดินทาง": buttonsToShow = ['btn-arrived']; break;
-            case "ถึงที่เกิดเหตุ/ปฏิบัติงาน": buttonsToShow = ['btn-submit-task']; break;
+            case "ถึงที่เกิดเหตุ/ปฏิบัติงาน": case "แก้ไข": buttonsToShow = ['btn-submit-task']; break;
         }
         buttonsToShow.forEach(id => {
             const btn = document.getElementById(id);
@@ -456,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleUploadSection(status) {
-        const isVisible = status === "ถึงที่เกิดเหตุ/ปฏิบัติงาน";
+        const isVisible = status === "ถึงที่เกิดเหตุ/ปฏิบัติงาน" || status === "แก้ไข";
         document.querySelectorAll('.upload-section').forEach(section => {
             section.style.display = isVisible ? 'block' : 'none';
         });
