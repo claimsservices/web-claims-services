@@ -408,16 +408,29 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Item 4: Prepare History Log ---
         const decoded = parseJwt(token);
         const userName = decoded ? `${decoded.first_name} ${decoded.last_name}` : 'Unknown User';
+        const userRole = decoded ? decoded.role : 'User';
+
+        let displayStatus = status;
+        let detailText = `ผู้ใช้งาน ${userName} (${userRole}) อัปเดตสถานะเป็น ${status}`;
+
+        // Special case: When submitting from "Edit" status
+        const currentStatus = document.getElementById('status-text')?.innerText || '';
+        if (currentStatus.includes('แก้ไข') && status === 'รออนุมัติ') {
+            detailText = `ผู้ใช้งาน ${userName} (${userRole}) แก้ไขงานและส่งงานกลับมาเพื่อตรวจสอบ`;
+        }
+
         const historyLog = {
             icon: getStatusIcon(status),
             task: status,
-            detail: `User: ${userName} updated status to ${status}`,
-            created_by: userName // Backend might use token user, but we send it just in case or for consistency
+            detail: detailText,
+            created_by: userName
         };
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 seconds timeout
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            console.log(`Updating status from "${currentStatus}" to "${status}"...`);
 
             const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
                 method: 'PUT',
@@ -426,9 +439,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Authorization': token
                 },
                 body: JSON.stringify({
-                    order_id: orderId,
                     order_status: status,
-                    order_hist: [historyLog] // Send history log
+                    order_hist: [historyLog]
                 }),
                 signal: controller.signal
             });
@@ -439,16 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errorData.message || 'ไม่สามารถอัปเดตสถานะได้');
             }
 
-            alert(`อัปเดตสถานะเป็น "${status}" สำเร็จ`);
-            handleOrderStatus(status); // Update UI after successful API call
-            window.location.reload(); // Reload to reflect changes and button states
+            alert(`✅ ส่งงานสำเร็จ: เปลี่ยนสถานะเป็น "${status}" เรียบร้อยแล้ว`);
+            window.location.reload();
         } catch (error) {
             console.error('Error updating status:', error);
-            if (error.name === 'AbortError') {
-                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะ: การเชื่อมต่อใช้เวลานานเกินไป (Timeout) กรุณาลองใหม่อีกครั้ง');
-            } else {
-                alert(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${error.message}`);
-            }
+            alert(`เกิดข้อผิดพลาดในการอัปเดตสถานะ: ${error.message}`);
         }
     }
 
