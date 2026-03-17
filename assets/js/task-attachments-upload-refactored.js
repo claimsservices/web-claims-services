@@ -306,16 +306,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const newSlot = document.createElement('div');
         newSlot.className = 'col-md-4 col-lg-3 mb-3 text-center image-upload-slot';
+
+        let titleHtml = '';
+        if (initialFile) {
+            newSlot.dataset.picUrl = initialFile;
+            titleHtml = `
+                <div class="input-group mt-2">
+                    <input type="text" class="form-control image-title-input" placeholder="ระบุคำอธิบาย (ถ้ามี)" value="${initialPicTitle || defaultTitle}" style="font-weight: 600; text-align: center;">
+                    <button class="btn btn-outline-primary edit-title-btn" type="button">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                </div>
+            `;
+        } else {
+            titleHtml = `<input type="text" class="form-control mt-2 image-title-input" placeholder="ระบุคำอธิบาย (ถ้ามี)" value="${initialPicTitle || defaultTitle}" style="font-weight: 600; text-align: center;">`;
+        }
+
         newSlot.innerHTML = `
-            <label class="image-gallery w-100" style="cursor:pointer; padding-bottom: 10px; margin-bottom: 0;">
-                <img alt="Preview" class="preview-img" style="display:none; width:100%; height:150px; object-fit:cover;" />
-                <i class="bi bi-camera fs-1"></i>
-                <input type="file" name="${fileInputName}" data-category="${category}" accept="image/*" ${getCaptureAttr()} hidden>
-            </label>
-            <input type="text" class="form-control mt-2 image-title-input" placeholder="ระบุคำอธิบาย (ถ้ามี)" value="${initialPicTitle || defaultTitle}" style="font-weight: 600; text-align: center;">
-            <button class="btn btn-outline-danger btn-sm remove-other-image-slot-btn" type="button" style="position:absolute; top:5px; right:5px;">
-                <i class="bx bx-trash"></i>
-            </button>
+            <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 180px; margin-bottom: 8px; border: 1px solid #ddd; background-color: #f8f9fa;">
+                <label class="image-gallery w-100 h-100" style="cursor:pointer; display: block; margin-bottom: 0;">
+                    <img alt="Preview" class="preview-img" style="display:none; width:100%; height:100%; object-fit:cover;" />
+                    <div class="camera-icon-wrapper" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; color: #6c757d;">
+                        <i class="bi bi-camera fs-1"></i>
+                    </div>
+                    <input type="file" name="${fileInputName}" data-category="${category}" accept="image/*" ${getCaptureAttr()} hidden>
+                </label>
+                <button class="remove-other-image-slot-btn" type="button" title="ลบภาพ" style="position: absolute; top: 6px; right: 6px; background: transparent; border: none; color: rgb(252, 7, 7); font-size: 24px; line-height: 1; cursor: pointer; z-index: 10; ${initialFile ? '' : 'display:none;'}">
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+            </div>
+            ${titleHtml}
         `;
         container.appendChild(newSlot);
 
@@ -644,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const label = newSlot ? fileInput.closest('label.image-gallery') : null;
         const imgContainer = exactSlot ? slot.querySelector('.image-container') : null;
         const imgPreview = slot ? slot.querySelector('img') : null;
-        const icon = label ? label.querySelector('i') : null;
+        const icon = label ? label.querySelector('.camera-icon-wrapper') || label.querySelector('i') : null;
 
         // Visual preview
         const reader = new FileReader();
@@ -656,6 +676,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (icon) icon.style.display = 'none';
             if (label) label.setAttribute('data-filled', 'true');
+
+            // Show the delete button now that there's an image
+            const deleteBtn = slot ? slot.querySelector('.remove-other-image-slot-btn') : null;
+            if (deleteBtn) deleteBtn.style.display = 'block';
 
             // Loading Overlay
             let loadingOverlay = document.createElement('div');
