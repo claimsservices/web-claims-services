@@ -662,7 +662,7 @@ document.getElementById('exportExcelBtn').addEventListener('click', () => {
     };
 
     if (isManagerOrAdmin) {
-      row["ค่าเดินทาง"] = item.travel_cost || 0;
+      row["ค่าเดินทาง"] = item.amount || 0;
     }
 
     return row;
