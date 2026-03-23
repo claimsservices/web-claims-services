@@ -635,7 +635,14 @@ document.getElementById('exportExcelBtn').addEventListener('click', () => {
     return;
   }
 
-  const userRole = localStorage.getItem('userRole') || 'Guest';
+  const token = localStorage.getItem('authToken');
+  let userRole = 'Guest';
+  if (token) {
+    const decodedToken = parseJwt(token);
+    if (decodedToken && decodedToken.role) {
+      userRole = decodedToken.role;
+    }
+  }
   const isManagerOrAdmin = ['Director', 'Operation Manager', 'Sales Manager'].includes(userRole);
 
   const worksheetData = allData.map(item => {

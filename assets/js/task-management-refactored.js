@@ -372,7 +372,7 @@ function createAddImageButtons() {
 }
 
 function renderNewImageUploadSlot(category) {
-  const uniqueId = `dynamic-upload-${category}-${Date.now()}`;
+  const uniqueId = `dynamic-upload-${category}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   const newSlotHtml = `
             <div class="col-4 mb-3 dynamic-image-slot" data-category="${category}">
                 <div class="image-container" style="position:relative; border-radius:8px; overflow: hidden; height: 200px; margin-bottom: 8px; cursor: pointer;">
