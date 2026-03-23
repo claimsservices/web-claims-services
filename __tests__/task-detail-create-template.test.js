@@ -49,15 +49,15 @@ describe('Task Detail - Create Template', () => {
         // Mock staticImageConfig globally for the test context
         global.staticImageConfig = {
             around: [
-                { name: "exterior_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
-                { name: "exterior_left_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
-                { name: "exterior_left_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายตรง" },
-                { name: "exterior_left_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง" },
-                { name: "exterior_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านท้ายรถ" },
-                { name: "exterior_right_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง" },
-                { name: "exterior_right_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาตรง" },
-                { name: "exterior_right_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
-                { name: "exterior_roof", defaultTitle: "ภาพถ่ายรอบคัน - หลังคา" }
+                { name: "exterior_front", defaultTitle: "01. ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
+                { name: "exterior_left_front", defaultTitle: "02. ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
+                { name: "exterior_left_center", defaultTitle: "03. ภาพถ่ายรอบคัน - ด้านซ้ายตรง" },
+                { name: "exterior_left_rear", defaultTitle: "04. ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง" },
+                { name: "exterior_rear", defaultTitle: "05. ภาพถ่ายรอบคัน - ด้านท้ายรถ" },
+                { name: "exterior_right_rear", defaultTitle: "06. ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง" },
+                { name: "exterior_right_center", defaultTitle: "07. ภาพถ่ายรอบคัน - ด้านขวาตรง" },
+                { name: "exterior_right_front", defaultTitle: "08. ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
+                { name: "exterior_roof", defaultTitle: "09. ภาพถ่ายรอบคัน - หลังคา" }
             ],
             accessories: Array(20).fill({ name: "test", defaultTitle: "test" }) // Mock 20 items
         };
@@ -87,8 +87,8 @@ describe('Task Detail - Create Template', () => {
 
         // Check labels/titles of the first slot
         const firstSlotTitle = slots[0].querySelector('.image-title-input').value;
-        // The default title in config is "ภาพถ่ายรอบคัน - ด้านหน้ารถ"
-        expect(firstSlotTitle).toBe("ภาพถ่ายรอบคัน - ด้านหน้ารถ");
+        // The default title in config is "01. ภาพถ่ายรอบคัน - ด้านหน้ารถ"
+        expect(firstSlotTitle).toBe("01. ภาพถ่ายรอบคัน - ด้านหน้ารถ");
     });
 
     test('should NOT disable the button and allow multiple sets to be created', () => {

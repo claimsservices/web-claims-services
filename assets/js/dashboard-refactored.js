@@ -635,20 +635,31 @@ document.getElementById('exportExcelBtn').addEventListener('click', () => {
     return;
   }
 
-  const worksheetData = allData.map(item => ({
-    "รหัสงาน": item.id,
-    "บริษัทประกัน": item.insur_comp,
-    "วันที่ทำรายการ": formatDateTime(item.created_date),
-    "วันที่นัดหมาย": formatDateTime(item.appointment_date),
-    "ทะเบียนรถ": item.car_registration,
-    "สถานที่": item.location,
-    "ประเภทงาน": item.order_type,
-    "สถานะงาน": item.order_status,
-    "ผู้สร้างงาน": item.creator,
-    "ผู้รับผิดชอบ": item.owner_full_name,
-    "ข้อมูลอ้างอิง": item.s_ref,
-    "ข้อมูลอ้างอิง (เพิ่มเติม)": item.s_ref_2
-  }));
+  const userRole = localStorage.getItem('userRole') || 'Guest';
+  const isManagerOrAdmin = ['Manager', 'Super Admin'].includes(userRole);
+
+  const worksheetData = allData.map(item => {
+    const row = {
+      "รหัสงาน": item.id,
+      "บริษัทประกัน": item.insur_comp,
+      "วันที่ทำรายการ": formatDateTime(item.created_date),
+      "วันที่นัดหมาย": formatDateTime(item.appointment_date),
+      "ทะเบียนรถ": item.car_registration,
+      "สถานที่": item.location,
+      "ประเภทงาน": item.order_type,
+      "สถานะงาน": item.order_status,
+      "ผู้สร้างงาน": item.creator,
+      "ผู้รับผิดชอบ": item.owner_full_name,
+      "ข้อมูลอ้างอิง": item.s_ref,
+      "ข้อมูลอ้างอิง (เพิ่มเติม)": item.s_ref_2
+    };
+
+    if (isManagerOrAdmin) {
+      row["ค่าเดินทาง"] = item.travel_cost || 0;
+    }
+
+    return row;
+  });
 
   const worksheet = XLSX.utils.json_to_sheet(worksheetData);
   const workbook = XLSX.utils.book_new();

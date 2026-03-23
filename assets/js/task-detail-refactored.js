@@ -3,73 +3,73 @@ import { getQueryParam, navigateTo } from './navigation.js';
 
 export const staticImageConfig = {
     around: [
-        { name: "exterior_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
-        { name: "exterior_left_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
-        { name: "exterior_left_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายตรง" },
-        { name: "exterior_left_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง" },
-        { name: "exterior_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านท้ายรถ" },
-        { name: "exterior_right_rear", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง" },
-        { name: "exterior_right_center", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาตรง" },
-        { name: "exterior_right_front", defaultTitle: "ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
-        { name: "exterior_roof", defaultTitle: "ภาพถ่ายรอบคัน - หลังคา" }
+        { name: "exterior_front", defaultTitle: "01. ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
+        { name: "exterior_left_front", defaultTitle: "02. ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
+        { name: "exterior_left_center", defaultTitle: "03. ภาพถ่ายรอบคัน - ด้านซ้ายตรง" },
+        { name: "exterior_left_rear", defaultTitle: "04. ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง" },
+        { name: "exterior_rear", defaultTitle: "05. ภาพถ่ายรอบคัน - ด้านท้ายรถ" },
+        { name: "exterior_right_rear", defaultTitle: "06. ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง" },
+        { name: "exterior_right_center", defaultTitle: "07. ภาพถ่ายรอบคัน - ด้านขวาตรง" },
+        { name: "exterior_right_front", defaultTitle: "08. ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
+        { name: "exterior_roof", defaultTitle: "09. ภาพถ่ายรอบคัน - หลังคา" }
     ],
     accessories: [
-        { name: "interior_wheels_1", defaultTitle: "ล้อหน้าซ้าย" },
-        { name: "interior_wheels_2", defaultTitle: "ล้อหน้าขวา" },
-        { name: "interior_wheels_3", defaultTitle: "ล้อหลังซ้าย" },
-        { name: "interior_wheels_4", defaultTitle: "ล้อหลังขวา" },
-        { name: "interior_dashboard", defaultTitle: "ปีผลิต/ขนาดล้อ/ยางอะไหล่" },
-        { name: "interior_6", defaultTitle: "ห้องเครื่อง" },
-        { name: "interior_7", defaultTitle: "จอไมล์" },
-        { name: "interior_8", defaultTitle: "คอนโซล" },
-        { name: "interior_9", defaultTitle: "วิทยุ" },
-        { name: "interior_10", defaultTitle: "อื่นๆ" },
-        { name: "interior_11", defaultTitle: "อื่นๆ" },
-        { name: "interior_12", defaultTitle: "อื่นๆ" },
-        { name: "interior_13", defaultTitle: "อื่นๆ" },
-        { name: "interior_14", defaultTitle: "อื่นๆ" },
-        { name: "interior_15", defaultTitle: "อื่นๆ" },
-        { name: "interior_16", defaultTitle: "อื่นๆ" },
-        { name: "interior_17", defaultTitle: "อื่นๆ" },
-        { name: "interior_18", defaultTitle: "อื่นๆ" },
-        { name: "interior_19", defaultTitle: "อื่นๆ" },
-        { name: "interior_20", defaultTitle: "อื่นๆ" }
+        { name: "interior_wheels_1", defaultTitle: "10. ล้อหน้าซ้าย" },
+        { name: "interior_wheels_2", defaultTitle: "11. ล้อหน้าขวา" },
+        { name: "interior_wheels_3", defaultTitle: "12. ล้อหลังซ้าย" },
+        { name: "interior_wheels_4", defaultTitle: "13. ล้อหลังขวา" },
+        { name: "interior_dashboard", defaultTitle: "14. ปีผลิต/ขนาดล้อ/ยางอะไหล่" },
+        { name: "interior_6", defaultTitle: "15. ห้องเครื่อง" },
+        { name: "interior_7", defaultTitle: "16. จอไมล์" },
+        { name: "interior_8", defaultTitle: "17. คอนโซล" },
+        { name: "interior_9", defaultTitle: "18. วิทยุ" },
+        { name: "interior_10", defaultTitle: "19. อื่นๆ" },
+        { name: "interior_11", defaultTitle: "20. อื่นๆ" },
+        { name: "interior_12", defaultTitle: "21. อื่นๆ" },
+        { name: "interior_13", defaultTitle: "22. อื่นๆ" },
+        { name: "interior_14", defaultTitle: "23. อื่นๆ" },
+        { name: "interior_15", defaultTitle: "24. อื่นๆ" },
+        { name: "interior_16", defaultTitle: "25. อื่นๆ" },
+        { name: "interior_17", defaultTitle: "26. อื่นๆ" },
+        { name: "interior_18", defaultTitle: "27. อื่นๆ" },
+        { name: "interior_19", defaultTitle: "28. อื่นๆ" },
+        { name: "interior_20", defaultTitle: "29. อื่นๆ" }
     ],
     inspection: [
-        { name: "damage_images_1", defaultTitle: "รายละเอียดความเสียหาย 1." },
-        { name: "damage_images_2", defaultTitle: "รายละเอียดความเสียหาย 2." },
-        { name: "damage_images_3", defaultTitle: "รายละเอียดความเสียหาย 3." },
-        { name: "damage_images_4", defaultTitle: "รายละเอียดความเสียหาย 4." },
-        { name: "damage_images_5", defaultTitle: "รายละเอียดความเสียหาย 5." },
-        { name: "damage_images_6", defaultTitle: "รายละเอียดความเสียหาย 6." },
-        { name: "damage_images_7", defaultTitle: "รายละเอียดความเสียหาย 7." },
-        { name: "damage_images_8", defaultTitle: "รายละเอียดความเสียหาย 8." },
-        { name: "damage_images_9", defaultTitle: "รายละเอียดความเสียหาย 9." },
-        { name: "damage_images_10", defaultTitle: "รายละเอียดความเสียหาย 10." }
+        { name: "damage_images_1", defaultTitle: "30. รายละเอียดความเสียหาย 1." },
+        { name: "damage_images_2", defaultTitle: "31. รายละเอียดความเสียหาย 2." },
+        { name: "damage_images_3", defaultTitle: "32. รายละเอียดความเสียหาย 3." },
+        { name: "damage_images_4", defaultTitle: "33. รายละเอียดความเสียหาย 4." },
+        { name: "damage_images_5", defaultTitle: "34. รายละเอียดความเสียหาย 5." },
+        { name: "damage_images_6", defaultTitle: "35. รายละเอียดความเสียหาย 6." },
+        { name: "damage_images_7", defaultTitle: "36. รายละเอียดความเสียหาย 7." },
+        { name: "damage_images_8", defaultTitle: "37. รายละเอียดความเสียหาย 8." },
+        { name: "damage_images_9", defaultTitle: "38. รายละเอียดความเสียหาย 9." },
+        { name: "damage_images_10", defaultTitle: "39. รายละเอียดความเสียหาย 10." }
     ],
     fiber: [
-        { name: "doc_identity", defaultTitle: "เอกสารยืนยันตัวบุคคล" },
-        { name: "doc_other_1", defaultTitle: "เอกสารยืนยันตัวรถ" },
-        { name: "doc_other_2", defaultTitle: "เลขตัวถังและทะเบียนรถ" },
-        { name: "doc_other_3", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "doc_other_4", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "doc_other_5", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "doc_other_6", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "doc_other_7", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "doc_other_8", defaultTitle: "เอกสารอื่น ๆ" }
+        { name: "doc_identity", defaultTitle: "40. เอกสารยืนยันตัวบุคคล" },
+        { name: "doc_other_1", defaultTitle: "41. เอกสารยืนยันตัวรถ" },
+        { name: "doc_other_2", defaultTitle: "42. เลขตัวถังและทะเบียนรถ" },
+        { name: "doc_other_3", defaultTitle: "43. เอกสารอื่น ๆ" },
+        { name: "doc_other_4", defaultTitle: "44. เอกสารอื่น ๆ" },
+        { name: "doc_other_5", defaultTitle: "45. เอกสารอื่น ๆ" },
+        { name: "doc_other_6", defaultTitle: "46. เอกสารอื่น ๆ" },
+        { name: "doc_other_7", defaultTitle: "47. เอกสารอื่น ๆ" },
+        { name: "doc_other_8", defaultTitle: "48. เอกสารอื่น ๆ" }
     ],
     documents: [
-        { name: "license", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "id_card", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "car_doc", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "car_number", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "other_1", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "other_2", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "doc_other_9", defaultTitle: "เอกสารอื่น ๆ" },
-        { name: "other_3", defaultTitle: "เอกสารอื่น ๆ" }
+        { name: "license", defaultTitle: "49. เอกสารอื่น ๆ" },
+        { name: "id_card", defaultTitle: "50. เอกสารอื่น ๆ" },
+        { name: "car_doc", defaultTitle: "51. เอกสารอื่น ๆ" },
+        { name: "car_number", defaultTitle: "52. เอกสารอื่น ๆ" },
+        { name: "other_1", defaultTitle: "53. เอกสารอื่น ๆ" },
+        { name: "other_2", defaultTitle: "54. เอกสารอื่น ๆ" },
+        { name: "doc_other_9", defaultTitle: "55. เอกสารอื่น ๆ" },
+        { name: "other_3", defaultTitle: "56. เอกสารอื่น ๆ" }
     ],
     signature: [
-        { name: "doc_other_9", defaultTitle: "ลายเซ็น" }
+        { name: "doc_other_9", defaultTitle: "57. ลายเซ็น" }
     ]
 };
 
@@ -584,6 +584,11 @@ async function loadOrderData(orderId) {
 
         // Render existing images if they exist
         if (order_pic && order_pic.length > 0) {
+            order_pic.sort((a, b) => {
+                const titleA = a.pic_title || '';
+                const titleB = b.pic_title || '';
+                return titleA.localeCompare(titleB, 'th', { numeric: true });
+            });
             renderUploadedImages(order_pic);
             renderDownloadableImages(order_pic);
         }
@@ -1133,6 +1138,12 @@ function applyRoleBasedRestrictions(data) {
     const permissionManager = getUIPermissionManager(userRole);
     permissionManager.configure(orderStatus, data);
     console.log('DEBUG: s_detail after applyRoleBasedRestrictions:', document.getElementById('s_detail')?.value);
+
+    // Show categorized download button only for Manager and Super Admin
+    if (['Manager', 'Super Admin'].includes(userRole)) {
+        const catBtn = document.getElementById('downloadCategorizedBtn');
+        if (catBtn) catBtn.style.display = 'flex';
+    }
 }
 
 async function populateBrands(brandSelect) {
@@ -1845,9 +1856,137 @@ window.addEventListener('load', async function () {
         console.log('ZIP file generated and ready for download.');
     }
 
+    // --- CATEGORIZED ZIP DOWNLOAD LOGIC ---
+    async function handleCategorizedZipDownload(event) {
+        event.preventDefault();
+        console.log('Categorized Download All button clicked.');
+        const zip = new JSZip();
+        // Use taskId (from hidden input) or fallback to 'images'
+        const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
+
+        const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
+        const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
+            const style = getComputedStyle(img);
+            return (img.src && img.src.startsWith('http') && style.display !== 'none' && img.complete);
+        });
+
+        if (imageElements.length === 0) {
+            alert('ไม่มีภาพให้ดาวน์โหลด');
+            return;
+        }
+
+        console.log(`Found ${imageElements.length} images to download categorized.`);
+
+        const uniqueImages = new Map();
+        imageElements.forEach((img, i) => {
+            if (!uniqueImages.has(img.src)) {
+                uniqueImages.set(img.src, { img, index: i });
+            }
+        });
+
+        const promises = [];
+        let index = 1;
+
+        const mainCategoryNames = {
+            around: 'ภาพถ่ายรอบคัน',
+            accessories: 'ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง',
+            inspection: 'ภาพถ่ายความเสียหาย',
+            fiber: 'เอกสารใบตรวจสภาพรถ',
+            documents: 'เอกสารอื่นๆ',
+            signature: 'ลายเซ็น',
+            other: 'อื่นๆ'
+        };
+
+        for (const [src, item] of uniqueImages) {
+            const img = item.img;
+            let title = '';
+            let rawCategory = 'other';
+
+            const dynamicSlot = img.closest('.dynamic-image-slot');
+            if (dynamicSlot) {
+                title = dynamicSlot.querySelector('.image-title-input')?.value?.trim();
+                rawCategory = dynamicSlot.dataset.category || 'other';
+            } else {
+                const label = img.closest('label');
+                if (label) title = label.querySelector('.title')?.innerText?.trim();
+                else {
+                    const cardBody = img.closest('.card')?.querySelector('.card-body');
+                    if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
+                    const section = img.closest('.mb-4');
+                    // In Tab 7, the category is rendered as h6
+                    if (section) {
+                        const h6 = section.querySelector('h6');
+                        if (h6) {
+                            const name = h6.innerText.trim();
+                            const foundKey = Object.keys(mainCategoryNames).find(key => mainCategoryNames[key] === name);
+                            if (foundKey) rawCategory = foundKey;
+                        }
+                    }
+                }
+            }
+
+            if (!title) title = `image-${index}`;
+            const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_');
+            const folderName = mainCategoryNames[rawCategory] || 'อื่นๆ';
+
+            const promise = (async () => {
+                try {
+                    const token = localStorage.getItem('authToken') || '';
+                    const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                        body: JSON.stringify({ imageUrl: src })
+                    });
+
+                    if (!response.ok) {
+                        const directResp = await fetch(src);
+                        if (directResp.ok) {
+                            const blob = await directResp.blob();
+                            zip.folder(folderName).file(`${safeName}.jpg`, blob);
+                            return;
+                        }
+                        throw new Error('Proxy and direct fetch failed');
+                    }
+
+                    const blob = await response.blob();
+                    
+                    let fileName = `${safeName}.jpg`;
+                    let counter = 1;
+                    const folder = zip.folder(folderName);
+                    while (folder.file(fileName)) {
+                        fileName = `${safeName}_${counter}.jpg`;
+                        counter++;
+                    }
+                    folder.file(fileName, blob);
+                } catch (err) {
+                    console.warn(`Failed to download image: ${src}`, err);
+                }
+            })();
+
+            promises.push(promise);
+            index++;
+        }
+
+        await Promise.all(promises);
+
+        if (Object.keys(zip.files).length === 0) {
+            alert('ไม่สามารถดาวน์โหลดรูปภาพได้ (อาจเกิดข้อผิดพลาดในการเชื่อมต่อ)');
+            return;
+        }
+
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        saveAs(zipBlob, orderIdVal + '_Categorized.zip');
+        console.log('Categorized ZIP file generated.');
+    }
+
     const downloadAllBtn = document.getElementById('downloadAllBtn');
     if (downloadAllBtn) {
         downloadAllBtn.addEventListener('click', handleZipDownload);
+    }
+
+    const downloadCategorizedBtn = document.getElementById('downloadCategorizedBtn');
+    if (downloadCategorizedBtn) {
+        downloadCategorizedBtn.addEventListener('click', handleCategorizedZipDownload);
     }
 
     // Also bind event to the second button in Tab 7
