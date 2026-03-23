@@ -315,7 +315,8 @@ async function fetchData(filter = {}) {
     allData = await res.json();
 
     // Client-side filtering: Exclude "บริษัท เอสที เซอร์วิส เทรนนิ่ง" if filter.insur_comp is empty
-    if (!filter.insur_comp) {
+    const hasSpecificSearch = filter.id || filter.car_registration || filter.owner;
+    if (!filter.insur_comp && !hasSpecificSearch) {
       allData = allData.filter(item => item.insur_comp !== 'บริษัท เอสที เซอร์วิส เทรนนิ่ง');
     }
 
@@ -519,9 +520,9 @@ function getFilters() {
     transaction_type: document.getElementById('FilterTransaction1')?.value !== 'งานทั้งหมด' ? document.getElementById('FilterTransaction1')?.value : '',
     order_type: document.getElementById('FilterTransaction2')?.value || '',
     order_status: document.getElementById('FilterTransaction3')?.value || '',
-    id: document.getElementById('filterJobCode')?.value || '',
-    car_registration: document.getElementById('filterCarRegistration')?.value || '',
-    owner: document.getElementById('filterAssignedTo')?.value || ''
+    id: document.getElementById('filterJobCode')?.value.trim() || '',
+    car_registration: document.getElementById('filterCarRegistration')?.value.trim() || '',
+    owner: document.getElementById('filterAssignedTo')?.value.trim() || ''
   };
 
   const dateField = document.getElementById('FilterTransaction4')?.value || '';
@@ -587,6 +588,10 @@ function getFilters() {
   } else {
     // If searching by ID, License Plate, or Assignee, ignore date and insurance company filters
     filter.insur_comp = '';
+    filter.branch = '';
+    filter.transaction_type = '';
+    filter.order_type = '';
+    filter.order_status = '';
   }
 
   console.log('[DEBUG] getFilters returning:', JSON.stringify(filter, null, 2));

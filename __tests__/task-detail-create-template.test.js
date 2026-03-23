@@ -59,7 +59,7 @@ describe('Task Detail - Create Template', () => {
                 { name: "exterior_right_front", defaultTitle: "08. ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
                 { name: "exterior_roof", defaultTitle: "09. ภาพถ่ายรอบคัน - หลังคา" }
             ],
-            accessories: Array(20).fill({ name: "test", defaultTitle: "test" }) // Mock 20 items
+            accessories: Array(11).fill({ name: "test", defaultTitle: "test" }) // Mock 11 items
         };
 
         // Isolate modules to ensure a fresh load of the script for each test
@@ -113,7 +113,7 @@ describe('Task Detail - Create Template', () => {
         const section = document.getElementById('accessories-images-section');
         const slots = section.querySelectorAll('.dynamic-image-slot');
 
-        // "accessories" has 20 items in staticImageConfig
-        expect(slots.length).toBe(20);
+        // "accessories" has 11 items in staticImageConfig
+        expect(slots.length).toBe(11);
     });
 });
