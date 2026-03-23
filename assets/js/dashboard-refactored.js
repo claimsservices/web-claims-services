@@ -527,59 +527,66 @@ function getFilters() {
   const dateField = document.getElementById('FilterTransaction4')?.value || '';
   const dateRangeRaw = document.getElementById('filterDateTime')?.value || '';
 
-  if (dateRangeRaw.includes(' to ')) {
-    const [fromRaw, toRaw] = dateRangeRaw.split(" to ").map(s => s.trim());
+  const hasSpecificSearch = filter.id !== '' || filter.car_registration !== '' || filter.owner !== '';
 
-    // Construct BKK Date objects
-    // fromRaw is "YYYY-MM-DD" e.g. "2024-01-14"
-    // We want 2024-01-14 00:00:00 BKK -> 2024-01-13 17:00:00 UTC
-    // We want 2024-01-16 23:59:59 BKK -> 2024-01-16 16:59:59 UTC
+  if (!hasSpecificSearch) {
+    if (dateRangeRaw.includes(' to ')) {
+      const [fromRaw, toRaw] = dateRangeRaw.split(" to ").map(s => s.trim());
 
-    const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
-    const toDate = new Date(`${toRaw}T23:59:59+07:00`);
+      // Construct BKK Date objects
+      // fromRaw is "YYYY-MM-DD" e.g. "2024-01-14"
+      // We want 2024-01-14 00:00:00 BKK -> 2024-01-13 17:00:00 UTC
+      // We want 2024-01-16 23:59:59 BKK -> 2024-01-16 16:59:59 UTC
 
-    // Helper to format as "YYYY-MM-DD HH:mm:ss" in UTC
-    const toUTCString = (date) => {
-      return date.toISOString();
-    };
+      const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
+      const toDate = new Date(`${toRaw}T23:59:59+07:00`);
 
-    // Check if dates are valid before processing
-    if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
-      const from = toUTCString(fromDate);
-      const to = toUTCString(toDate);
+      // Helper to format as "YYYY-MM-DD HH:mm:ss" in UTC
+      const toUTCString = (date) => {
+        return date.toISOString();
+      };
 
-      if (dateField === "วันที่สร้างงาน") {
-        filter.order_date_from = from;
-        filter.order_date_to = to;
-      } else if (dateField === "วันที่นัดหมาย") {
-        filter.appointment_date_from = from;
-        filter.appointment_date_to = to;
+      // Check if dates are valid before processing
+      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+        const from = toUTCString(fromDate);
+        const to = toUTCString(toDate);
+
+        if (dateField === "วันที่สร้างงาน") {
+          filter.order_date_from = from;
+          filter.order_date_to = to;
+        } else if (dateField === "วันที่นัดหมาย") {
+          filter.appointment_date_from = from;
+          filter.appointment_date_to = to;
+        }
+      } else {
+        console.warn("Invalid date range selected:", dateRangeRaw);
       }
-    } else {
-      console.warn("Invalid date range selected:", dateRangeRaw);
-    }
-  } else if (dateRangeRaw !== '') {
-    // Single date selection (No ' to ' separator)
-    const fromRaw = dateRangeRaw.trim();
-    const toRaw = dateRangeRaw.trim();
+    } else if (dateRangeRaw !== '') {
+      // Single date selection (No ' to ' separator)
+      const fromRaw = dateRangeRaw.trim();
+      const toRaw = dateRangeRaw.trim();
 
-    const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
-    const toDate = new Date(`${toRaw}T23:59:59+07:00`);
+      const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
+      const toDate = new Date(`${toRaw}T23:59:59+07:00`);
 
-    const toUTCString = (date) => date.toISOString();
+      const toUTCString = (date) => date.toISOString();
 
-    if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
-      const from = toUTCString(fromDate);
-      const to = toUTCString(toDate);
+      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+        const from = toUTCString(fromDate);
+        const to = toUTCString(toDate);
 
-      if (dateField === "วันที่สร้างงาน") {
-        filter.order_date_from = from;
-        filter.order_date_to = to;
-      } else if (dateField === "วันที่นัดหมาย") {
-        filter.appointment_date_from = from;
-        filter.appointment_date_to = to;
+        if (dateField === "วันที่สร้างงาน") {
+          filter.order_date_from = from;
+          filter.order_date_to = to;
+        } else if (dateField === "วันที่นัดหมาย") {
+          filter.appointment_date_from = from;
+          filter.appointment_date_to = to;
+        }
       }
     }
+  } else {
+    // If searching by ID, License Plate, or Assignee, ignore date and insurance company filters
+    filter.insur_comp = '';
   }
 
   console.log('[DEBUG] getFilters returning:', JSON.stringify(filter, null, 2));
