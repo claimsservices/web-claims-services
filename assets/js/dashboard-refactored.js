@@ -636,7 +636,7 @@ document.getElementById('exportExcelBtn').addEventListener('click', () => {
   }
 
   const userRole = localStorage.getItem('userRole') || 'Guest';
-  const isManagerOrAdmin = ['Manager', 'Super Admin'].includes(userRole);
+  const isManagerOrAdmin = ['Director', 'Operation Manager', 'Sales Manager'].includes(userRole);
 
   const worksheetData = allData.map(item => {
     const row = {

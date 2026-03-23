@@ -1139,10 +1139,13 @@ function applyRoleBasedRestrictions(data) {
     permissionManager.configure(orderStatus, data);
     console.log('DEBUG: s_detail after applyRoleBasedRestrictions:', document.getElementById('s_detail')?.value);
 
-    // Show categorized download button only for Manager and Super Admin
-    if (['Manager', 'Super Admin'].includes(userRole)) {
+    // Show categorized download button for managerial roles
+    if (['Director', 'Operation Manager', 'Sales Manager'].includes(userRole)) {
         const catBtn = document.getElementById('downloadCategorizedBtn');
-        if (catBtn) catBtn.style.display = 'flex';
+        if (catBtn) {
+            catBtn.classList.remove('d-none');
+            catBtn.classList.add('d-flex');
+        }
     }
 }
 
