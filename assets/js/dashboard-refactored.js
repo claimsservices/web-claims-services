@@ -586,12 +586,17 @@ function getFilters() {
       }
     }
   } else {
-    // If searching by ID, License Plate, or Assignee, ignore date and insurance company filters
-    filter.insur_comp = '';
-    filter.branch = '';
-    filter.transaction_type = '';
-    filter.order_type = '';
-    filter.order_status = '';
+    // If searching by ID, License Plate, or Assignee, ignore date and insurance company filters ONLY for Admins
+    const userRole = getUserRole();
+    const adminRoles = ['Admin', 'Director', 'Developer', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager', 'Operation Manager'];
+
+    if (adminRoles.includes(userRole)) {
+      filter.insur_comp = '';
+      filter.branch = '';
+      filter.transaction_type = '';
+      filter.order_type = '';
+      filter.order_status = '';
+    }
   }
 
   console.log('[DEBUG] getFilters returning:', JSON.stringify(filter, null, 2));

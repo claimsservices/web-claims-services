@@ -2121,6 +2121,13 @@ window.addEventListener('load', async function () {
             if (orderStatusSelect) orderStatusSelect.setAttribute('disabled', 'disabled');
         }
 
+        if (userRole === 'Insurance') {
+            ['insuranceCompany', 'c_insure'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.setAttribute('disabled', 'disabled');
+            });
+        }
+
 
         const orderId = getQueryParam('id');
         if (orderId) {
