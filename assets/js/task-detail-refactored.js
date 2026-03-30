@@ -1072,8 +1072,23 @@ class UIInsurancePermissionManager extends UIPermissionManager {
             }
         }
 
-        // Hide unnecessary tabs for Insurance role
-        hideTabs(['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li', 'tab-contact-li']);
+        // Control visibility of image-related tabs based on status
+        const allowedImageStatuses = ['รออนุมัติ', 'Pre-Approved', 'ผ่าน', 'ไม่ผ่าน', 'แก้ไข'];
+        const isImageVisible = allowedImageStatuses.includes(orderStatus);
+        
+        const tabsToHide = ['tab-appointments-li', 'tab-note-li', 'tab-history-li', 'tab-upload-li'];
+        if (!isImageVisible) {
+            tabsToHide.push('tab-contact-li');
+            tabsToHide.push('tab-download-images-li');
+            console.log(`[Permission] Insurance role: Images hidden for status '${orderStatus}'`);
+        } else {
+            console.log(`[Permission] Insurance role: Images visible for status '${orderStatus}'`);
+        }
+        
+        hideTabs(tabsToHide);
+        if (isImageVisible) {
+            showTabs(['tab-contact-li', 'tab-download-images-li']);
+        }
 
         // Hide empty image slots for Insurance role and 'Add Image' buttons
         document.querySelectorAll('.dynamic-image-slot').forEach(slot => {
@@ -1819,6 +1834,11 @@ window.addEventListener('load', async function () {
                     }
 
                     const blob = await response.blob();
+                    console.log(`Blob received for ${src}: size=${blob.size} bytes`);
+
+                    if (blob.size === 0) {
+                        throw new Error('Received empty blob');
+                    }
 
                     // Ensure unique filenames in zip
                     let fileName = `${safeName}.jpg`;
@@ -1845,7 +1865,7 @@ window.addEventListener('load', async function () {
             return;
         }
 
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
         saveAs(zipBlob, orderIdVal + '.zip');
         console.log('ZIP file generated and ready for download.');
     }
@@ -1943,6 +1963,11 @@ window.addEventListener('load', async function () {
                     }
 
                     const blob = await response.blob();
+                    console.log(`Blob received for categorized ${src}: size=${blob.size} bytes`);
+
+                    if (blob.size === 0) {
+                        throw new Error('Received empty blob');
+                    }
                     
                     let fileName = `${safeName}.jpg`;
                     let counter = 1;
@@ -1968,8 +1993,8 @@ window.addEventListener('load', async function () {
             return;
         }
 
-        const zipBlob = await zip.generateAsync({ type: 'blob' });
-        saveAs(zipBlob, orderIdVal + '_Categorized.zip');
+        const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+        saveAs(zipBlob, orderIdVal + '.zip');
         console.log('Categorized ZIP file generated.');
     }
 
