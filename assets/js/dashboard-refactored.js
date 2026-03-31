@@ -574,6 +574,7 @@ function getFilters() {
 
   // Admin-specific: If searching by ID, License Plate, or Assignee, ignore other UI filters like status/insurance ONLY if they are not explicitly set
   // This maintains existing convenience while now respecting the date range filter
+  const hasSpecificSearch = filter.id || filter.car_registration || filter.owner;
   if (hasSpecificSearch) {
     const userRole = getUserRole();
     const adminRoles = ['Admin', 'Director', 'Developer', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager', 'Operation Manager'];
