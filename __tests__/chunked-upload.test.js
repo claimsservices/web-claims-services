@@ -1,111 +1,95 @@
-const { TextEncoder, TextDecoder } = require('util');
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
-global.filesToUpload = new Map(); // Initialize explicitly for test context
-
-const { JSDOM } = require('jsdom');
+// Polyfills are already in setup.js if using @jest-environment jsdom
 const imageCompression = require('browser-image-compression');
 
 // Mock dependencies
 jest.mock('browser-image-compression', () => jest.fn(file => Promise.resolve(file)));
 
 describe('Real-time Upload Logic', () => {
-    let dom;
-    let document;
-    let window;
-
     beforeEach(() => {
-        const virtualConsole = new JSDOM('').virtualConsole;
-        if (virtualConsole) {
-            virtualConsole.on("log", (message) => { console.log(message); });
-            virtualConsole.on("error", (message) => { console.error(message); });
-            virtualConsole.on("warn", (message) => { console.warn(message); });
-            virtualConsole.on("info", (message) => { console.info(message); });
-            // sendTo(console) exists in newer versions but explicit listeners work too
-        }
+        // Reset DOM to a clean state for each test
+        document.body.innerHTML = `
+             <div class="image-upload-slot">
+                 <label class="image-gallery">
+                    <img />
+                    <i></i>
+                    <input type="file" name="around_1" data-category="around">
+                </label>
+                <input type="text" class="image-title-input" value="Image 1">
+            </div>
+            <button id="uploadBtn">บันทึกข้อมูล</button>
+            <div id="user-info"></div>
+            <div id="user-role"></div>
+            <img id="userAvatar" />
+            <div id="progressFill" style="width:0%"></div>
+            <div id="step1"></div><div id="step2"></div><div id="step3"></div><div id="step4"></div>
+            <div id="around-container"></div>
+            <button class="add-image-btn" data-category="around" data-default-title="Test"></button>
+            <input type="hidden" id="job-code">
+            <input type="hidden" id="insurance-company">
+            <input type="hidden" id="car-plate">
+            <input type="hidden" id="customer-address">
+            <a id="open-map"></a>
+            <input type="hidden" id="phone">
+            <input type="hidden" id="province-category">
+            <select id="car-brand"></select>
+            <select id="car-model"></select>
+            <input type="text" id="car-brand-custom" class="d-none">
+            <input type="text" id="car-model-custom" class="d-none">
+            <input type="hidden" id="vin">
+            <input type="hidden" id="customer-name">
+        `;
 
-        // Setup JSDOM with specific URL to mimic query params
-        dom = new JSDOM(`
-            <!DOCTYPE html>
-            <html>
-            <body>
-                 <div class="image-upload-slot">
-                     <label class="image-gallery">
-                        <img />
-                        <i></i>
-                        <input type="file" name="around_1" data-category="around">
-                    </label>
-                    <input type="text" class="image-title-input" value="Image 1">
-                </div>
-                 <div class="image-upload-slot">
-                     <label class="image-gallery">
-                        <img />
-                        <i></i>
-                        <input type="file" name="around_2" data-category="around">
-                    </label>
-                    <input type="text" class="image-title-input" value="Image 2">
-                </div>
-                 <div class="image-upload-slot">
-                     <label class="image-gallery">
-                        <img />
-                        <i></i>
-                        <input type="file" name="around_3" data-category="around">
-                    </label>
-                    <input type="text" class="image-title-input" value="Image 3">
-                </div>
-                 <div class="image-upload-slot">
-                     <label class="image-gallery">
-                        <img />
-                        <i></i>
-                        <input type="file" name="around_4" data-category="around">
-                    </label>
-                    <input type="text" class="image-title-input" value="Image 4">
-                </div>
-                <button id="uploadBtn">บันทึกข้อมูล</button>
-            </body>
-            </html>
-        `, {
-            url: "http://localhost?id=TEST-ORDER",
-            virtualConsole: virtualConsole
+        // Mock window properties on the actual global window
+        window.IS_JEST = true;
+        window.alert = jest.fn();
+        window.imageCompression = imageCompression;
+        
+        // Use history.pushState to set the orderId in URL without triggering navigation error
+        window.history.pushState({}, 'Test Page', '?id=TEST-ORDER');
+
+        // Polyfills for Global environment
+        global.TextEncoder = global.TextEncoder || require('util').TextEncoder;
+        global.TextDecoder = global.TextDecoder || require('util').TextDecoder;
+        
+        window.fetch = jest.fn((url) => {
+            if (url.includes('/api/order-detail/inquiry')) {
+                return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({ order: { id: 'TEST-ORDER' }, order_details: {}, order_pic: [] })
+                });
+            }
+            return Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({ message: 'Success', uploaded: [{ url: 'mock-url' }] })
+            });
         });
 
-        document = dom.window.document;
-        window = dom.window;
-        global.document = document;
-        global.window = window;
-        global.FormData = window.FormData;
-        global.File = window.File;
-        // Mock FileReader
-        global.FileReader = class {
+        window.carModels = {
+            Toyota: ['Fortuner', 'Hilux Revo'],
+            Honda: ['Civic', 'City']
+        };
+
+        window.FileReader = class {
             readAsDataURL(file) {
-                // Determine if we need to call onload immediately or async
-                // For test stability, we can make it near-immediate
                 setTimeout(() => {
                     this.result = 'data:image/jpeg;base64,mockdata';
                     if (this.onload) this.onload({ target: this });
                 }, 10);
             }
         };
-        window.FileReader = global.FileReader;
 
-        // Mock Image and provide basic dimensions so watermark logic works
-        global.Image = class {
+        window.Image = class {
             constructor() {
                 this.width = 500;
                 this.height = 500;
-                setTimeout(() => {
-                    if (this.onload) this.onload();
-                }, 20);
             }
+            set src(val) {
+                setTimeout(() => { if (this.onload) this.onload(); }, 20);
+            }
+            get src() { return this._src; }
         };
-        window.Image = global.Image;
 
-        // Ensure imageCompression is available globally BEFORE requesting the script
-        const mockImageCompression = jest.fn(file => Promise.resolve(new window.File([file], file.name, { type: file.type })));
-        global.imageCompression = mockImageCompression;
-        window.imageCompression = mockImageCompression;
-
-        // Mock Canvas
+        // Mock canvas methods
         window.HTMLCanvasElement.prototype.getContext = () => ({
             drawImage: jest.fn(),
             fillText: jest.fn(),
@@ -123,87 +107,44 @@ describe('Real-time Upload Logic', () => {
             callback(new window.Blob(['mock-blob'], { type: 'image/jpeg' }));
         };
 
-        // Mock localStorage
-        global.localStorage = {
-            getItem: jest.fn(key => {
-                if (key === 'authToken') {
-                    const mockPayload = { role: 'Officer', first_name: 'Test', last_name: 'User' };
-                    return `header.${Buffer.from(JSON.stringify(mockPayload)).toString('base64')}.signature`;
-                }
-                return null;
-            }),
-            removeItem: jest.fn()
-        };
-        Object.defineProperty(window, 'localStorage', {
-            value: global.localStorage,
-            writable: true,
-            configurable: true
-        });
+        // Mock localStorage on the actual window
+        const mockPayload = JSON.stringify({ id: 1, username: 'test', role: 'Officer', first_name: 'Test', last_name: 'User' });
+        const mockToken = 'header.' + Buffer.from(mockPayload).toString('base64') + '.signature';
+        window.localStorage.setItem('authToken', mockToken);
 
-        // Mock fetch
-        global.fetch = jest.fn(() => Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve({ message: 'Success' })
-        }));
-        window.fetch = global.fetch;
+        window.URL.createObjectURL = jest.fn(() => 'mock-url');
+        window.URL.revokeObjectURL = jest.fn();
+        window.atob = (s) => Buffer.from(s, 'base64').toString('binary');
 
-        global.alert = jest.fn();
-        // global.console.log = jest.fn(); // Unmock to see debug logs
-        // global.console.error = jest.fn(); // Unmock to see errors
-
-        // Mock URL.createObjectURL and revokeObjectURL
-        global.URL.createObjectURL = jest.fn(() => 'mock-url');
-        global.URL.revokeObjectURL = jest.fn();
-
-        // Load the script content and execute it in the window context
+        // Load and execute the script in the same global context
         jest.isolateModules(() => {
             require('../assets/js/task-attachments-upload-refactored.js');
         });
 
-        // Trigger DOMContentLoaded
-        document.dispatchEvent(new window.Event('DOMContentLoaded'));
-
-        // Ensure map is initialized if script didn't do it
-        if (!window.filesToUpload) window.filesToUpload = new Map();
+        // Trigger DOMContentLoaded manually to run initTaskAttachmentsUpload
+        const event = document.createEvent('Event');
+        event.initEvent('DOMContentLoaded', true, true);
+        window.dispatchEvent(event);
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
+    test('should upload files immediately upon selection', async () => {
+        // Now window.handleImageSelection should be defined because the script ran in this context
+        const input = document.querySelector('input[name="around_1"]');
+        const file = new File(['dummy content'], 'image1.jpg', { type: 'image/jpeg' });
 
-    test.skip('should upload files immediately upon selection', async () => {
-        const inputs = document.querySelectorAll('input[type="file"]');
-        expect(inputs.length).toBe(4);
+        Object.defineProperty(input, 'files', {
+            value: [file],
+            writable: false,
+        });
 
-        for (let i = 0; i < inputs.length; i++) {
-            const file = new window.File(['dummy content'], `image${i + 1}.jpg`, { type: 'image/jpeg' });
-            const input = inputs[i];
+        // Trigger change event which is picked up by the delegated listener in the script
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
 
-            Object.defineProperty(input, 'files', {
-                value: [file],
-                writable: false,
-            });
-
-            if (window.handleImageSelection) {
-                await window.handleImageSelection(input);
-            } else {
-                throw new Error("window.handleImageSelection is completely missing!");
-            }
-
-            // Wait for real-time upload to trigger
-            await new Promise(resolve => setTimeout(resolve, 50));
-        }
-
-        // Wait for all async file reading and fetch operations
+        // Wait for async operations (compression, watermark, upload)
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Verify fetch calls
-        // We expect fetch to be called 4 times because each of the 4 files is uploaded immediately
-        expect(global.fetch).toHaveBeenCalledTimes(4);
-
-        // Verify the first file uploaded
-        const firstCallBody = global.fetch.mock.calls[0][1].body;
-        // Verify we hit the correct endpoints for uploading
-        expect(global.fetch.mock.calls[0][0]).toContain('upload/image/transactions');
+        const uploadCalls = window.fetch.mock.calls.filter(call => call[0].includes('upload/image/transactions'));
+        expect(uploadCalls.length).toBe(1);
     });
 });

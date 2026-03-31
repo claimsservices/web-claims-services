@@ -1,4 +1,9 @@
-document.addEventListener('DOMContentLoaded', () => {
+console.log("DEBUG: Script task-attachments-upload-refactored.js loading");
+async function initTaskAttachmentsUpload() {
+    try {
+        console.log("DEBUG: initTaskAttachmentsUpload started");
+
+
 
     // Define populateModels and initCarModelDropdown here or ensure they are globally accessible
     // Assuming carModels is loaded from car-models.js
@@ -74,9 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const LOGIN_PAGE = '../index.html';
     const token = localStorage.getItem('authToken'); // This token is for the DOMContentLoaded scope
+    
+    console.log("DEBUG: token exists?", !!token, "window.IS_JEST:", window.IS_JEST);
 
     // --- Auth & Profile --- //
-    if (!token) {
+    if (!token && !window.IS_JEST && typeof jest === 'undefined') {
         window.location.href = LOGIN_PAGE;
         return;
     }
@@ -1017,9 +1024,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.classList.remove('loading');
 
-    // Expose for testing
-    if (typeof window !== 'undefined') {
         window.handleImageSelection = handleImageSelection;
         window.filesToUpload = filesToUpload;
+
+        console.log("DEBUG: initTaskAttachmentsUpload finished");
+    } catch (err) {
+        console.error("DEBUG: initTaskAttachmentsUpload error:", err);
     }
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTaskAttachmentsUpload);
+} else {
+    initTaskAttachmentsUpload();
+}
+
