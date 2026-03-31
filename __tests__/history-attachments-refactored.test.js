@@ -17,6 +17,12 @@ const localStorageMock = (() => {
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
+// Mock navigation
+jest.mock('../assets/js/navigation.js', () => ({
+    navigateTo: jest.fn(),
+}));
+const { navigateTo } = require('../assets/js/navigation.js');
+
 // Mock flatpickr globally
 window.flatpickr = jest.fn();
 global.flatpickr = window.flatpickr;
@@ -24,9 +30,9 @@ global.flatpickr = window.flatpickr;
 describe('history-attachments-refactored.js', () => {
     let fetchMock;
 
-    const loadScript = () => {
-        jest.isolateModules(() => {
-            require('../assets/js/history-attachments-refactored.js');
+    const loadScript = async () => {
+        await jest.isolateModules(async () => {
+            await import('../assets/js/history-attachments-refactored.js');
         });
         document.dispatchEvent(new Event('DOMContentLoaded'));
     };
@@ -50,6 +56,7 @@ describe('history-attachments-refactored.js', () => {
     };
 
     beforeEach(() => {
+        navigateTo.mockClear();
         // Reset DOM
         document.body.innerHTML = `
       <div id="history-attachments-menu"></div>
@@ -91,26 +98,26 @@ describe('history-attachments-refactored.js', () => {
         global.fetch = fetchMock;
     });
 
-    test.skip('should redirect to login if no token is present', () => {
+    test('should redirect to login if no token is present', async () => {
         localStorageMock.getItem.mockReturnValue(null);
-        loadScript();
-        expect(window.location.href).toContain('index.html');
+        await loadScript();
+        expect(navigateTo).toHaveBeenCalledWith('../index.html');
     });
 
-    test('should hide history menu if role is Bike', () => {
+    test('should hide history menu if role is Bike', async () => {
         const token = createMockToken('Bike');
         localStorageMock.getItem.mockReturnValue(token);
 
-        loadScript();
+        await loadScript();
 
         const historyMenu = document.getElementById('history-attachments-menu');
         expect(historyMenu.style.display).toBe('none');
     });
 
-    test('should not hide history menu if role is Officer', () => {
+    test('should not hide history menu if role is Officer', async () => {
         const token = createMockToken('Officer');
         localStorageMock.getItem.mockReturnValue(token);
-        loadScript();
+        await loadScript();
 
         const historyMenu = document.getElementById('history-attachments-menu');
         expect(historyMenu.style.display).not.toBe('none');
@@ -120,7 +127,7 @@ describe('history-attachments-refactored.js', () => {
         const token = createMockToken('Officer');
         localStorageMock.getItem.mockReturnValue(token);
 
-        loadScript();
+        await loadScript();
 
         // Wait for fetch promises
         await new Promise(resolve => setTimeout(resolve, 0));
@@ -132,7 +139,7 @@ describe('history-attachments-refactored.js', () => {
         const token = createMockToken('Director');
         localStorageMock.getItem.mockReturnValue(token);
 
-        loadScript();
+        await loadScript();
         await new Promise(resolve => setTimeout(resolve, 0));
 
         expect(document.getElementById('user-info').innerText).toBe('Test User');

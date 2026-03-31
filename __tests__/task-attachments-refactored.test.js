@@ -15,18 +15,11 @@ Object.defineProperty(window, 'localStorage', {
     value: mockLocalStorage,
 });
 
-// Fix JSDOM navigation error by mocking window.location properly
-delete window.location;
-window.location = {
-    href: 'http://localhost/',
-    assign: jest.fn(),
-    replace: jest.fn(),
-    reload: jest.fn(),
-    origin: 'http://localhost',
-    pathname: '/',
-    search: '',
-    hash: ''
-};
+// Mock navigation
+jest.mock('../assets/js/navigation.js', () => ({
+    navigateTo: jest.fn(),
+}));
+const { navigateTo } = require('../assets/js/navigation.js');
 
 // Mock fetch globally
 global.fetch = jest.fn();
@@ -62,6 +55,7 @@ describe('task-attachments-refactored.js', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        navigateTo.mockClear();
 
         // Setup DOM for each test
         document.body.innerHTML = `

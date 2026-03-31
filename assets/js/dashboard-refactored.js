@@ -169,15 +169,16 @@ document.addEventListener('DOMContentLoaded', () => {
     mode: "range",
     dateFormat: "Y-m-d",
     locale: "th",
-    defaultDate: [todayBangkok, todayBangkok],
+    defaultDate: null, // Default to all time
+    placeholder: "ทั้งหมด",
     time_24hr: true,
     onChange: function (selectedDates, dateStr, instance) {
       if (selectedDates.length === 2) {
-        // Fix: Use instance.formatDate to strictly use the local date selected by the user.
-        // Previous code used toISOString() which converted local time (00:00) to UTC (prev day 17:00), causing the -1 day error.
         const from = instance.formatDate(selectedDates[0], "Y-m-d");
         const to = instance.formatDate(selectedDates[1], "Y-m-d");
         document.getElementById('filterDateTime').value = `${from} to ${to}`;
+      } else if (selectedDates.length === 0) {
+        document.getElementById('filterDateTime').value = "";
       }
     }
   });
@@ -528,74 +529,61 @@ function getFilters() {
   const dateField = document.getElementById('FilterTransaction4')?.value || '';
   const dateRangeRaw = document.getElementById('filterDateTime')?.value || '';
 
-  const hasSpecificSearch = filter.id !== '' || filter.car_registration !== '' || filter.owner !== '';
+  if (dateRangeRaw.includes(' to ')) {
+    const [fromRaw, toRaw] = dateRangeRaw.split(" to ").map(s => s.trim());
 
-  if (!hasSpecificSearch) {
-    if (dateRangeRaw.includes(' to ')) {
-      const [fromRaw, toRaw] = dateRangeRaw.split(" to ").map(s => s.trim());
+    const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
+    const toDate = new Date(`${toRaw}T23:59:59+07:00`);
 
-      // Construct BKK Date objects
-      // fromRaw is "YYYY-MM-DD" e.g. "2024-01-14"
-      // We want 2024-01-14 00:00:00 BKK -> 2024-01-13 17:00:00 UTC
-      // We want 2024-01-16 23:59:59 BKK -> 2024-01-16 16:59:59 UTC
+    const toUTCString = (date) => date.toISOString();
 
-      const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
-      const toDate = new Date(`${toRaw}T23:59:59+07:00`);
+    if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+      const from = toUTCString(fromDate);
+      const to = toUTCString(toDate);
 
-      // Helper to format as "YYYY-MM-DD HH:mm:ss" in UTC
-      const toUTCString = (date) => {
-        return date.toISOString();
-      };
-
-      // Check if dates are valid before processing
-      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
-        const from = toUTCString(fromDate);
-        const to = toUTCString(toDate);
-
-        if (dateField === "วันที่สร้างงาน") {
-          filter.order_date_from = from;
-          filter.order_date_to = to;
-        } else if (dateField === "วันที่นัดหมาย") {
-          filter.appointment_date_from = from;
-          filter.appointment_date_to = to;
-        }
-      } else {
-        console.warn("Invalid date range selected:", dateRangeRaw);
-      }
-    } else if (dateRangeRaw !== '') {
-      // Single date selection (No ' to ' separator)
-      const fromRaw = dateRangeRaw.trim();
-      const toRaw = dateRangeRaw.trim();
-
-      const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
-      const toDate = new Date(`${toRaw}T23:59:59+07:00`);
-
-      const toUTCString = (date) => date.toISOString();
-
-      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
-        const from = toUTCString(fromDate);
-        const to = toUTCString(toDate);
-
-        if (dateField === "วันที่สร้างงาน") {
-          filter.order_date_from = from;
-          filter.order_date_to = to;
-        } else if (dateField === "วันที่นัดหมาย") {
-          filter.appointment_date_from = from;
-          filter.appointment_date_to = to;
-        }
+      if (dateField === "วันที่สร้างงาน") {
+        filter.order_date_from = from;
+        filter.order_date_to = to;
+      } else if (dateField === "วันที่นัดหมาย") {
+        filter.appointment_date_from = from;
+        filter.appointment_date_to = to;
       }
     }
-  } else {
-    // If searching by ID, License Plate, or Assignee, ignore date and insurance company filters ONLY for Admins
+  } else if (dateRangeRaw !== '' && dateRangeRaw !== 'ทั้งหมด') {
+    const fromRaw = dateRangeRaw.trim();
+    const toRaw = dateRangeRaw.trim();
+
+    const fromDate = new Date(`${fromRaw}T00:00:00+07:00`);
+    const toDate = new Date(`${toRaw}T23:59:59+07:00`);
+
+    const toUTCString = (date) => date.toISOString();
+
+    if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+      const from = toUTCString(fromDate);
+      const to = toUTCString(toDate);
+
+      if (dateField === "วันที่สร้างงาน") {
+        filter.order_date_from = from;
+        filter.order_date_to = to;
+      } else if (dateField === "วันที่นัดหมาย") {
+        filter.appointment_date_from = from;
+        filter.appointment_date_to = to;
+      }
+    }
+  }
+
+  // Admin-specific: If searching by ID, License Plate, or Assignee, ignore other UI filters like status/insurance ONLY if they are not explicitly set
+  // This maintains existing convenience while now respecting the date range filter
+  if (hasSpecificSearch) {
     const userRole = getUserRole();
     const adminRoles = ['Admin', 'Director', 'Developer', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager', 'Operation Manager'];
 
     if (adminRoles.includes(userRole)) {
-      filter.insur_comp = '';
-      filter.branch = '';
-      filter.transaction_type = '';
-      filter.order_type = '';
-      filter.order_status = '';
+      if (!document.getElementById('UserRole')?.value) filter.insur_comp = '';
+      if (!document.getElementById('UserPlan')?.value) filter.branch = '';
+      if (!document.getElementById('FilterTransaction1')?.value || document.getElementById('FilterTransaction1').value === 'งานทั้งหมด') filter.transaction_type = '';
+      if (!document.getElementById('FilterTransaction2')?.value) filter.order_type = '';
+      if (!document.getElementById('FilterTransaction3')?.value) filter.order_status = '';
     }
   }
 
@@ -637,6 +625,7 @@ function setupFilterListeners() {
 
 let fp;
 const ranges = {
+  all: [],
   today: [new Date(), new Date()],
   yesterday: [new Date(new Date().setDate(new Date().getDate() - 1)), new Date(new Date().setDate(new Date().getDate() - 1))],
   last7: [new Date(new Date().setDate(new Date().getDate() - 6)), new Date()],

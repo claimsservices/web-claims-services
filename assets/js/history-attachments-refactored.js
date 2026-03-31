@@ -1,9 +1,11 @@
+import { navigateTo } from './navigation.js';
+
 document.addEventListener('DOMContentLoaded', function () {
   const accessToken = localStorage.getItem('authToken');
   const RETURN_LOGIN_PAGE = '../index.html';
 
   if (!accessToken) {
-    window.location.href = RETURN_LOGIN_PAGE;
+    navigateTo(RETURN_LOGIN_PAGE);
     return; // Stop execution if not authenticated
   }
 
@@ -80,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // If there's no token, redirect to login
     if (!token) {
-      window.location.href = LOGIN_PAGE;
+      navigateTo(LOGIN_PAGE);
       return;
     }
 
@@ -130,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (decoded && isTokenExpired(decoded)) {
       // Token is expired
       localStorage.removeItem('authToken'); // Clear token
-      window.location.href = LOGIN_PAGE; // Redirect to login page
+      navigateTo(LOGIN_PAGE); // Redirect to login page
       return;
     }
 
@@ -146,14 +148,14 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!response.ok) {
         //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
         localStorage.removeItem('authToken');
-        window.location.href = LOGIN_PAGE;
+        navigateTo(LOGIN_PAGE);
         return;
       }
     } catch (error) {
       //Handle fetch errors(network issues, etc.)
       console.error('Error fetching user profile:', error);
       localStorage.removeItem('authToken');
-      window.location.href = LOGIN_PAGE; // Redirect to login page on error
+      navigateTo(LOGIN_PAGE); // Redirect to login page on error
     }
   }
 
@@ -277,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('logout').addEventListener('click', function (event) {
     event.preventDefault();
     localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
+    navigateTo('../index.html');
   });
 
 });

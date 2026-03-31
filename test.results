@@ -1,0 +1,62 @@
+● Deprecation Warning:
+
+  Option "testURL" was replaced by passing the URL via "testEnvironmentOptions.url".
+
+  Please update your configuration.
+
+  Configuration Documentation:
+  https://jestjs.io/docs/configuration
+
+● Deprecation Warning:
+
+  Option "testURL" was replaced by passing the URL via "testEnvironmentOptions.url".
+
+  Please update your configuration.
+
+  Configuration Documentation:
+  https://jestjs.io/docs/configuration
+
+  console.log
+    DEBUG: Script task-attachments-upload-refactored.js loading
+
+      at Object.log (assets/js/task-attachments-upload-refactored.js:1:9)
+
+  console.error
+    DEBUG: window.handleImageSelection is: undefined
+
+    [0m [90m 144 |[39m
+     [90m 145 |[39m     test([32m'should upload files immediately upon selection'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+    [31m[1m>[22m[39m[90m 146 |[39m         console[33m.[39merror([32m"DEBUG: window.handleImageSelection is:"[39m[33m,[39m [36mtypeof[39m window[33m.[39mhandleImageSelection)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 147 |[39m         [36mconst[39m input [33m=[39m document[33m.[39mquerySelector([32m'input[name="around_1"]'[39m)[33m;[39m
+     [90m 148 |[39m         [36mconst[39m file [33m=[39m [36mnew[39m window[33m.[39m[33mFile[39m([[32m'dummy content'[39m][33m,[39m [32m'image1.jpg'[39m[33m,[39m { type[33m:[39m [32m'image/jpeg'[39m })[33m;[39m
+     [90m 149 |[39m[0m
+
+      at Object.error (__tests__/chunked-upload.test.js:146:17)
+
+FAIL __tests__/chunked-upload.test.js
+  Real-time Upload Logic
+    × should upload files immediately upon selection (1167 ms)
+
+  ● Real-time Upload Logic › should upload files immediately upon selection
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+    [0m [90m 161 |[39m
+     [90m 162 |[39m         [36mconst[39m uploadCalls [33m=[39m window[33m.[39mfetch[33m.[39mmock[33m.[39mcalls[33m.[39mfilter(call [33m=>[39m call[[35m0[39m][33m.[39mincludes([32m'upload/image/transactions'[39m))[33m;[39m
+    [31m[1m>[22m[39m[90m 163 |[39m         expect(uploadCalls[33m.[39mlength)[33m.[39mtoBe([35m1[39m)[33m;[39m
+     [90m     |[39m                                    [31m[1m^[22m[39m
+     [90m 164 |[39m     })[33m;[39m
+     [90m 165 |[39m })[33m;[39m
+     [90m 166 |[39m[0m
+
+      at Object.toBe (__tests__/chunked-upload.test.js:163:36)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        2.627 s
+Ran all test suites matching __tests__/chunked-upload.test.js.

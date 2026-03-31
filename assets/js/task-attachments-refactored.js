@@ -1,3 +1,5 @@
+import { navigateTo } from './navigation.js';
+
 // Check if the user has a valid token and the required role
 const accessToken = localStorage.getItem('authToken'); // Check if token is available
 const RETURN_LOGIN_PAGE = '../index.html';
@@ -5,7 +7,7 @@ const RETURN_LOGIN_PAGE = '../index.html';
 
 // If there's no token, redirect to login
 if (!accessToken) {
-  window.location.href = RETURN_LOGIN_PAGE;
+  navigateTo(RETURN_LOGIN_PAGE);
 }
 
 fetch('/version.json')
@@ -51,7 +53,7 @@ async function loadUserProfile() {
 
   // If there's no token, redirect to login
   if (!token) {
-    window.location.href = LOGIN_PAGE;
+    navigateTo(LOGIN_PAGE);
     return;
   }
 
@@ -97,7 +99,7 @@ async function loadUserProfile() {
   if (decoded && isTokenExpired(decoded)) {
     // Token is expired
     localStorage.removeItem('authToken'); // Clear token
-    window.location.href = LOGIN_PAGE; // Redirect to login page
+    navigateTo(LOGIN_PAGE); // Redirect to login page
     return;
   }
 
@@ -113,14 +115,14 @@ async function loadUserProfile() {
     if (!response.ok) {
       //If the response is not OK(e.g., 401 Unauthorized), clear token and redirect
       localStorage.removeItem('authToken');
-      window.location.href = LOGIN_PAGE;
+      navigateTo(LOGIN_PAGE);
       return;
     }
   } catch (error) {
     //Handle fetch errors(network issues, etc.)
     console.error('Error fetching user profile:', error);
     localStorage.removeItem('authToken');
-    window.location.href = LOGIN_PAGE; // Redirect to login page on error
+    navigateTo(LOGIN_PAGE); // Redirect to login page on error
   }
 }
 
@@ -189,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutBtn.addEventListener('click', function (event) {
       event.preventDefault();
       localStorage.removeItem('authToken');
-      window.location.href = '../index.html';
+      navigateTo('../index.html');
     });
   }
 
@@ -220,7 +222,7 @@ if (token) {
     //do some think
   } else {
     localStorage.removeItem('authToken');
-    window.location.href = '../index.html';
+    navigateTo('../index.html');
   }
 
   // Hide History Attachments menu for Bike role
