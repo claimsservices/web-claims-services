@@ -301,7 +301,7 @@ async function initTaskAttachmentsUpload() {
     let otherUploadSlotCounter = 0; // To give unique IDs to new dynamic slots
 
     // Function to create a new dynamic image slot for any category
-    function createImageSlot(containerId, category, defaultTitle, initialFile = null, initialPicTitle = null) {
+    function createImageSlot(containerId, category, defaultTitle, initialFile = null, initialPicTitle = null, picType = null) {
         const container = document.getElementById(containerId);
         if (!container) {
             console.error(`Container with ID ${containerId} not found.`);
@@ -309,7 +309,7 @@ async function initTaskAttachmentsUpload() {
         }
 
         const slotCounter = container.children.length + 1;
-        const fileInputName = `${category}_${slotCounter}`;
+        const fileInputName = picType || `${category}_${slotCounter}`;
 
         const newSlot = document.createElement('div');
         newSlot.className = 'col-md-4 col-lg-3 mb-3 text-center image-upload-slot';
@@ -536,48 +536,66 @@ async function initTaskAttachmentsUpload() {
     initializeSections();
     initializeTemplateButtons();
 
-    const standardTemplates = {
-        'around': [
-            "ภาพถ่ายรอบคัน - ด้านหน้ารถ",
-            "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า",
-            "ภาพถ่ายรอบคัน - ด้านซ้ายตรง",
-            "ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง",
-            "ภาพถ่ายรอบคัน - ด้านท้ายรถ",
-            "ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง",
-            "ภาพถ่ายรอบคัน - ด้านขวาตรง",
-            "ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า",
-            "ภาพถ่ายรอบคัน - หลังคา"
+    const staticImageConfig = {
+        around: [
+            { name: "exterior_front", defaultTitle: "01. ภาพถ่ายรอบคัน - ด้านหน้ารถ" },
+            { name: "exterior_left_front", defaultTitle: "02. ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหน้า" },
+            { name: "exterior_left_center", defaultTitle: "03. ภาพถ่ายรอบคัน - ด้านซ้ายตรง" },
+            { name: "exterior_left_rear", defaultTitle: "04. ภาพถ่ายรอบคัน - ด้านซ้ายส่วนหลัง" },
+            { name: "exterior_rear", defaultTitle: "05. ภาพถ่ายรอบคัน - ด้านท้ายรถ" },
+            { name: "exterior_right_rear", defaultTitle: "06. ภาพถ่ายรอบคัน - ด้านขวาส่วนหลัง" },
+            { name: "exterior_right_center", defaultTitle: "07. ภาพถ่ายรอบคัน - ด้านขวาตรง" },
+            { name: "exterior_right_front", defaultTitle: "08. ภาพถ่ายรอบคัน - ด้านขวาส่วนหน้า" },
+            { name: "exterior_roof", defaultTitle: "09. ภาพถ่ายรอบคัน - หลังคา" }
         ],
-        'accessories': [
-            "ห้องเครื่อง",
-            "คอลโซล",
-            "จอไมล์",
-            "วิทยุ",
-            "กล้องหน้ารถ",
-            "ฟิล์ม",
-            "ยางอะไหล่",
-            "ล้อหน้าด้านขวา",
-            "ล้อหน้าด้านซ้าย",
-            "ล้อหลังด้านขวา",
-            "ล้อหลังด้านซ้าย"
+        accessories: [
+            { name: "interior_6", defaultTitle: "10. ห้องเครื่อง" },
+            { name: "interior_8", defaultTitle: "11. คอลโซล" },
+            { name: "interior_7", defaultTitle: "12. จอไมล์" },
+            { name: "interior_9", defaultTitle: "13. วิทยุ" },
+            { name: "interior_5", defaultTitle: "14. กล้องหน้ารถ" },
+            { name: "interior_11", defaultTitle: "15. ฟิล์ม" },
+            { name: "interior_spare_tire", defaultTitle: "16. ยางอะไหล่" },
+            { name: "interior_wheels_2", defaultTitle: "17. ล้อหน้าด้านขวา" },
+            { name: "interior_wheels_1", defaultTitle: "18. ล้อหน้าด้านซ้าย" },
+            { name: "interior_wheels_4", defaultTitle: "19. ล้อหลังด้านขวา" },
+            { name: "interior_wheels_3", defaultTitle: "20. ล้อหลังด้านซ้าย" }
         ],
-        'inspection': [
-            "ภาพถ่ายความเสียหาย - 1",
-            "ภาพถ่ายความเสียหาย - 2",
-            "ภาพถ่ายความเสียหาย - 3",
-            "ภาพถ่ายความเสียหาย - 4",
-            "ภาพถ่ายความเสียหาย - 5",
-            "ภาพถ่ายความเสียหาย - 6",
-            "ภาพถ่ายความเสียหาย - 7",
-            "ภาพถ่ายความเสียหาย - 8",
-            "ภาพถ่ายความเสียหาย - 9",
-            "ภาพถ่ายความเสียหาย - 10"
+        inspection: [
+            { name: "damage_images_1", defaultTitle: "30. รายละเอียดความเสียหาย 1." },
+            { name: "damage_images_2", defaultTitle: "31. รายละเอียดความเสียหาย 2." },
+            { name: "damage_images_3", defaultTitle: "32. รายละเอียดความเสียหาย 3." },
+            { name: "damage_images_4", defaultTitle: "33. รายละเอียดความเสียหาย 4." },
+            { name: "damage_images_5", defaultTitle: "34. รายละเอียดความเสียหาย 5." },
+            { name: "damage_images_6", defaultTitle: "35. รายละเอียดความเสียหาย 6." },
+            { name: "damage_images_7", defaultTitle: "36. รายละเอียดความเสียหาย 7." },
+            { name: "damage_images_8", defaultTitle: "37. รายละเอียดความเสียหาย 8." },
+            { name: "damage_images_9", defaultTitle: "38. รายละเอียดความเสียหาย 9." },
+            { name: "damage_images_10", defaultTitle: "39. รายละเอียดความเสียหาย 10." }
         ],
-        'fiber': [
-            "เอกสารยืนยันตัวบุคคล",
-            "ใบตรวจสภาพรถ",
-            "ใบตรวจความเสียหาย",
-            "ใบตรวจอุปกรณ์ตกแต่ง"
+        fiber: [
+            { name: "doc_identity", defaultTitle: "40. เอกสารยืนยันตัวบุคคล" },
+            { name: "doc_other_1", defaultTitle: "41. เอกสารยืนยันตัวรถ" },
+            { name: "doc_other_2", defaultTitle: "42. เลขตัวถังและทะเบียนรถ" },
+            { name: "doc_other_3", defaultTitle: "43. เอกสารอื่น ๆ" },
+            { name: "doc_other_4", defaultTitle: "44. เอกสารอื่น ๆ" },
+            { name: "doc_other_5", defaultTitle: "45. เอกสารอื่น ๆ" },
+            { name: "doc_other_6", defaultTitle: "46. เอกสารอื่น ๆ" },
+            { name: "doc_other_7", defaultTitle: "47. เอกสารอื่น ๆ" },
+            { name: "doc_other_8", defaultTitle: "48. เอกสารอื่น ๆ" }
+        ],
+        documents: [
+            { name: "license", defaultTitle: "49. เอกสารอื่น ๆ" },
+            { name: "id_card", defaultTitle: "50. เอกสารอื่น ๆ" },
+            { name: "car_doc", defaultTitle: "51. เอกสารอื่น ๆ" },
+            { name: "car_number", defaultTitle: "52. เอกสารอื่น ๆ" },
+            { name: "other_1", defaultTitle: "53. เอกสารอื่น ๆ" },
+            { name: "other_2", defaultTitle: "54. เอกสารอื่น ๆ" },
+            { name: "doc_other_9", defaultTitle: "55. เอกสารอื่น ๆ" },
+            { name: "other_3", defaultTitle: "56. เอกสารอื่น ๆ" }
+        ],
+        signature: [
+            { name: "doc_other_9", defaultTitle: "57. ลายเซ็น" }
         ]
     };
 
@@ -588,16 +606,10 @@ async function initTaskAttachmentsUpload() {
                 const containerId = `${category}-container`;
                 const container = document.getElementById(containerId);
 
-                if (container && standardTemplates[category]) {
-                    standardTemplates[category].forEach(title => {
-                        createImageSlot(containerId, category, title);
+                if (container && staticImageConfig[category]) {
+                    staticImageConfig[category].forEach(configItem => {
+                        createImageSlot(containerId, category, configItem.defaultTitle, null, null, configItem.name);
                     });
-
-                    // Optional: Disable button to indicate it's done
-                    button.disabled = true;
-                    button.textContent = 'สร้างรูปแบบแล้ว';
-                    button.classList.remove('btn-outline-primary');
-                    button.classList.add('btn-secondary');
                 }
             });
         });

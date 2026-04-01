@@ -636,61 +636,70 @@ const ranges = {
 };
 
 // Export to Excel
-document.getElementById('exportExcelBtn').addEventListener('click', () => {
-  if (!allData || allData.length === 0) {
-    alert('ไม่มีข้อมูลสำหรับส่งออก');
-    return;
-  }
-
-  const token = localStorage.getItem('authToken');
-  let userRole = 'Guest';
-  if (token) {
-    const decodedToken = parseJwt(token);
-    if (decodedToken && decodedToken.role) {
-      userRole = decodedToken.role;
-    }
-  }
-  const isManagerOrAdmin = ['Director', 'Operation Manager', 'Sales Manager'].includes(userRole);
-
-  const worksheetData = allData.map(item => {
-    const row = {
-      "รหัสงาน": item.id,
-      "บริษัทประกัน": item.insur_comp,
-      "วันที่ทำรายการ": formatDateTime(item.created_date),
-      "วันที่นัดหมาย": formatDateTime(item.appointment_date),
-      "ทะเบียนรถ": item.car_registration,
-      "สถานที่": item.location,
-      "ประเภทงาน": item.order_type,
-      "สถานะงาน": item.order_status,
-      "ผู้สร้างงาน": item.creator,
-      "ผู้รับผิดชอบ": item.owner_full_name,
-      "ข้อมูลอ้างอิง": item.s_ref,
-      "ข้อมูลอ้างอิง (เพิ่มเติม)": item.s_ref_2
-    };
-
-    if (isManagerOrAdmin) {
-      row["ค่าเดินทาง"] = item.amount || 0;
+const exportExcelBtn = document.getElementById('exportExcelBtn');
+if (exportExcelBtn) {
+  exportExcelBtn.addEventListener('click', () => {
+    if (!allData || allData.length === 0) {
+      alert('ไม่มีข้อมูลสำหรับส่งออก');
+      return;
     }
 
-    return row;
+    const token = localStorage.getItem('authToken');
+    let userRole = 'Guest';
+    if (token) {
+      const decodedToken = parseJwt(token);
+      if (decodedToken && decodedToken.role) {
+        userRole = decodedToken.role;
+      }
+    }
+    const isManagerOrAdmin = ['Director', 'Operation Manager', 'Sales Manager'].includes(userRole);
+
+    const worksheetData = allData.map(item => {
+      const row = {
+        "รหัสงาน": item.id,
+        "บริษัทประกัน": item.insur_comp,
+        "วันที่ทำรายการ": formatDateTime(item.created_date),
+        "วันที่นัดหมาย": formatDateTime(item.appointment_date),
+        "ทะเบียนรถ": item.car_registration,
+        "สถานที่": item.location,
+        "ประเภทงาน": item.order_type,
+        "สถานะงาน": item.order_status,
+        "ผู้สร้างงาน": item.creator,
+        "ผู้รับผิดชอบ": item.owner_full_name,
+        "ข้อมูลอ้างอิง": item.s_ref,
+        "ข้อมูลอ้างอิง (เพิ่มเติม)": item.s_ref_2
+      };
+
+      if (isManagerOrAdmin) {
+        row["ค่าเดินทาง"] = item.amount || 0;
+      }
+
+      return row;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    XLSX.writeFile(workbook, "orders_export.xlsx");
   });
-
-  const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
-
-  XLSX.writeFile(workbook, "orders_export.xlsx");
-});
+}
 
 // Logout
-document.getElementById('logout').addEventListener('click', function (event) {
-  event.preventDefault();
-  localStorage.removeItem('authToken');
-  window.location.href = '../index.html';
-});
+const logoutBtn = document.getElementById('logout');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', function (event) {
+    event.preventDefault();
+    localStorage.removeItem('authToken');
+    window.location.href = '../index.html';
+  });
+}
 
-document.getElementById('logout-menu').addEventListener('click', function (event) {
-  event.preventDefault();
-  localStorage.removeItem('authToken');
-  window.location.href = '../index.html';
-});
+const logoutMenuBtn = document.getElementById('logout-menu');
+if (logoutMenuBtn) {
+  logoutMenuBtn.addEventListener('click', function (event) {
+    event.preventDefault();
+    localStorage.removeItem('authToken');
+    window.location.href = '../index.html';
+  });
+}
