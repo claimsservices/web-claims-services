@@ -2040,16 +2040,20 @@ window.addEventListener('load', async function () {
         if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF...'; }
 
         try {
-            const allImages = document.querySelectorAll('.uploaded-image, .full-image');
-            const validImages = Array.from(allImages).filter(img => {
-                const src = img.src || img.getAttribute('src');
-                if (!src || src.includes('placeholder.jpg') || src.startsWith('data:image/gif')) return false;
-                if (img.classList.contains('full-image')) {
-                    const displayStyle = window.getComputedStyle(img.closest('.full-image-container') || img).display;
-                    if (displayStyle === 'none') return false;
-                }
-                return true;
+            const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
+            const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
+                const style = window.getComputedStyle(img);
+                return (img.src && img.src.startsWith('http') && style.display !== 'none' && img.complete);
             });
+
+            const uniqueImages = new Map();
+            imageElements.forEach((img, i) => {
+                if (!uniqueImages.has(img.src)) {
+                    uniqueImages.set(img.src, img);
+                }
+            });
+
+            const validImages = Array.from(uniqueImages.values());
 
             const pdfContainer = document.createElement('div');
             pdfContainer.style.width = '210mm';
@@ -2065,20 +2069,26 @@ window.addEventListener('load', async function () {
                 const src = img.src || img.getAttribute('src');
                 
                 let title = '';
-                const label = img.closest('label');
-                if (label) {
-                    title = label.querySelector('.title')?.innerText?.trim();
+                const dynamicSlot = img.closest('.dynamic-image-slot');
+                if (dynamicSlot) {
+                    title = dynamicSlot.querySelector('.image-title-input')?.value?.trim();
                 } else {
-                    const cardBody = img.closest('.card')?.querySelector('.card-body');
-                    if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
-                    if (!title) {
-                        const section = img.closest('.mb-4');
-                        if (section) {
-                            const h6 = section.querySelector('h6');
-                            if (h6) title = h6.innerText.trim();
+                    const label = img.closest('label');
+                    if (label) {
+                        title = label.querySelector('.title')?.innerText?.trim();
+                    } else {
+                        const cardBody = img.closest('.card')?.querySelector('.card-body');
+                        if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
+                        if (!title) {
+                            const section = img.closest('.mb-4');
+                            if (section) {
+                                const h6 = section.querySelector('h6');
+                                if (h6) title = h6.innerText.trim();
+                            }
                         }
                     }
                 }
+                
                 if (!title) title = `รูปภาพที่ ${i + 1}`;
 
                 let base64Img = src;
