@@ -2042,29 +2042,40 @@ window.addEventListener('load', async function () {
         try {
             const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
             const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
+            
+            // Collect all images, even if hidden in other tabs
             const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
                 const src = img.src || img.getAttribute('src');
-                const style = window.getComputedStyle(img);
-                // The images might not be fully complete, but we will fetch them again below
-                return (src && style.display !== 'none');
+                return src && src !== '' && !src.includes('placeholder');
             });
 
+            // De-duplicate by src
             const uniqueImages = new Map();
-            imageElements.forEach((img, i) => {
-                if (!uniqueImages.has(img.src)) {
-                    uniqueImages.set(img.src, img);
+            imageElements.forEach((img) => {
+                const src = img.src || img.getAttribute('src');
+                if (src && !uniqueImages.has(src)) {
+                    uniqueImages.set(src, img);
                 }
             });
 
             const validImages = Array.from(uniqueImages.values());
 
+            if (validImages.length === 0) {
+                alert('ไม่พบรูปภาพสำหรับสร้าง PDF');
+                return;
+            }
+
             const pdfContainer = document.createElement('div');
-            pdfContainer.style.width = '210mm';
-            pdfContainer.style.position = 'absolute';
-            pdfContainer.style.left = '-9999px';
+            // Using visibility: hidden and position: fixed instead of extreme negative left
+            // to ensure html2canvas can still compute layout correctly.
+            pdfContainer.style.position = 'fixed';
             pdfContainer.style.top = '0';
+            pdfContainer.style.left = '0';
+            pdfContainer.style.width = '210mm';
+            pdfContainer.style.zIndex = '-1000';
+            pdfContainer.style.visibility = 'hidden';
             pdfContainer.style.backgroundColor = '#ffffff';
-            pdfContainer.style.fontFamily = "sans-serif, 'Sarabun', 'Kanit'";
+            pdfContainer.style.fontFamily = "'Sarabun', sans-serif, 'Kanit'";
             document.body.appendChild(pdfContainer);
 
             for (let i = 0; i < validImages.length; i++) {
@@ -2104,8 +2115,7 @@ window.addEventListener('load', async function () {
                             body: JSON.stringify({ imageUrl: src })
                         });
                         if (!response.ok) {
-                            response = await fetch(src);
-                            if (!response.ok) throw new Error('Fetch failed');
+                            response = await fetch(src, { mode: 'no-cors' }); // fallback
                         }
                         const blob = await response.blob();
                         base64Img = await new Promise((resolve, reject) => {
@@ -2121,61 +2131,76 @@ window.addEventListener('load', async function () {
 
                 const pageDiv = document.createElement('div');
                 pageDiv.style.width = '210mm';
-                pageDiv.style.minHeight = '296mm';
+                pageDiv.style.height = '290mm'; // Slightly less than A4 (297mm) to prevent overflow blank pages
                 pageDiv.style.padding = '20mm';
                 pageDiv.style.boxSizing = 'border-box';
-                pageDiv.style.display = 'flex';
-                pageDiv.style.flexDirection = 'column';
-                pageDiv.style.alignItems = 'center';
-                pageDiv.style.justifyContent = 'center';
-                
-                if (i < validImages.length - 1) {
-                    pageDiv.classList.add('html2pdf__page-break');
-                }
+                pageDiv.style.textAlign = 'center';
+                pageDiv.style.overflow = 'hidden';
+                pageDiv.style.pageBreakAfter = 'always';
+                pageDiv.style.display = 'block';
+
+                const imgWrapper = document.createElement('div');
+                imgWrapper.style.height = '200mm';
+                imgWrapper.style.display = 'flex';
+                imgWrapper.style.alignItems = 'center';
+                imgWrapper.style.justifyContent = 'center';
+                imgWrapper.style.marginBottom = '20mm';
 
                 const imgEl = document.createElement('img');
+                imgEl.crossOrigin = 'anonymous';
+                imgEl.src = base64Img;
+                
                 await new Promise((resolve) => {
-                    imgEl.onload = resolve;
-                    imgEl.onerror = resolve;
-                    imgEl.src = base64Img;
+                    if (imgEl.complete) resolve();
+                    else {
+                        imgEl.onload = resolve;
+                        imgEl.onerror = resolve;
+                    }
                 });
+
                 imgEl.style.maxWidth = '100%';
-                imgEl.style.maxHeight = '200mm';
+                imgEl.style.maxHeight = '100%';
                 imgEl.style.objectFit = 'contain';
-                imgEl.style.display = 'block';
-                imgEl.style.marginBottom = '20px';
 
                 const textEl = document.createElement('div');
                 textEl.innerText = title;
-                textEl.style.fontSize = '24px';
+                textEl.style.fontSize = '20pt';
                 textEl.style.fontWeight = 'bold';
-                textEl.style.textAlign = 'center';
                 textEl.style.color = '#000000';
+                textEl.style.marginTop = '10mm';
+                textEl.style.wordBreak = 'break-word';
 
-                pageDiv.appendChild(imgEl);
+                imgWrapper.appendChild(imgEl);
+                pageDiv.appendChild(imgWrapper);
                 pageDiv.appendChild(textEl);
                 pdfContainer.appendChild(pageDiv);
             }
 
-            if (pdfContainer.childNodes.length === 0) {
-                alert('ไม่พบรูปภาพสำหรับสร้าง PDF');
-            } else {
-                const opt = {
-                    margin:       0,
-                    filename:     orderIdVal + '.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true, logging: false },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+            const opt = {
+                margin:       0,
+                filename:     orderIdVal + '.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    allowTaint: true,
+                    logging: false,
+                    letterRendering: true
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
+            };
 
-                await html2pdf().set(opt).from(pdfContainer).save();
-            }
+            // Small delay to ensure browser settled
+            await new Promise(r => setTimeout(r, 500));
 
+            await html2pdf().set(opt).from(pdfContainer).save();
+            
             pdfContainer.remove();
 
         } catch (error) {
             console.error('Error generating PDF:', error);
-            alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+            alert('เกิดข้อผิดพลาดในการสร้าง PDF: ' + error.message);
         } finally {
             if (btn1) { btn1.disabled = false; btn1.innerHTML = originalText1; }
             if (btn2) { btn2.disabled = false; btn2.innerHTML = originalText2; }
