@@ -2040,10 +2040,13 @@ window.addEventListener('load', async function () {
         if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF...'; }
 
         try {
+            const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
             const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
             const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
+                const src = img.src || img.getAttribute('src');
                 const style = window.getComputedStyle(img);
-                return (img.src && img.src.startsWith('http') && style.display !== 'none' && img.complete);
+                // The images might not be fully complete, but we will fetch them again below
+                return (src && style.display !== 'none');
             });
 
             const uniqueImages = new Map();
@@ -2059,7 +2062,7 @@ window.addEventListener('load', async function () {
             pdfContainer.style.width = '210mm';
             pdfContainer.style.position = 'absolute';
             pdfContainer.style.left = '-9999px';
-            pdfContainer.style.top = '-9999px';
+            pdfContainer.style.top = '0';
             pdfContainer.style.backgroundColor = '#ffffff';
             pdfContainer.style.fontFamily = "sans-serif, 'Sarabun', 'Kanit'";
             document.body.appendChild(pdfContainer);
@@ -2131,7 +2134,11 @@ window.addEventListener('load', async function () {
                 }
 
                 const imgEl = document.createElement('img');
-                imgEl.src = base64Img;
+                await new Promise((resolve) => {
+                    imgEl.onload = resolve;
+                    imgEl.onerror = resolve;
+                    imgEl.src = base64Img;
+                });
                 imgEl.style.maxWidth = '100%';
                 imgEl.style.maxHeight = '200mm';
                 imgEl.style.objectFit = 'contain';
@@ -2155,7 +2162,7 @@ window.addEventListener('load', async function () {
             } else {
                 const opt = {
                     margin:       0,
-                    filename:     `${typeof orderIdVal !== 'undefined' ? orderIdVal : 'Export'}_ภาพประกอบเคลม.pdf`,
+                    filename:     orderIdVal + '.pdf',
                     image:        { type: 'jpeg', quality: 0.98 },
                     html2canvas:  { scale: 2, useCORS: true, logging: false },
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }

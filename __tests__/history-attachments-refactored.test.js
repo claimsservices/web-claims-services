@@ -72,9 +72,8 @@ describe('history-attachments-refactored.js', () => {
     `;
 
         localStorageMock.clear();
-        if (window.flatpickr && window.flatpickr.mockClear) {
-            window.flatpickr.mockClear();
-        }
+        window.flatpickr = jest.fn();
+        global.flatpickr = jest.fn();
 
         // Mock fetch
         fetchMock = jest.fn((url) => {
