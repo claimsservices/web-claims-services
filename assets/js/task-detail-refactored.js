@@ -2036,150 +2036,49 @@ window.addEventListener('load', async function () {
         const originalText1 = btn1 ? btn1.innerHTML : '';
         const originalText2 = btn2 ? btn2.innerHTML : '';
         
-        if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปภาพ...'; }
-        if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปภาพ...'; }
+        if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF จาก Server...'; }
+        if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF จาก Server...'; }
 
         try {
-            const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
-            const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
-            
-            // Collect all images
-            const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
-                const src = img.src || img.getAttribute('src');
-                return src && src !== '' && !src.includes('placeholder') && !src.includes('data:image/gif;base64,R0lGODlhAQABA');
-            });
-
-            // De-duplicate by src
-            const uniqueImages = new Map();
-            imageElements.forEach((img) => {
-                const src = img.src || img.getAttribute('src');
-                if (src && !uniqueImages.has(src)) {
-                    uniqueImages.set(src, img);
-                }
-            });
-
-            const validImages = Array.from(uniqueImages.values());
-
-            if (validImages.length === 0) {
-                alert('ไม่พบรูปภาพสำหรับสร้าง PDF');
+            const orderIdVal = document.getElementById('taskId')?.value?.trim();
+            if (!orderIdVal) {
+                alert('ไม่พบเลขที่รายการ');
                 return;
             }
 
-            // Start building HTML string
-            let htmlContent = `
-                <html>
-                <head>
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
-                    body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; background-color: #fff; }
-                    .page { width: 210mm; height: 297mm; padding: 15mm; box-sizing: border-box; page-break-after: always; position: relative; }
-                    .content-table { width: 100%; height: 100%; border-collapse: collapse; border: none; }
-                    .image-cell { height: 230mm; text-align: center; vertical-align: middle; padding-bottom: 10mm; }
-                    .image-cell img { max-width: 180mm; max-height: 220mm; object-fit: contain; }
-                    .title-cell { height: 30mm; text-align: center; vertical-align: top; }
-                    .title-text { font-size: 24pt; font-weight: bold; color: #333; word-wrap: break-word; }
-                </style>
-                </head>
-                <body>
-            `;
-
-            for (let i = 0; i < validImages.length; i++) {
-                if (btn1) btn1.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปที่ ${i + 1}/${validImages.length}...`;
-                if (btn2) btn2.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปที่ ${i + 1}/${validImages.length}...`;
-
-                const img = validImages[i];
-                const src = img.src || img.getAttribute('src');
-                
-                let title = '';
-                const dynamicSlot = img.closest('.dynamic-image-slot');
-                if (dynamicSlot) {
-                    title = dynamicSlot.querySelector('.image-title-input')?.value?.trim();
-                } else {
-                    const label = img.closest('label');
-                    if (label) {
-                        title = label.querySelector('.title')?.innerText?.trim();
-                    } else {
-                        const cardBody = img.closest('.card')?.querySelector('.card-body');
-                        if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
-                        if (!title) {
-                            const section = img.closest('.mb-4');
-                            if (section) {
-                                const h6 = section.querySelector('h6');
-                                if (h6) title = h6.innerText.trim();
-                            }
-                        }
-                    }
-                }
-                
-                if (!title) title = `รูปภาพที่ ${i + 1}`;
-
-                // Force convert to Base64 to ensure it renders in the HTML string
-                let base64Img = src;
-                if (!src.startsWith('data:')) {
-                    try {
-                        const token = localStorage.getItem('authToken') || '';
-                        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                            body: JSON.stringify({ imageUrl: src })
-                        });
-                        
-                        if (response.ok) {
-                            const blob = await response.blob();
-                            base64Img = await new Promise((resolve, reject) => {
-                                const reader = new FileReader();
-                                reader.onloadend = () => resolve(reader.result);
-                                reader.onerror = reject;
-                                reader.readAsDataURL(blob);
-                            });
-                        }
-                    } catch (e) {
-                        console.warn('Base64 conversion failed, using original src', src, e);
-                    }
-                }
-
-                htmlContent += `
-                    <div class="page">
-                        <table class="content-table">
-                            <tr>
-                                <td class="image-cell">
-                                    <img src="${base64Img}">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="title-cell">
-                                    <div class="title-text">${title}</div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                `;
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('กรุณาเข้าสู่ระบบใหม่');
+                return;
             }
 
-            htmlContent += `</body></html>`;
+            // Call Backend API to generate PDF
+            const response = await fetch(`https://be-claims-service.onrender.com/api/pdf/generate/${orderIdVal}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': token
+                }
+            });
 
-            if (btn1) btn1.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้างไฟล์ PDF...';
-            if (btn2) btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้างไฟล์ PDF...';
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'ไม่สามารถสร้าง PDF ได้จาก Server');
+            }
 
-            const opt = {
-                margin:       0,
-                filename:     orderIdVal + '.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    logging: false,
-                    letterRendering: true
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Generate PDF from the HTML string directly
-            await html2pdf().set(opt).from(htmlContent).save();
+            // Convert response to blob and download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${orderIdVal}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
 
         } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('เกิดข้อผิดพลาดในการสร้าง PDF: ' + error.message);
+            console.error('Error downloading PDF from backend:', error);
+            alert('เกิดข้อผิดพลาดในการดาวน์โหลด PDF: ' + error.message);
         } finally {
             if (btn1) { btn1.disabled = false; btn1.innerHTML = originalText1; }
             if (btn2) { btn2.disabled = false; btn2.innerHTML = originalText2; }
