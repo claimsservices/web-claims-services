@@ -2036,17 +2036,17 @@ window.addEventListener('load', async function () {
         const originalText1 = btn1 ? btn1.innerHTML : '';
         const originalText2 = btn2 ? btn2.innerHTML : '';
         
-        if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF...'; }
-        if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF...'; }
+        if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปภาพ...'; }
+        if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปภาพ...'; }
 
         try {
             const orderIdVal = document.getElementById('taskId')?.value?.trim() || 'images';
             const selector = '.dynamic-image-slot img, .image-gallery img, #download-images-container .card-img-top';
             
-            // Collect all images, even if hidden in other tabs
+            // Collect all images
             const imageElements = Array.from(document.querySelectorAll(selector)).filter(img => {
                 const src = img.src || img.getAttribute('src');
-                return src && src !== '' && !src.includes('placeholder');
+                return src && src !== '' && !src.includes('placeholder') && !src.includes('data:image/gif;base64,R0lGODlhAQABA');
             });
 
             // De-duplicate by src
@@ -2065,20 +2065,28 @@ window.addEventListener('load', async function () {
                 return;
             }
 
-            const pdfContainer = document.createElement('div');
-            // Using visibility: hidden and position: fixed instead of extreme negative left
-            // to ensure html2canvas can still compute layout correctly.
-            pdfContainer.style.position = 'fixed';
-            pdfContainer.style.top = '0';
-            pdfContainer.style.left = '0';
-            pdfContainer.style.width = '210mm';
-            pdfContainer.style.zIndex = '-1000';
-            pdfContainer.style.visibility = 'hidden';
-            pdfContainer.style.backgroundColor = '#ffffff';
-            pdfContainer.style.fontFamily = "'Sarabun', sans-serif, 'Kanit'";
-            document.body.appendChild(pdfContainer);
+            // Start building HTML string
+            let htmlContent = `
+                <html>
+                <head>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+                    body { font-family: 'Sarabun', sans-serif; margin: 0; padding: 0; background-color: #fff; }
+                    .page { width: 210mm; height: 297mm; padding: 15mm; box-sizing: border-box; page-break-after: always; position: relative; }
+                    .content-table { width: 100%; height: 100%; border-collapse: collapse; border: none; }
+                    .image-cell { height: 230mm; text-align: center; vertical-align: middle; padding-bottom: 10mm; }
+                    .image-cell img { max-width: 180mm; max-height: 220mm; object-fit: contain; }
+                    .title-cell { height: 30mm; text-align: center; vertical-align: top; }
+                    .title-text { font-size: 24pt; font-weight: bold; color: #333; word-wrap: break-word; }
+                </style>
+                </head>
+                <body>
+            `;
 
             for (let i = 0; i < validImages.length; i++) {
+                if (btn1) btn1.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปที่ ${i + 1}/${validImages.length}...`;
+                if (btn2) btn2.innerHTML = `<span class="spinner-border spinner-border-sm"></span> กำลังเตรียมรูปที่ ${i + 1}/${validImages.length}...`;
+
                 const img = validImages[i];
                 const src = img.src || img.getAttribute('src');
                 
@@ -2105,76 +2113,53 @@ window.addEventListener('load', async function () {
                 
                 if (!title) title = `รูปภาพที่ ${i + 1}`;
 
+                // Force convert to Base64 to ensure it renders in the HTML string
                 let base64Img = src;
                 if (!src.startsWith('data:')) {
                     try {
                         const token = localStorage.getItem('authToken') || '';
-                        let response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
+                        const response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'Authorization': token },
                             body: JSON.stringify({ imageUrl: src })
                         });
-                        if (!response.ok) {
-                            response = await fetch(src, { mode: 'no-cors' }); // fallback
+                        
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            base64Img = await new Promise((resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onloadend = () => resolve(reader.result);
+                                reader.onerror = reject;
+                                reader.readAsDataURL(blob);
+                            });
                         }
-                        const blob = await response.blob();
-                        base64Img = await new Promise((resolve, reject) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result);
-                            reader.onerror = reject;
-                            reader.readAsDataURL(blob);
-                        });
                     } catch (e) {
-                        console.warn('Failed fetching base64 for PDF', src, e);
+                        console.warn('Base64 conversion failed, using original src', src, e);
                     }
                 }
 
-                const pageDiv = document.createElement('div');
-                pageDiv.style.width = '210mm';
-                pageDiv.style.height = '290mm'; // Slightly less than A4 (297mm) to prevent overflow blank pages
-                pageDiv.style.padding = '20mm';
-                pageDiv.style.boxSizing = 'border-box';
-                pageDiv.style.textAlign = 'center';
-                pageDiv.style.overflow = 'hidden';
-                pageDiv.style.pageBreakAfter = 'always';
-                pageDiv.style.display = 'block';
-
-                const imgWrapper = document.createElement('div');
-                imgWrapper.style.height = '200mm';
-                imgWrapper.style.display = 'flex';
-                imgWrapper.style.alignItems = 'center';
-                imgWrapper.style.justifyContent = 'center';
-                imgWrapper.style.marginBottom = '20mm';
-
-                const imgEl = document.createElement('img');
-                imgEl.crossOrigin = 'anonymous';
-                imgEl.src = base64Img;
-                
-                await new Promise((resolve) => {
-                    if (imgEl.complete) resolve();
-                    else {
-                        imgEl.onload = resolve;
-                        imgEl.onerror = resolve;
-                    }
-                });
-
-                imgEl.style.maxWidth = '100%';
-                imgEl.style.maxHeight = '100%';
-                imgEl.style.objectFit = 'contain';
-
-                const textEl = document.createElement('div');
-                textEl.innerText = title;
-                textEl.style.fontSize = '20pt';
-                textEl.style.fontWeight = 'bold';
-                textEl.style.color = '#000000';
-                textEl.style.marginTop = '10mm';
-                textEl.style.wordBreak = 'break-word';
-
-                imgWrapper.appendChild(imgEl);
-                pageDiv.appendChild(imgWrapper);
-                pageDiv.appendChild(textEl);
-                pdfContainer.appendChild(pageDiv);
+                htmlContent += `
+                    <div class="page">
+                        <table class="content-table">
+                            <tr>
+                                <td class="image-cell">
+                                    <img src="${base64Img}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title-cell">
+                                    <div class="title-text">${title}</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
             }
+
+            htmlContent += `</body></html>`;
+
+            if (btn1) btn1.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้างไฟล์ PDF...';
+            if (btn2) btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้างไฟล์ PDF...';
 
             const opt = {
                 margin:       0,
@@ -2183,20 +2168,14 @@ window.addEventListener('load', async function () {
                 html2canvas:  { 
                     scale: 2, 
                     useCORS: true, 
-                    allowTaint: true,
                     logging: false,
                     letterRendering: true
                 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['css', 'legacy'] }
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Small delay to ensure browser settled
-            await new Promise(r => setTimeout(r, 500));
-
-            await html2pdf().set(opt).from(pdfContainer).save();
-            
-            pdfContainer.remove();
+            // Generate PDF from the HTML string directly
+            await html2pdf().set(opt).from(htmlContent).save();
 
         } catch (error) {
             console.error('Error generating PDF:', error);
