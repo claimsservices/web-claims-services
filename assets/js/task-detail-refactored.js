@@ -2014,6 +2014,157 @@ window.addEventListener('load', async function () {
         downloadAllBtnTab7.addEventListener('click', handleZipDownload);
     }
 
+    // Bind and setup PDF Download Buttons
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const downloadPdfBtnTab7 = document.getElementById('downloadPdfBtn_tab7');
+    const currentUserRole = typeof getUserRole === 'function' ? getUserRole() : (window.decodedToken ? window.decodedToken.role : null);
+
+    if (currentUserRole !== 'Bike') {
+        if (downloadPdfBtn) {
+            downloadPdfBtn.style.display = 'flex';
+            downloadPdfBtn.addEventListener('click', handlePdfDownload);
+        }
+        if (downloadPdfBtnTab7) {
+            downloadPdfBtnTab7.style.display = 'flex';
+            downloadPdfBtnTab7.addEventListener('click', handlePdfDownload);
+        }
+    }
+
+    async function handlePdfDownload() {
+        const btn1 = downloadPdfBtn;
+        const btn2 = downloadPdfBtnTab7;
+        const originalText1 = btn1 ? btn1.innerHTML : '';
+        const originalText2 = btn2 ? btn2.innerHTML : '';
+        
+        if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF...'; }
+        if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm"></span> กำลังสร้าง PDF...'; }
+
+        try {
+            const allImages = document.querySelectorAll('.uploaded-image, .full-image');
+            const validImages = Array.from(allImages).filter(img => {
+                const src = img.src || img.getAttribute('src');
+                if (!src || src.includes('placeholder.jpg') || src.startsWith('data:image/gif')) return false;
+                if (img.classList.contains('full-image')) {
+                    const displayStyle = window.getComputedStyle(img.closest('.full-image-container') || img).display;
+                    if (displayStyle === 'none') return false;
+                }
+                return true;
+            });
+
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.width = '210mm';
+            pdfContainer.style.position = 'absolute';
+            pdfContainer.style.left = '-9999px';
+            pdfContainer.style.top = '-9999px';
+            pdfContainer.style.backgroundColor = '#ffffff';
+            pdfContainer.style.fontFamily = "sans-serif, 'Sarabun', 'Kanit'";
+            document.body.appendChild(pdfContainer);
+
+            for (let i = 0; i < validImages.length; i++) {
+                const img = validImages[i];
+                const src = img.src || img.getAttribute('src');
+                
+                let title = '';
+                const label = img.closest('label');
+                if (label) {
+                    title = label.querySelector('.title')?.innerText?.trim();
+                } else {
+                    const cardBody = img.closest('.card')?.querySelector('.card-body');
+                    if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
+                    if (!title) {
+                        const section = img.closest('.mb-4');
+                        if (section) {
+                            const h6 = section.querySelector('h6');
+                            if (h6) title = h6.innerText.trim();
+                        }
+                    }
+                }
+                if (!title) title = `รูปภาพที่ ${i + 1}`;
+
+                let base64Img = src;
+                if (!src.startsWith('data:')) {
+                    try {
+                        const token = localStorage.getItem('authToken') || '';
+                        let response = await fetch(`https://be-claims-service.onrender.com/api/upload/proxy-download`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': token },
+                            body: JSON.stringify({ imageUrl: src })
+                        });
+                        if (!response.ok) {
+                            response = await fetch(src);
+                            if (!response.ok) throw new Error('Fetch failed');
+                        }
+                        const blob = await response.blob();
+                        base64Img = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(blob);
+                        });
+                    } catch (e) {
+                        console.warn('Failed fetching base64 for PDF', src, e);
+                    }
+                }
+
+                const pageDiv = document.createElement('div');
+                pageDiv.style.width = '210mm';
+                pageDiv.style.minHeight = '296mm';
+                pageDiv.style.padding = '20mm';
+                pageDiv.style.boxSizing = 'border-box';
+                pageDiv.style.display = 'flex';
+                pageDiv.style.flexDirection = 'column';
+                pageDiv.style.alignItems = 'center';
+                pageDiv.style.justifyContent = 'center';
+                
+                if (i < validImages.length - 1) {
+                    pageDiv.classList.add('html2pdf__page-break');
+                }
+
+                const imgEl = document.createElement('img');
+                imgEl.src = base64Img;
+                imgEl.style.maxWidth = '100%';
+                imgEl.style.maxHeight = '200mm';
+                imgEl.style.objectFit = 'contain';
+                imgEl.style.display = 'block';
+                imgEl.style.marginBottom = '20px';
+
+                const textEl = document.createElement('div');
+                textEl.innerText = title;
+                textEl.style.fontSize = '24px';
+                textEl.style.fontWeight = 'bold';
+                textEl.style.textAlign = 'center';
+                textEl.style.color = '#000000';
+
+                pageDiv.appendChild(imgEl);
+                pageDiv.appendChild(textEl);
+                pdfContainer.appendChild(pageDiv);
+            }
+
+            if (pdfContainer.childNodes.length === 0) {
+                alert('ไม่พบรูปภาพสำหรับสร้าง PDF');
+            } else {
+                const opt = {
+                    margin:       0,
+                    filename:     `${typeof orderIdVal !== 'undefined' ? orderIdVal : 'Export'}_ภาพประกอบเคลม.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                await html2pdf().set(opt).from(pdfContainer).save();
+            }
+
+            pdfContainer.remove();
+
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('เกิดข้อผิดพลาดในการสร้าง PDF');
+        } finally {
+            if (btn1) { btn1.disabled = false; btn1.innerHTML = originalText1; }
+            if (btn2) { btn2.disabled = false; btn2.innerHTML = originalText2; }
+        }
+    }
+
     // --- Dynamic Image Upload Logic ---
     function renderNewImageUploadSlot(category) {
         const uniqueId = `dynamic-upload-${category}-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
