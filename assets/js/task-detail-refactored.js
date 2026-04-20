@@ -525,24 +525,39 @@ async function loadOrderData(orderId) {
         const timelineEl = document.getElementById('historyTimeline');
         if (timelineEl) {
             timelineEl.innerHTML = '';
+
+            // Show total distance if available
+            if (result.total_distance_km > 0) {
+                const distanceLi = document.createElement('li');
+                distanceLi.className = 'timeline-item';
+                distanceLi.innerHTML = `<span class="timeline-icon bg-info">📏</span><div class="timeline-content"><h6
+        class="timeline-title">ระยะทางรวมที่บันทึกได้</h6><p class="timeline-description text-primary fw-bold" style="font-size: 1.1rem;">${result.total_distance_km} กม.</p></div>`;
+                timelineEl.appendChild(distanceLi);
+            }
+
             if (order_hist && order_hist.length > 0) {
                 order_hist.forEach(hist => {
                     const date = new Date(hist.created_date);
                     const formattedDate = date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) + ' - ' + date.toLocaleTimeString('th-TH',
                         { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' }) + ' น.';
+
+                    let locationHtml = '';
+                    if (hist.lat && hist.lng) {
+                        locationHtml = `<div class="mt-2"><a href="https://www.google.com/maps?q=${hist.lat},${hist.lng}" target="_blank" class="btn btn-xs btn-outline-info"><i class="bx bx-map-pin"></i> ดูตำแหน่ง GPS</a></div>`;
+                    }
+
                     const li = document.createElement('li');
                     li.className = 'timeline-item';
                     li.innerHTML = `<span class="timeline-icon bg-secondary">${hist.icon || '🕓'}</span><div class="timeline-content"><h6
-  class="timeline-title">${hist.task}</h6><p class="timeline-description">${hist.detail}</p>
-  <div class="d-flex justify-content-between align-items-center">
-    <small class="text-muted">${formattedDate}</small>
-    <small class="text-muted fw-bold"><i class="bx bx-user"></i> ${hist.created_by || 'ไม่ระบุ'}</small>
-  </div>
-  </div>`;
-                    timelineEl.appendChild(li);
+        class="timeline-title">${hist.task}</h6><p class="timeline-description">${hist.detail}</p>
+        ${locationHtml}
+        <div class="d-flex justify-content-between align-items-center mt-1">
+        <small class="text-muted">${formattedDate}</small>
+        <small class="text-muted fw-bold"><i class="bx bx-user"></i> ${hist.created_by || 'ไม่ระบุ'}</small>
+        </div>
+        </div>`;
                     timelineEl.appendChild(li);
                 });
-
                 // Fix Task 2: Populate 'additionalDetails' from history
                 const latestDetailMock = order_hist.filter(h => h.task === 'รายละเอียดเพิ่มเติม').pop();
                 if (latestDetailMock) {

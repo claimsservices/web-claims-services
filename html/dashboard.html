@@ -335,6 +335,25 @@
                   </div>
                 </div>
               </div>
+              <div class="col-sm-6 col-xl-3 mb-3" id="abnormalOrdersCard">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                      <div class="content-left">
+                        <div class="d-flex align-items-center my-1">
+                          <h4 id="abnormalOrders" class="mb-0 me-2">N/A</h4>
+                        </div>
+                        <small class="mb-0">งานผิดปกติ</small>
+                      </div>
+                      <div class="avatar">
+                        <span class="avatar-initial rounded bg-label-warning">
+                          <i class='bx bx-error-circle'></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="card">
@@ -493,6 +512,19 @@
                     <div class="col-md-2">
                       <input type="text" id="filterAssignedTo" class="form-control" placeholder="ผู้รับผิดชอบ">
                     </div>
+
+                    <!-- ผู้ตรวจ -->
+                    <div class="col-md-2">
+                      <input type="text" id="filterReviewer" class="form-control" placeholder="ผู้ตรวจ">
+                    </div>
+
+                    <!-- งานผิดปกติ -->
+                    <div class="col-md-2">
+                      <select id="filterAbnormalStatus" class="form-select text-capitalize">
+                        <option value="">งานทั้งหมด</option>
+                        <option value="abnormal">งานผิดปกติ</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
                 <div class="d-flex justify-content-end align-items-center mt-3">
@@ -536,6 +568,7 @@
                       <th style="color: white;">สถานะงาน</th>
                       <th style="color: white;" id="header-amount">ยอดเงิน</th>
                       <th style="color: white;" id="header-owner">ผู้รับผิดชอบ</th>
+                      <th style="color: white;" id="header-reviewer">ผู้ตรวจ</th>
                     </tr>
                   </thead>
 <!-- Original inline script from dashboard moved to dashboard-refactored.js -->

@@ -410,6 +410,29 @@ async function initTaskAttachmentsUpload() {
 
     let isUploading = false;
 
+    async function getGPSLocation() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                console.warn('Geolocation is not supported by this browser.');
+                resolve({ lat: null, lng: null });
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    console.warn('Error getting geolocation:', error.message);
+                    resolve({ lat: null, lng: null });
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        });
+    }
+
     async function setStatusFromClick(status) {
         if (isUploading) {
             alert('กรุณารอให้อัปโหลดรูปภาพเสร็จสิ้นก่อนทำการทำรายการต่อ');
@@ -421,6 +444,9 @@ async function initTaskAttachmentsUpload() {
             alert('ไม่พบรหัสงาน');
             return;
         }
+
+        // Get GPS Location
+        const coords = await getGPSLocation();
 
         // --- Item 6: Save Car Details before submitting work ---
         if (status === 'รออนุมัติ') {
@@ -467,7 +493,9 @@ async function initTaskAttachmentsUpload() {
                 },
                 body: JSON.stringify({
                     order_status: status,
-                    order_hist: [historyLog]
+                    order_hist: [historyLog],
+                    lat: coords.lat,
+                    lng: coords.lng
                 }),
                 signal: controller.signal
             });

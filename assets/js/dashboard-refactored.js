@@ -30,6 +30,85 @@ function getUserRole() {
   return decoded ? decoded.role : null;
 }
 
+const REVIEWER_ADMIN_ROLES = ['Admin', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager', 'Developer', 'Director', 'Operation Manager'];
+const STARTED_OR_LATER_STATUSES = new Set([
+  'เริ่มงาน/กำลังเดินทาง',
+  'ถึงที่เกิดเหตุ/ปฏิบัติงาน',
+  'ส่งงาน/ตรวจสอบเบื้องต้น',
+  'รออนุมัติ',
+  'Pre-Approved',
+  'คีย์งานแล้ว',
+  'ผ่าน',
+  'ไม่ผ่าน',
+  'แก้ไข',
+  'ยกเลิก'
+]);
+
+function getCurrentUserInfo() {
+  const token = localStorage.getItem('authToken');
+  if (!token) return null;
+  return parseJwt(token);
+}
+
+function getCurrentUserDisplayName() {
+  const currentUser = getCurrentUserInfo();
+  if (!currentUser) return '';
+  return `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username || '';
+}
+
+function canManageReviewer(role) {
+  return REVIEWER_ADMIN_ROLES.includes(role);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function hasAppointmentPassed(appointmentDate) {
+  if (!appointmentDate) return false;
+  const appointment = new Date(appointmentDate);
+  if (Number.isNaN(appointment.getTime())) return false;
+  return appointment.getTime() <= Date.now();
+}
+
+function shouldHighlightDashboardRow(item) {
+  const overdueAndNotStarted = hasAppointmentPassed(item.appointment_date) && !STARTED_OR_LATER_STATUSES.has(item.order_status);
+  const waitingApprovalWithoutReviewer = item.order_status === 'รออนุมัติ' && !item.reviewer_name;
+  return overdueAndNotStarted || waitingApprovalWithoutReviewer;
+}
+
+function buildReviewerCell(item, userRole) {
+  const reviewerName = item.reviewer_name || '';
+  const currentUserName = getCurrentUserDisplayName();
+  const isCurrentReviewer = reviewerName && reviewerName === currentUserName;
+  const canEditReviewer = canManageReviewer(userRole);
+
+  let actionHtml = '';
+  if (canEditReviewer) {
+    if (!reviewerName) {
+      actionHtml = `<button type="button" class="btn btn-sm btn-outline-primary reviewer-action-btn" data-order-id="${escapeHtml(item.id)}" data-action="claim">ใส่ชื่อฉัน</button>`;
+    } else if (isCurrentReviewer) {
+      actionHtml = `<button type="button" class="btn btn-sm btn-outline-danger reviewer-action-btn" data-order-id="${escapeHtml(item.id)}" data-action="release">เอาชื่อฉันออก</button>`;
+    } else {
+      actionHtml = `<button type="button" class="btn btn-sm btn-outline-secondary" disabled>กำลังตรวจ</button>`;
+    }
+  }
+
+  return `
+    <td>
+      <div class="d-flex flex-column gap-1">
+        <span>${reviewerName ? escapeHtml(reviewerName) : '-'}</span>
+        ${actionHtml}
+      </div>
+    </td>
+  `;
+}
+
 // DOMContentLoaded listener for UI adjustments
 document.addEventListener('DOMContentLoaded', () => {
   let currentFilterType = 'work'; // Default filter for Bike role
@@ -129,10 +208,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const pendingOrdersCard = document.getElementById('pendingOrdersCard');
     const inProgressOrdersCard = document.getElementById('inProgressOrdersCard');
     const completedOrdersCard = document.getElementById('completedOrdersCard');
+    const abnormalOrdersCard = document.getElementById('abnormalOrdersCard');
 
     if (pendingOrdersCard) pendingOrdersCard.style.display = 'none';
     if (inProgressOrdersCard) inProgressOrdersCard.style.display = 'none';
     if (completedOrdersCard) completedOrdersCard.style.display = 'none';
+    if (abnormalOrdersCard) abnormalOrdersCard.style.display = 'none';
 
     const userRoleSelect = document.getElementById('UserRole');
     const token = localStorage.getItem('authToken');
@@ -265,6 +346,8 @@ async function loadUserProfile() {
     document.getElementById('pendingOrders').textContent = order.pending_orders || 0;
     document.getElementById('inProgressOrders').textContent = order.in_progress_orders || 0;
     document.getElementById('completedOrders').textContent = order.completed_orders || 0;
+    const abnormalOrdersEl = document.getElementById('abnormalOrders');
+    if (abnormalOrdersEl) abnormalOrdersEl.textContent = 0;
 
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -316,9 +399,13 @@ async function fetchData(filter = {}) {
     allData = await res.json();
 
     // Client-side filtering: Exclude "บริษัท เอสที เซอร์วิส เทรนนิ่ง" if filter.insur_comp is empty
-    const hasSpecificSearch = filter.id || filter.car_registration || filter.owner;
+    const hasSpecificSearch = filter.id || filter.car_registration || filter.owner || filter.reviewer;
     if (!filter.insur_comp && !hasSpecificSearch) {
       allData = allData.filter(item => item.insur_comp !== 'บริษัท เอสที เซอร์วิส เทรนนิ่ง');
+    }
+
+    if (filter.abnormal_only) {
+      allData = allData.filter(shouldHighlightDashboardRow);
     }
 
     currentPage = 1;
@@ -374,11 +461,18 @@ function renderTableData(page) {
   const end = start + itemsPerPage;
   const paginatedData = allData.slice(start, end);
 
-  const tableBody = document.querySelector("#userTable tbody");
+  const tableBody = document.querySelector("#userTable tbody") || document.querySelector("#ordersTable tbody");
+  if (!tableBody) return;
   tableBody.innerHTML = "";
 
   paginatedData.forEach(item => {
     const row = document.createElement('tr');
+    if (shouldHighlightDashboardRow(item)) {
+      row.classList.add('dashboard-alert-row');
+      row.title = item.order_status === 'รออนุมัติ' && !item.reviewer_name
+        ? 'งานรออนุมัติแต่ยังไม่มีผู้ตรวจ'
+        : 'งานถึงเวลานัดหมายแล้วแต่ยังไม่มี Bike เริ่มงาน';
+    }
 
     const displayAppointmentDate = formatDateTime(item.appointment_date);
     const displayOrderDate = formatDateTime(item.order_date);
@@ -399,6 +493,7 @@ function renderTableData(page) {
         <td>${item.car_registration || ''}</td>
         <td>${item.location || ''}</td>
         <td>${item.order_status || ''}</td>
+        ${buildReviewerCell(item, userRole)}
       `;
     } else if (userRole === 'Bike') {
       rowContent += `
@@ -409,6 +504,7 @@ function renderTableData(page) {
         <td>${item.order_status || ''}</td>
         <td>${amountToDisplay}</td>
         <td>${item.owner_full_name || ''}</td>
+        ${buildReviewerCell(item, userRole)}
       `;
     } else { // Default for other roles
       rowContent += `
@@ -421,6 +517,7 @@ function renderTableData(page) {
         <td>${item.order_status || ''}</td>
         <td>${amountToDisplay}</td>
         <td>${item.owner_full_name || ''}</td>
+        ${buildReviewerCell(item, userRole)}
       `;
     }
     row.innerHTML = rowContent;
@@ -434,6 +531,7 @@ function renderTableData(page) {
 function generatePagination() {
   const totalPages = Math.ceil(allData.length / itemsPerPage);
   const paginationContainer = document.querySelector(".pagination");
+  if (!paginationContainer) return;
   paginationContainer.innerHTML = "";
 
   const prevButton = document.createElement("li");
@@ -505,6 +603,10 @@ function updateSummaryCards(data) {
   // Let's use 'รออนุมัติ' as "Alert" for now as it usually requires attention.
   const completed = data.filter(item => item.order_status === 'รออนุมัติ').length;
   document.getElementById('completedOrders').textContent = completed || 0;
+
+  const abnormal = data.filter(shouldHighlightDashboardRow).length;
+  const abnormalOrdersEl = document.getElementById('abnormalOrders');
+  if (abnormalOrdersEl) abnormalOrdersEl.textContent = abnormal || 0;
 }
 
 function setActivePage(pageNumber) {
@@ -523,7 +625,9 @@ function getFilters() {
     order_status: document.getElementById('FilterTransaction3')?.value || '',
     id: document.getElementById('filterJobCode')?.value.trim() || '',
     car_registration: document.getElementById('filterCarRegistration')?.value.trim() || '',
-    owner: document.getElementById('filterAssignedTo')?.value.trim() || ''
+    owner: document.getElementById('filterAssignedTo')?.value.trim() || '',
+    reviewer: document.getElementById('filterReviewer')?.value.trim() || '',
+    abnormal_only: document.getElementById('filterAbnormalStatus')?.value === 'abnormal'
   };
 
   const dateField = document.getElementById('FilterTransaction4')?.value || '';
@@ -574,7 +678,7 @@ function getFilters() {
 
   // Admin-specific: If searching by ID, License Plate, or Assignee, ignore other UI filters like status/insurance ONLY if they are not explicitly set
   // This maintains existing convenience while now respecting the date range filter
-  const hasSpecificSearch = filter.id || filter.car_registration || filter.owner;
+  const hasSpecificSearch = filter.id || filter.car_registration || filter.owner || filter.reviewer;
   if (hasSpecificSearch) {
     const userRole = getUserRole();
     const adminRoles = ['Admin', 'Director', 'Developer', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager', 'Operation Manager'];
@@ -601,7 +705,7 @@ function setupFilterListeners() {
     });
   });
 
-  ['filterJobCode', 'filterCarRegistration', 'filterAssignedTo'].forEach(id => {
+  ['filterJobCode', 'filterCarRegistration', 'filterAssignedTo', 'filterReviewer'].forEach(id => {
     const el = document.getElementById(id);
     if (el) {
       el.addEventListener('keydown', (e) => {
@@ -618,6 +722,24 @@ function setupFilterListeners() {
   if (searchBtn) {
     searchBtn.addEventListener('click', (e) => {
       e.preventDefault();
+      currentPage = 1;
+      fetchData(getFilters());
+    });
+  }
+
+  const abnormalFilter = document.getElementById('filterAbnormalStatus');
+  if (abnormalFilter) {
+    abnormalFilter.addEventListener('change', () => {
+      currentPage = 1;
+      fetchData(getFilters());
+    });
+  }
+
+  const abnormalOrdersCard = document.getElementById('abnormalOrdersCard');
+  if (abnormalOrdersCard && abnormalFilter) {
+    abnormalOrdersCard.style.cursor = 'pointer';
+    abnormalOrdersCard.addEventListener('click', () => {
+      abnormalFilter.value = abnormalFilter.value === 'abnormal' ? '' : 'abnormal';
       currentPage = 1;
       fetchData(getFilters());
     });
@@ -666,6 +788,7 @@ if (exportExcelBtn) {
         "สถานะงาน": item.order_status,
         "ผู้สร้างงาน": item.creator,
         "ผู้รับผิดชอบ": item.owner_full_name,
+        "ผู้ตรวจ": item.reviewer_name || '',
         "ข้อมูลอ้างอิง": item.s_ref,
         "ข้อมูลอ้างอิง (เพิ่มเติม)": item.s_ref_2
       };
@@ -703,3 +826,72 @@ if (logoutMenuBtn) {
     window.location.href = '../index.html';
   });
 }
+
+if (!document.getElementById('dashboard-alert-row-style')) {
+  const styleEl = document.createElement('style');
+  styleEl.id = 'dashboard-alert-row-style';
+  styleEl.textContent = `
+    #userTable tbody tr.dashboard-alert-row > td {
+      background-color: #fff3cd !important;
+    }
+    #abnormalOrdersCard.dashboard-summary-active .card {
+      border: 1px solid #ffc107;
+      box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.2);
+    }
+  `;
+  document.head.appendChild(styleEl);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const abnormalFilter = document.getElementById('filterAbnormalStatus');
+  const abnormalOrdersCard = document.getElementById('abnormalOrdersCard');
+  if (!abnormalFilter || !abnormalOrdersCard) return;
+
+  const syncAbnormalCardState = () => {
+    abnormalOrdersCard.classList.toggle('dashboard-summary-active', abnormalFilter.value === 'abnormal');
+  };
+
+  abnormalFilter.addEventListener('change', syncAbnormalCardState);
+  syncAbnormalCardState();
+});
+
+document.addEventListener('click', async (event) => {
+  const button = event.target.closest('.reviewer-action-btn');
+  if (!button) return;
+
+  event.preventDefault();
+
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    alert('ไม่พบข้อมูลการเข้าสู่ระบบ');
+    return;
+  }
+
+  const { orderId, action } = button.dataset;
+  const originalLabel = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+  try {
+    const response = await fetch(`https://be-claims-service.onrender.com/api/orders/${encodeURIComponent(orderId)}/reviewer`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
+      body: JSON.stringify({ action })
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'ไม่สามารถอัปเดตผู้ตรวจได้');
+    }
+
+    await fetchData(getFilters());
+  } catch (error) {
+    console.error('Error updating reviewer:', error);
+    alert(error.message || 'ไม่สามารถอัปเดตผู้ตรวจได้');
+    button.disabled = false;
+    button.innerHTML = originalLabel;
+  }
+});
