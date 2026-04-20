@@ -135,6 +135,29 @@ function getSafeValue(id) {
     return el ? el.value : null;
 }
 
+async function getGPSLocation() {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            console.warn('Geolocation is not supported by this browser.');
+            resolve({ lat: null, lng: null });
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                });
+            },
+            (error) => {
+                console.warn('Error getting geolocation:', error.message);
+                resolve({ lat: null, lng: null });
+            },
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        );
+    });
+}
+
 function hideFormFields(fieldIds) {
     fieldIds.forEach(id => {
         const fieldElement = document.getElementById(id);
@@ -2419,22 +2442,27 @@ window.addEventListener('load', async function () {
                 const additionalDetails = getSafeValue('additionalDetails');
                 const noteText = getSafeValue('note-text');
 
+                // Get GPS location
+                const coords = await getGPSLocation();
+
                 // --- Detailed Logging Logic ---
                 const imgCount = orderPic.length;
                 const imgTitles = orderPic.map(p => p.pic_title || 'ไม่ระบุชื่อ').join(', ');
                 const payloadSize = JSON.stringify({ ...orderPic }).length; // Approx size of images part
                 const logDetail = `อัปเดตโดย: ${created_by} | รูป: ${imgCount} ใบ (${(payloadSize / 1024).toFixed(2)} KB) | รายชื่อ: ${imgTitles.substring(0, 100)}${imgTitles.length > 100 ? '...' : ''}`;
 
-                const dynamicOrderHist = [{ icon: "📝", task: "อัปเดตรายการ", detail: logDetail, created_by }];
+                const dynamicOrderHist = [{ icon: "📝", task: "อัปเดตรายการ", detail: logDetail, created_by, lat: coords.lat, lng: coords.lng }];
 
                 if (additionalDetails) {
-                    dynamicOrderHist.push({ icon: "ℹ️", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by });
+                    dynamicOrderHist.push({ icon: "ℹ️", task: "รายละเอียดเพิ่มเติม", detail: additionalDetails, created_by, lat: coords.lat, lng: coords.lng });
                 }
                 if (noteText) {
-                    dynamicOrderHist.push({ icon: "💬", task: "บันทึกข้อความ", detail: noteText, created_by });
+                    dynamicOrderHist.push({ icon: "💬", task: "บันทึกข้อความ", detail: noteText, created_by, lat: coords.lat, lng: coords.lng });
                 }
 
                 const commonData = {
+                    lat: coords.lat,
+                    lng: coords.lng,
                     creator: getSafeValue('ownerName'),
                     owner: getSafeValue('responsiblePerson'),
                     order_type: getSafeValue('jobType'),

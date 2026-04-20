@@ -32,7 +32,6 @@ function getUserRole() {
 
 const REVIEWER_ADMIN_ROLES = ['Admin', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager', 'Developer', 'Director', 'Operation Manager'];
 const STARTED_OR_LATER_STATUSES = new Set([
-  'เริ่มงาน/กำลังเดินทาง',
   'ถึงที่เกิดเหตุ/ปฏิบัติงาน',
   'ส่งงาน/ตรวจสอบเบื้องต้น',
   'รออนุมัติ',
@@ -77,9 +76,13 @@ function hasAppointmentPassed(appointmentDate) {
 }
 
 function shouldHighlightDashboardRow(item) {
-  const overdueAndNotStarted = hasAppointmentPassed(item.appointment_date) && !STARTED_OR_LATER_STATUSES.has(item.order_status);
+  // 1. Overdue and not yet arrived (Must be 'ถึงที่เกิดเหตุ/ปฏิบัติงาน' or higher to be considered 'arrived')
+  const overdueAndNotArrived = hasAppointmentPassed(item.appointment_date) && !STARTED_OR_LATER_STATUSES.has(item.order_status);
+  
+  // 2. Waiting for approval but no reviewer assigned
   const waitingApprovalWithoutReviewer = item.order_status === 'รออนุมัติ' && !item.reviewer_name;
-  return overdueAndNotStarted || waitingApprovalWithoutReviewer;
+  
+  return overdueAndNotArrived || waitingApprovalWithoutReviewer;
 }
 
 function buildReviewerCell(item, userRole) {
