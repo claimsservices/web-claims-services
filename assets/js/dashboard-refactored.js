@@ -70,14 +70,15 @@ function escapeHtml(value) {
 
 function hasAppointmentPassed(appointmentDate) {
   if (!appointmentDate) return false;
-  // Ensure the date is parsed correctly, especially if it doesn't have a timezone
   let rawDate = appointmentDate;
-  if (typeof rawDate === 'string' && !rawDate.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(rawDate)) {
-    rawDate = rawDate.replace(' ', 'T') + 'Z'; // Treat as UTC if no TZ
+  // Convert space to T for ISO compatibility but DO NOT add 'Z' 
+  // to let the browser treat it as local Thai time from the database
+  if (typeof rawDate === 'string' && rawDate.includes(' ')) {
+    rawDate = rawDate.replace(' ', 'T');
   }
   const appointment = new Date(rawDate);
   if (Number.isNaN(appointment.getTime())) return false;
-  // Add a 1-minute grace period to avoid minor clock skews
+  // Use a 1-minute buffer. If appointment time is less than or equal to now, it's passed.
   return appointment.getTime() <= (Date.now() + 60000);
 }
 
@@ -99,18 +100,19 @@ function shouldHighlightDashboardRow(item) {
   const style = document.createElement('style');
   style.id = styleId;
   style.textContent = `
-    /* Force yellow background on abnormal rows, even over striped or hover effects */
+    /* Force a more visible yellow background on abnormal rows */
     #userTable tbody tr.dashboard-alert-row td,
     #ordersTable tbody tr.dashboard-alert-row td,
-    .dashboard-alert-row {
-      background-color: #fff3cd !important;
-      border-color: #ffeeba !important;
+    tr.dashboard-alert-row td {
+      background-color: #ffeeba !important; /* Slightly darker yellow for better visibility */
+      border-color: #ffdf7e !important;
     }
     
-    /* Ensure hover doesn't remove the yellow completely, but darkens it slightly */
+    /* Hover state slightly darker */
     #userTable tbody tr.dashboard-alert-row:hover td,
-    #ordersTable tbody tr.dashboard-alert-row:hover td {
-      background-color: #ffe8a1 !important;
+    #ordersTable tbody tr.dashboard-alert-row:hover td,
+    tr.dashboard-alert-row:hover td {
+      background-color: #ffd055 !important;
     }
     
     .dashboard-summary-active {
