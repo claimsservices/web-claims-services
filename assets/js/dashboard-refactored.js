@@ -71,19 +71,18 @@ function escapeHtml(value) {
 function hasAppointmentPassed(appointmentDate) {
   if (!appointmentDate) return false;
   let rawDate = appointmentDate;
-  // Convert space to T for ISO compatibility but DO NOT add 'Z' 
-  // to let the browser treat it as local Thai time from the database
+  // Sync logic with formatDateTime: Replace space with T for ISO compatibility
   if (typeof rawDate === 'string' && rawDate.includes(' ')) {
     rawDate = rawDate.replace(' ', 'T');
   }
   const appointment = new Date(rawDate);
   if (Number.isNaN(appointment.getTime())) return false;
-  // Use a 1-minute buffer. If appointment time is less than or equal to now, it's passed.
+  // Compare with current time with 1-minute buffer
   return appointment.getTime() <= (Date.now() + 60000);
 }
 
 function shouldHighlightDashboardRow(item) {
-  // 1. Overdue and not yet arrived (Must be 'ถึงที่เกิดเหตุ/ปฏิบัติงาน' or higher to be considered 'arrived')
+  // 1. Overdue and not yet arrived
   const overdueAndNotArrived = hasAppointmentPassed(item.appointment_date) && !STARTED_OR_LATER_STATUSES.has(item.order_status);
   
   // 2. Waiting for approval but no reviewer assigned
@@ -92,34 +91,39 @@ function shouldHighlightDashboardRow(item) {
   return overdueAndNotArrived || waitingApprovalWithoutReviewer;
 }
 
-// Append styles for the abnormal rows
-(function appendStyles() {
-  const styleId = 'dashboard-alert-styles';
+// Global CSS for Abnormal Rows (Force visibility over Bootstrap striped/hover)
+(function injectGlobalStyles() {
+  const styleId = 'dashboard-abnormal-styles';
   if (document.getElementById(styleId)) return;
 
   const style = document.createElement('style');
   style.id = styleId;
   style.textContent = `
-    /* Force a more visible yellow background on abnormal rows */
+    /* Use inset box-shadow to completely override Bootstrap's striped background variables */
     #userTable tbody tr.dashboard-alert-row td,
     #ordersTable tbody tr.dashboard-alert-row td,
     tr.dashboard-alert-row td {
-      background-color: #ffeeba !important; /* Slightly darker yellow for better visibility */
-      border-color: #ffdf7e !important;
+      background-color: #ffeeba !important;
+      box-shadow: inset 0 0 0 9999px #ffeeba !important; /* Force color over striped rows */
+      border-bottom: 1px solid #ffdf7e !important;
+      color: #664d03 !important;
     }
     
-    /* Hover state slightly darker */
+    /* Stronger yellow on hover using the same trick */
     #userTable tbody tr.dashboard-alert-row:hover td,
     #ordersTable tbody tr.dashboard-alert-row:hover td,
     tr.dashboard-alert-row:hover td {
       background-color: #ffd055 !important;
+      box-shadow: inset 0 0 0 9999px #ffd055 !important;
     }
-    
+
+    /* Abnormal Summary Card Styling */
     .dashboard-summary-active {
-      background-color: #ffca28 !important;
-      color: #000 !important;
-      transform: scale(1.02);
-      transition: all 0.2s;
+      border: 2px solid #ffc107 !important;
+      background-color: rgba(255, 193, 7, 0.1) !important;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+      transition: all 0.3s ease;
     }
   `;
   document.head.appendChild(style);
