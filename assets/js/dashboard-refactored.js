@@ -70,9 +70,15 @@ function escapeHtml(value) {
 
 function hasAppointmentPassed(appointmentDate) {
   if (!appointmentDate) return false;
-  const appointment = new Date(appointmentDate);
+  // Ensure the date is parsed correctly, especially if it doesn't have a timezone
+  let rawDate = appointmentDate;
+  if (typeof rawDate === 'string' && !rawDate.endsWith('Z') && !/[+-]\d{2}:?\d{2}$/.test(rawDate)) {
+    rawDate = rawDate.replace(' ', 'T') + 'Z'; // Treat as UTC if no TZ
+  }
+  const appointment = new Date(rawDate);
   if (Number.isNaN(appointment.getTime())) return false;
-  return appointment.getTime() <= Date.now();
+  // Add a 1-minute grace period to avoid minor clock skews
+  return appointment.getTime() <= (Date.now() + 60000);
 }
 
 function shouldHighlightDashboardRow(item) {
@@ -84,6 +90,38 @@ function shouldHighlightDashboardRow(item) {
   
   return overdueAndNotArrived || waitingApprovalWithoutReviewer;
 }
+
+// Append styles for the abnormal rows
+(function appendStyles() {
+  const styleId = 'dashboard-alert-styles';
+  if (document.getElementById(styleId)) return;
+
+  const style = document.createElement('style');
+  style.id = styleId;
+  style.textContent = `
+    /* Force yellow background on abnormal rows, even over striped or hover effects */
+    #userTable tbody tr.dashboard-alert-row td,
+    #ordersTable tbody tr.dashboard-alert-row td,
+    .dashboard-alert-row {
+      background-color: #fff3cd !important;
+      border-color: #ffeeba !important;
+    }
+    
+    /* Ensure hover doesn't remove the yellow completely, but darkens it slightly */
+    #userTable tbody tr.dashboard-alert-row:hover td,
+    #ordersTable tbody tr.dashboard-alert-row:hover td {
+      background-color: #ffe8a1 !important;
+    }
+    
+    .dashboard-summary-active {
+      background-color: #ffca28 !important;
+      color: #000 !important;
+      transform: scale(1.02);
+      transition: all 0.2s;
+    }
+  `;
+  document.head.appendChild(style);
+})();
 
 function buildReviewerCell(item, userRole) {
   const reviewerName = item.reviewer_name || '';

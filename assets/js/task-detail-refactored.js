@@ -142,18 +142,22 @@ async function getGPSLocation() {
             resolve({ lat: null, lng: null });
             return;
         }
+        // Increase timeout to 10 seconds for better reliability in weak signal areas
         navigator.geolocation.getCurrentPosition(
             (position) => {
-                resolve({
+                const coords = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
-                });
+                };
+                console.log('Successfully captured GPS:', coords);
+                resolve(coords);
             },
             (error) => {
-                console.warn('Error getting geolocation:', error.message);
+                console.warn('Error getting geolocation:', error.code, error.message);
+                // Fallback to null if user denies or timeout
                 resolve({ lat: null, lng: null });
             },
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     });
 }
