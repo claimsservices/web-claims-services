@@ -130,6 +130,8 @@ function shouldHighlightDashboardRow(item) {
 })();
 
 function buildReviewerCell(item, userRole) {
+  if (userRole === 'Insurance') return ''; // Task 1: Hide for Insurance
+
   const reviewerName = item.reviewer_name || '';
   const currentUserName = getCurrentUserDisplayName();
   const isCurrentReviewer = reviewerName && reviewerName === currentUserName;
@@ -158,6 +160,19 @@ function buildReviewerCell(item, userRole) {
 
 // DOMContentLoaded listener for UI adjustments
 document.addEventListener('DOMContentLoaded', () => {
+  const userRole = getUserRole();
+
+  // Task 1: Hide reviewer elements for Insurance
+  if (userRole === 'Insurance') {
+    const reviewerHeader = document.getElementById('header-reviewer');
+    const reviewerFilter = document.getElementById('filterReviewer');
+
+    if (reviewerHeader) reviewerHeader.style.display = 'none';
+    if (reviewerFilter && reviewerFilter.parentElement) {
+      reviewerFilter.parentElement.style.display = 'none';
+    }
+  }
+
   let currentFilterType = 'work'; // Default filter for Bike role
 
   const workBtn = document.getElementById('filter-work-btn');
@@ -198,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const userRole = getUserRole();
   console.log('User Role:', userRole);
 
   const addNewItemBtn = document.getElementById('add-new-item-btn');
