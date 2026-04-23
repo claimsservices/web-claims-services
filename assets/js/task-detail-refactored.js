@@ -77,6 +77,7 @@ export const staticImageConfig = {
 
 const accessToken = localStorage.getItem('authToken');
 const LOGIN_PAGE = '../index.html';
+let allAssigners = [];
 
 
 function parseJwt(token) {
@@ -659,20 +660,26 @@ async function loadAssignees(order, token) {
         const response = await fetch(`https://be-claims-service.onrender.com/api/user-management/assigners`, { headers: { 'Authorization': token } });
         if (!response.ok) throw new Error('Network error');
         const data = await response.json();
-        const select = document.getElementById('responsiblePerson');
-        if (!select) return;
-        select.innerHTML = '<option value="">เลือกผู้รับผิดชอบ</option>';
-        data.forEach(person => {
-            const fullName = `${person.first_name} ${person.last_name}`.trim();
-            const option = document.createElement('option');
-            option.value = person.id;
-            option.textContent = fullName;
-            select.appendChild(option);
-        });
-        if (order?.owner) select.value = order.owner;
+        allAssigners = data; // Store globally
+        renderAssignees(data, order?.owner);
     } catch (err) {
         console.error('Error loading assigners:', err);
     }
+}
+
+function renderAssignees(assigners, selectedId) {
+    const select = document.getElementById('responsiblePerson');
+    if (!select) return;
+    const currentSelection = selectedId || select.value;
+    select.innerHTML = '<option value="">เลือกผู้รับผิดชอบ</option>';
+    assigners.forEach(person => {
+        const fullName = `${person.first_name} ${person.last_name}`.trim();
+        const option = document.createElement('option');
+        option.value = person.id;
+        option.textContent = fullName;
+        select.appendChild(option);
+    });
+    if (currentSelection) select.value = currentSelection;
 }
 
 async function updateStatus(orderId, newStatus) {
@@ -1626,6 +1633,18 @@ window.addEventListener('load', async function () {
     const orderId = getQueryParam('id');
     if (orderId) {
         loadOrderData(orderId);
+    }
+
+    const searchInput = document.getElementById('searchResponsiblePerson');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const filtered = allAssigners.filter(person => {
+                const fullName = `${person.first_name} ${person.last_name}`.toLowerCase();
+                return fullName.includes(query);
+            });
+            renderAssignees(filtered);
+        });
     }
 
     function handleImageSelection(fileInput) {
