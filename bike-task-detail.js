@@ -196,6 +196,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             if (previewImage) previewImage.src = existingImageUrl;
                             previewModal.show();
                         } else {
+                            // บันทึก Log ทันทีที่กดปุ่มถ่ายรูป/อัปโหลด (ก่อนเลือกไฟล์)
+                            logActivity('ถ่ายรูป', 'บันทึกภาพ', lastKnownCoords, '📸');
+                            
                             if (imageUploadInput) imageUploadInput.click();
                         }
                     });
@@ -260,11 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // 1. Capture GPS
         const coords = await getGPSLocation();
 
-        // 2. IMMEDIATE JSON LOG (Mirroring status update flow)
-        // This ensures GPS is recorded via a reliable JSON path
-        await logActivity('ถ่ายรูป', `กดถ่ายรูป: "${currentPhotoTitle}"`, coords, '📸');
-
-        // 3. Prepare Multipart Upload
+        // 2. Prepare Multipart Upload
         const formData = new FormData();
         formData.append('order_id', orderId);
         
@@ -297,6 +296,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (result.uploaded && result.uploaded.length > 0) {
                 uploadedImages[currentPhotoTitle] = { url: result.uploaded[0].url, lat: coords.lat, lng: coords.lng };
                 renderPhotoCategories();
+                
+                // 3. Log success after upload is complete
+                await logActivity('ถ่ายรูป', `อัปโหลดภาพสำเร็จ: "${currentPhotoTitle}"`, coords, '📸');
             }
         } catch (error) {
             console.error('[Upload] Error:', error);
