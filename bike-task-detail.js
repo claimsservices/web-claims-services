@@ -314,11 +314,26 @@ document.addEventListener('DOMContentLoaded', function () {
     async function updateStatus(newStatus) {
         console.log(`[Status] Updating to: ${newStatus}`);
         const coords = await getGPSLocation();
+        
+        // Prepare order_hist for this status change
+        const order_hist = [{
+            icon: '🚲',
+            task: newStatus,
+            detail: `เปลี่ยนสถานะงานเป็น: ${newStatus}`,
+            lat: coords.lat,
+            lng: coords.lng
+        }];
+
         try {
             const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': token },
-                body: JSON.stringify({ order_status: newStatus, lat: coords.lat, lng: coords.lng })
+                body: JSON.stringify({ 
+                    order_status: newStatus, 
+                    lat: coords.lat, 
+                    lng: coords.lng,
+                    order_hist: order_hist
+                })
             });
             if (!response.ok) throw new Error('Update failed');
             return true;
@@ -356,14 +371,25 @@ document.addEventListener('DOMContentLoaded', function () {
             };
         });
 
+        const logDetail = `ส่งงานเพื่อตรวจสอบเบื้องต้น พร้อมรูปภาพจำนวน ${picArray.length} ใบ`;
+        const order_hist = [{
+            icon: '📤',
+            task: 'ส่งงาน/ตรวจสอบเบื้องต้น',
+            detail: logDetail,
+            lat: finalCoords.lat,
+            lng: finalCoords.lng
+        }];
+
         const body = {
             order_status: 'รออนุมัติ', 
             order_pic: picArray,
+            order_hist: order_hist,
             c_brand: document.getElementById('work-form-car-brand')?.value || '',
             c_version: document.getElementById('work-form-car-model')?.value || '',
             c_mile: document.getElementById('work-form-car-mileage')?.value || '',
             c_type: document.getElementById('work-form-car-type')?.value || '',
-            lat: finalCoords.lat, lng: finalCoords.lng
+            lat: finalCoords.lat, 
+            lng: finalCoords.lng
         };
 
         try {

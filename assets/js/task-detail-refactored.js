@@ -2677,7 +2677,12 @@ window.addEventListener('load', async function () {
                     newStatus = 'รออนุมัติ';
                 }
 
+                // Get GPS location for Bike
+                const coords = await getGPSLocation();
+
                 const carDetailsPayload = {
+                    lat: coords.lat,
+                    lng: coords.lng,
                     order_status: newStatus, // Add status to this payload
                     c_brand: document.getElementById('carBrand')?.value === 'other' ? getSafeValue('carBrandCustom') : getSafeValue('carBrand'),
                     c_version: (document.getElementById('carBrand')?.value === 'other' || document.getElementById('carModel')?.value === 'other') ? getSafeValue('carModelCustom') : getSafeValue('carModel'),
@@ -2710,9 +2715,16 @@ window.addEventListener('load', async function () {
                 const imgCount = orderPic.length;
                 const imgTitles = orderPic.map(p => p.pic_title || 'ไม่ระบุชื่อ').join(', ');
                 const payloadSize = JSON.stringify(orderPic).length;
-                const logDetail = `อัปเดตสถานะและข้อมูลปโดย: ${updated_by} | รูป: ${imgCount} ใบ (${(payloadSize / 1024).toFixed(2)} KB) | รายชื่อ: ${imgTitles.substring(0, 100)}${imgTitles.length > 100 ? '...' : ''}`;
+                const logDetail = `อัปเดตสถานะและข้อมูลโดย: ${updated_by} | รูป: ${imgCount} ใบ (${(payloadSize / 1024).toFixed(2)} KB) | รายชื่อ: ${imgTitles.substring(0, 100)}${imgTitles.length > 100 ? '...' : ''}`;
 
-                carDetailsPayload.order_hist = [{ icon: "🚲", task: "ส่งงานและอัปเดตข้อมูล", detail: logDetail, created_by: updated_by }];
+                carDetailsPayload.order_hist = [{ 
+                    icon: "🚲", 
+                    task: "ส่งงานและอัปเดตข้อมูล", 
+                    detail: logDetail, 
+                    created_by: updated_by,
+                    lat: coords.lat,
+                    lng: coords.lng
+                }];
 
                 carDetailsPayload.order_pic = orderPic;
 
