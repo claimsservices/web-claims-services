@@ -433,58 +433,83 @@ async function initTaskAttachmentsUpload() {
         });
     }
 
+    async function recordGPSHistory(status, detail) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('id');
+        const token = localStorage.getItem('authToken');
+        if (!orderId || !token) return;
+
+        console.log(`[GPS] บันทึกพิกัดสำหรับสถานะ: ${status}`);
+        const coords = await getGPSLocation();
+
+        const decoded = parseJwt(token);
+        const userName = decoded ? `${decoded.first_name} ${decoded.last_name}` : 'Unknown User';
+
+        const payload = {
+            order_id: orderId,
+            icon: getStatusIcon(status),
+            task: status,
+            detail: detail,
+            lat: coords.lat,
+            lng: coords.lng
+        };
+
+        try {
+            await fetch(`https://be-claims-service.onrender.com/api/history/log`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token
+                },
+                body: JSON.stringify(payload)
+            });
+            console.log(`[GPS] บันทึก History เรียบร้อยสำหรับ ${status}`);
+        } catch (err) {
+            console.error('[GPS] บันทึก History ล้มเหลว:', err);
+        }
+    }
+
     async function setStatusFromClick(status) {
         if (isUploading) {
             alert('กรุณารอให้อัปโหลดรูปภาพเสร็จสิ้นก่อนทำการทำรายการต่อ');
             return;
         }
 
+        const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('id');
+        const token = localStorage.getItem('authToken');
+
         if (!orderId) {
             alert('ไม่พบรหัสงาน');
             return;
         }
 
-        // Get GPS Location
-        const coords = await getGPSLocation();
-
         // --- Item 6: Save Car Details before submitting work ---
         if (status === 'รออนุมัติ') {
-            // Assuming validation is handled in saveCarDetails or we just attempt save
             const saveResult = await saveCarDetails(orderId, token);
             if (!saveResult.success) {
                 alert(saveResult.message);
-                return; // Stop if car detail save fails
+                return;
             }
         }
 
-        // --- Item 4: Prepare History Log ---
         const decoded = parseJwt(token);
         const userName = decoded ? `${decoded.first_name} ${decoded.last_name}` : 'Unknown User';
         const userRole = decoded ? decoded.role : 'User';
 
-        let displayStatus = status;
         let detailText = `ผู้ใช้งาน ${userName} (${userRole}) อัปเดตสถานะเป็น ${status}`;
-
-        // Special case: When submitting from "Edit" status
         const currentStatus = document.getElementById('status-text')?.innerText || '';
         if (currentStatus.includes('แก้ไข') && status === 'รออนุมัติ') {
             detailText = `ผู้ใช้งาน ${userName} (${userRole}) แก้ไขงานและส่งงานกลับมาเพื่อตรวจสอบ`;
         }
 
-        const historyLog = {
-            icon: getStatusIcon(status),
-            task: status,
-            detail: detailText,
-            created_by: userName
-        };
-
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-            console.log(`Updating status from "${currentStatus}" to "${status}"...`);
+            console.log(`Updating status to "${status}"...`);
 
+            // 1. Update Status Only (Main Call)
             const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
                 method: 'PUT',
                 headers: {
@@ -492,10 +517,7 @@ async function initTaskAttachmentsUpload() {
                     'Authorization': token
                 },
                 body: JSON.stringify({
-                    order_status: status,
-                    order_hist: [historyLog],
-                    lat: coords.lat,
-                    lng: coords.lng
+                    order_status: status
                 }),
                 signal: controller.signal
             });
@@ -505,6 +527,10 @@ async function initTaskAttachmentsUpload() {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'ไม่สามารถอัปเดตสถานะได้');
             }
+
+            // 2. Record GPS History (Separate Call as requested)
+            // We await it here before reload to ensure it's sent
+            await recordGPSHistory(status, detailText);
 
             alert(`✅ ส่งงานสำเร็จ: เปลี่ยนสถานะเป็น "${status}" เรียบร้อยแล้ว`);
             window.location.reload();
