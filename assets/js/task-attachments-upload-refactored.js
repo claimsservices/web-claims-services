@@ -433,14 +433,13 @@ async function initTaskAttachmentsUpload() {
         });
     }
 
-    async function recordGPSHistory(status, detail) {
+    async function recordGPSHistory(status, detail, coords) {
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('id');
         const token = localStorage.getItem('authToken');
         if (!orderId || !token) return;
 
-        console.log(`[GPS] บันทึกพิกัดสำหรับสถานะ: ${status}`);
-        const coords = await getGPSLocation();
+        console.log(`[GPS] บันทึกพิกัดสำหรับสถานะ: ${status}`, coords);
 
         const decoded = parseJwt(token);
         const userName = decoded ? `${decoded.first_name} ${decoded.last_name}` : 'Unknown User';
@@ -450,12 +449,12 @@ async function initTaskAttachmentsUpload() {
             icon: getStatusIcon(status),
             task: status,
             detail: detail,
-            lat: coords.lat,
-            lng: coords.lng
+            lat: coords ? coords.lat : null,
+            lng: coords ? coords.lng : null
         };
 
         try {
-            await fetch(`https://be-claims-service.onrender.com/api/history/log`, {
+            const res = await fetch(`https://be-claims-service.onrender.com/api/history/log`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -463,7 +462,11 @@ async function initTaskAttachmentsUpload() {
                 },
                 body: JSON.stringify(payload)
             });
-            console.log(`[GPS] บันทึก History เรียบร้อยสำหรับ ${status}`);
+            if (res.ok) {
+                console.log(`[GPS] บันทึก History เรียบร้อยสำหรับ ${status}`);
+            } else {
+                console.error(`[GPS] Backend ตอบกลับด้วย error: ${res.status}`);
+            }
         } catch (err) {
             console.error('[GPS] บันทึก History ล้มเหลว:', err);
         }
@@ -483,6 +486,10 @@ async function initTaskAttachmentsUpload() {
             alert('ไม่พบรหัสงาน');
             return;
         }
+
+        // --- PRE-FETCH GPS: ดึงพิกัดก่อนเพื่อความแม่นยำและทันเวลา ---
+        console.log(`[GPS] กำลังดึงพิกัดสำหรับสถานะใหม่: ${status}...`);
+        const coords = await getGPSLocation();
 
         // --- Item 6: Save Car Details before submitting work ---
         if (status === 'รออนุมัติ') {
@@ -509,7 +516,10 @@ async function initTaskAttachmentsUpload() {
 
             console.log(`Updating status to "${status}"...`);
 
-            // 1. Update Status Only (Main Call)
+            // 1. Record GPS History FIRST (to ensure it is sent before main status change and reload)
+            await recordGPSHistory(status, detailText, coords);
+
+            // 2. Update Status Only (Main Call)
             const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
                 method: 'PUT',
                 headers: {
@@ -527,10 +537,6 @@ async function initTaskAttachmentsUpload() {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'ไม่สามารถอัปเดตสถานะได้');
             }
-
-            // 2. Record GPS History (Separate Call as requested)
-            // We await it here before reload to ensure it's sent
-            await recordGPSHistory(status, detailText);
 
             alert(`✅ ส่งงานสำเร็จ: เปลี่ยนสถานะเป็น "${status}" เรียบร้อยแล้ว`);
             window.location.reload();
