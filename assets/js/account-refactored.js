@@ -340,3 +340,84 @@ const provinces = [
     selectElement.appendChild(option);
   });
 
+// --- API Token Generation Logic ---
+(function() {
+  const token = localStorage.getItem('authToken');
+  if (!token) return;
+
+  const decoded = JSON.parse(atob(token.split('.')[1]));
+  const role = decoded.role;
+  const apiAccessSection = document.getElementById('apiAccessSection');
+  const generateApiTokenBtn = document.getElementById('generateApiToken');
+  const apiTokenInput = document.getElementById('apiToken');
+  const copyApiTokenBtn = document.getElementById('copyApiToken');
+
+  // Show API Access section only for Insurance or Admin roles
+  const allowedRoles = ['Insurance', 'Director', 'Admin Officer', 'Developer'];
+  if (allowedRoles.includes(role)) {
+    if (apiAccessSection) apiAccessSection.style.display = 'block';
+  }
+
+  if (generateApiTokenBtn) {
+    generateApiTokenBtn.addEventListener('click', async () => {
+      if (!confirm('คุณต้องการสร้าง API Token ใหม่ใช่หรือไม่? (Token นี้จะไม่มีวันหมดอายุ)')) return;
+
+      generateApiTokenBtn.disabled = true;
+      generateApiTokenBtn.innerText = 'Generating...';
+
+      try {
+        const response = await fetch(`https://be-claims-service.onrender.com/api/auth/generate-api-token`, {
+          method: 'POST',
+          headers: {
+            'Authorization': token
+          }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          apiTokenInput.value = data.token;
+          
+          // Update documentation examples with the new token
+          const codeExamples = document.querySelectorAll('.tab-content code');
+          codeExamples.forEach(code => {
+            code.innerHTML = code.innerHTML.replace(/YOUR_TOKEN/g, data.token);
+          });
+
+          alert('สร้าง API Token สำเร็จ! โปรดคัดลอกและเก็บรักษาให้ปลอดภัย');
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error generating API token:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+      } finally {
+        generateApiTokenBtn.disabled = false;
+        generateApiTokenBtn.innerText = 'Generate API Token';
+      }
+    });
+  }
+
+  if (copyApiTokenBtn) {
+    copyApiTokenBtn.addEventListener('click', () => {
+      const tokenValue = apiTokenInput.value;
+      if (!tokenValue) {
+        alert('ยังไม่มี Token ให้คัดลอก');
+        return;
+      }
+
+      navigator.clipboard.writeText(tokenValue).then(() => {
+        const originalText = copyApiTokenBtn.innerText;
+        copyApiTokenBtn.innerText = 'Copied!';
+        setTimeout(() => {
+          copyApiTokenBtn.innerText = originalText;
+        }, 2000);
+      }).catch(err => {
+        console.error('Could not copy text: ', err);
+        apiTokenInput.select();
+        document.execCommand('copy');
+        alert('คัดลอก Token เรียบร้อยแล้ว');
+      });
+    });
+  }
+})();
+
