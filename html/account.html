@@ -114,8 +114,16 @@
               </ul>
             </li>
 
+          <!-- API Access -->
+          <li class="menu-item" id="api-access-menu" style="display: none;">
+            <a href="api-access.html" class="menu-link">
+              <i class="menu-icon icon-base bx bx-code-alt"></i>
+              <div data-i18n="Layouts">API Access</div>
+            </a>
+          </li>
+
           <!-- Layouts -->
-          <li class="menu-item active open">
+          <li class="menu-item active open" id="user-management-menu">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
               <i class="menu-icon icon-base bx bx-user"></i>
               <div data-i18n="Layouts">User management</div>
@@ -321,85 +329,6 @@
                     </div>
                     <!-- /Account -->
                   </div>
-
-                  <!-- API Access Section for Insurance Users -->
-                  <div class="card mb-4" id="apiAccessSection" style="display: none;">
-                    <h5 class="card-header">API Access / สำหรับบริษัทประกัน</h5>
-                    <div class="card-body">
-                      <div class="mb-3 col-12 mb-0">
-                        <div class="alert alert-warning">
-                          <h6 class="alert-heading fw-bold mb-1">คำเตือน: API Token นี้ใช้สำหรับการเชื่อมต่อระบบภายนอก</h6>
-                          <p class="mb-0">Token นี้ไม่มีวันหมดอายุ โปรดเก็บรักษาให้เป็นความลับ หากทำหลุดพ้นอาจทำให้ผู้อื่นเข้าถึงข้อมูลของท่านได้</p>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="mb-3 col-md-12">
-                          <label for="apiToken" class="form-label">API Token</label>
-                          <div class="input-group">
-                            <input type="text" class="form-control" id="apiToken" readonly placeholder="ยังไม่ได้สร้าง Token" />
-                            <button class="btn btn-outline-primary" type="button" id="copyApiToken">Copy</button>
-                          </div>
-                        </div>
-                      </div>
-                      <button type="button" id="generateApiToken" class="btn btn-primary me-2">Generate API Token</button>
-
-                      <hr class="my-4" />
-                      <h6>คู่มือการใช้งาน API (Documentation)</h6>
-                      <div class="bg-light p-3 rounded mb-3">
-                        <p class="mb-2"><strong>Base URL:</strong> <code>https://be-claims-service.onrender.com/api</code></p>
-                        <p class="mb-2"><strong>Authentication:</strong> ส่ง Token ใน Header <code>Authorization: Bearer &lt;YOUR_TOKEN&gt;</code></p>
-                      </div>
-
-                      <div class="nav-align-top mb-4">
-                        <ul class="nav nav-tabs" role="tablist">
-                          <li class="nav-item">
-                            <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#navs-curl" aria-controls="navs-curl" aria-selected="true">cURL</button>
-                          </li>
-                          <li class="nav-item">
-                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-javascript" aria-controls="navs-javascript" aria-selected="false">JavaScript (Fetch)</button>
-                          </li>
-                          <li class="nav-item">
-                            <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-python" aria-controls="navs-python" aria-selected="false">Python</button>
-                          </li>
-                        </ul>
-                        <div class="tab-content">
-                          <div class="tab-pane fade show active" id="navs-curl" role="tabpanel">
-                            <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code># ตัวอย่างการดึงข้อมูลงาน (Inquiry)
-curl -X POST https://be-claims-service.onrender.com/api/orders/inquiry \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"order_status": "รับเรื่องแล้ว"}'</code></pre>
-                          </div>
-                          <div class="tab-pane fade" id="navs-javascript" role="tabpanel">
-                            <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code>fetch('https://be-claims-service.onrender.com/api/orders/inquiry', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_TOKEN',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ order_status: 'รับเรื่องแล้ว' })
-})
-.then(response => response.json())
-.then(data => console.log(data));</code></pre>
-                          </div>
-                          <div class="tab-pane fade" id="navs-python" role="tabpanel">
-                            <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code>import requests
-
-url = "https://be-claims-service.onrender.com/api/orders/inquiry"
-headers = {
-    "Authorization": "Bearer YOUR_TOKEN",
-    "Content-Type": "application/json"
-}
-payload = { "order_status": "รับเรื่องแล้ว" }
-
-response = requests.post(url, json=payload, headers=headers)
-print(response.json())</code></pre>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
             <!-- / Content -->
