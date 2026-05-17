@@ -88,6 +88,19 @@ document.addEventListener('DOMContentLoaded', function () {
   const token = localStorage.getItem('authToken');
   if (token) {
     const decoded = parseJwt(token);
+    
+    // Role-based menu visibility
+    const apiAccessMenu = document.getElementById('api-access-menu');
+    const userManagementMenu = document.getElementById('user-management-menu');
+
+    if (decoded && decoded.role === 'Insurance') {
+      if (apiAccessMenu) apiAccessMenu.style.display = 'block';
+      if (userManagementMenu) userManagementMenu.style.display = 'none';
+    } else {
+      if (apiAccessMenu) apiAccessMenu.style.display = 'none';
+      // User Management visibility is handled by individual page logic or default to show
+    }
+
     if (decoded && decoded.role === 'Bike') {
       const taskManagementLink = document.querySelector('a[href="dashboard.html"]');
       if (taskManagementLink) {
