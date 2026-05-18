@@ -260,8 +260,8 @@
                             <p><strong>Request Body:</strong></p>
                             <pre class="bg-light p-2 rounded"><code>{
   "order_status": "รับเรื่องแล้ว", // (Optional) กรองตามสถานะ
-  "page": 1,                      // (Optional) เลขหน้า
-  "limit": 10                     // (Optional) จำนวนรายการต่อหน้า
+  "id": "ST-INS-",                // (Optional) ค้นหาจากรหัสงาน
+  "car_registration": "กข-1234"   // (Optional) ค้นหาจากทะเบียนรถ
 }</code></pre>
                           </div>
                         </div>
@@ -279,42 +279,68 @@
                             <p><strong>คำอธิบาย:</strong> ดึงข้อมูลรายละเอียดทั้งหมดของงาน 1 รายการ รวมถึงข้อมูลรถ, รูปภาพความเสียหาย, และประวัติการอัปเดตสถานะ</p>
                             <p><strong>Request Body:</strong></p>
                             <pre class="bg-light p-2 rounded"><code>{
-  "order_id": "ST-260517-0001" // ID ของงานที่ต้องการดูรายละเอียด
+  "order_id": "ST-INS-260517-0001" // ID ของงานที่ต้องการดูรายละเอียด
 }</code></pre>
                           </div>
                         </div>
                       </div>
-                      <!-- 3. Update Status -->
+                      <!-- 3. Create Order -->
+                      <div class="card accordion-item">
+                        <h2 class="accordion-header" id="headingCreate">
+                          <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseCreate" aria-expanded="false" aria-controls="collapseCreate">
+                            3. สร้างงานเคลมใหม่ (Create Order)
+                          </button>
+                        </h2>
+                        <div id="collapseCreate" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
+                          <div class="accordion-body">
+                            <p><strong>Endpoint:</strong> <code>POST /orders/create</code></p>
+                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับสร้างงานเคลมใหม่เข้าระบบโดยตรง (บริษัทประกันจะถูกล็อกตามสิทธิ์ของท่านอัตโนมัติ)</p>
+                            <p><strong>Request Body (ตัวอย่าง):</strong></p>
+                            <pre class="bg-light p-2 rounded"><code>{
+  "car_registration": "กข-1234",
+  "location": "กรุงเทพมหานคร",
+  "order_type": "เคลมสด",
+  "appointment_date": "2026-05-18T10:00:00+07:00",
+  "tell_1": "0812345678",
+  "c_name": "ชื่อผู้แจ้งเหตุ"
+}</code></pre>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- 4. Update Status -->
                       <div class="card accordion-item">
                         <h2 class="accordion-header" id="headingThree">
                           <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                            3. อัปเดตสถานะงาน (Update Status)
+                            4. อัปเดตสถานะงาน (Update Status)
                           </button>
                         </h2>
                         <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
                           <div class="accordion-body">
                             <p><strong>Endpoint:</strong> <code>PUT /order-status/update/{order_id}</code></p>
-                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับเปลี่ยนสถานะของงาน เช่น เมื่อบริษัทประกันตรวจสอบและอนุมัติงานแล้ว</p>
+                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับเปลี่ยนสถานะของงาน เช่น เมื่อบริษัทประกันตรวจสอบและอนุมัติงานแล้ว (ผ่าน, ไม่ผ่าน, แก้ไข, Pre-Approved)</p>
                             <p><strong>Request Body:</strong></p>
                             <pre class="bg-light p-2 rounded"><code>{
-  "order_status": "Pre-Approved", // สถานะใหม่ (Pre-Approved, คีย์งานแล้ว, ยกเลิก)
-  "updated_by": "ชื่อผู้ตรวจสอบ"   // ชื่อผู้ที่ทำการอัปเดต
+  "order_status": "ผ่าน", // สถานะใหม่ที่ต้องการเปลี่ยน
+  "updated_by": "ชื่อผู้ตรวจสอบ"
 }</code></pre>
                           </div>
                         </div>
                       </div>
-                      <!-- 4. Order Summary -->
+                      <!-- 5. Download Images -->
                       <div class="card accordion-item">
-                        <h2 class="accordion-header" id="headingFour">
-                          <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                            4. สรุปจำนวนงาน (Order Summary)
+                        <h2 class="accordion-header" id="headingDownload">
+                          <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseDownload" aria-expanded="false" aria-controls="collapseDownload">
+                            5. ดาวน์โหลดรูปภาพ (Download Images)
                           </button>
                         </h2>
-                        <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
+                        <div id="collapseDownload" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
                           <div class="accordion-body">
-                            <p><strong>Endpoint:</strong> <code>POST /order-status/inquiry</code></p>
-                            <p><strong>คำอธิบาย:</strong> ดึงข้อมูลสรุปจำนวนงานทั้งหมดแยกตามสถานะ เพื่อใช้แสดงผลในหน้า Dashboard</p>
-                            <p><strong>Request Body:</strong> <code>{}</code> (ส่ง Object ว่าง)</p>
+                            <p><strong>Endpoint:</strong> <code>POST /upload/proxy-download</code></p>
+                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับดาวน์โหลดไฟล์รูปภาพจากระบบ โดยส่ง URL ของรูปภาพที่ได้จาก Order Details มาให้ API ประมวลผล</p>
+                            <p><strong>Request Body:</strong></p>
+                            <pre class="bg-light p-2 rounded"><code>{
+  "imageUrl": "https://res.cloudinary.com/..." // URL ของรูปภาพ
+}</code></pre>
                           </div>
                         </div>
                       </div>
@@ -329,65 +355,40 @@
                       <li class="nav-item">
                         <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-javascript" aria-controls="navs-javascript" aria-selected="false">JavaScript (Fetch)</button>
                       </li>
-                      <li class="nav-item">
-                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#navs-python" aria-controls="navs-python" aria-selected="false">Python</button>
-                      </li>
                     </ul>
                     <div class="tab-content">
                       <div class="tab-pane fade show active" id="navs-curl" role="tabpanel">
-                        <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code># 1. ค้นหาข้อมูลงาน
+                        <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code># 1. สร้างงานเคลมใหม่
+curl -X POST https://be-claims-service.onrender.com/api/orders/create \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"car_registration": "กข-1234", "location": "กทม", "order_type": "เคลมสด"}'
+
+# 2. ค้นหาข้อมูลงาน
 curl -X POST https://be-claims-service.onrender.com/api/orders/inquiry \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"order_status": "รับเรื่องแล้ว"}'
 
-# 2. ดึงรายละเอียดงานฉบับเต็ม
-curl -X POST https://be-claims-service.onrender.com/api/order-detail/inquiry \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"order_id": "ST-260517-0001"}'
-
 # 3. อัปเดตสถานะงาน
-curl -X PUT https://be-claims-service.onrender.com/api/order-status/update/ST-260517-0001 \
+curl -X PUT https://be-claims-service.onrender.com/api/order-status/update/ST-INS-260517-0001 \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"order_status": "Pre-Approved", "updated_by": "User Name"}'</code></pre>
+  -d '{"order_status": "ผ่าน", "updated_by": "User Name"}'</code></pre>
                       </div>
                       <div class="tab-pane fade" id="navs-javascript" role="tabpanel">
-                        <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code>// ตัวอย่างการอัปเดตสถานะงาน
-const updateStatus = async (orderId, newStatus) => {
-  const response = await fetch(`https://be-claims-service.onrender.com/api/order-status/update/${orderId}`, {
-    method: 'PUT',
+                        <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code>// ตัวอย่างการส่งข้อมูลสร้างงานใหม่
+const createOrder = async (orderData) => {
+  const response = await fetch('https://be-claims-service.onrender.com/api/orders/create', {
+    method: 'POST',
     headers: {
       'Authorization': 'Bearer YOUR_TOKEN',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ 
-      order_status: newStatus,
-      updated_by: 'API Service'
-    })
+    body: JSON.stringify(orderData)
   });
-  const result = await response.json();
-  console.log(result);
-};
-
-updateStatus('ST-260517-0001', 'Pre-Approved');</code></pre>
-                      </div>
-                      <div class="tab-pane fade" id="navs-python" role="tabpanel">
-                        <pre class="bg-dark text-white p-3 rounded mb-0" style="font-size: 0.85rem;"><code>import requests
-
-def get_order_detail(order_id):
-    url = "https://be-claims-service.onrender.com/api/order-detail/inquiry"
-    headers = {
-        "Authorization": "Bearer YOUR_TOKEN",
-        "Content-Type": "application/json"
-    }
-    payload = { "order_id": order_id }
-
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()
-
-print(get_order_detail("ST-260517-0001"))</code></pre>
+  return await response.json();
+};</code></pre>
                       </div>
                     </div>
                   </div>

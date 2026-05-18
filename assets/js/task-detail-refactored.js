@@ -436,6 +436,7 @@ async function loadOrderData(orderId) {
         const setChecked = (id, value) => { const el = document.getElementById(id); if (el) el.checked = value; };
 
         setValue('taskId', order.id);
+        setValue('ownerName', order.creator || order.created_by);
         setValue('jobType', order.order_type);
         setValue('orderStatus', order.order_status);
         setValue('channel', order.channel);
@@ -676,7 +677,7 @@ function renderAssignees(assigners, selectedId) {
         const fullName = `${person.first_name} ${person.last_name}`.trim();
         const option = document.createElement('option');
         option.value = person.id;
-        option.textContent = fullName;
+        option.textContent = person.phone ? `${fullName} (${person.phone})` : fullName;
         select.appendChild(option);
     });
     if (currentSelection) select.value = currentSelection;
@@ -1641,7 +1642,8 @@ window.addEventListener('load', async function () {
             const query = e.target.value.toLowerCase().trim();
             const filtered = allAssigners.filter(person => {
                 const fullName = `${person.first_name} ${person.last_name}`.toLowerCase();
-                return fullName.includes(query);
+                const phone = (person.phone || '').toLowerCase();
+                return fullName.includes(query) || phone.includes(query);
             });
             renderAssignees(filtered);
         });
