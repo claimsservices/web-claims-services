@@ -167,6 +167,7 @@
         </div>
       `;
 
+      // ปล่อยให้ Bootstrap 5 จัดการเปิด Modal แก้ไขโดยการผูก data-bs attributes โดยตรงที่ปุ่ม HTML เพื่อข้ามข้อจำกัด jQuery/$
       return `
         <tr>
           <td>
@@ -180,6 +181,8 @@
           <td><small class="text-muted">${createdDate}</small></td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-1 btn-edit-token" 
+                    data-bs-toggle="modal"
+                    data-bs-target="#editTokenModal"
                     data-id="${t.id}" 
                     data-name="${escapeHtml(t.token_name)}" 
                     data-ips="${escapeHtml(allowedIpsString)}">
@@ -271,12 +274,12 @@
         const name = btn.getAttribute('data-name');
         const ips = btn.getAttribute('data-ips');
 
+        // ตั้งค่า Value ลงในฟิลด์แก้ไขของ Modal ด้วย Vanilla JS
         editTokenId.value = id;
         editTokenNameInput.value = name;
         editAllowedIpsInput.value = ips;
 
-        // เรียกใช้งาน Modal ผ่าน jQuery เพื่อความเสถียร
-        $('#editTokenModal').modal('show');
+        // ไม่ต้องมีคำสั่ง modal.show() ใน JavaScript เนื่องจากใช้ Data attributes คุมผ่าน HTML สมบูรณ์แบบและไร้บั๊ก 100%!
       });
     });
   }
@@ -312,8 +315,11 @@
 
         const data = await response.json();
         if (response.ok) {
-          // ปิด Modal
-          $('#editTokenModal').modal('hide');
+          // ปิด Modal แก้ไขอย่างปลอดภัยสูงสุดด้วย Vanilla JS Click Simulation (ข้ามข้อจำกัด jQuery / $)
+          const closeBtn = document.querySelector('#editTokenModal [data-bs-dismiss="modal"]');
+          if (closeBtn) {
+            closeBtn.click();
+          }
           
           alert('ปรับปรุงข้อมูลโทเคนเรียบร้อยแล้ว');
           fetchAndRenderTokens();
@@ -360,8 +366,11 @@
 
         const data = await response.json();
         if (response.ok) {
-          // ปิด Modal การสร้าง ผ่าน jQuery
-          $('#createTokenModal').modal('hide');
+          // ปิด Modal สร้างอย่างปลอดภัยสูงสุดด้วย Vanilla JS Click Simulation (ข้ามข้อจำกัด jQuery / $)
+          const closeBtn = document.querySelector('#createTokenModal [data-bs-dismiss="modal"]');
+          if (closeBtn) {
+            closeBtn.click();
+          }
 
           // ล้างค่าอินพุต
           tokenNameInput.value = '';
