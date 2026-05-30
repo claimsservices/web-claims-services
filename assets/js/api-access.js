@@ -239,9 +239,8 @@
         editTokenNameInput.value = name;
         editAllowedIpsInput.value = ips;
 
-        // เปิด Modal ด้วย Bootstrap 5 API ที่โหลดใน sneat template
-        const editModal = new bootstrap.Modal(document.getElementById('editTokenModal'));
-        editModal.show();
+        // เรียกใช้งาน Modal ผ่านระบบ jQuery เพื่อความเสถียรสูงสุดใน Sneat Admin Template
+        $('#editTokenModal').modal('show');
       });
     });
   }
@@ -277,10 +276,8 @@
 
         const data = await response.json();
         if (response.ok) {
-          // ปิด Modal
-          const modalEl = document.getElementById('editTokenModal');
-          const modalInstance = bootstrap.Modal.getInstance(modalEl);
-          modalInstance.hide();
+          // ปิด Modal ผ่าน jQuery
+          $('#editTokenModal').modal('hide');
           
           alert('ปรับปรุงข้อมูลโทเคนเรียบร้อยแล้ว');
           fetchAndRenderTokens();
@@ -289,7 +286,7 @@
         }
       } catch (error) {
         console.error('Error updating token:', error);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูลโทเคน');
       } finally {
         btnConfirmEditToken.disabled = false;
         btnConfirmEditToken.innerText = 'บันทึกการแก้ไข';
@@ -327,10 +324,8 @@
 
         const data = await response.json();
         if (response.ok) {
-          // ปิด Modal การสร้าง
-          const createModalEl = document.getElementById('createTokenModal');
-          const createModalInstance = bootstrap.Modal.getInstance(createModalEl);
-          createModalInstance.hide();
+          // ปิด Modal การสร้าง และเปิด Success Modal ผ่าน jQuery เพื่อความมั่นใจ
+          $('#createTokenModal').modal('hide');
 
           // ล้างค่าอินพุต
           tokenNameInput.value = '';
@@ -339,8 +334,8 @@
           // แสดงรหัสโทเคนตัวเต็มบน Success Modal (ความปลอดภัยระดับสูง)
           generatedTokenText.value = data.token_value;
           
-          const successModal = new bootstrap.Modal(document.getElementById('tokenSuccessModal'));
-          successModal.show();
+          // เปิด Modal ความสำเร็จเพื่อคัดลอก Token
+          $('#tokenSuccessModal').modal('show');
 
           // โหลดรายการใหม่
           fetchAndRenderTokens();
@@ -349,7 +344,7 @@
         }
       } catch (error) {
         console.error('Error generating token:', error);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+        alert('เกิดข้อผิดพลาดในระบบการประมวลผลข้อมูลของหน้าจอ');
       } finally {
         btnConfirmCreateToken.disabled = false;
         btnConfirmCreateToken.innerText = 'สร้าง Token';
