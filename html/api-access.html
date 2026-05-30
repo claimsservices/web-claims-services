@@ -352,13 +352,40 @@
                         <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionAPI">
                           <div class="accordion-body">
                             <p><strong>Endpoint:</strong> <code>POST /orders/inquiry</code></p>
-                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับค้นหารายการงานเคลมทั้งหมดที่เกี่ยวข้องกับบริษัทประกันของท่าน สามารถกรองตามสถานะงานได้</p>
-                            <p><strong>Request Body:</strong></p>
-                            <pre class="bg-light p-2 rounded"><code>{
+                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับค้นหารายการงานเคลมทั้งหมดที่เกี่ยวข้องกับบริษัทประกันของท่าน สามารถกรองตามสถานะงานได้ (สิทธิ์ประกันภัยจะถูกล็อกบริษัทของตนเองและไม่แสดงงานที่ 'ยกเลิก' โดยอัตโนมัติ)</p>
+                            <div class="row">
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Request Body:</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;"><code>{
   "order_status": "รับเรื่องแล้ว", // (Optional) กรองตามสถานะ
-  "id": "ST-INS-",                // (Optional) ค้นหาจากรหัสงาน
-  "car_registration": "กข-1234"   // (Optional) ค้นหาจากทะเบียนรถ
+  "id": "ST-INS-",                // (Optional) ค้นหาจากรหัสงาน (ILIKE)
+  "car_registration": "กข-1234"   // (Optional) ค้นหาจากทะเบียนรถ (ILIKE)
 }</code></pre>
+                              </div>
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Response Example (Array):</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem; max-height: 200px; overflow-y: auto;"><code>[
+  {
+    "id": "ST-INS-260517-0001",
+    "insur_comp": "บริษัทประกันภัย A",
+    "order_date": "2026-05-17T05:00:00.000Z",
+    "created_date": "2026-05-17T05:00:00.000Z",
+    "appointment_date": "2026-05-18T03:00:00.000Z",
+    "car_registration": "กข-1234",
+    "location": "กรุงเทพมหานคร",
+    "order_type": "เคลมสด",
+    "order_status": "รับเรื่องแล้ว",
+    "incident_province": "กรุงเทพมหานคร",
+    "reviewer_name": "สมชาย ใจดี",
+    "reviewer_changed_at": "2026-05-17T06:30:00.000Z",
+    "travel_expense": null,
+    "s_ref": "REF12345",
+    "s_ref_2": "REF67890",
+    "owner_full_name": "สมศักดิ์ รักดี"
+  }
+]</code></pre>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -366,17 +393,90 @@
                       <div class="card accordion-item">
                         <h2 class="accordion-header" id="headingTwo">
                           <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                            2. รายละเอียดงานฉบับเต็ม (Order Details)
+                            2. รายละเอียดงานฉบับเต็ม (Order Details & Images)
                           </button>
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
                           <div class="accordion-body">
                             <p><strong>Endpoint:</strong> <code>POST /order-detail/inquiry</code></p>
-                            <p><strong>คำอธิบาย:</strong> ดึงข้อมูลรายละเอียดทั้งหมดของงาน 1 รายการ รวมถึงข้อมูลรถ, รูปภาพความเสียหาย, และประวัติการอัปเดตสถานะ</p>
-                            <p><strong>Request Body:</strong></p>
-                            <pre class="bg-light p-2 rounded"><code>{
+                            <p><strong>คำอธิบาย:</strong> ดึงข้อมูลรายละเอียดทั้งหมดของงาน 1 รายการ รวมถึงข้อมูลรถ ข้อมูลรูปภาพความเสียหาย (พร้อมประเภทและคำอธิบายรูป) และประวัติการทำงาน</p>
+                            <div class="row">
+                              <div class="col-md-5 mb-3">
+                                <p class="fw-bold mb-1">Request Body:</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;"><code>{
   "order_id": "ST-INS-260517-0001" // ID ของงานที่ต้องการดูรายละเอียด
 }</code></pre>
+                                <div class="alert alert-info py-2 px-3 mt-2" style="font-size: 0.8rem;">
+                                  <strong>💡 ข้อมูลรูปภาพและหมวดหมู่:</strong><br/>
+                                  รูปถ่ายทั้งหมดจะอยู่ในอาร์เรย์ <code>order_pic</code> โดยแต่ละรูปมีคุณสมบัติ:
+                                  <ul class="ps-3 mb-0 mt-1">
+                                    <li><code>pic</code>: URL ของรูปภาพในระบบ</li>
+                                    <li><code>pic_type</code>: หมวดหมู่รูปภาพ (เช่น ความเสียหาย, ทะเบียนรถ, ใบขับขี่, บัตรประชาชน)</li>
+                                    <li><code>pic_title</code>: คำอธิบายรายละเอียดของรูปภาพนั้นๆ</li>
+                                  </ul>
+                                </div>
+                              </div>
+                              <div class="col-md-7 mb-3">
+                                <p class="fw-bold mb-1">Response Example:</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem; max-height: 250px; overflow-y: auto;"><code>{
+  "order": {
+    "id": "ST-INS-260517-0001",
+    "insur_comp": "บริษัทประกันภัย A",
+    "order_date": "2026-05-17T05:00:00.000Z",
+    "created_date": "2026-05-17T05:00:00.000Z",
+    "appointment_date": "2026-05-18T03:00:00.000Z",
+    "car_registration": "กข-1234",
+    "location": "กรุงเทพมหานคร",
+    "order_type": "เคลมสด",
+    "order_status": "รับเรื่องแล้ว",
+    "incident_province": "กรุงเทพมหานคร"
+  },
+  "order_details": {
+    "id": "detail-uuid-1111",
+    "c_name": "นายสมปอง สุขใจ",
+    "c_tell": "0812345678",
+    "tell_1": "0812345678",
+    "c_brand": "TOYOTA",
+    "c_version": "Yaris",
+    "c_year": "2022",
+    "c_mile": "15000",
+    "c_type": "เก๋งสองตอน",
+    "c_coller": "สีขาว"
+  },
+  "order_assign": [
+    {
+      "id": "assign-uuid-2222",
+      "date": "2026-05-17T05:30:00.000Z",
+      "destination": "แยกคลองเตย",
+      "first_name": "สมบัติ",
+      "last_name": "ดีงาม",
+      "phone": "0898765432"
+    }
+  ],
+  "order_pic": [
+    {
+      "id": "pic-uuid-3333",
+      "pic": "https://res.cloudinary.com/demo/image/upload/v1234/example1.jpg",
+      "pic_type": "ความเสียหาย",
+      "pic_title": "แผลครูดกันชนหน้าด้านซ้ายและไฟหน้า",
+      "created_date": "2026-05-17T06:00:00.000Z",
+      "created_by": "สมบัติ ดีงาม"
+    }
+  ],
+  "order_hist": [
+    {
+      "id": "hist-uuid-4444",
+      "icon": "📸",
+      "task": "อัปโหลดรูปภาพ",
+      "detail": "อัปโหลดรูปภาพสำเร็จ: \"แผลครูดกันชนหน้าด้านซ้ายและไฟหน้า\"",
+      "created_date": "2026-05-17T06:00:00.000Z",
+      "created_by": "สมบัติ ดีงาม"
+    }
+  ],
+  "total_distance_km": 5.42
+}</code></pre>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -390,16 +490,27 @@
                         <div id="collapseCreate" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
                           <div class="accordion-body">
                             <p><strong>Endpoint:</strong> <code>POST /orders/create</code></p>
-                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับสร้างงานเคลมใหม่เข้าระบบโดยตรง (บริษัทประกันจะถูกล็อกตามสิทธิ์ของท่านอัตโนมัติ)</p>
-                            <p><strong>Request Body (ตัวอย่าง):</strong></p>
-                            <pre class="bg-light p-2 rounded"><code>{
+                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับสร้างงานเคลมใหม่เข้าระบบโดยตรง (บริษัทประกันของท่านจะถูกล็อกตามสิทธิ์ของ API Token ที่เรียกใช้โดยอัตโนมัติ)</p>
+                            <div class="row">
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Request Body (ตัวอย่าง):</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;"><code>{
   "car_registration": "กข-1234",
   "location": "กรุงเทพมหานคร",
   "order_type": "เคลมสด",
-  "appointment_date": "2026-05-18T10:00:00+07:00",
-  "tell_1": "0812345678",
-  "c_name": "ชื่อผู้แจ้งเหตุ"
+  "appointment_date": "2026-05-18T10:00:00+07:00", // ISO8601 string
+  "tell_1": "0812345678",                         // เบอร์โทรศัพท์ลูกค้า
+  "c_name": "ชื่อผู้แจ้งเหตุ"                        // ชื่อลูกค้า
 }</code></pre>
+                              </div>
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Response Example:</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;"><code>{
+  "message": "Order created",
+  "id": "ST-INS-260531-0001" // ID ของงานเคลมที่สร้างสำเร็จ
+}</code></pre>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -413,12 +524,23 @@
                         <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
                           <div class="accordion-body">
                             <p><strong>Endpoint:</strong> <code>PUT /order-status/update/{order_id}</code></p>
-                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับเปลี่ยนสถานะของงาน เช่น เมื่อบริษัทประกันตรวจสอบและอนุมัติงานแล้ว (ผ่าน, ไม่ผ่าน, แก้ไข, Pre-Approved)</p>
-                            <p><strong>Request Body:</strong></p>
-                            <pre class="bg-light p-2 rounded"><code>{
-  "order_status": "ผ่าน", // สถานะใหม่ที่ต้องการเปลี่ยน
-  "updated_by": "ชื่อผู้ตรวจสอบ"
+                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับเปลี่ยนสถานะของงานเคลมที่อยู่ในสิทธิ์ของท่าน เช่น การอนุมัติหรือปฏิเสธงาน โดยรองรับสถานะ: <code>ผ่าน</code>, <code>ไม่ผ่าน</code>, <code>แก้ไข</code>, <code>Pre-Approved</code></p>
+                            <div class="row">
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Request Body:</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;"><code>{
+  "order_status": "ผ่าน", // สถานะใหม่ที่ประกันต้องการเปลี่ยน
+  "updated_by": "สมชาย ใจดี" // ชื่อผู้มีอำนาจตรวจสอบ/อนุมัติ
 }</code></pre>
+                              </div>
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Response Example:</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;"><code>{
+  "message": "Order updated",
+  "id": "ST-INS-260517-0001"
+}</code></pre>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -432,11 +554,23 @@
                         <div id="collapseDownload" class="accordion-collapse collapse" data-bs-parent="#accordionAPI">
                           <div class="accordion-body">
                             <p><strong>Endpoint:</strong> <code>POST /upload/proxy-download</code></p>
-                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับดาวน์โหลดไฟล์รูปภาพจากระบบ โดยส่ง URL ของรูปภาพที่ได้จาก Order Details มาให้ API ประมวลผล</p>
-                            <p><strong>Request Body:</strong></p>
-                            <pre class="bg-light p-2 rounded"><code>{
-  "imageUrl": "https://res.cloudinary.com/..." // URL ของรูปภาพ
+                            <p><strong>คำอธิบาย:</strong> ใช้สำหรับดาวน์โหลดไฟล์รูปภาพจากระบบอย่างปลอดภัยผ่าน proxy ของเซิร์ฟเวอร์ โดยส่ง URL รูปภาพดั้งเดิมที่ได้รับจาก API Order Details มาให้ระบบประมวลผลดาวน์โหลด</p>
+                            <div class="row">
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Request Body:</p>
+                                <pre class="bg-light p-2 rounded" style="font-size: 0.8rem;"><code>{
+  "imageUrl": "https://res.cloudinary.com/..." // URL จาก order_pic[x].pic
 }</code></pre>
+                              </div>
+                              <div class="col-md-6 mb-3">
+                                <p class="fw-bold mb-1">Response Content:</p>
+                                <div class="p-3 bg-light rounded text-center" style="font-size: 0.85rem;">
+                                  <i class="bx bx-file text-primary" style="font-size: 2rem;"></i>
+                                  <div class="mt-2 fw-bold">ไบนารีไฟล์ภาพต้นฉบับ</div>
+                                  <div class="text-muted small">Content-Type: image/jpeg หรือ image/png<br/>พร้อมส่วนหัว Content-Disposition สำหรับดาวน์โหลด</div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
