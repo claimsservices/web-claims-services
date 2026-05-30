@@ -118,7 +118,7 @@
       tokenListTableBody.innerHTML = `
         <tr>
           <td colspan="5" class="text-center py-4 text-danger">
-            <i class="bx bx-error-circle me-1"></i> เกิดข้อผิดพลาดในการโหลดข้อมูลโทเคน
+            <i class="bx bx-error-circle me-1"></i> เกิดข้อผิดพลาดในการโหลดข้อมูลโทเคน: ${error.message}
           </td>
         </tr>
       `;
@@ -322,7 +322,7 @@
         }
       } catch (error) {
         console.error('Error updating token:', error);
-        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูลโทเคน');
+        alert('เกิดข้อผิดพลาดในการบันทึกข้อมูลโทเคน: ' + error.message);
       } finally {
         btnConfirmEditToken.disabled = false;
         btnConfirmEditToken.innerText = 'บันทึกการแก้ไข';
@@ -377,7 +377,7 @@
         }
       } catch (error) {
         console.error('Error generating token:', error);
-        alert('เกิดข้อผิดพลาดในการส่งข้อมูลสร้างโทเคน');
+        alert('เกิดข้อผิดพลาดในการส่งข้อมูลสร้างโทเคน: ' + error.message);
       } finally {
         btnConfirmCreateToken.disabled = false;
         btnConfirmCreateToken.innerText = 'สร้าง Token';
