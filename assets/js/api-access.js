@@ -77,9 +77,6 @@
   const tokenNameInput = document.getElementById('tokenNameInput');
   const allowedIpsInput = document.getElementById('allowedIpsInput');
 
-  const generatedTokenText = document.getElementById('generatedTokenText');
-  const btnCopyGeneratedToken = document.getElementById('btnCopyGeneratedToken');
-  
   const editTokenId = document.getElementById('editTokenId');
   const editTokenNameInput = document.getElementById('editTokenNameInput');
   const editAllowedIpsInput = document.getElementById('editAllowedIpsInput');
@@ -160,6 +157,16 @@
 
       const allowedIpsString = t.allowed_ips ? t.allowed_ips.join(', ') : '';
 
+      // ส่วนจัดการเรนเดอร์ช่อง Token พร้อมปุ่ม Copy (ตามคำแนะนำ UX ที่ยอดเยี่ยม)
+      const tokenInputHtml = `
+        <div class="input-group input-group-sm" style="max-width: 250px;">
+          <input type="text" class="form-control form-control-sm font-monospace" value="${t.token_value}" readonly style="font-size: 0.7rem; background-color: #f5f5f5;">
+          <button class="btn btn-outline-primary btn-copy-row-token" type="button" data-token="${t.token_value}">
+            <i class="bx bx-copy"></i>
+          </button>
+        </div>
+      `;
+
       return `
         <tr>
           <td>
@@ -168,11 +175,9 @@
               <span class="fw-semibold">${escapeHtml(t.token_name)}</span>
             </div>
           </td>
+          <td>${tokenInputHtml}</td>
           <td>${ipDisplay}</td>
           <td><small class="text-muted">${createdDate}</small></td>
-          <td>
-            <span class="badge bg-label-success">Active</span>
-          </td>
           <td>
             <button class="btn btn-sm btn-outline-primary me-1 btn-edit-token" 
                     data-id="${t.id}" 
@@ -194,7 +199,38 @@
 
   // ผูก Event สำหรับปุ่ม ลบ และ แก้ไข ในตาราง
   function bindTableActionEvents() {
-    // ปุ่มลบ Token
+    // 1. ปุ่มคัดลอก Token ในตาราง (ดึงจากแถวตรงๆ ได้เลยเพื่อความพรีเมียม!)
+    const copyRowBtns = document.querySelectorAll('.btn-copy-row-token');
+    copyRowBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tokenVal = btn.getAttribute('data-token');
+        if (!tokenVal) return;
+
+        navigator.clipboard.writeText(tokenVal).then(() => {
+          // เปลี่ยนไอคอนและสไตล์ชั่วคราวเพื่อตอบสนองการกด (Micro-interaction)
+          const iconEl = btn.querySelector('i');
+          iconEl.className = 'bx bx-check text-success';
+          btn.classList.remove('btn-outline-primary');
+          btn.classList.add('btn-outline-success');
+
+          setTimeout(() => {
+            iconEl.className = 'bx bx-copy';
+            btn.classList.remove('btn-outline-success');
+            btn.classList.add('btn-outline-primary');
+          }, 1500);
+        }).catch(err => {
+          // Fallback ในกรณีสิทธิ์การเข้าถึง clipboard บนเบราว์เซอร์ติดขัด
+          const inputEl = btn.previousElementSibling;
+          if (inputEl) {
+            inputEl.select();
+            document.execCommand('copy');
+            alert('คัดลอก Token เรียบร้อยแล้ว');
+          }
+        });
+      });
+    });
+
+    // 2. ปุ่มลบ Token
     const deleteBtns = document.querySelectorAll('.btn-delete-token');
     deleteBtns.forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -227,7 +263,7 @@
       });
     });
 
-    // ปุ่มเปิดหน้าต่างแก้ไข IP
+    // 3. ปุ่มเปิดหน้าต่างแก้ไข IP
     const editBtns = document.querySelectorAll('.btn-edit-token');
     editBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -239,7 +275,7 @@
         editTokenNameInput.value = name;
         editAllowedIpsInput.value = ips;
 
-        // เรียกใช้งาน Modal ผ่านระบบ jQuery เพื่อความเสถียรสูงสุดใน Sneat Admin Template
+        // เรียกใช้งาน Modal ผ่าน jQuery เพื่อความเสถียร
         $('#editTokenModal').modal('show');
       });
     });
@@ -276,7 +312,7 @@
 
         const data = await response.json();
         if (response.ok) {
-          // ปิด Modal ผ่าน jQuery
+          // ปิด Modal
           $('#editTokenModal').modal('hide');
           
           alert('ปรับปรุงข้อมูลโทเคนเรียบร้อยแล้ว');
@@ -324,19 +360,16 @@
 
         const data = await response.json();
         if (response.ok) {
-          // ปิด Modal การสร้าง และเปิด Success Modal ผ่าน jQuery เพื่อความมั่นใจ
+          // ปิด Modal การสร้าง ผ่าน jQuery
           $('#createTokenModal').modal('hide');
 
           // ล้างค่าอินพุต
           tokenNameInput.value = '';
           allowedIpsInput.value = '';
 
-          // แสดงรหัสโทเคนตัวเต็มบน Success Modal (ความปลอดภัยระดับสูง)
-          generatedTokenText.value = data.token_value;
+          // แจ้งเตือนความสำเร็จ และโหลดตารางใหม่เพื่อคัดลอกจากตารางได้ทันที!
+          alert('สร้าง API Token สำเร็จแล้ว! คุณสามารถคัดลอก Token ตัวเต็มไปใช้งานได้ทันทีจากตารางรายการโทเคนด้านล่างได้เลยครับ');
           
-          // เปิด Modal ความสำเร็จเพื่อคัดลอก Token
-          $('#tokenSuccessModal').modal('show');
-
           // โหลดรายการใหม่
           fetchAndRenderTokens();
         } else {
@@ -344,36 +377,11 @@
         }
       } catch (error) {
         console.error('Error generating token:', error);
-        alert('เกิดข้อผิดพลาดในระบบการประมวลผลข้อมูลของหน้าจอ');
+        alert('เกิดข้อผิดพลาดในการส่งข้อมูลสร้างโทเคน');
       } finally {
         btnConfirmCreateToken.disabled = false;
         btnConfirmCreateToken.innerText = 'สร้าง Token';
       }
-    });
-  }
-
-  // คัดลอก Token จาก Success Modal
-  if (btnCopyGeneratedToken) {
-    btnCopyGeneratedToken.addEventListener('click', () => {
-      const text = generatedTokenText.value;
-      if (!text) return;
-
-      navigator.clipboard.writeText(text).then(() => {
-        const originalText = btnCopyGeneratedToken.innerText;
-        btnCopyGeneratedToken.innerText = 'คัดลอกแล้ว!';
-        btnCopyGeneratedToken.classList.remove('btn-primary');
-        btnCopyGeneratedToken.classList.add('btn-success');
-
-        setTimeout(() => {
-          btnCopyGeneratedToken.innerText = originalText;
-          btnCopyGeneratedToken.classList.remove('btn-success');
-          btnCopyGeneratedToken.classList.add('btn-primary');
-        }, 2000);
-      }).catch(err => {
-        generatedTokenText.select();
-        document.execCommand('copy');
-        alert('คัดลอก Token เรียบร้อยแล้ว');
-      });
     });
   }
 
