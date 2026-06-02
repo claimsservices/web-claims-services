@@ -338,6 +338,15 @@
                   <div class="bg-light p-3 rounded mb-4">
                     <p class="mb-2"><strong>Base URL:</strong> <code>https://be-claims-service.onrender.com/api</code></p>
                     <p class="mb-2"><strong>Authentication:</strong> ส่ง Token ใน Header <code>Authorization: Bearer &lt;YOUR_TOKEN&gt;</code></p>
+                    <p class="mb-2"><strong>Rate Limit (การจำกัดการใช้งาน):</strong> จำกัดความเร็วสูงสุดอยู่ที่ <code>10 requests/second (RPS)</code> ต่อบัญชี (แชร์โควตารวมกันทุกโทเคนภายใต้บัญชีผู้ใช้งานเดียวกัน)</p>
+                    <p class="mb-2"><strong>Rate Limit Headers:</strong> ทุกการเรียกที่ประมวลผลสำเร็จจะแนบ Header เหล่านี้กลับไป:
+                      <ul class="ps-3 mb-2 text-muted" style="font-size: 0.85rem;">
+                        <li><code>X-RateLimit-Limit</code>: ขีดจำกัดสูงสุดต่อวินาที (10)</li>
+                        <li><code>X-RateLimit-Remaining</code>: โควตาจำนวนครั้งที่เหลือให้เรียกได้ในวินาทีปัจจุบัน</li>
+                        <li><code>X-RateLimit-Reset</code>: เวลา Unix Timestamp เมื่อถึงรอบเวลาถัดไปที่จะเติมโควตา</li>
+                      </ul>
+                    </p>
+                    <p class="mb-0"><strong>Handling Rate Limits (เมื่อเรียกเกินขีดจำกัด):</strong> หากบัญชีของท่านเรียกใช้เกิน 10 RPS ระบบจะตอบกลับด้วยรหัสสถานะ <code>429 Too Many Requests</code> พร้อมแนบ Header <code>Retry-After: 1</code> (กรุณาหน่วงเวลา 1 วินาทีก่อนส่งคำขออีกครั้ง)</p>
                   </div>
 
                   <div class="mb-4">
