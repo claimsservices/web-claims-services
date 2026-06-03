@@ -102,6 +102,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (decoded && decoded.role === 'Bike') {
+      // Add Download Bike App link (STSERVICE.apk) if not already exists in .menu-inner
+      const menuInner = document.querySelector('.menu-inner');
+      if (menuInner && !document.getElementById('download-bike-app-menu')) {
+        const downloadAppLi = document.createElement('li');
+        downloadAppLi.className = 'menu-item';
+        downloadAppLi.id = 'download-bike-app-menu';
+        downloadAppLi.innerHTML = `
+          <a href="https://be-claims-service.onrender.com/uploads/app-debug.apk" class="menu-link" target="_blank">
+            <i class='menu-icon icon-base bx bx-download'></i>
+            <div data-i18n="DownloadApp">โหลดแอพ bike STSERVICE</div>
+          </a>
+        `;
+        menuInner.appendChild(downloadAppLi);
+      }
+
       const taskManagementLink = document.querySelector('a[href="dashboard.html"]');
       if (taskManagementLink) {
         const parentLi = taskManagementLink.closest('.menu-item');
