@@ -105,6 +105,7 @@ describe('Dashboard Search Functionality', () => {
         // Set some values in filter inputs
         document.getElementById('filterJobCode').value = 'JOB123';
         document.getElementById('filterCarRegistration').value = 'กข 1234';
+        document.getElementById('filterAssignedTo').value = 'สมชาย สายเสมอ';
         document.getElementById('filterReviewer').value = 'ผู้ตรวจ A';
         
         const searchBtn = document.getElementById('searchBtn');
@@ -128,6 +129,7 @@ describe('Dashboard Search Functionality', () => {
 
         expect(body.id).toBe('JOB123');
         expect(body.car_registration).toBe('กข 1234');
+        expect(body.owner).toBe('สมชาย สายเสมอ');
         expect(body.reviewer).toBe('ผู้ตรวจ A');
     });
 
