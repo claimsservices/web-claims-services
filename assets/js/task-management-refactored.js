@@ -514,6 +514,16 @@ function renderDownloadableImages(orderPics) {
     let mainCategory = staticImageConfig.hasOwnProperty(pic.pic_type)
       ? pic.pic_type
       : subCategoryToMainCategoryMap[pic.pic_type];
+
+    if (!mainCategory && pic.pic_type) {
+      for (const cat of ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature']) {
+        if (pic.pic_type.startsWith(`${cat}_`)) {
+          mainCategory = cat;
+          break;
+        }
+      }
+    }
+
     if (!mainCategory) mainCategory = 'uncategorized';
     if (!acc[mainCategory]) acc[mainCategory] = [];
     acc[mainCategory].push(pic);

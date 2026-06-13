@@ -785,6 +785,15 @@ function renderDownloadableImages(orderPics) {
             ? pic.pic_type
             : subCategoryToMainCategoryMap[pic.pic_type];
 
+        if (!mainCategory && pic.pic_type) {
+            for (const cat of ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature']) {
+                if (pic.pic_type.startsWith(`${cat}_`)) {
+                    mainCategory = cat;
+                    break;
+                }
+            }
+        }
+
         if (!mainCategory) {
             mainCategory = 'uncategorized'; // Fallback for unknown types
         }
