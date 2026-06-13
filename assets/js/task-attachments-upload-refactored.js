@@ -271,7 +271,20 @@ async function initTaskAttachmentsUpload() {
             'doc_other_9': 'documents', // Ambiguous, could be signature or documents
             'other_3': 'documents',
         };
-        return mapping[picType] || picType;
+
+        if (mapping[picType]) {
+            return mapping[picType];
+        }
+
+        if (picType) {
+            for (const cat of ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature']) {
+                if (picType.startsWith(`${cat}_`)) {
+                    return cat;
+                }
+            }
+        }
+
+        return picType;
     }
 
     function renderExistingImages(images) {
