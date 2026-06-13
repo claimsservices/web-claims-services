@@ -370,6 +370,15 @@ export function renderUploadedImages(orderPics) {
             }
         }
 
+        if (!mainCategory && pic.pic_type) {
+            for (const cat of ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature']) {
+                if (pic.pic_type.startsWith(`${cat}_`)) {
+                    mainCategory = cat;
+                    break;
+                }
+            }
+        }
+
         if (!mainCategory) {
             console.warn(`[renderUploadedImages] Pic #${index}: Could not find main category for pic_type: '${pic.pic_type}'. Skipping.`);
             return;

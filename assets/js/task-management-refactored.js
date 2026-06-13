@@ -470,6 +470,15 @@ function renderUploadedImages(orderPics) {
       }
     }
 
+    if (!mainCategory && pic.pic_type) {
+      for (const cat of ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature']) {
+        if (pic.pic_type.startsWith(`${cat}_`)) {
+          mainCategory = cat;
+          break;
+        }
+      }
+    }
+
     if (!mainCategory) return;
     const targetSection = sectionsMap[mainCategory];
     if (!targetSection) return;
