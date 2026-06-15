@@ -157,10 +157,6 @@ async function loadUserProfile() {
   } else if (role === 'Sales Manager') {
     window.location.href = 'dashboard.html';
     return;
-  } else if (role === 'Officer') {
-    localStorage.removeItem('authToken');
-    window.location.href = LOGIN_PAGE;
-    return;
   }
 
   try {
