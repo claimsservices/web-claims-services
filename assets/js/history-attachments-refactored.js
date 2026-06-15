@@ -63,7 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(atob(base64));  // Decode the token
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(jsonPayload);  // Decode the token
     } catch (e) {
       console.error('Failed to decode JWT:', e);
       return null;
@@ -123,9 +124,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (role === 'Operation Manager' || role === 'Director' || role === 'Developer') {
         const adminMenu = document.getElementById('admin-menu');
         if (adminMenu) adminMenu.style.display = 'block';
-    } else if (role === 'Officer') {
-        localStorage.removeItem('authToken');
-        window.location.href = '../index.html';
     }
 
 

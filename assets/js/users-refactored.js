@@ -37,7 +37,8 @@ function decodeJWT(token) {
     try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(atob(base64));  // Decode the token
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        return JSON.parse(jsonPayload);  // Decode the token
     } catch (e) {
         console.error('Failed to decode JWT:', e);
         return null;
@@ -688,7 +689,7 @@ document.getElementById('new-user-btn').addEventListener('click', resetFormForAd
 // Check user role to display admin menu
 const token = localStorage.getItem('authToken');
 if (token) {
-    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+    const user = decodeJWT(token); // Decode JWT payload
     const adminRoles = ['Director', 'Admin Officer', 'Officer', 'Operation Manager', 'Sales Manager', 'Leader', 'Developer'];
 
     // This check is handled by the main layout, but we keep it here as a safeguard

@@ -25,7 +25,8 @@ fetch('/version.json')
         try {
           const base64Url = token.split('.')[1];
           const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          return JSON.parse(atob(base64));  // Decode the token
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          return JSON.parse(jsonPayload);  // Decode the token
         } catch (e) {
           console.error('Failed to decode JWT:', e);
           return null;
@@ -49,9 +50,7 @@ fetch('/version.json')
         }
 
         // Decode the JWT token (assuming it's a JWT token)
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const decoded = JSON.parse(atob(base64));
+        const decoded = decodeJWT(token);
 
         // Extract user info (name and role)
         const id = decoded.id;
@@ -192,9 +191,7 @@ document.getElementById('formAccountSettings').addEventListener('submit', async 
         const token = localStorage.getItem('authToken'); // Check if token is available
 
         // Decode the JWT token (assuming it's a JWT token)
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const decoded = JSON.parse(atob(base64));
+        const decoded = decodeJWT(token);
 
         const userName = decoded.username;
 
@@ -244,7 +241,7 @@ document.getElementById('formAccountSettings').addEventListener('submit', async 
 // Check user role to display admin menu
   const token = localStorage.getItem('authToken');
   if (token) {
-    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+    const user = decodeJWT(token); // Decode JWT payload
     const adminRoles = ['Director', 'Admin Officer', 'Officer', 'Operation Manager', 'Sales Manager', 'Leader', 'Developer'];
 
     // Check if the user has an admin-equivalent role

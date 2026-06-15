@@ -23,7 +23,8 @@ fetch('/version.json')
         try {
           const base64Url = token.split('.')[1];
           const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          return JSON.parse(atob(base64));  // Decode the token
+          const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          return JSON.parse(jsonPayload);  // Decode the token
         } catch (e) {
           console.error('Failed to decode JWT:', e);
           return null;
@@ -47,9 +48,7 @@ fetch('/version.json')
         }
 
         // Decode the JWT token (assuming it's a JWT token)
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const decoded = JSON.parse(atob(base64));
+        const decoded = decodeJWT(token);
 
         const id = decoded.id;
         const userName = decoded.username;
@@ -86,9 +85,7 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
         const token = localStorage.getItem('authToken'); // Check if token is available
 
         // Decode the JWT token (assuming it's a JWT token)
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const decoded = JSON.parse(atob(base64));
+        const decoded = decodeJWT(token);
 
         const userName = decoded.username;
         const userData = {
@@ -125,16 +122,12 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
 // Check user role (example assumes role is stored in localStorage)
   const token = localStorage.getItem('authToken');
   if (token) {
-    const user = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload
+    const user = decodeJWT(token); // Decode JWT payload
 
     // Check if the user has the 'admin' role
     if (user.role === 'Operation Manager' || user.role === 'Director' || user.role === 'Developer') {
       // Show the admin menu
       document.getElementById('admin-menu').style.display = 'block';
-    }
-    if (user.role === 'Officer') {
-      localStorage.removeItem('authToken');
-      window.location.href = '../index.html';
     }
   }
 

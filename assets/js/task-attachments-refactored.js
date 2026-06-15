@@ -34,7 +34,8 @@ function decodeJWT(token) {
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(base64));  // Decode the token
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(jsonPayload);  // Decode the token
   } catch (e) {
     console.error('Failed to decode JWT:', e);
     return null;
@@ -218,10 +219,11 @@ if (token) {
   const user = decodeJWT(token); // Use safe decode function
 
   // Check if the user has the 'admin' role
-  if (user && (user.role === 'Officer' || user.role === 'Bike')) {
-    //do some think
+  // Check if the user has the allowed role
+  const allowedRoles = ['Admin', 'Director', 'Developer', 'Admin Officer', 'Officer', 'Leader', 'Sales Manager', 'Operation Manager', 'Bike', 'Insurance'];
+  if (user && allowedRoles.includes(user.role)) {
+    // Access allowed
   } else {
-    localStorage.removeItem('authToken');
     navigateTo('../index.html');
   }
 
