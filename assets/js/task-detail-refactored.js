@@ -1982,14 +1982,26 @@ window.addEventListener('load', async function () {
         const promises = [];
         let index = 1;
 
-        const mainCategoryNames = {
+        // Use ASCII folder names to ensure compatibility with all zip extractors
+        // (Windows Explorer and some apps cannot handle Unicode/Thai folder names in ZIP)
+        const mainCategoryFolderNames = {
+            around: '01_around',
+            accessories: '02_accessories',
+            inspection: '03_inspection',
+            fiber: '04_fiber',
+            documents: '05_documents',
+            signature: '06_signature',
+            other: '07_other'
+        };
+
+        // Thai display names used for matching category from Tab 7 h5 headings
+        const mainCategoryDisplayNames = {
             around: 'ภาพถ่ายรอบคัน',
             accessories: 'ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง',
             inspection: 'ภาพถ่ายความเสียหาย',
             fiber: 'เอกสารใบตรวจสภาพรถ',
             documents: 'เอกสารอื่นๆ',
-            signature: 'ลายเซ็น',
-            other: 'อื่นๆ'
+            signature: 'ลายเซ็น'
         };
 
         for (const [src, item] of uniqueImages) {
@@ -2007,14 +2019,20 @@ window.addEventListener('load', async function () {
                 else {
                     const cardBody = img.closest('.card')?.querySelector('.card-body');
                     if (cardBody) title = cardBody.querySelector('.card-text')?.innerText?.trim();
-                    const section = img.closest('.mb-4');
-                    // In Tab 7, the category is rendered as h6
-                    if (section) {
-                        const h6 = section.querySelector('h6');
-                        if (h6) {
-                            const name = h6.innerText.trim();
-                            const foundKey = Object.keys(mainCategoryNames).find(key => mainCategoryNames[key] === name);
-                            if (foundKey) rawCategory = foundKey;
+                    // In Tab 7, the category heading is rendered as h5 (not h6)
+                    // Walk up to find the closest category section container
+                    const colContainer = img.closest('[class*="col-"]');
+                    if (colContainer) {
+                        // Look for the preceding h5 sibling within the same row/container
+                        let sibling = colContainer.previousElementSibling;
+                        while (sibling) {
+                            const h5 = sibling.querySelector('h5');
+                            if (h5) {
+                                const name = (h5.textContent || h5.innerText || '').trim();
+                                const foundKey = Object.keys(mainCategoryDisplayNames).find(key => mainCategoryDisplayNames[key] === name);
+                                if (foundKey) { rawCategory = foundKey; break; }
+                            }
+                            sibling = sibling.previousElementSibling;
                         }
                     }
                 }
@@ -2022,7 +2040,7 @@ window.addEventListener('load', async function () {
 
             if (!title) title = `image-${index}`;
             const safeName = title.replace(/[\[\\\]^$.|?*+()\/]/g, '').replace(/\s+/g, '_');
-            const folderName = mainCategoryNames[rawCategory] || 'อื่นๆ';
+            const folderName = mainCategoryFolderNames[rawCategory] || mainCategoryFolderNames.other;
 
             const promise = (async () => {
                 try {
