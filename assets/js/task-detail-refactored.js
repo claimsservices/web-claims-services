@@ -1982,16 +1982,15 @@ window.addEventListener('load', async function () {
         const promises = [];
         let index = 1;
 
-        // Use ASCII folder names to ensure compatibility with all zip extractors
-        // (Windows Explorer and some apps cannot handle Unicode/Thai folder names in ZIP)
+        // Use Thai folder names matching the categories displayed on the webpage
         const mainCategoryFolderNames = {
-            around: '01_around',
-            accessories: '02_accessories',
-            inspection: '03_inspection',
-            fiber: '04_fiber',
-            documents: '05_documents',
-            signature: '06_signature',
-            other: '07_other'
+            around: '01_ภาพถ่ายรอบคัน',
+            accessories: '02_ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง',
+            inspection: '03_ภาพถ่ายความเสียหาย',
+            fiber: '04_เอกสารใบตรวจสภาพรถ',
+            documents: '05_เอกสารอื่นๆ',
+            signature: '06_ลายเซ็น',
+            other: '07_อื่นๆ'
         };
 
         // Thai display names used for matching category from Tab 7 h5 headings

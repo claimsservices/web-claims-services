@@ -19,13 +19,13 @@
  */
 function getCategoryFolderName(rawCategory) {
     const mainCategoryFolderNames = {
-        around: '01_around',
-        accessories: '02_accessories',
-        inspection: '03_inspection',
-        fiber: '04_fiber',
-        documents: '05_documents',
-        signature: '06_signature',
-        other: '07_other'
+        around: '01_ภาพถ่ายรอบคัน',
+        accessories: '02_ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง',
+        inspection: '03_ภาพถ่ายความเสียหาย',
+        fiber: '04_เอกสารใบตรวจสภาพรถ',
+        documents: '05_เอกสารอื่นๆ',
+        signature: '06_ลายเซ็น',
+        other: '07_อื่นๆ'
     };
     return mainCategoryFolderNames[rawCategory] || mainCategoryFolderNames.other;
 }
@@ -67,36 +67,41 @@ function detectImageCategory(imgElement, mainCategoryDisplayNames) {
 
 describe('Categorized ZIP Download - Folder Name Logic', () => {
 
-    describe('getCategoryFolderName - ASCII folder names', () => {
-        test('should return ASCII folder name for all known categories', () => {
-            expect(getCategoryFolderName('around')).toBe('01_around');
-            expect(getCategoryFolderName('accessories')).toBe('02_accessories');
-            expect(getCategoryFolderName('inspection')).toBe('03_inspection');
-            expect(getCategoryFolderName('fiber')).toBe('04_fiber');
-            expect(getCategoryFolderName('documents')).toBe('05_documents');
-            expect(getCategoryFolderName('signature')).toBe('06_signature');
-            expect(getCategoryFolderName('other')).toBe('07_other');
+    describe('getCategoryFolderName - Thai folder names', () => {
+        test('should return Thai folder name for all known categories', () => {
+            expect(getCategoryFolderName('around')).toBe('01_ภาพถ่ายรอบคัน');
+            expect(getCategoryFolderName('accessories')).toBe('02_ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง');
+            expect(getCategoryFolderName('inspection')).toBe('03_ภาพถ่ายความเสียหาย');
+            expect(getCategoryFolderName('fiber')).toBe('04_เอกสารใบตรวจสภาพรถ');
+            expect(getCategoryFolderName('documents')).toBe('05_เอกสารอื่นๆ');
+            expect(getCategoryFolderName('signature')).toBe('06_ลายเซ็น');
+            expect(getCategoryFolderName('other')).toBe('07_อื่นๆ');
         });
 
-        test('should return 07_other for unknown category (fallback)', () => {
-            expect(getCategoryFolderName('unknown')).toBe('07_other');
-            expect(getCategoryFolderName('')).toBe('07_other');
-            expect(getCategoryFolderName(null)).toBe('07_other');
-            expect(getCategoryFolderName(undefined)).toBe('07_other');
+        test('should return 07_อื่นๆ for unknown category (fallback)', () => {
+            expect(getCategoryFolderName('unknown')).toBe('07_อื่นๆ');
+            expect(getCategoryFolderName('')).toBe('07_อื่นๆ');
+            expect(getCategoryFolderName(null)).toBe('07_อื่นๆ');
+            expect(getCategoryFolderName(undefined)).toBe('07_อื่นๆ');
         });
 
-        test('folder names should NOT contain Unicode/Thai characters (critical for Windows unzip)', () => {
+        test('folder names should contain Unicode/Thai characters as requested', () => {
             const categories = ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature', 'other'];
             categories.forEach(cat => {
                 const folderName = getCategoryFolderName(cat);
-                // Verify all characters are ASCII (code point < 128)
+                // Verify that there is at least one non-ASCII character (code point >= 128)
+                let hasNonAscii = false;
                 for (let i = 0; i < folderName.length; i++) {
-                    expect(folderName.charCodeAt(i)).toBeLessThan(128);
+                    if (folderName.charCodeAt(i) >= 128) {
+                        hasNonAscii = true;
+                        break;
+                    }
                 }
+                expect(hasNonAscii).toBe(true);
             });
         });
 
-        test('folder names should be valid ZIP path segments (no special characters)', () => {
+        test('folder names should be valid ZIP path segments (no special characters except spaces/Unicode)', () => {
             const categories = ['around', 'accessories', 'inspection', 'fiber', 'documents', 'signature', 'other'];
             const invalidCharsRegex = /[<>:"/\\|?*\x00-\x1f]/;
             categories.forEach(cat => {
@@ -258,7 +263,7 @@ describe('Categorized ZIP Download - Image Category Detection', () => {
 });
 
 describe('Categorized ZIP Download - Full Integration Logic', () => {
-    test('should produce ASCII folder path for each image category', () => {
+    test('should produce Thai folder path for each image category', () => {
         const mainCategoryDisplayNames = {
             around: 'ภาพถ่ายรอบคัน',
             accessories: 'ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง',
@@ -284,15 +289,15 @@ describe('Categorized ZIP Download - Full Integration Logic', () => {
         const img1 = imgs[0];
         const cat1 = detectImageCategory(img1, mainCategoryDisplayNames);
         const folder1 = getCategoryFolderName(cat1);
-        expect(folder1).toBe('01_around');
+        expect(folder1).toBe('01_ภาพถ่ายรอบคัน');
 
         const img2 = imgs[1];
         const cat2 = detectImageCategory(img2, mainCategoryDisplayNames);
         const folder2 = getCategoryFolderName(cat2);
-        expect(folder2).toBe('03_inspection');
+        expect(folder2).toBe('03_ภาพถ่ายความเสียหาย');
     });
 
-    test('image from Tab7 with h5 heading should map to correct ASCII folder', () => {
+    test('image from Tab7 with h5 heading should map to correct Thai folder', () => {
         const mainCategoryDisplayNames = {
             around: 'ภาพถ่ายรอบคัน',
             accessories: 'ภาพถ่ายภายในรถ และอุปกรณ์ตกแต่ง',
@@ -320,10 +325,15 @@ describe('Categorized ZIP Download - Full Integration Logic', () => {
         const folder = getCategoryFolderName(cat);
 
         expect(cat).toBe('documents');
-        expect(folder).toBe('05_documents');
-        // Critical: folder must be ASCII-only (no Thai characters)
+        expect(folder).toBe('05_เอกสารอื่นๆ');
+        // Verify that there is at least one non-ASCII character
+        let hasNonAscii = false;
         for (let i = 0; i < folder.length; i++) {
-            expect(folder.charCodeAt(i)).toBeLessThan(128);
+            if (folder.charCodeAt(i) >= 128) {
+                hasNonAscii = true;
+                break;
+            }
         }
+        expect(hasNonAscii).toBe(true);
     });
 });
