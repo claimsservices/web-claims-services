@@ -40,8 +40,25 @@ describe('Task Management Access Control and Initialization', () => {
       pathname: '/html/task-management.html',
       reload: jest.fn(),
     };
-    delete window.location;
-    window.location = mockLocation;
+
+    try {
+      Object.defineProperty(window.constructor.prototype, 'location', {
+        get: () => mockLocation,
+        configurable: true,
+      });
+    } catch (e) {
+      try {
+        Object.defineProperty(window, 'location', {
+          get: () => mockLocation,
+          configurable: true,
+        });
+      } catch (err2) {
+        // Ultimate fallback: just mock properties directly if possible
+        window.location.assign = jest.fn();
+        window.location.replace = jest.fn();
+        window.location.reload = mockLocation.reload;
+      }
+    }
 
     // 3. Mock global dependencies
     global.carModels = {
