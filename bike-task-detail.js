@@ -84,13 +84,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
             uploadedImages = {};
             if (result.order_pic && result.order_pic.length > 0) {
+                // Group DB pictures by general category
+                const dbPicsByCategory = {
+                    around: [],
+                    interior: [],
+                    damage: [],
+                    documents: []
+                };
+
                 result.order_pic.forEach(pic => {
-                    uploadedImages[pic.pic_title] = {
-                        url: pic.pic,
-                        lat: pic.lat,
-                        lng: pic.lng
-                    };
+                    if (!pic.pic_type || !pic.pic) return;
+                    let category = 'damage'; // Default to damage
+                    if (pic.pic_type.startsWith('around')) {
+                        category = 'around';
+                    } else if (pic.pic_type.startsWith('interior') || pic.pic_type.startsWith('accessories')) {
+                        category = 'interior';
+                    } else if (pic.pic_type.startsWith('inspection') || pic.pic_type.startsWith('damage')) {
+                        category = 'damage';
+                    } else if (pic.pic_type.startsWith('documents') || pic.pic_type.startsWith('fiber') || pic.pic_type.startsWith('license') || pic.pic_type.startsWith('id_card') || pic.pic_type.startsWith('car_doc') || pic.pic_type.startsWith('car_number')) {
+                        category = 'documents';
+                    }
+                    dbPicsByCategory[category].push(pic);
                 });
+
+                // Standard categories config of Bike dashboard
+                const categoriesConfig = {
+                    around: ['ด้านหน้ารถ', 'ด้านซ้ายส่วนหน้า', 'ด้านซ้ายตรง', 'ด้านซ้ายส่วนหลัง', 'ด้านท้ายรถ', 'ด้านขวาส่วนหลัง', 'ด้านขวาตรง', 'ด้านขวาส่วนหน้า', 'หลังคา'],
+                    interior: ['ห้องเครื่อง', 'คอลโซล', 'จอไมล์', 'วิทยุ', 'กล้องหน้ารถ', 'ฟิล์ม', 'ยางอะไหล่', 'ล้อหน้าด้านขวา', 'ล้อหน้าด้านซ้าย', 'ล้อหลังด้านขวา', 'ล้อหลังด้านซ้าย'],
+                    damage: ['ความเสียหาย 1', 'ความเสียหาย 2', 'ความเสียหาย 3', 'ความเสียหาย 4', 'ความเสียหาย 5', 'ความเสียหาย 6', 'ความเสียหาย 7', 'ความเสียหาย 8', 'ความเสียหาย 9', 'ความเสียหาย 10', 'แผล 1', 'แผล 2', 'แผล 3', 'แผล 4', 'แผล 5', 'แผล 6', 'แผล 7', 'แผล 8', 'แผล 9', 'แผล 10'],
+                    documents: ['ใบขับขี่', 'บัตรประชาชน', 'รายการจดทะเบียนรถ', 'เลขตัวถังหรือเลขคัสซี', 'ใบตรวจสภาพ', 'ลายเซ็น']
+                };
+
+                // Map damage/inspection images in sequence to 'ความเสียหาย 1', 'ความเสียหาย 2', ...
+                let damageIndex = 0;
+                dbPicsByCategory.damage.forEach(pic => {
+                    const itemText = categoriesConfig.damage[damageIndex];
+                    if (itemText) {
+                        uploadedImages[itemText] = {
+                            url: pic.pic,
+                            lat: pic.lat,
+                            lng: pic.lng,
+                            db_title: pic.pic_title
+                        };
+                        damageIndex++;
+                    }
+                });
+
+                // Map other categories by checking pic_title match, fallback to sequence
+                for (const cat in dbPicsByCategory) {
+                    if (cat === 'damage') continue;
+                    
+                    const unmappedPics = [];
+                    dbPicsByCategory[cat].forEach(pic => {
+                        let matchedItemText = categoriesConfig[cat].find(item => pic.pic_title && pic.pic_title.includes(item));
+                        if (matchedItemText) {
+                            uploadedImages[matchedItemText] = {
+                                url: pic.pic,
+                                lat: pic.lat,
+                                lng: pic.lng,
+                                db_title: pic.pic_title
+                            };
+                        } else {
+                            unmappedPics.push(pic);
+                        }
+                    });
+                    
+                    let unmappedIndex = 0;
+                    categoriesConfig[cat].forEach(itemText => {
+                        if (!uploadedImages[itemText] && unmappedIndex < unmappedPics.length) {
+                            const pic = unmappedPics[unmappedIndex];
+                            uploadedImages[itemText] = {
+                                url: pic.pic,
+                                lat: pic.lat,
+                                lng: pic.lng,
+                                db_title: pic.pic_title
+                            };
+                            unmappedIndex++;
+                        }
+                    });
+                }
             }
 
             if (result.order) {
@@ -294,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const result = await response.json();
             if (result.uploaded && result.uploaded.length > 0) {
-                uploadedImages[currentPhotoTitle] = { url: result.uploaded[0].url, lat: coords.lat, lng: coords.lng };
+                uploadedImages[currentPhotoTitle] = { url: result.uploaded[0].url, lat: coords.lat, lng: coords.lng, db_title: currentPhotoTitle };
                 renderPhotoCategories();
                 
                 // 3. Log success after upload is complete
@@ -362,12 +434,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const picArray = Object.keys(uploadedImages).map(title => {
             const imageData = uploadedImages[title];
+            const actualUrl = typeof imageData === 'string' ? imageData : (imageData ? imageData.url : '');
+            const actualDbTitle = (imageData && imageData.db_title) ? imageData.db_title : title;
+            const actualLat = (imageData && imageData.lat) ? imageData.lat : null;
+            const actualLng = (imageData && imageData.lng) ? imageData.lng : null;
+
             return {
-                pic: typeof imageData === 'string' ? imageData : imageData.url,
+                pic: actualUrl,
                 pic_type: bikeToAdminCategoryMap[titleToCategoryMap[title] || 'damage'] || 'inspection',
-                pic_title: title,
-                lat: imageData.lat,
-                lng: imageData.lng
+                pic_title: actualDbTitle,
+                lat: actualLat,
+                lng: actualLng
             };
         });
 

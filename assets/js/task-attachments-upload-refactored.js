@@ -289,18 +289,19 @@ async function initTaskAttachmentsUpload() {
 
     function renderExistingImages(images) {
         images.forEach(image => {
-            if (!image.pic_title || !image.pic || !image.pic_type) return;
+            if (!image.pic || !image.pic_type) return;
 
+            const picTitle = image.pic_title || 'ไม่ระบุชื่อ';
             let category = getCategoryFromPicType(image.pic_type);
             let containerId = `${category}-container`;
 
             // Special handling for signature, which is ambiguous in the old data structure
-            if (image.pic_type === 'doc_other_9' && image.pic_title === 'ลายเซ็น') {
+            if (image.pic_type === 'doc_other_9' && picTitle === 'ลายเซ็น') {
                 category = 'signature';
                 containerId = 'signature-container';
             }
 
-            createImageSlot(containerId, category, image.pic_title, image.pic, image.pic_title);
+            createImageSlot(containerId, category, picTitle, image.pic, picTitle);
         });
     }
 
