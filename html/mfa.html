@@ -312,6 +312,11 @@
   <!-- Script logic for MFA Settings -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // ป้องกันปัญหาการโหลด Bootstrap ในสภาวะแวดล้อมต่างๆ
+      if (typeof bootstrap !== 'undefined' && !window.bootstrap) {
+        window.bootstrap = bootstrap;
+      }
+
       const API_BASE_URL = 'https://be-claims-service.onrender.com/api';
       const LOGIN_PAGE = 'login.html';
       const DASHBOARD_PAGE = 'dashboard.html';
@@ -438,7 +443,7 @@
 
             document.getElementById('modalSetupMFA').dataset.backupCodes = JSON.stringify(data.backup_codes);
 
-            const modal = new window.bootstrap.Modal(document.getElementById('modalSetupMFA'));
+            const modal = new bootstrap.Modal(document.getElementById('modalSetupMFA'));
             modal.show();
           } else {
             alert('ล้มเหลวในการดึงคีย์ตั้งค่า MFA กรุณาลองอีกครั้ง');
@@ -475,7 +480,7 @@
 
           if (res.ok) {
             const modalSetupEl = document.getElementById('modalSetupMFA');
-            const modalSetup = window.bootstrap.Modal.getInstance(modalSetupEl);
+            const modalSetup = bootstrap.Modal.getInstance(modalSetupEl);
             if (modalSetup) modalSetup.hide();
 
             const backupCodes = JSON.parse(modalSetupEl.dataset.backupCodes || '[]');
@@ -489,7 +494,7 @@
               container.appendChild(col);
             });
 
-            const modalBackup = new window.bootstrap.Modal(document.getElementById('modalBackupCodes'));
+            const modalBackup = new bootstrap.Modal(document.getElementById('modalBackupCodes'));
             modalBackup.show();
 
             updateMfaUI(true);
@@ -511,7 +516,7 @@
         document.getElementById('disableOtpError').style.display = 'none';
         document.getElementById('disableOtpError').innerText = '';
         
-        const modal = new window.bootstrap.Modal(document.getElementById('modalDisableMFA'));
+        const modal = new bootstrap.Modal(document.getElementById('modalDisableMFA'));
         modal.show();
       });
 
@@ -541,7 +546,7 @@
 
           if (res.ok) {
             const modalEl = document.getElementById('modalDisableMFA');
-            const modal = window.bootstrap.Modal.getInstance(modalEl);
+            const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
 
             updateMfaUI(false);
