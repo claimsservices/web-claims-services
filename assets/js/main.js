@@ -255,23 +255,29 @@ document.addEventListener('DOMContentLoaded', function () {
   fetch('/version.json')
     .then(res => res.json())
     .then(frontendVersionData => {
-      const feVersion = `FE: ${frontendVersionData.version}`;
       const appVersionEl = document.getElementById('appVersion');
-      if (appVersionEl) appVersionEl.textContent = feVersion;
+      const webVerText = `Web Version: ${frontendVersionData.version}`;
+      if (appVersionEl) appVersionEl.innerHTML = webVerText;
 
       // Fetch backend version
       fetch('https://be-claims-service.onrender.com/api/version')
         .then(res => res.json())
         .then(backendVersionData => {
-          const beVersion = `BE: ${backendVersionData.version}`;
-          if (appVersionEl) appVersionEl.textContent = `${feVersion} | ${beVersion}`;
+          const apiVerText = `API Version: ${backendVersionData.version}`;
+          if (appVersionEl) {
+            appVersionEl.innerHTML = `${webVerText}<br>${apiVerText}`;
+          }
         })
         .catch(() => {
-          if (appVersionEl) appVersionEl.textContent = `${feVersion} | BE: -`;
+          if (appVersionEl) {
+            appVersionEl.innerHTML = `${webVerText}<br>API Version: Offline`;
+          }
         });
     })
     .catch(() => {
       const appVersionEl = document.getElementById('appVersion');
-      if (appVersionEl) appVersionEl.textContent = 'FE: - | BE: -';
+      if (appVersionEl) {
+        appVersionEl.innerHTML = 'Web Version: -<br>API Version: Offline';
+      }
     });
 });

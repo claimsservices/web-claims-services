@@ -351,14 +351,7 @@
         userAvatar.src = '../assets/img/avatars/A1.png';
       }
 
-      // App Version
-      fetch('/version.json')
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("appVersion").textContent = `App Version ${data.version}`;
-        }).catch(() => {
-          document.getElementById("appVersion").textContent = "App Version -";
-        });
+
 
       // Role check for sub-menus
       if (decodedToken.role === 'SuperAdmins') {
