@@ -418,7 +418,7 @@
         document.getElementById('logout').addEventListener('click', logout);
         document.getElementById('logout-menu').addEventListener('click', logout);
         document.getElementById('addNewUserForm').addEventListener('submit', handleAddUser);
-        document.getElementById('userTableBody').addEventListener('click', handleDeleteUser);
+        document.getElementById('userTableBody').addEventListener('click', handleTableAction);
 
         // Show/hide insurance company dropdown based on role
         document.getElementById('user-role-regist').addEventListener('change', function (e) {
@@ -608,9 +608,14 @@
             </td>
             <td>
               <div class="d-flex align-items-center">
-                <button class="btn btn-icon delete-record" data-username="${user.username}">
+                <button class="btn btn-icon delete-record me-1" data-username="${user.username}" title="Delete User">
                   <i class="icon-base bx bx-trash icon-md"></i>
                 </button>
+                ${user.mfa_enabled ? `
+                <button class="btn btn-icon reset-mfa text-warning" data-userid="${user.id}" data-username="${user.username}" title="Reset MFA">
+                  <i class="icon-base bx bx-shield-x icon-md"></i>
+                </button>
+                ` : ''}
               </div>
             </td>
           `;
@@ -698,6 +703,47 @@
         } catch (error) {
           console.error('Error deleting user:', error);
           alert(`Failed to delete user: ${error.message}`);
+        }
+      }
+
+      async function handleTableAction(event) {
+        if (event.target.closest('.delete-record')) {
+          await handleDeleteUser(event);
+        }
+        if (event.target.closest('.reset-mfa')) {
+          await handleResetMfa(event);
+        }
+      }
+
+      async function handleResetMfa(event) {
+        const resetButton = event.target.closest('.reset-mfa');
+        if (!resetButton) return;
+
+        const userId = resetButton.dataset.userid;
+        const username = resetButton.dataset.username;
+        if (!userId) return;
+
+        if (!confirm(`Are you sure you want to reset MFA for user '${username}'?`)) return;
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/reset-mfa`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': accessToken,
+            }
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to reset MFA');
+          }
+
+          alert(`MFA for user '${username}' has been reset successfully.`);
+          fetchUsers(currentPage); // Refresh page
+        } catch (error) {
+          console.error('Error resetting MFA:', error);
+          alert(`Failed to reset MFA: ${error.message}`);
         }
       }
 

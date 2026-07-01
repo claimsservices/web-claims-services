@@ -192,6 +192,29 @@
               </div>
             </form>
             <!-- /Login Form -->
+
+            <!-- MFA Form (Hidden by default) -->
+            <form id="formMFA" class="mb-3" style="display: none;">
+              <div class="mb-3 text-center">
+                <i class="bx bx-shield-quarter text-warning mb-2" style="font-size: 3rem;"></i>
+                <h5 class="mb-1">Two-Factor Authentication</h5>
+                <p class="text-muted small">Please enter the 6-digit verification code from your Authenticator app, or a Backup Code.</p>
+              </div>
+              <div class="mb-3">
+                <label for="mfaToken" class="form-label">Verification Code / Backup Code</label>
+                <input type="text" class="form-control rounded-3 text-center" id="mfaToken" name="mfaToken"
+                  placeholder="000000 or XXXX-XXXX" maxlength="19" autocomplete="off" />
+              </div>
+              <div id="mfa-error" class="text-danger mb-3" style="display: none;">Invalid OTP or backup code.</div>
+              <div class="mb-3">
+                <button class="btn btn-dark d-grid w-100 rounded-3" type="submit"
+                  style="background-color: #5c4433; border-color: #5c4433;">Verify & Sign in</button>
+              </div>
+              <div class="text-center">
+                <a href="#" id="btnBackToLogin" class="text-muted small"><i class="bx bx-chevron-left"></i> Back to sign in</a>
+              </div>
+            </form>
+            <!-- /MFA Form -->
           </div>
         </div>
       </div>

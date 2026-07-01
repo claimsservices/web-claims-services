@@ -329,6 +329,129 @@
                     </div>
                     <!-- /Account -->
                   </div>
+
+                  <!-- Multi-Factor Authentication (MFA) Card -->
+                  <div class="card mb-4 border-light shadow-sm">
+                    <h5 class="card-header d-flex justify-content-between align-items-center">
+                      <span>Multi-Factor Authentication (MFA)</span>
+                      <span id="mfaBadge" class="badge bg-label-secondary">Checking...</span>
+                    </h5>
+                    <div class="card-body">
+                      <p class="mb-3">
+                        Two-factor authentication adds an extra layer of security to your account by requiring more than just a password to log in.
+                      </p>
+                      
+                      <!-- MFA Disabled View -->
+                      <div id="mfaDisabledArea" style="display: none;">
+                        <div class="d-flex align-items-center mb-3">
+                          <i class="bx bx-shield-alt-2 fs-1 text-secondary me-3" style="font-size: 2.5rem !important;"></i>
+                          <div>
+                            <strong class="d-block mb-1">Your account is not protected by MFA.</strong>
+                            <span class="text-muted small">We recommend enabling Multi-Factor Authentication to keep your account secure.</span>
+                          </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" id="btnEnableMFA">Enable MFA</button>
+                      </div>
+
+                      <!-- MFA Enabled View -->
+                      <div id="mfaEnabledArea" style="display: none;">
+                        <div class="d-flex align-items-center mb-3">
+                          <i class="bx bx-shield-quarter fs-1 text-success me-3" style="font-size: 2.5rem !important;"></i>
+                          <div>
+                            <strong class="d-block mb-1">Your account is protected by MFA.</strong>
+                            <span class="text-muted small">Authenticator app is currently configured.</span>
+                          </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger" id="btnDisableMFA">Disable MFA</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modal Setup MFA -->
+                  <div class="modal fade" id="modalSetupMFA" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">ตั้งค่าแอปยืนยันตัวตน (Authenticator App)</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="text-center mb-4">
+                            <h6 class="mb-2">ขั้นตอนการเปิดใช้งาน:</h6>
+                            <ol class="text-start small mb-3 mx-auto" style="max-width: 320px;">
+                              <li>ดาวน์โหลดแอป <strong>Google Authenticator</strong> หรือ <strong>Microsoft Authenticator</strong> บนมือถือของคุณ</li>
+                              <li>เปิดแอปแล้วเลือกเมนูสแกน <strong>QR Code</strong></li>
+                            </ol>
+                            <div class="my-3 text-center d-flex justify-content-center">
+                              <img id="mfaQrCode" src="" alt="QR Code" style="max-width: 200px; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
+                            </div>
+                            <div class="small">
+                              หากสแกนไม่ได้ ให้กรอกคีย์นี้ด้วยตนเอง (Manual Key):<br>
+                              <code id="mfaSecretText" class="d-block mt-1 font-monospace bg-light p-1 rounded" style="user-select: all; font-size: 1.1rem; color: #5c4433;"></code>
+                            </div>
+                          </div>
+                          
+                          <div class="mb-3">
+                            <label for="setupOtpToken" class="form-label font-weight-bold">กรอกรหัสยืนยัน 6 หลักที่ปรากฏในแอปมือถือ</label>
+                            <input type="text" id="setupOtpToken" class="form-control text-center" placeholder="000000" maxlength="6" autocomplete="off">
+                            <div id="setupOtpError" class="text-danger mt-1 small" style="display: none;"></div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิดหน้าจอ</button>
+                          <button type="button" class="btn btn-primary" id="btnVerifySetup">ยืนยันและเปิดใช้งาน</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modal Backup Codes (Show after successful setup) -->
+                  <div class="modal fade" id="modalBackupCodes" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title text-success"><i class="bx bx-check-circle me-1"></i> ตั้งค่า MFA สำเร็จแล้ว</h5>
+                        </div>
+                        <div class="modal-body">
+                          <p class="mb-3 fw-bold text-danger">⚠️ โปรดบันทึกรหัสกู้คืนฉุกเฉิน (Backup Codes) เหล่านี้ไว้ในที่ปลอดภัย!</p>
+                          <p class="text-muted small mb-3">หากคุณทำโทรศัพท์มือถือหายหรือแอปเข้าไม่ได้ คุณสามารถใช้รหัสกู้คืนเหล่านี้ล็อกอินเข้าสู่ระบบได้ (แต่ละรหัสใช้งานได้เพียงครั้งเดียวเท่านั้น)</p>
+                          
+                          <div class="bg-light p-3 rounded border mb-3 text-center">
+                            <div class="row row-cols-2 g-2 font-monospace" id="backupCodesContainer" style="font-size: 1.1rem;">
+                              <!-- Backup codes will be injected here -->
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-dark w-100" data-bs-dismiss="modal">ฉันได้บันทึกรหัสเหล่านี้เรียบร้อยแล้ว</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modal Disable MFA -->
+                  <div class="modal fade" id="modalDisableMFA" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title text-danger">ปิดการใช้งานระบบยืนยันตัวตน 2 ชั้น (MFA)</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p class="text-muted small mb-3">กรุณากรอกรหัส OTP 6 หลักปัจจุบันจากแอปในมือถือ หรือใส่รหัสกู้คืนฉุกเฉิน (Backup Code) เพื่อยืนยันตัวตนในการปิดการใช้งาน</p>
+                          <div class="mb-3">
+                            <label for="disableOtpToken" class="form-label">กรอกรหัสยืนยัน / รหัสกู้คืนฉุกเฉิน</label>
+                            <input type="text" id="disableOtpToken" class="form-control text-center" placeholder="000000 หรือ XXXX-XXXX" maxlength="19" autocomplete="off">
+                            <div id="disableOtpError" class="text-danger mt-1 small" style="display: none;"></div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                          <button type="button" class="btn btn-danger" id="btnVerifyDisable">ปิดใช้งาน MFA</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
               </div>
             </div>
             <!-- / Content -->

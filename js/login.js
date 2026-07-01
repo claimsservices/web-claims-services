@@ -53,6 +53,16 @@ document.getElementById("formAuthentication").addEventListener("submit", async f
 
     if (response.ok) {
       const data = await response.json();
+
+      if (data.mfa_required) {
+        const formMFA = document.getElementById("formMFA");
+        formMFA.dataset.tempToken = data.temp_token;
+        document.getElementById("formAuthentication").style.display = "none";
+        formMFA.style.display = "block";
+        document.getElementById("mfaToken").focus();
+        return;
+      }
+
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('role', data.role);
 
@@ -88,3 +98,70 @@ document.getElementById("formAuthentication").addEventListener("submit", async f
     usernameError.style.display = "block";
   }
 });
+
+// Event Handler สำหรับฟอร์ม MFA
+document.getElementById("formMFA").addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const token = document.getElementById("mfaToken").value.trim();
+  const mfaError = document.getElementById("mfa-error");
+  const tempToken = this.dataset.tempToken;
+
+  mfaError.style.display = "none";
+  mfaError.innerText = "";
+
+  if (!token) {
+    mfaError.innerText = "Please enter verification code.";
+    mfaError.style.display = "block";
+    return;
+  }
+
+  // STRICT HARDCODED URL
+  const mfaApiUrl = 'https://be-claims-service.onrender.com/api/auth/mfa/login-verify';
+
+  try {
+    const response = await fetch(mfaApiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ temp_token: tempToken, token }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('role', data.role);
+
+      if (data.role === 'Bike') {
+        navigateTo('html/task-attachments.html');
+      } else {
+        navigateTo('html/dashboard.html');
+      }
+    } else {
+      const errorMessage = await response.text();
+      try {
+        const errorObj = JSON.parse(errorMessage);
+        mfaError.innerText = errorObj.message || "Invalid verification code.";
+      } catch (e) {
+        mfaError.innerText = "Invalid verification code.";
+      }
+      mfaError.style.display = "block";
+    }
+  } catch (error) {
+    console.error("Error during MFA verification:", error);
+    mfaError.innerText = "An error occurred. Please try again.";
+    mfaError.style.display = "block";
+  }
+});
+
+// Event Handler สำหรับการกดย้อนกลับหน้าล็อกอินหลัก
+document.getElementById("btnBackToLogin").addEventListener("click", function (event) {
+  event.preventDefault();
+  document.getElementById("formMFA").style.display = "none";
+  document.getElementById("formAuthentication").style.display = "block";
+  document.getElementById("mfaToken").value = "";
+  document.getElementById("password").value = "";
+  
+  const mfaError = document.getElementById("mfa-error");
+  mfaError.style.display = "none";
+  mfaError.innerText = "";
+});

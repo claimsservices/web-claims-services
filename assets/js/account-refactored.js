@@ -111,7 +111,8 @@ fetch('/version.json')
             sub_district,
             building,
             post_code,
-            address_detail
+            address_detail,
+            mfa_enabled
           } = userData.results;
 
           // Update the HTML with user information
@@ -126,6 +127,9 @@ fetch('/version.json')
           document.getElementById('building').value = building || '';
           document.getElementById('postalCode').value = post_code || '';
           document.getElementById('addressDetails').value = address_detail || '';
+
+          // อัปเดตสถานะ MFA ในหน้าจอ
+          updateMfaUI(mfa_enabled);
 
         } catch (error) {
           //Handle fetch errors(network issues, etc.)
@@ -336,4 +340,185 @@ const provinces = [
     option.textContent = `${province.thai} (${province.english})`; // Display both Thai and English names
     selectElement.appendChild(option);
   });
+
+// =========================================================
+// Multi-Factor Authentication (MFA) Logic
+// =========================================================
+
+// ฟังก์ชันอัปเดตสถานะ MFA ในหน้าจอ
+function updateMfaUI(enabled) {
+  const badge = document.getElementById('mfaBadge');
+  const disabledArea = document.getElementById('mfaDisabledArea');
+  const enabledArea = document.getElementById('mfaEnabledArea');
+
+  if (!badge || !disabledArea || !enabledArea) return;
+
+  if (enabled) {
+    badge.className = 'badge bg-label-success';
+    badge.innerText = 'Enabled';
+    disabledArea.style.display = 'none';
+    enabledArea.style.display = 'block';
+  } else {
+    badge.className = 'badge bg-label-secondary';
+    badge.innerText = 'Disabled';
+    disabledArea.style.display = 'block';
+    enabledArea.style.display = 'none';
+  }
+}
+
+// 1. ปุ่มเปิดใช้งาน MFA - ดึง QR Code & Secret
+document.getElementById('btnEnableMFA').addEventListener('click', async () => {
+  const token = localStorage.getItem('authToken');
+  const setupUrl = 'https://be-claims-service.onrender.com/api/auth/mfa/setup';
+
+  try {
+    const res = await fetch(setupUrl, {
+      method: 'GET',
+      headers: { 'Authorization': `${token}` }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      
+      // อัปเดต QR Code และ Text Secret ใน Modal
+      document.getElementById('mfaQrCode').src = data.qrCodeUrl;
+      document.getElementById('mfaSecretText').innerText = data.secret;
+      
+      // ล้างค่าเก่าในช่องป้อนรหัสยืนยัน
+      document.getElementById('setupOtpToken').value = '';
+      document.getElementById('setupOtpError').style.display = 'none';
+      document.getElementById('setupOtpError').innerText = '';
+
+      // บันทึก Backup Codes ลง dataset ของหน้าต่างเพื่อนำมาแสดงตอนทำสำเร็จ
+      document.getElementById('modalSetupMFA').dataset.backupCodes = JSON.stringify(data.backup_codes);
+
+      // เปิด Modal
+      const modal = new bootstrap.Modal(document.getElementById('modalSetupMFA'));
+      modal.show();
+    } else {
+      alert('Failed to retrieve MFA setup information. Please try again.');
+    }
+  } catch (err) {
+    console.error('Error in MFA Setup:', err);
+    alert('An error occurred during MFA initialization.');
+  }
+});
+
+// 2. ยืนยันรหัส OTP เพื่อยืนยันการเปิดใช้งาน
+document.getElementById('btnVerifySetup').addEventListener('click', async () => {
+  const token = localStorage.getItem('authToken');
+  const otpInput = document.getElementById('setupOtpToken').value.trim();
+  const errorDiv = document.getElementById('setupOtpError');
+  const verifyUrl = 'https://be-claims-service.onrender.com/api/auth/mfa/verify';
+
+  errorDiv.style.display = 'none';
+  errorDiv.innerText = '';
+
+  if (!otpInput || otpInput.length !== 6) {
+    errorDiv.innerText = 'Please enter a 6-digit OTP code.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(verifyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${token}`
+      },
+      body: JSON.stringify({ token: otpInput })
+    });
+
+    if (res.ok) {
+      // ซ่อน Modal Setup
+      const modalSetupEl = document.getElementById('modalSetupMFA');
+      const modalSetup = bootstrap.Modal.getInstance(modalSetupEl);
+      if (modalSetup) modalSetup.hide();
+
+      // ดึง Backup Codes มาแสดงผล
+      const backupCodes = JSON.parse(modalSetupEl.dataset.backupCodes || '[]');
+      const container = document.getElementById('backupCodesContainer');
+      container.innerHTML = '';
+      
+      backupCodes.forEach(code => {
+        const col = document.createElement('div');
+        col.className = 'col py-1';
+        col.innerHTML = `<span class="bg-white px-2 py-1 rounded border shadow-xs d-block">${code}</span>`;
+        container.appendChild(col);
+      });
+
+      // เปิด Modal Backup Codes
+      const modalBackup = new bootstrap.Modal(document.getElementById('modalBackupCodes'));
+      modalBackup.show();
+
+      // อัปเดตสถานะหน้าจอหลัก
+      updateMfaUI(true);
+    } else {
+      const errData = await res.json();
+      errorDiv.innerText = errData.message || 'Verification failed. Invalid OTP code.';
+      errorDiv.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('Error during MFA setup verification:', err);
+    errorDiv.innerText = 'An error occurred during validation.';
+    errorDiv.style.display = 'block';
+  }
+});
+
+// 3. ปุ่มกดปิดการใช้งาน MFA
+document.getElementById('btnDisableMFA').addEventListener('click', () => {
+  document.getElementById('disableOtpToken').value = '';
+  document.getElementById('disableOtpError').style.display = 'none';
+  document.getElementById('disableOtpError').innerText = '';
+  
+  const modal = new bootstrap.Modal(document.getElementById('modalDisableMFA'));
+  modal.show();
+});
+
+// 4. ส่งข้อมูลยืนยันเพื่อยกเลิก MFA
+document.getElementById('btnVerifyDisable').addEventListener('click', async () => {
+  const token = localStorage.getItem('authToken');
+  const otpInput = document.getElementById('disableOtpToken').value.trim();
+  const errorDiv = document.getElementById('disableOtpError');
+  const disableUrl = 'https://be-claims-service.onrender.com/api/auth/mfa/disable';
+
+  errorDiv.style.display = 'none';
+  errorDiv.innerText = '';
+
+  if (!otpInput) {
+    errorDiv.innerText = 'Please enter OTP or Backup Code.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  try {
+    const res = await fetch(disableUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `${token}`
+      },
+      body: JSON.stringify({ token: otpInput })
+    });
+
+    if (res.ok) {
+      // ปิด Modal
+      const modalEl = document.getElementById('modalDisableMFA');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+
+      // อัปเดต UI หน้าจอหลัก
+      updateMfaUI(false);
+    } else {
+      const errData = await res.json();
+      errorDiv.innerText = errData.message || 'MFA deactivation failed. Invalid code.';
+      errorDiv.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('Error during MFA disabling:', err);
+    errorDiv.innerText = 'An error occurred during verification.';
+    errorDiv.style.display = 'block';
+  }
+});
 
