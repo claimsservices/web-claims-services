@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en" class="light-style layout-menu-fixed" dir="ltr" data-theme="theme-default" data-assets-path="../assets/"
+  data-template="vertical-menu-template-free">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <title>ST - MFA Settings</title>
+  <meta name="description" content="" />
+  <link rel="icon" type="image/x-icon" href="../assets/img/favicon/3P4.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css" />
+  <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css" />
+  <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+  <link rel="stylesheet" href="../assets/css/demo.css" />
+  <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+  <script src="../assets/vendor/js/helpers.js"></script>
+  <script src="../assets/js/config.js"></script>
+</head>
+
+<body>
+  <!-- Layout wrapper -->
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+      <!-- Menu -->
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo d-flex align-items-center justify-content-between px-3 py-3"
+          style="background-color: #f9f8f4; border-bottom: 1px solid #e5e5e5;">
+          <div class="d-flex align-items-center">
+            <a href="dashboard.html" class="app-brand-link d-flex align-items-center">
+              <span class="app-brand-logo demo me-3">
+                <img src="../assets/img/elements/3P4.jpg" alt="Logo" width="60" style="object-fit: contain;">
+              </span>
+            </a>
+            <div style="line-height: 1.3;">
+              <div style="font-size: 0.9rem; color: #a68b64; font-weight: 400; margin-bottom: 2px;">
+                Welcome to
+              </div>
+              <div style="font-size: 0.95rem; color: #b38e5d; font-weight: 600;">
+                ST Application
+              </div>
+            </div>
+          </div>
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large d-block d-xl-none ms-auto">
+            <i class="bx bx-chevron-left bx-sm align-middle" style="color: #b38e5d;"></i>
+          </a>
+        </div>
+        <div class="menu-inner-shadow"></div>
+        <ul class="menu-inner py-1">
+          <li class="menu-item">
+            <a href="dashboard.html" class="menu-link">
+              <i class="menu-icon icon-base bx bx-home-circle"></i>
+              <div data-i18n="Analytics">Dashboard</div>
+            </a>
+          </li>
+          <!-- API Access -->
+          <li class="menu-item" id="api-access-menu" style="display: none;">
+            <a href="api-access.html" class="menu-link">
+              <i class="menu-icon icon-base bx bx-code-alt"></i>
+              <div data-i18n="Layouts">API Access</div>
+            </a>
+          </li>
+
+          <!-- Layouts -->
+          <li class="menu-item active open" id="user-management-menu">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+              <i class="menu-icon icon-base bx bx-user"></i>
+              <div data-i18n="Layouts">User management</div>
+            </a>
+            <ul class="menu-sub">
+              <li class="menu-item" id="admin-menu" style="display: none;">
+                <a href="users.html" class="menu-link">
+                  <div data-i18n="Without menu">Administrator</div>
+                </a>
+              </li>
+              <li class="menu-item active" id="mfa-menu">
+                <a href="mfa.html" class="menu-link">
+                  <div data-i18n="Without navbar">MFA Settings</div>
+                </a>
+              </li>
+              <li class="menu-item" id="profile-menu">
+                <a href="account.html" class="menu-link">
+                  <div data-i18n="Without navbar">Account Settings</div>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <div class="menu-footer mt-auto p-3 border-top">
+          <div class="d-flex flex-column align-items-start">
+            <span id="appVersion" class="text-muted small mb-2"></span>
+            <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger w-100" id="logout-menu">
+              <i class="bx bx-log-out-circle me-1"></i> Logout
+            </a>
+          </div>
+        </div>
+      </aside>
+      <!-- / Menu -->
+
+      <!-- Layout container -->
+      <div class="layout-page">
+        <!-- Navbar -->
+        <nav
+          class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+          id="layout-navbar">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+              <i class="bx bx-menu bx-sm"></i>
+            </a>
+          </div>
+          <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+            <ul class="navbar-nav flex-row align-items-center ms-auto">
+              <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-3"
+                  href="javascript:void(0);" data-bs-toggle="dropdown">
+                  <div class="avatar avatar-online">
+                    <img id="userAvatar" src="../assets/img/avatars/A1.png" alt class="w-px-40 h-auto rounded-circle" />
+                  </div>
+                  <div class="text-start">
+                    <span class="fw-semibold d-block" id="user-info"></span>
+                    <small class="text-muted" id="user-role"></small>
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="account.html">
+                      <i class="bx bx-user me-2"></i>
+                      <span class="align-middle">My Profile</span>
+                    </a>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#" id="logout">
+                      <i class="bx bx-power-off me-2"></i>
+                      <span class="align-middle">Log Out</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <!-- / Navbar -->
+
+        <!-- Content wrapper -->
+        <div class="content-wrapper">
+          <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">User Settings /</span> Multi-Factor Authentication</h4>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="card mb-4">
+                  <h5 class="card-header border-bottom">Multi-Factor Authentication (MFA)</h5>
+                  <div class="card-body mt-3">
+                    <!-- MFA Status Badge -->
+                    <div class="mb-4">
+                      <span class="fw-semibold me-2">สถานะปัจจุบัน:</span>
+                      <span id="mfaBadge" class="badge bg-label-secondary">Checking...</span>
+                    </div>
+
+                    <!-- MFA Disabled View -->
+                    <div id="mfaDisabledArea" style="display: none;">
+                      <div class="d-flex align-items-center mb-3">
+                        <i class="bx bx-shield-alt-2 fs-1 text-warning me-3" style="font-size: 2.5rem !important;"></i>
+                        <div>
+                          <strong class="d-block mb-1">ความปลอดภัยบัญชีระดับเริ่มต้น</strong>
+                          <span class="text-muted small">ระบบแนะนำให้เปิดใช้งานระบบยืนยันตัวตน 2 ชั้นเพื่อป้องกันการถูกขโมยบัญชี</span>
+                        </div>
+                      </div>
+                      <button type="button" class="btn btn-primary" id="btnEnableMFA">เปิดใช้งาน MFA</button>
+                    </div>
+
+                    <!-- MFA Enabled View -->
+                    <div id="mfaEnabledArea" style="display: none;">
+                      <div class="d-flex align-items-center mb-3">
+                        <i class="bx bx-shield-quarter fs-1 text-success me-3" style="font-size: 2.5rem !important;"></i>
+                        <div>
+                          <strong class="d-block mb-1">บัญชีของคุณได้รับการปกป้องอย่างแน่นหนา</strong>
+                          <span class="text-muted small">เปิดใช้งานการยืนยันตัวตนผ่านแอป Authenticator แล้ว</span>
+                        </div>
+                      </div>
+                      <button type="button" class="btn btn-outline-danger" id="btnDisableMFA">ปิดใช้งาน MFA</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Setup MFA -->
+          <div class="modal fade" id="modalSetupMFA" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">ตั้งค่าแอปยืนยันตัวตน (Authenticator App)</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="text-center mb-4">
+                    <h6 class="mb-2">ขั้นตอนการเปิดใช้งาน:</h6>
+                    <ol class="text-start small mb-3 mx-auto" style="max-width: 320px;">
+                      <li>ดาวน์โหลดแอป <strong>Google Authenticator</strong> หรือ <strong>Microsoft Authenticator</strong> บนมือถือของคุณ</li>
+                      <li>เปิดแอปแล้วเลือกเมนูสแกน <strong>QR Code</strong></li>
+                    </ol>
+                    <div class="my-3 text-center d-flex justify-content-center">
+                      <img id="mfaQrCode" src="" alt="QR Code" style="max-width: 200px; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
+                    </div>
+                    <div class="small">
+                      หากสแกนไม่ได้ ให้กรอกคีย์นี้ด้วยตนเอง (Manual Key):<br>
+                      <code id="mfaSecretText" class="d-block mt-1 font-monospace bg-light p-1 rounded" style="user-select: all; font-size: 1.1rem; color: #5c4433;"></code>
+                    </div>
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label for="setupOtpToken" class="form-label font-weight-bold">กรอกรหัสยืนยัน 6 หลักที่ปรากฏในแอปมือถือ</label>
+                    <input type="text" id="setupOtpToken" class="form-control text-center" placeholder="000000" maxlength="6" autocomplete="off">
+                    <div id="setupOtpError" class="text-danger mt-1 small" style="display: none;"></div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิดหน้าจอ</button>
+                  <button type="button" class="btn btn-primary" id="btnVerifySetup">ยืนยันและเปิดใช้งาน</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Backup Codes (Show after successful setup) -->
+          <div class="modal fade" id="modalBackupCodes" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-success"><i class="bx bx-check-circle me-1"></i> ตั้งค่า MFA สำเร็จแล้ว</h5>
+                </div>
+                <div class="modal-body">
+                  <p class="mb-3 fw-bold text-danger">⚠️ โปรดบันทึกรหัสกู้คืนฉุกเฉิน (Backup Codes) เหล่านี้ไว้ในที่ปลอดภัย!</p>
+                  <p class="text-muted small mb-3">หากคุณทำโทรศัพท์มือถือหายหรือแอปเข้าไม่ได้ คุณสามารถใช้รหัสกู้คืนเหล่านี้ล็อกอินเข้าสู่ระบบได้ (แต่ละรหัสใช้งานได้เพียงครั้งเดียวเท่านั้น)</p>
+                  
+                  <div class="bg-light p-3 rounded border mb-3 text-center">
+                    <div class="row row-cols-2 g-2 font-monospace" id="backupCodesContainer" style="font-size: 1.1rem;">
+                      <!-- Backup codes will be injected here -->
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-dark w-100" data-bs-dismiss="modal">ฉันได้บันทึกรหัสเหล่านี้เรียบร้อยแล้ว</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal Disable MFA -->
+          <div class="modal fade" id="modalDisableMFA" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title text-danger">ปิดการใช้งานระบบยืนยันตัวตน 2 ชั้น (MFA)</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="text-muted small mb-3">กรุณากรอกรหัส OTP 6 หลักปัจจุบันจากแอปในมือถือ หรือใส่รหัสกู้คืนฉุกเฉิน (Backup Code) เพื่อยืนยันตัวตนในการปิดการใช้งาน</p>
+                  <div class="mb-3">
+                    <label for="disableOtpToken" class="form-label">กรอกรหัสยืนยัน / รหัสกู้คืนฉุกเฉิน</label>
+                    <input type="text" id="disableOtpToken" class="form-control text-center" placeholder="000000 หรือ XXXX-XXXX" maxlength="19" autocomplete="off">
+                    <div id="disableOtpError" class="text-danger mt-1 small" style="display: none;"></div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                  <button type="button" class="btn btn-danger" id="btnVerifyDisable">ปิดใช้งาน MFA</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <footer class="content-footer footer bg-footer-theme"></footer>
+          <!-- / Footer -->
+
+          <div class="content-backdrop fade"></div>
+        </div>
+        <!-- Content wrapper -->
+      </div>
+      <!-- / Layout page -->
+    </div>
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+  </div>
+  <!-- / Layout wrapper -->
+
+  <!-- Core JS -->
+  <script src="../assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="../assets/vendor/libs/popper/popper.js"></script>
+  <script src="../assets/vendor/js/bootstrap.js"></script>
+  <script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src="../assets/vendor/js/menu.js"></script>
+
+  <!-- Main JS -->
+  <script src="../assets/js/main.js" type="module"></script>
+
+  <!-- Place this tag in your head or just before your close body tag. -->
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  <!-- Script logic for MFA Settings -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const API_BASE_URL = 'https://be-claims-service.onrender.com/api';
+      const LOGIN_PAGE = 'login.html';
+      const DASHBOARD_PAGE = 'dashboard.html';
+
+      const accessToken = localStorage.getItem('authToken');
+      if (!accessToken) {
+        window.location.href = LOGIN_PAGE;
+        return;
+      }
+
+      // decode JWT helper
+      function parseJwt(token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(window.atob(base64));
+        } catch (e) {
+          return null;
+        }
+      }
+
+      const decodedToken = parseJwt(accessToken);
+      if (!decodedToken) {
+        localStorage.removeItem('authToken');
+        window.location.href = LOGIN_PAGE;
+        return;
+      }
+
+      // Setup layout user details
+      document.getElementById('user-info').innerText = `${decodedToken.first_name || ''} ${decodedToken.last_name || ''}`;
+      document.getElementById('user-role').innerText = decodedToken.role || '';
+      
+      const userAvatar = document.getElementById('userAvatar');
+      if (decodedToken.myPicture) {
+        userAvatar.src = decodedToken.myPicture;
+      } else {
+        userAvatar.src = '../assets/img/avatars/A1.png';
+      }
+
+      // App Version
+      fetch('/version.json')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("appVersion").textContent = `App Version ${data.version}`;
+        }).catch(() => {
+          document.getElementById("appVersion").textContent = "App Version -";
+        });
+
+      // Role check for sub-menus
+      if (decodedToken.role === 'SuperAdmins') {
+        const adminMenu = document.getElementById('admin-menu');
+        if (adminMenu) adminMenu.style.display = 'block';
+      }
+      if (decodedToken.role === 'SuperAdmins' || decodedToken.role === 'Admins') {
+        const apiMenu = document.getElementById('api-access-menu');
+        if (apiMenu) apiMenu.style.display = 'block';
+      }
+
+      // Logout triggers
+      const logout = () => {
+        localStorage.removeItem('authToken');
+        window.location.href = LOGIN_PAGE;
+      };
+      document.getElementById('logout').addEventListener('click', logout);
+      document.getElementById('logout-menu').addEventListener('click', logout);
+
+      // --- MFA Settings Logic ---
+      function updateMfaUI(enabled) {
+        const badge = document.getElementById('mfaBadge');
+        const disabledArea = document.getElementById('mfaDisabledArea');
+        const enabledArea = document.getElementById('mfaEnabledArea');
+
+        if (!badge || !disabledArea || !enabledArea) return;
+
+        if (enabled) {
+          badge.className = 'badge bg-label-success';
+          badge.innerText = 'เปิดใช้งานแล้ว (Enabled)';
+          disabledArea.style.display = 'none';
+          enabledArea.style.display = 'block';
+        } else {
+          badge.className = 'badge bg-label-secondary';
+          badge.innerText = 'ยังไม่ได้เปิดใช้งาน (Disabled)';
+          disabledArea.style.display = 'block';
+          enabledArea.style.display = 'none';
+        }
+      }
+
+      // Fetch current status
+      const checkMfaStatus = async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/user-management/user`, {
+            method: 'GET',
+            headers: { 'Authorization': accessToken }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            updateMfaUI(data.results.mfa_enabled);
+          } else {
+            console.error('Failed to fetch user profile for MFA status check');
+          }
+        } catch (err) {
+          console.error('Error checking MFA status:', err);
+        }
+      };
+
+      checkMfaStatus();
+
+      // 1. Enable MFA - Setup modal
+      document.getElementById('btnEnableMFA').addEventListener('click', async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}/auth/mfa/setup`, {
+            method: 'GET',
+            headers: { 'Authorization': accessToken }
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            document.getElementById('mfaQrCode').src = data.qrCodeUrl;
+            document.getElementById('mfaSecretText').innerText = data.secret;
+            
+            document.getElementById('setupOtpToken').value = '';
+            document.getElementById('setupOtpError').style.display = 'none';
+            document.getElementById('setupOtpError').innerText = '';
+
+            document.getElementById('modalSetupMFA').dataset.backupCodes = JSON.stringify(data.backup_codes);
+
+            const modal = new window.bootstrap.Modal(document.getElementById('modalSetupMFA'));
+            modal.show();
+          } else {
+            alert('ล้มเหลวในการดึงคีย์ตั้งค่า MFA กรุณาลองอีกครั้ง');
+          }
+        } catch (err) {
+          console.error('Error in MFA Setup:', err);
+          alert('เกิดข้อผิดพลาดในการเชื่อมต่อระบบ MFA');
+        }
+      });
+
+      // 2. Verify OTP to activate MFA
+      document.getElementById('btnVerifySetup').addEventListener('click', async () => {
+        const otpInput = document.getElementById('setupOtpToken').value.trim();
+        const errorDiv = document.getElementById('setupOtpError');
+        
+        errorDiv.style.display = 'none';
+        errorDiv.innerText = '';
+
+        if (!otpInput || otpInput.length !== 6) {
+          errorDiv.innerText = 'กรุณากรอกรหัส OTP 6 หลัก';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/auth/mfa/verify`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': accessToken
+            },
+            body: JSON.stringify({ token: otpInput })
+          });
+
+          if (res.ok) {
+            const modalSetupEl = document.getElementById('modalSetupMFA');
+            const modalSetup = window.bootstrap.Modal.getInstance(modalSetupEl);
+            if (modalSetup) modalSetup.hide();
+
+            const backupCodes = JSON.parse(modalSetupEl.dataset.backupCodes || '[]');
+            const container = document.getElementById('backupCodesContainer');
+            container.innerHTML = '';
+            
+            backupCodes.forEach(code => {
+              const col = document.createElement('div');
+              col.className = 'col py-1';
+              col.innerHTML = `<span class="bg-white px-2 py-1 rounded border shadow-xs d-block">${code}</span>`;
+              container.appendChild(col);
+            });
+
+            const modalBackup = new window.bootstrap.Modal(document.getElementById('modalBackupCodes'));
+            modalBackup.show();
+
+            updateMfaUI(true);
+          } else {
+            const errData = await res.json();
+            errorDiv.innerText = errData.message || 'รหัส OTP ไม่ถูกต้อง กรุณาลองอีกครั้ง';
+            errorDiv.style.display = 'block';
+          }
+        } catch (err) {
+          console.error('Error setup verification:', err);
+          errorDiv.innerText = 'เกิดข้อผิดพลาดในการส่งรหัสตรวจสอบ';
+          errorDiv.style.display = 'block';
+        }
+      });
+
+      // 3. Open Disable MFA modal
+      document.getElementById('btnDisableMFA').addEventListener('click', () => {
+        document.getElementById('disableOtpToken').value = '';
+        document.getElementById('disableOtpError').style.display = 'none';
+        document.getElementById('disableOtpError').innerText = '';
+        
+        const modal = new window.bootstrap.Modal(document.getElementById('modalDisableMFA'));
+        modal.show();
+      });
+
+      // 4. Disable MFA API
+      document.getElementById('btnVerifyDisable').addEventListener('click', async () => {
+        const otpInput = document.getElementById('disableOtpToken').value.trim();
+        const errorDiv = document.getElementById('disableOtpError');
+
+        errorDiv.style.display = 'none';
+        errorDiv.innerText = '';
+
+        if (!otpInput) {
+          errorDiv.innerText = 'กรุณากรอกรหัส OTP หรือ Backup Code';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/auth/mfa/disable`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': accessToken
+            },
+            body: JSON.stringify({ token: otpInput })
+          });
+
+          if (res.ok) {
+            const modalEl = document.getElementById('modalDisableMFA');
+            const modal = window.bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            updateMfaUI(false);
+          } else {
+            const errData = await res.json();
+            errorDiv.innerText = errData.message || 'การยกเลิก MFA ล้มเหลว คีย์ไม่ถูกต้อง';
+            errorDiv.style.display = 'block';
+          }
+        } catch (err) {
+          console.error('Error disabling MFA:', err);
+          errorDiv.innerText = 'เกิดข้อผิดพลาดระหว่างส่งคำขอยกเลิก';
+          errorDiv.style.display = 'block';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
