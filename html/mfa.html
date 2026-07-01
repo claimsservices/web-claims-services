@@ -312,11 +312,6 @@
   <!-- Script logic for MFA Settings -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // ป้องกันปัญหาการโหลด Bootstrap ในสภาวะแวดล้อมต่างๆ
-      if (typeof bootstrap !== 'undefined' && !window.bootstrap) {
-        window.bootstrap = bootstrap;
-      }
-
       const API_BASE_URL = 'https://be-claims-service.onrender.com/api';
       const LOGIN_PAGE = 'login.html';
       const DASHBOARD_PAGE = 'dashboard.html';
@@ -383,6 +378,75 @@
       document.getElementById('logout').addEventListener('click', logout);
       document.getElementById('logout-menu').addEventListener('click', logout);
 
+      // =========================================================
+      // Vanilla JS Modal Helpers (ทำงานแทน bootstrap.Modal เพื่อเสถียรภาพสูงสุด)
+      // =========================================================
+      function showModal(modalId) {
+        const modalEl = document.getElementById(modalId);
+        if (!modalEl) return;
+        
+        modalEl.style.display = 'block';
+        modalEl.removeAttribute('aria-hidden');
+        modalEl.setAttribute('aria-modal', 'true');
+        modalEl.setAttribute('role', 'dialog');
+        
+        setTimeout(() => {
+          modalEl.classList.add('show');
+        }, 10);
+        
+        document.body.classList.add('modal-open');
+        
+        let backdrop = document.querySelector('.modal-backdrop');
+        if (!backdrop) {
+          backdrop = document.createElement('div');
+          backdrop.className = 'modal-backdrop fade';
+          document.body.appendChild(backdrop);
+          setTimeout(() => {
+            backdrop.classList.add('show');
+          }, 10);
+        }
+      }
+
+      function hideModal(modalId) {
+        const modalEl = document.getElementById(modalId);
+        if (!modalEl) return;
+        
+        modalEl.classList.remove('show');
+        
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+          backdrop.classList.remove('show');
+          setTimeout(() => {
+            if (backdrop.parentNode) {
+              backdrop.parentNode.removeChild(backdrop);
+            }
+          }, 150);
+        }
+        
+        setTimeout(() => {
+          modalEl.style.display = 'none';
+          modalEl.setAttribute('aria-hidden', 'true');
+          modalEl.removeAttribute('aria-modal');
+          modalEl.removeAttribute('role');
+          
+          const openModals = document.querySelectorAll('.modal.show');
+          if (openModals.length === 0) {
+            document.body.classList.remove('modal-open');
+          }
+        }, 150);
+      }
+
+      // ดักจับและผูกปุ่มปิด Modal ทุกปุ่มแบบ Auto
+      document.addEventListener('click', function(e) {
+        const dismissBtn = e.target.closest('[data-bs-dismiss="modal"]');
+        if (dismissBtn) {
+          const modalEl = dismissBtn.closest('.modal');
+          if (modalEl) {
+            hideModal(modalEl.id);
+          }
+        }
+      });
+
       // --- MFA Settings Logic ---
       function updateMfaUI(enabled) {
         const badge = document.getElementById('mfaBadge');
@@ -443,8 +507,7 @@
 
             document.getElementById('modalSetupMFA').dataset.backupCodes = JSON.stringify(data.backup_codes);
 
-            const modal = new bootstrap.Modal(document.getElementById('modalSetupMFA'));
-            modal.show();
+            showModal('modalSetupMFA');
           } else {
             alert('ล้มเหลวในการดึงคีย์ตั้งค่า MFA กรุณาลองอีกครั้ง');
           }
@@ -479,10 +542,9 @@
           });
 
           if (res.ok) {
-            const modalSetupEl = document.getElementById('modalSetupMFA');
-            const modalSetup = bootstrap.Modal.getInstance(modalSetupEl);
-            if (modalSetup) modalSetup.hide();
+            hideModal('modalSetupMFA');
 
+            const modalSetupEl = document.getElementById('modalSetupMFA');
             const backupCodes = JSON.parse(modalSetupEl.dataset.backupCodes || '[]');
             const container = document.getElementById('backupCodesContainer');
             container.innerHTML = '';
@@ -494,8 +556,7 @@
               container.appendChild(col);
             });
 
-            const modalBackup = new bootstrap.Modal(document.getElementById('modalBackupCodes'));
-            modalBackup.show();
+            showModal('modalBackupCodes');
 
             updateMfaUI(true);
           } else {
@@ -516,8 +577,7 @@
         document.getElementById('disableOtpError').style.display = 'none';
         document.getElementById('disableOtpError').innerText = '';
         
-        const modal = new bootstrap.Modal(document.getElementById('modalDisableMFA'));
-        modal.show();
+        showModal('modalDisableMFA');
       });
 
       // 4. Disable MFA API
@@ -545,9 +605,7 @@
           });
 
           if (res.ok) {
-            const modalEl = document.getElementById('modalDisableMFA');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
+            hideModal('modalDisableMFA');
 
             updateMfaUI(false);
           } else {
