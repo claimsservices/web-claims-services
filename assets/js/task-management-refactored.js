@@ -138,6 +138,10 @@ async function loadUserProfile() {
       const tab = document.getElementById(tabId);
       if (tab) tab.style.display = 'none';
     });
+    // Hide all template creation buttons for Insurance role
+    document.querySelectorAll('.create-template-btn').forEach(btn => {
+      btn.style.display = 'none';
+    });
 
     const urlParams = new URLSearchParams(window.location.search);
     if (!urlParams.get('order_id')) {

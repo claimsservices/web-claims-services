@@ -1171,6 +1171,11 @@ class UIInsurancePermissionManager extends UIPermissionManager {
             button.style.display = 'none';
         });
 
+        // Hide all template creation buttons for the Insurance role
+        document.querySelectorAll('.create-template-btn').forEach(button => {
+            button.style.display = 'none';
+        });
+
         // Disable and hide the AutoFillDamageBtn for Insurance role
         const autoFillDamageBtn = document.getElementById('autoFillDamageBtn');
         if (autoFillDamageBtn) {
@@ -1213,8 +1218,8 @@ function applyRoleBasedRestrictions(data) {
     permissionManager.configure(orderStatus, data);
     console.log('DEBUG: s_detail after applyRoleBasedRestrictions:', document.getElementById('s_detail')?.value);
 
-    // Show categorized download button for managerial roles
-    if (['Director', 'Operation Manager', 'Sales Manager'].includes(userRole)) {
+    // Show categorized download button for managerial roles and Insurance role
+    if (['Director', 'Operation Manager', 'Sales Manager', 'Insurance'].includes(userRole)) {
         const catBtn = document.getElementById('downloadCategorizedBtn');
         if (catBtn) {
             catBtn.classList.remove('d-none');

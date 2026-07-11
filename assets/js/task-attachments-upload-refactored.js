@@ -107,6 +107,11 @@ async function initTaskAttachmentsUpload() {
             if (decoded.myPicture) {
                 document.getElementById('userAvatar').src = decoded.myPicture;
             }
+            if (decoded.role === 'Insurance') {
+                document.querySelectorAll('.create-template-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
         }
     }
 

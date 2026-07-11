@@ -858,6 +858,14 @@ if (exportExcelBtn) {
         row["ค่าเดินทาง"] = item.amount || 0;
       }
 
+      if (userRole === 'Insurance') {
+        delete row["ประเภทงาน"];
+        delete row["สถานะงาน"];
+        delete row["ผู้สร้างงาน"];
+        delete row["ผู้รับผิดชอบ"];
+        delete row["ผู้ตรวจ"];
+      }
+
       return row;
     });
 
