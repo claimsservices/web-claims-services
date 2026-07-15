@@ -105,3 +105,117 @@
   text-align: center;
   margin-top: 1rem;
 }
+
+/* ==========================================================================
+   Custom Brown Theme CSS Overrides (#5c4433)
+   ========================================================================== */
+
+/* Buttons */
+.btn-primary {
+  color: #fff !important;
+  background-color: #5c4433 !important;
+  border-color: #5c4433 !important;
+  box-shadow: 0 0.125rem 0.25rem 0 rgba(92, 68, 51, 0.4) !important;
+}
+
+.btn-primary:hover {
+  color: #fff !important;
+  background-color: #4a3629 !important;
+  border-color: #4a3629 !important;
+}
+
+.btn-primary:focus, .btn-primary.focus {
+  color: #fff !important;
+  background-color: #4a3629 !important;
+  border-color: #4a3629 !important;
+  box-shadow: 0 0 0 0.2rem rgba(92, 68, 51, 0.5) !important;
+}
+
+.btn-primary:active, .btn-primary.active,
+.show > .btn-primary.dropdown-toggle {
+  color: #fff !important;
+  background-color: #3d2d22 !important;
+  border-color: #3d2d22 !important;
+}
+
+.btn-outline-primary {
+  color: #5c4433 !important;
+  border-color: #5c4433 !important;
+  background-color: transparent !important;
+}
+
+.btn-outline-primary:hover {
+  color: #fff !important;
+  background-color: #5c4433 !important;
+  border-color: #5c4433 !important;
+}
+
+.btn-outline-primary:focus, .btn-outline-primary.focus {
+  box-shadow: 0 0 0 0.2rem rgba(92, 68, 51, 0.5) !important;
+}
+
+.btn-outline-primary:active, .btn-outline-primary.active,
+.show > .btn-outline-primary.dropdown-toggle {
+  color: #fff !important;
+  background-color: #4a3629 !important;
+  border-color: #4a3629 !important;
+}
+
+/* Links & Text */
+a {
+  color: #5c4433;
+}
+a:hover {
+  color: #4a3629;
+}
+
+.text-primary {
+  color: #5c4433 !important;
+}
+
+.bg-primary {
+  background-color: #5c4433 !important;
+}
+
+.border-primary {
+  border-color: #5c4433 !important;
+}
+
+/* Pagination active state */
+.pagination .page-item.active .page-link,
+.pagination .page-item.active .page-link:hover,
+.pagination .page-item.active .page-link:focus,
+.pagination .page-item.active .page-link:active {
+  background-color: #5c4433 !important;
+  border-color: #5c4433 !important;
+  color: #fff !important;
+}
+
+.page-link {
+  color: #5c4433 !important;
+}
+.page-link:hover {
+  color: #4a3629 !important;
+}
+
+/* Form controls focus & check */
+.form-check-input:checked {
+  background-color: #5c4433 !important;
+  border-color: #5c4433 !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: #5c4433 !important;
+  box-shadow: 0 0 0 0.2rem rgba(92, 68, 51, 0.25) !important;
+}
+
+/* Badges & Active items */
+.bg-label-primary {
+  background-color: rgba(92, 68, 51, 0.16) !important;
+  color: #5c4433 !important;
+}
+
+.list-group-item.active {
+  background-color: #5c4433 !important;
+  border-color: #5c4433 !important;
+}
+
