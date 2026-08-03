@@ -844,6 +844,12 @@ if (exportExcelBtn) {
         "วันที่ทำรายการ": formatDateTime(item.created_date),
         "วันที่นัดหมาย": formatDateTime(item.appointment_date),
         "ทะเบียนรถ": item.car_registration,
+        "จังหวัดทะเบียนรถ": item.c_car_province || '',
+        "ยี่ห้อรถ": item.c_brand || '',
+        "รุ่นรถ": item.c_version || '',
+        "ชื่อผู้เอาประกันภัย": item.c_insure || '',
+        "ชื่อผู้ติดต่อเพื่อตรวจสภาพรถ": item.c_name || '',
+        "เบอร์ติดต่อเพื่อตรวจสภาพรถ": item.c_tell || item.tell_1 || '',
         "สถานที่": item.location,
         "ประเภทงาน": item.order_type,
         "สถานะงาน": item.order_status,
@@ -873,7 +879,7 @@ if (exportExcelBtn) {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
 
-    XLSX.writeFile(workbook, "orders_export.xlsx");
+    XLSX.writeFile(workbook, "ST_export.xlsx");
   });
 }
 
