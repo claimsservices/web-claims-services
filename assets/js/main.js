@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const userManagementMenu = document.getElementById('user-management-menu');
 
     if (decoded && decoded.role === 'Insurance') {
-      if (apiAccessMenu) apiAccessMenu.style.display = 'block';
+      if (apiAccessMenu) apiAccessMenu.style.display = decoded.allow_api ? 'block' : 'none';
       if (userManagementMenu) userManagementMenu.style.display = 'none';
     } else {
       if (apiAccessMenu) apiAccessMenu.style.display = 'none';

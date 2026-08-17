@@ -103,6 +103,12 @@ function renderTableData(page) {
       <td>${item.creator || ''}</td>
       <td>${item.order_status || ''}</td>
     `;
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', (event) => {
+      if (event.target.closest('button, select, input, textarea')) return;
+      if (event.target.closest('a')) return;
+      window.open(`task-detail.html?id=${item.id}`, '_blank');
+    });
     tableBody.appendChild(row);
   });
 

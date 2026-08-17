@@ -615,7 +615,12 @@
               </span>
             </td>
             <td>
-              <div class="d-flex align-items-center">
+              <div class="d-flex align-items-center flex-wrap gap-1">
+                ${user.role === 'Insurance' ? `
+                <button class="btn btn-sm ${user.allow_api ? 'btn-success' : 'btn-outline-secondary'} toggle-api-btn py-1 px-2" data-userid="${user.id}" data-username="${user.username}" data-allowapi="${user.allow_api ? 'true' : 'false'}" title="${user.allow_api ? 'คลิกเพื่อปิด API' : 'คลิกเพื่อเปิด API'}">
+                  <i class="icon-base bx ${user.allow_api ? 'bx-key' : 'bx-lock'} me-1"></i>API: ${user.allow_api ? 'เปิด' : 'ปิด'}
+                </button>
+                ` : ''}
                 <button class="btn btn-icon delete-record me-1" data-username="${user.username}" title="Delete User">
                   <i class="icon-base bx bx-trash icon-md"></i>
                 </button>
@@ -720,6 +725,46 @@
         }
         if (event.target.closest('.reset-mfa')) {
           await handleResetMfa(event);
+        }
+        if (event.target.closest('.toggle-api-btn')) {
+          await handleToggleApi(event);
+        }
+      }
+
+      async function handleToggleApi(event) {
+        const toggleBtn = event.target.closest('.toggle-api-btn');
+        if (!toggleBtn) return;
+
+        const userId = toggleBtn.dataset.userid;
+        const username = toggleBtn.dataset.username;
+        const currentAllowApi = toggleBtn.dataset.allowapi === 'true';
+        const targetState = !currentAllowApi;
+
+        if (!userId) return;
+
+        const actionText = targetState ? 'เปิดใช้งาน' : 'ปิดการใช้งาน';
+        if (!confirm(`คุณต้องการ ${actionText} API สำหรับผู้ใช้ '${username}' ใช่หรือไม่?`)) return;
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/toggle-api`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': accessToken,
+            },
+            body: JSON.stringify({ allow_api: targetState })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to toggle API access');
+          }
+
+          alert(`${actionText} API สำหรับ '${username}' เรียบร้อยแล้ว`);
+          fetchUsers(currentPage);
+        } catch (error) {
+          console.error('Error toggling API access:', error);
+          alert(`เกิดข้อผิดพลาด: ${error.message}`);
         }
       }
 

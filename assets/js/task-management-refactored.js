@@ -875,6 +875,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         channel: getValueById('channel'), process_type: getValueById('processType'), insur_comp: getValueById('insuranceCompany'),
         order_date: getValueById('transactionDate'), appointment_date, car_registration: getValueById('carRegistration'),
         location: getValueById('address'), created_by,
+        incident_province: getValueById('address') || getValueById('carProvince'),
         tell_1: getValueById('phone'), tell_2: getValueById('phone2'), tell_3: getValueById('phone3'),
         c_insure: getValueById('c_insure'), c_tell: getValueById('c_tell'), c_licent: getValueById('carRegistration'),
         c_car_province: getValueById('carProvince'),

@@ -582,6 +582,16 @@ function renderTableData(page) {
       `;
     }
     row.innerHTML = rowContent;
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', (event) => {
+      if (event.target.closest('button, select, input, .reviewer-action-btn, textarea')) {
+        return;
+      }
+      if (event.target.closest('a')) {
+        return;
+      }
+      window.open(`task-detail.html?id=${item.id}`, '_blank');
+    });
     tableBody.appendChild(row);
   });
 
@@ -908,6 +918,9 @@ if (!document.getElementById('dashboard-alert-row-style')) {
   styleEl.textContent = `
     #userTable tbody tr.dashboard-alert-row > td {
       background-color: #fff3cd !important;
+    }
+    #userTable tbody tr:hover > td, #ordersTable tbody tr:hover > td {
+      background-color: #f1f5f9;
     }
     #abnormalOrdersCard.dashboard-summary-active .card {
       border: 1px solid #ffc107;

@@ -2540,7 +2540,7 @@ window.addEventListener('load', async function () {
                     car_registration: getSafeValue('carRegistration'),
                     location: getSafeValue('address'),
                     created_by,
-                    incident_province: getSafeValue('carProvince'),
+                    incident_province: getSafeValue('address') || getSafeValue('carProvince'),
                     tell_1: getSafeValue('phone'),
                     tell_2: getSafeValue('phone2'),
                     tell_3: getSafeValue('phone3'),
