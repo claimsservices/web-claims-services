@@ -136,6 +136,23 @@ function getSafeValue(id) {
     return el ? el.value : null;
 }
 
+const bangkokAndSurrounds = [
+    'กรุงเทพมหานคร', 'กรุงเทพฯ', 'กรุงเทพ', 'กทม.', 'กทม',
+    'นนทบุรี', 'ปทุมธานี', 'สมุทรปราการ', 'สมุทรสาคร', 'นครปฐม'
+];
+
+function calculateServiceFee(locationOrProvince) {
+    if (!locationOrProvince || typeof locationOrProvince !== 'string') {
+        return 200;
+    }
+    const text = locationOrProvince.trim();
+    if (!text || text === 'เลือกจังหวัด') {
+        return 200;
+    }
+    const isBkkOrSurrounds = bangkokAndSurrounds.some(keyword => text.includes(keyword));
+    return isBkkOrSurrounds ? 130 : 200;
+}
+
 async function getGPSLocation() {
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
@@ -459,10 +476,12 @@ async function loadOrderData(orderId) {
         // Set travel expense - Prioritize order_assign (saved value) over calculated service_fee
         // Fix Task 10: Ensure saved data is displayed
         let travelExpenseValue = '';
-        if (order_assign && order_assign.length > 0 && order_assign[0].travel_expense !== null && order_assign[0].travel_expense !== undefined) {
+        if (order_assign && order_assign.length > 0 && order_assign[0].travel_expense !== null && order_assign[0].travel_expense !== undefined && order_assign[0].travel_expense !== '') {
             travelExpenseValue = order_assign[0].travel_expense;
+        } else if (order.service_fee !== null && order.service_fee !== undefined && order.service_fee !== '') {
+            travelExpenseValue = order.service_fee;
         } else {
-            travelExpenseValue = order.service_fee || '';
+            travelExpenseValue = calculateServiceFee(order.location || order.incident_province || (order_details && order_details.c_car_province));
         }
         setValue('travelExpense', travelExpenseValue);
 
@@ -908,6 +927,7 @@ class UIPermissionManager {
     constructor() {
         this.form = document.getElementById('taskForm');
         this.saveBtn = document.getElementById('submittaskBtn');
+        this.saveAppointmentBtn = document.getElementById('saveAppointmentBtn');
         this.statusDropdown = document.getElementById('orderStatus');
         this.tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
     }
@@ -920,6 +940,7 @@ class UIPermissionManager {
             }
         });
         if (this.saveBtn) this.saveBtn.style.display = 'none';
+        if (this.saveAppointmentBtn) this.saveAppointmentBtn.style.display = 'none';
     }
 
     enableAll() {
@@ -932,6 +953,10 @@ class UIPermissionManager {
         if (this.saveBtn) {
             this.saveBtn.disabled = false;
             this.saveBtn.style.display = 'inline-block';
+        }
+        if (this.saveAppointmentBtn) {
+            this.saveAppointmentBtn.disabled = false;
+            this.saveAppointmentBtn.style.display = 'inline-block';
         }
     }
 
@@ -952,6 +977,7 @@ class UIPermissionManager {
         document.querySelectorAll('.delete-btn, .edit-title-btn, .upload-btn').forEach(btn => btn.style.display = 'none');
 
         if (this.saveBtn) this.saveBtn.style.display = 'none';
+        if (this.saveAppointmentBtn) this.saveAppointmentBtn.style.display = 'none';
         const saveImagesBtn = document.getElementById('save-images-btn');
         if (saveImagesBtn) saveImagesBtn.style.display = 'none';
     }
@@ -965,6 +991,10 @@ class UIPermissionManager {
         if (this.saveBtn) {
             this.saveBtn.disabled = false;
             this.saveBtn.style.display = 'inline-block';
+        }
+        if (this.saveAppointmentBtn) {
+            this.saveAppointmentBtn.disabled = false;
+            this.saveAppointmentBtn.style.display = 'inline-block';
         }
     }
 
@@ -2369,6 +2399,36 @@ window.addEventListener('load', async function () {
             });
         }
 
+        const saveAppointmentBtn = document.getElementById('saveAppointmentBtn');
+        if (saveAppointmentBtn) {
+            saveAppointmentBtn.addEventListener('click', () => {
+                const mainSaveBtn = document.getElementById('submittaskBtn');
+                if (mainSaveBtn) {
+                    mainSaveBtn.click();
+                }
+            });
+        }
+
+        // Auto-suggest travel expense when address or province changes if field is empty
+        const addressEl = document.getElementById('address');
+        const carProvinceEl = document.getElementById('carProvince');
+        const travelExpenseEl = document.getElementById('travelExpense');
+
+        if (addressEl && travelExpenseEl) {
+            addressEl.addEventListener('input', () => {
+                if (!travelExpenseEl.value) {
+                    travelExpenseEl.value = calculateServiceFee(addressEl.value || (carProvinceEl ? carProvinceEl.value : ''));
+                }
+            });
+        }
+        if (carProvinceEl && travelExpenseEl) {
+            carProvinceEl.addEventListener('change', () => {
+                if (!travelExpenseEl.value) {
+                    travelExpenseEl.value = calculateServiceFee(addressEl && addressEl.value ? addressEl.value : carProvinceEl.value);
+                }
+            });
+        }
+
 
 
         // Fix for Tab Switching based on legacy code
@@ -2491,14 +2551,17 @@ window.addEventListener('load', async function () {
                 // Construct order_assign data
                 const order_assign = [];
                 const responsiblePerson = getSafeValue('responsiblePerson');
-                // Only add to array if there is an owner for the assignment
-                if (responsiblePerson) {
+                const travelExpenseRaw = getSafeValue('travelExpense');
+                const travel_expense = (travelExpenseRaw !== null && travelExpenseRaw !== '' && !isNaN(parseFloat(travelExpenseRaw))) ? parseFloat(travelExpenseRaw) : null;
+
+                // Add to array if there is an owner, travel expense, appointment date, or destination
+                if (responsiblePerson || travel_expense !== null || appointment_date || getSafeValue('address')) {
                     order_assign.push({
                         date: appointment_date,
                         destination: getSafeValue('address'),
-                        owner: responsiblePerson,
+                        owner: responsiblePerson || null,
                         is_contact: document.getElementById('contactedCustomer')?.checked || false,
-                        travel_expense: getSafeValue('travelExpense') ? parseFloat(getSafeValue('travelExpense')) : null,
+                        travel_expense: travel_expense,
                         created_by: created_by
                     });
                 }

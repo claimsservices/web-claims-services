@@ -690,11 +690,17 @@ async function loadOrderData(orderId) {
       document.getElementById('creatorName').value = order_details.c_name;
     }
 
-    if (order_assign.length > 0) {
+    if (order_assign && order_assign.length > 0) {
       document.getElementById('contactedCustomer').checked = order_assign[0].is_contact;
       const travelExpenseEl = document.getElementById('travelExpense');
       if (travelExpenseEl) {
-        travelExpenseEl.value = order_assign[0].travel_expense || '';
+        if (order_assign[0].travel_expense !== null && order_assign[0].travel_expense !== undefined && order_assign[0].travel_expense !== '') {
+          travelExpenseEl.value = order_assign[0].travel_expense;
+        } else if (order && order.service_fee !== null && order.service_fee !== undefined) {
+          travelExpenseEl.value = order.service_fee;
+        } else {
+          travelExpenseEl.value = '';
+        }
       }
     }
 
@@ -860,7 +866,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         is_contact: document.getElementById('contactedCustomer')?.checked || false,
         created_by: created_by,
         destination: getValueById('address'),
-        travel_expense: getValueById('travelExpense') || null
+        travel_expense: getValueById('travelExpense') ? parseFloat(getValueById('travelExpense')) : null
       }];
 
       const order_hist = [{ icon: "📝", task: "สร้างรายการ", detail: "สร้างโดยผู้ใช้: " + created_by, created_by }];
